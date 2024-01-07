@@ -1,0 +1,18 @@
+name: SkylyBlock
+version: '${version}'
+main: fr.farmeurimmo.skylyblock.purpur.core.SkylyBlock
+api-version: '1.18'
+author: Skyly
+description: Skyly skyblock plugin
+website: https://skyly.fr
+depend:
+  - SlimeWorldManager
+commands:
+  buildhub:
+    description: Permet de modifier le hub (déconseillé il faut modifier la template)
+    permission: skylyblock.buildhub
+  featherfly:
+    description: Donne des plumes de fly temporaire
+    permission: skylyblock.featherfly
+  money:
+    description: Montre l'argent du joueur
