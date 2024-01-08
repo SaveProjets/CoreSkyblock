@@ -16,3 +16,8 @@ commands:
     permission: skylyblock.featherfly
   money:
     description: Montre l'argent du joueur
+  is:
+    description: Permet d'accéder aux commandes de l'île
+    aliases:
+      - island
+      - ile

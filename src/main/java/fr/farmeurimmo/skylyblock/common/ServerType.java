@@ -15,6 +15,13 @@ public enum ServerType {
         return SKYBLOCK_SPAWN;
     }
 
+    public static ServerType isSimilar(String serverName) {
+        for (ServerType serverType : values()) {
+            if (serverType.getServerName().toLowerCase().equalsIgnoreCase(serverName)) return serverType;
+        }
+        return null;
+    }
+
     public String getServerName() {
         return serverName;
     }

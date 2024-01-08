@@ -1,5 +1,6 @@
 package fr.farmeurimmo.skylyblock.purpur.hub;
 
+import fr.farmeurimmo.skylyblock.purpur.core.worlds.WorldManager;
 import fr.farmeurimmo.skylyblock.purpur.hub.cmds.BuildHubCmd;
 import fr.farmeurimmo.skylyblock.purpur.hub.listeners.HubListener;
 import fr.farmeurimmo.skylyblock.purpur.hub.listeners.HubPlayerListener;
@@ -17,8 +18,10 @@ import java.util.UUID;
 
 public class HubManager {
 
+    public static final boolean HUB_IN_READ_ONLY = true;
+    public static final String HUB_WORLD_NAME = "hub";
     public static HubManager INSTANCE;
-    public static Location SPAWN = new Location(Bukkit.getWorld("hub"), 0.5, 80, 0.5, 0, 0);
+    public static Location SPAWN = new Location(Bukkit.getWorld(HUB_WORLD_NAME), 0.5, 80, 0.5, 0, 0);
     private final JavaPlugin plugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
 
@@ -28,7 +31,11 @@ public class HubManager {
 
         ConsoleCommandSender console = plugin.getServer().getConsoleSender();
         console.sendMessage("§b[SkylyBlock] §7Démarrage de la partie hub...");
-        SPAWN.setWorld(Bukkit.getWorld("hub"));
+
+        console.sendMessage("§b[SkylyBlock] §7Chargement des mondes...");
+        WorldManager.INSTANCE.loadOrCreate(HUB_WORLD_NAME, HUB_IN_READ_ONLY);
+
+        SPAWN.setWorld(Bukkit.getWorld(HUB_WORLD_NAME));
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des managers...");
 
@@ -46,6 +53,10 @@ public class HubManager {
         optimizeServer();
 
         console.sendMessage("§b[SkylyBlock] §aDémarrage de la partie hub terminé");
+    }
+
+    public void disable() {
+        WorldManager.INSTANCE.unload(HUB_WORLD_NAME, !HUB_IN_READ_ONLY);
     }
 
     public void optimizeServer() {
