@@ -1,6 +1,8 @@
 package fr.farmeurimmo.skylyblock.purpur.core.cmds;
 
 import fr.farmeurimmo.skylyblock.common.JedisManager;
+import fr.farmeurimmo.skylyblock.common.islands.Island;
+import fr.farmeurimmo.skylyblock.purpur.island.IslandsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,7 +31,17 @@ public class IslandCmd implements CommandExecutor {
             /*if (SkylyBlock.INSTANCE.getServerType() != ServerType.SKYBLOCK_ISLAND) {
                 return false;
             }*/
-            return true;
+            return false;
+        }
+        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+        if (island == null) {
+            p.sendMessage(USAGE_NO_IS);
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("go")) {
+            p.sendMessage("§aTéléportation à votre île...");
+            p.teleportAsync(island.getSpawn());
+            return false;
         }
         return false;
     }

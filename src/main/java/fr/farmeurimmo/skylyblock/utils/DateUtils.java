@@ -22,8 +22,6 @@ public class DateUtils {
     public static String getFormattedTimeLeft2(long millis) {
         int seconds = (int) (millis / 1000);
         int milliseconds = (int) (millis % 1000);
-        //don't display a 0 before the seconds if there is no hours
-        //I want something like this: 1.34s
-        return seconds + "." + milliseconds;
+        return seconds + "." + (milliseconds < 100 ? "0" : "") + (milliseconds < 10 ? "0" : "") + milliseconds + "s";
     }
 }

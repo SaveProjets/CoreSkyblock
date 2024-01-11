@@ -21,3 +21,5 @@ commands:
     aliases:
       - island
       - ile
+  chests:
+    permission: skylyblock.chests

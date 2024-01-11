@@ -1,7 +1,7 @@
 package fr.farmeurimmo.skylyblock.common;
 
 import fr.farmeurimmo.skylyblock.purpur.core.SkylyBlock;
-import fr.farmeurimmo.skylyblock.purpur.island.IslandManager;
+import fr.farmeurimmo.skylyblock.purpur.island.IslandsManager;
 import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -41,7 +41,7 @@ public class JedisManager {
                         if (args[1].equalsIgnoreCase("create")) {
                             Bukkit.getScheduler().callSyncMethod(SkylyBlock.INSTANCE, () -> {
                                 UUID owner = UUID.fromString(args[2]);
-                                IslandManager.INSTANCE.createIsland(owner);
+                                IslandsManager.INSTANCE.createIsland(owner);
                                 return null;
                             });
                         }

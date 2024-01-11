@@ -1,5 +1,7 @@
 package fr.farmeurimmo.skylyblock.purpur.core.events;
 
+import fr.farmeurimmo.skylyblock.common.SkyblockUser;
+import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.core.SkylyBlock;
 import fr.farmeurimmo.skylyblock.utils.DateUtils;
 import net.kyori.adventure.text.Component;
@@ -7,6 +9,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +67,13 @@ public class ChatReactionManager {
                     DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§fs."));
             isRunning = false;
 
-            //FIXME: add money
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+            if (user == null) {
+                return;
+            }
+            user.setMoney(user.getMoney() + 5_000);
+            p.sendMessage(Component.text("§6§lChatReaction §8» §fVous avez gagné §e" +
+                    NumberFormat.getInstance().format(5_000) + " §f$ !"));
         }
     }
 

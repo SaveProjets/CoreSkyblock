@@ -1,11 +1,16 @@
 package fr.farmeurimmo.skylyblock.purpur.core.featherfly;
 
+import fr.farmeurimmo.skylyblock.common.ServerType;
+import fr.farmeurimmo.skylyblock.common.SkyblockUser;
+import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.skylyblock.purpur.core.SkylyBlock;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
@@ -42,6 +47,19 @@ public class FeatherFlyListener implements Listener {
                     ItemStack aaa = e.getItem();
                     aaa.setAmount(count - 1);
                     p.getInventory().setItemInMainHand(aaa);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        if (SkylyBlock.INSTANCE.getServerType() == ServerType.SKYBLOCK_ISLAND) {
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+            if (user != null) {
+                if (user.getFlyTime() > 0) {
+                    FeatherFlyManager.INSTANCE.enableFly(p, 0);
                 }
             }
         }

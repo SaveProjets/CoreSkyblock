@@ -2,7 +2,7 @@ package fr.farmeurimmo.skylyblock.purpur.core.featherfly;
 
 import fr.farmeurimmo.skylyblock.common.ServerType;
 import fr.farmeurimmo.skylyblock.common.SkyblockUser;
-import fr.farmeurimmo.skylyblock.common.SkyblockUserManager;
+import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.core.SkylyBlock;
 import fr.farmeurimmo.skylyblock.utils.DateUtils;
 import net.kyori.adventure.text.Component;
@@ -29,7 +29,7 @@ public class FeatherFlyManager {
     }
 
     public void clock() {
-        for (SkyblockUser user : SkyblockUserManager.INSTANCE.getLocalUsers()) {
+        for (SkyblockUser user : SkyblockUsersManager.INSTANCE.getLocalUsers()) {
             if (user.getFlyTime() <= 0) continue;
             if (players.contains(user.getUuid())) continue;
             Player p = Bukkit.getPlayer(user.getUuid());
@@ -38,7 +38,7 @@ public class FeatherFlyManager {
         }
         ArrayList<UUID> toRemove = new ArrayList<>();
         for (UUID uuid : players) {
-            SkyblockUser user = SkyblockUserManager.INSTANCE.getUser(uuid);
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(uuid);
             if (user == null) continue;
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) {
@@ -94,7 +94,7 @@ public class FeatherFlyManager {
     }
 
     public boolean enableFly(Player p, int time) {
-        SkyblockUser user = SkyblockUserManager.INSTANCE.getUser(p.getUniqueId());
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
         if (user == null) return false;
         int flyLeft = user.getFlyTime();
         if (flyLeft + time > 86400) {

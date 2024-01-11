@@ -1,6 +1,5 @@
 package fr.farmeurimmo.skylyblock.purpur.hub.listeners;
 
-import fr.farmeurimmo.skylyblock.purpur.core.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.skylyblock.purpur.hub.HubManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,8 +14,6 @@ public class HubPlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-
-        ScoreboardManager.INSTANCE.addPlayer(p);
 
         p.teleport(HubManager.SPAWN);
     }

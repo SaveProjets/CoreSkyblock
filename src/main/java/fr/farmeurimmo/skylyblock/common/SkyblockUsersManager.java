@@ -3,12 +3,12 @@ package fr.farmeurimmo.skylyblock.common;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class SkyblockUserManager {
+public class SkyblockUsersManager {
 
-    public static SkyblockUserManager INSTANCE;
+    public static SkyblockUsersManager INSTANCE;
     private final ArrayList<SkyblockUser> users = new ArrayList<>();
 
-    public SkyblockUserManager() {
+    public SkyblockUsersManager() {
         INSTANCE = this;
     }
 
