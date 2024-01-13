@@ -64,7 +64,7 @@ public class ChatReactionManager {
     public void end(Player p, String message) {
         if (message.equalsIgnoreCase(chatReactions.get(selectedWord))) {
             Bukkit.broadcast(Component.text("§6§lChatReaction §8» §f" + p.getName() + " a recopié le mot en §a" +
-                    DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§fs."));
+                    DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§f."));
             isRunning = false;
 
             SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());

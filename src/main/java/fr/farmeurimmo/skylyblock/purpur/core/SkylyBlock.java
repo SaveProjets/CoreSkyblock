@@ -16,6 +16,9 @@ import fr.farmeurimmo.skylyblock.purpur.core.featherfly.FeatherFlyManager;
 import fr.farmeurimmo.skylyblock.purpur.core.listeners.ChatListener;
 import fr.farmeurimmo.skylyblock.purpur.core.listeners.ChatReactionListener;
 import fr.farmeurimmo.skylyblock.purpur.core.listeners.PlayerListener;
+import fr.farmeurimmo.skylyblock.purpur.core.minions.MinionsCmd;
+import fr.farmeurimmo.skylyblock.purpur.core.minions.MinionsListener;
+import fr.farmeurimmo.skylyblock.purpur.core.minions.MinionsManager;
 import fr.farmeurimmo.skylyblock.purpur.core.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.skylyblock.purpur.core.worlds.WorldManager;
 import fr.farmeurimmo.skylyblock.purpur.hub.HubManager;
@@ -64,6 +67,7 @@ public final class SkylyBlock extends JavaPlugin {
         new FeatherFlyManager();
         new ChatReactionManager();
         new ChestsManager();
+        new MinionsManager();
 
         console.sendMessage("§b[SkylyBlock] §7Détection du type de serveur...");
         String serverTypeFromServerName = Bukkit.getServerName();
@@ -88,12 +92,14 @@ public final class SkylyBlock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatReactionListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new ChestsListener(), this);
+        getServer().getPluginManager().registerEvents(new MinionsListener(), this);
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des commandes communes...");
         getCommand("featherfly").setExecutor(new FeatherFlyCmd());
         getCommand("money").setExecutor(new MoneyCmd());
         getCommand("is").setExecutor(new IslandCmd());
         getCommand("chests").setExecutor(new ChestsCmd());
+        getCommand("minions").setExecutor(new MinionsCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches communes...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);

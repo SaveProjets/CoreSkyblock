@@ -8,22 +8,32 @@ import java.util.UUID;
 
 public class Chest {
 
+    private final UUID id;
+    private final UUID islandId;
     private final ChestType type;
     private final Location block;
-    private UUID owner;
     private ItemStack itemToBuySell;
     private double price;
     private boolean isSell;
     private boolean activeSellOrBuy;
 
-    public Chest(ChestType type, Location block, UUID owner, ItemStack itemToBuySell, double price, boolean isSell, boolean activeSellOrBuy) {
+    public Chest(UUID uuid, UUID islandId, ChestType type, Location block, ItemStack itemToBuySell, double price, boolean isSell, boolean activeSellOrBuy) {
+        this.id = uuid;
+        this.islandId = islandId;
         this.type = type;
         this.block = block;
-        this.owner = owner;
         this.itemToBuySell = itemToBuySell;
         this.price = price;
         this.isSell = isSell;
         this.activeSellOrBuy = activeSellOrBuy;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getIslandId() {
+        return islandId;
     }
 
     public ChestType getType() {
@@ -32,14 +42,6 @@ public class Chest {
 
     public Location getBlock() {
         return block;
-    }
-
-    public UUID getOwner() {
-        return owner;
-    }
-
-    public void setOwner(UUID owner) {
-        this.owner = owner;
     }
 
     public ItemStack getItemToBuySell() {
@@ -68,10 +70,6 @@ public class Chest {
 
     public boolean isActiveSellOrBuy() {
         return activeSellOrBuy;
-    }
-
-    public String getOwnerName() {
-        return owner == null ? "§cAucun" : owner.toString();
     }
 
     public String getSellOrBuy() {

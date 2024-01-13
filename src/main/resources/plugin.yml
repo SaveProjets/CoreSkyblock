@@ -23,3 +23,5 @@ commands:
       - ile
   chests:
     permission: skylyblock.chests
+  minions:
+    permission: skylyblock.minions

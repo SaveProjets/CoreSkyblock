@@ -36,7 +36,9 @@ public class ChestsListener implements Listener {
                 return;
             }
 
-            p.sendMessage("§b[SkylyBlock] §aVous avez placé un coffre !");
+            p.sendMessage("§b[SkylyBlock] §cIndisponible pour le moment !");
+
+            //FIXME: CHESTS
         }
     }
 
