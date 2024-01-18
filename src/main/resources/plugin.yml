@@ -1,6 +1,6 @@
 name: SkylyBlock
 version: '${version}'
-main: fr.farmeurimmo.skylyblock.purpur.core.SkylyBlock
+main: fr.farmeurimmo.skylyblock.purpur.SkylyBlock
 api-version: '1.18'
 author: Skyly
 description: Skyly skyblock plugin

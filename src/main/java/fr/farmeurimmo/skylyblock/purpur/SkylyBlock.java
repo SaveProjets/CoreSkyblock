@@ -6,7 +6,7 @@ import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsManager;
-import fr.farmeurimmo.skylyblock.purpur.cmds.BuildHubCmd;
+import fr.farmeurimmo.skylyblock.purpur.cmds.BuildSpawnCmd;
 import fr.farmeurimmo.skylyblock.purpur.cmds.IslandCmd;
 import fr.farmeurimmo.skylyblock.purpur.eco.MoneyCmd;
 import fr.farmeurimmo.skylyblock.purpur.events.ChatReactionManager;
@@ -107,7 +107,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("tradeaccept").setExecutor(new TradeAcceptCmd());
         getCommand("tradedeny").setExecutor(new TradeDenyCmd());
         getCommand("tradecancel").setExecutor(new TradeCancelCmd());
-        getCommand("buildspawn").setExecutor(new BuildHubCmd());
+        getCommand("buildspawn").setExecutor(new BuildSpawnCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
@@ -167,7 +167,7 @@ public final class SkylyBlock extends JavaPlugin {
         JedisManager.INSTANCE.sendToRedis("skylyblock:players:" + SERVER_NAME, sb.toString());
     }
 
-    public boolean isAHub(World world) {
+    public boolean isASpawn(World world) {
         return SPAWN_WORLD_NAME.equals(world.getName());
     }
 

@@ -11,20 +11,20 @@ public class SpawnProtectionListener implements Listener {
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent e) {
-        if (!SkylyBlock.INSTANCE.isAHub(e.getLocation().getWorld())) return;
+        if (!SkylyBlock.INSTANCE.isASpawn(e.getLocation().getWorld())) return;
         if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.CUSTOM) return;
         e.setCancelled(true);
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        if (!SkylyBlock.INSTANCE.isAHub(e.getBlock().getWorld())) return;
+        if (!SkylyBlock.INSTANCE.isASpawn(e.getBlock().getWorld())) return;
         e.setCancelled(true);
     }
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        if (!SkylyBlock.INSTANCE.isAHub(e.getLocation().getWorld())) return;
+        if (!SkylyBlock.INSTANCE.isASpawn(e.getLocation().getWorld())) return;
         e.setCancelled(true);
     }
 
