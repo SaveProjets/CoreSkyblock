@@ -8,9 +8,9 @@ website: https://skyly.fr
 depend:
   - SlimeWorldManager
 commands:
-  buildhub:
-    description: Permet de modifier le hub (déconseillé il faut modifier la template)
-    permission: skylyblock.buildhub
+  buildspawn:
+    description: Permet de modifier le spawn (déconseillé il faut modifier la template)
+    permission: skylyblock.buildspawn
   featherfly:
     description: Donne des plumes de fly temporaire
     permission: skylyblock.featherfly
@@ -25,3 +25,8 @@ commands:
     permission: skylyblock.chests
   minions:
     permission: skylyblock.minions
+  trade:
+    permission: skylyblock.trade
+  tradeaccept:
+  tradedeny:
+  tradecancel:
