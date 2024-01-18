@@ -8,6 +8,7 @@ import fr.farmeurimmo.skylyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsManager;
 import fr.farmeurimmo.skylyblock.purpur.cmds.BuildSpawnCmd;
 import fr.farmeurimmo.skylyblock.purpur.cmds.IslandCmd;
+import fr.farmeurimmo.skylyblock.purpur.cmds.SpawnCmd;
 import fr.farmeurimmo.skylyblock.purpur.eco.MoneyCmd;
 import fr.farmeurimmo.skylyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.skylyblock.purpur.featherfly.FeatherFlyCmd;
@@ -42,7 +43,7 @@ public final class SkylyBlock extends JavaPlugin {
     public static final String SPAWN_WORLD_NAME = "spawn";
     public static final boolean SPAWN_IN_READ_ONLY = true;
     public static SkylyBlock INSTANCE;
-    public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 0, 0);
+    public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
     public static String SERVER_NAME;
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
@@ -54,6 +55,7 @@ public final class SkylyBlock extends JavaPlugin {
         console = getServer().getConsoleSender();
         console.sendMessage("§b[SkylyBlock] §7Chargement des mondes...");
         slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
+        new WorldManager();
 
         console.sendMessage("§b[SkylyBlock] §7Chargement du spawn...");
         WorldManager.INSTANCE.loadOrCreate(SPAWN_WORLD_NAME, SPAWN_IN_READ_ONLY);
@@ -75,10 +77,10 @@ public final class SkylyBlock extends JavaPlugin {
         SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
 
         console.sendMessage("§b[SkylyBlock] §7Démarrage des managers...");
-        new WorldManager();
         new SkyblockUsersManager();
-        new ScoreboardManager();
+        new IslandsManager(INSTANCE);
 
+        new ScoreboardManager();
         new FeatherFlyManager();
         new ChatReactionManager();
         new ChestsManager();
@@ -108,6 +110,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("tradedeny").setExecutor(new TradeDenyCmd());
         getCommand("tradecancel").setExecutor(new TradeCancelCmd());
         getCommand("buildspawn").setExecutor(new BuildSpawnCmd());
+        getCommand("spawn").setExecutor(new SpawnCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);

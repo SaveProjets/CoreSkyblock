@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -43,5 +44,12 @@ public class PlayerListener implements Listener {
         if (e.getTo().getWorld().getName().equals("world")) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        if (!SkylyBlock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
+        if (SkylyBlock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        e.setCancelled(true);
     }
 }
