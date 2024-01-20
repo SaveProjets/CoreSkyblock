@@ -19,6 +19,14 @@ public class TradesManager {
         INSTANCE = this;
     }
 
+    public Trade getTradeBetween(Player emitter, Player receiver) {
+        Trade trade = getTradeBetween(emitter.getUniqueId(), receiver.getUniqueId());
+        if (trade == null) {
+            trade = getTradeBetween(receiver.getUniqueId(), emitter.getUniqueId());
+        }
+        return trade;
+    }
+
     public void addTradeRequest(UUID emitter, UUID receiver) {
         ArrayList<UUID> receivers;
         if (tradeRequests.containsKey(emitter)) {
@@ -64,8 +72,8 @@ public class TradesManager {
     public void addTrade(Trade trade, Player emitter, Player receiver) {
         trades.add(trade);
 
-        new TradeInv(emitter, trade, true);
-        new TradeInv(receiver, trade, false);
+        new TradeInv(emitter, receiver.getName(), trade).open(emitter);
+        new TradeInv(receiver, emitter.getName(), trade).open(receiver);
     }
 
     public Trade getTradeBetween(UUID emitter, UUID receiver) {

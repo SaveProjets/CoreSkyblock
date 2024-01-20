@@ -37,10 +37,9 @@ public class TradeAcceptCmd implements CommandExecutor, TabCompleter {
         TradesManager.INSTANCE.removeTradeRequest(target.getUniqueId(), p.getUniqueId());
 
         TradesManager.INSTANCE.addTrade(new Trade(target.getUniqueId(), p.getUniqueId()), target, p);
-        p.sendMessage(Component.text("§6§lTrade §8» §a" + target.getName() + " §fa accepté votre demande " +
-                "d'échange."));
-        target.sendMessage(Component.text("§6§lTrade §8» §fVous avez accepté la demande d'échange de §a" +
-                p.getName() + "§f."));
+        p.sendMessage(Component.text("§6§lTrade §8» §aVous avez accepté la demande d'échange de §a" +
+                target.getName() + "§f."));
+        target.sendMessage(Component.text("§6§lTrade §8» §f" + p.getName() + " §fa accepté votre demande d'échange."));
         return false;
     }
 

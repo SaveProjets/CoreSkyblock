@@ -13,8 +13,8 @@ public class JedisManager {
 
     public static JedisManager INSTANCE;
     JedisPool pool;
-    private String REDIS_PASSWORD = "1234";
-    private String REDIS_HOST = "192.168.1.53";
+    private String REDIS_PASSWORD = "tK3u6BEuiGeABAU00wVUidguBjtyzk4ffj9E3Qmb";
+    private String REDIS_HOST = "tools-databases-redis-minecraft-1";
 
     public JedisManager() {
         INSTANCE = this;
