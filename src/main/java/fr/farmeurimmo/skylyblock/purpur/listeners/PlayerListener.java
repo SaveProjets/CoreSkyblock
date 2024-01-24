@@ -3,14 +3,12 @@ package fr.farmeurimmo.skylyblock.purpur.listeners;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
 import fr.farmeurimmo.skylyblock.purpur.scoreboard.ScoreboardManager;
+import fr.farmeurimmo.skylyblock.purpur.trade.TradesManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 
 public class PlayerListener implements Listener {
 
@@ -28,6 +26,12 @@ public class PlayerListener implements Listener {
 
         /*JedisManager.INSTANCE.publishToRedis("skylyblock", "sync:inv:" + p.getUniqueId() + ":" +
                 InventorySyncUtils.INSTANCE.toBase64(inv));*/
+    }
+
+    @EventHandler
+    public void onPlayerPickupEvent(PlayerAttemptPickupItemEvent e) {
+        if (!TradesManager.INSTANCE.isPlayerInATrade(e.getPlayer())) return;
+        e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

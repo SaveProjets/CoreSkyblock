@@ -1,10 +1,13 @@
 package fr.farmeurimmo.skylyblock.purpur.scoreboard;
 
+import fr.farmeurimmo.skylyblock.common.SkyblockUser;
+import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
 import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,13 +38,18 @@ public class ScoreboardManager {
         if (boardNumber.containsKey(uuid)) number = boardNumber.get(uuid);
         Player p = Bukkit.getPlayer(uuid);
         if (p == null) return;
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(uuid);
+        if (user == null) {
+            board.updateTitle("§4§lErreur lors du chargement du profil");
+            return;
+        }
         if (number == 0) {
             board.updateTitle("§4»§c» §c§lSKYBLOCK §c«§4«");
             board.updateLines(
                     "",
                     "§6§lProfil",
                     "§8┃ §7Pseudo: §f" + p.getName(),
-                    "§8┃ §7Argent: §e????",
+                    "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
                     "§8┃ §7Grade: §c????",
                     "",
                     "§6§lVotre île §8[§7#????§8]",

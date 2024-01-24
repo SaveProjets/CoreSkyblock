@@ -25,7 +25,7 @@ public class FeatherFlyManager {
     public FeatherFlyManager() {
         INSTANCE = this;
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(SkylyBlock.INSTANCE, this::clock, 20, 20);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(SkylyBlock.INSTANCE, this::clock, 0, 20);
     }
 
     public void clock() {
@@ -42,6 +42,10 @@ public class FeatherFlyManager {
             if (user == null) continue;
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) {
+                toRemove.add(uuid);
+                continue;
+            }
+            if (p.getWorld().getName().contains("donjon")) {
                 toRemove.add(uuid);
                 continue;
             }

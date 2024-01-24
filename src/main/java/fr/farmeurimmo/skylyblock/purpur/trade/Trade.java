@@ -15,6 +15,8 @@ public class Trade {
     private double receiverMoney;
     private boolean emitterReady;
     private boolean receiverReady;
+    private long emitterReadyTime;
+    private long receiverReadyTime;
 
     public Trade(UUID emitter, UUID receiver) {
         this.emitter = emitter;
@@ -25,6 +27,8 @@ public class Trade {
         this.receiverReady = false;
         this.emitterItems = new ArrayList<>();
         this.receiverItems = new ArrayList<>();
+        this.emitterReadyTime = -1;
+        this.receiverReadyTime = -1;
     }
 
     public UUID getEmitter() {
@@ -57,6 +61,8 @@ public class Trade {
 
     public void setEmitterReady(boolean emitterReady) {
         this.emitterReady = emitterReady;
+        if (emitterReady) setEmitterReadyTime(System.currentTimeMillis());
+        else setEmitterReadyTime(-1);
     }
 
     public boolean isReceiverReady() {
@@ -65,6 +71,8 @@ public class Trade {
 
     public void setReceiverReady(boolean receiverReady) {
         this.receiverReady = receiverReady;
+        if (receiverReady) setReceiverReadyTime(System.currentTimeMillis());
+        else setReceiverReadyTime(-1);
     }
 
     public ArrayList<ItemStack> getEmitterItems() {
@@ -89,5 +97,26 @@ public class Trade {
         } else if (uuid.equals(receiver)) {
             receiverItems.remove(item);
         }
+    }
+
+    public long getEmitterReadyTime() {
+        return emitterReadyTime;
+    }
+
+    public void setEmitterReadyTime(long emitterReadyTime) {
+        this.emitterReadyTime = emitterReadyTime;
+    }
+
+    public long getReceiverReadyTime() {
+        return receiverReadyTime;
+    }
+
+    public void setReceiverReadyTime(long receiverReadyTime) {
+        this.receiverReadyTime = receiverReadyTime;
+    }
+
+    public boolean isTradeReadyToBeEnded() {
+        return emitterReady && receiverReady && emitterReadyTime != -1 && receiverReadyTime != -1 &&
+                System.currentTimeMillis() - emitterReadyTime >= 5000 && System.currentTimeMillis() - receiverReadyTime >= 5000;
     }
 }

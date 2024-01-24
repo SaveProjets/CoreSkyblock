@@ -1,8 +1,12 @@
 package fr.farmeurimmo.skylyblock.purpur.trade;
 
+import fr.farmeurimmo.skylyblock.common.SkyblockUser;
+import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,12 +23,13 @@ public class TradesManager {
         INSTANCE = this;
     }
 
-    public Trade getTradeBetween(Player emitter, Player receiver) {
-        Trade trade = getTradeBetween(emitter.getUniqueId(), receiver.getUniqueId());
-        if (trade == null) {
-            trade = getTradeBetween(receiver.getUniqueId(), emitter.getUniqueId());
+    public boolean isPlayerInATrade(Player player) {
+        for (Trade trade : trades) {
+            if (trade.getEmitter().equals(player.getUniqueId()) || trade.getReceiver().equals(player.getUniqueId())) {
+                return true;
+            }
         }
-        return trade;
+        return false;
     }
 
     public void addTradeRequest(UUID emitter, UUID receiver) {
@@ -85,10 +90,65 @@ public class TradesManager {
         return null;
     }
 
-    public void endTrade(Trade trade) {
-        //give items + money
+    public void cancelTrade(Trade trade) {
+        Player emitter = Bukkit.getPlayer(trade.getEmitter());
+        Player receiver = Bukkit.getPlayer(trade.getReceiver());
+        if (emitter != null) {
+            for (ItemStack item : trade.getEmitterItems()) {
+                emitter.getInventory().addItem(item);
+            }
+            SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(trade.getEmitter(), null);
+            emitter_user.setMoney(emitter_user.getMoney() + trade.getEmitterMoney());
+        }
+        if (receiver != null) {
+            for (ItemStack item : trade.getReceiverItems()) {
+                receiver.getInventory().addItem(item);
+            }
+            SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(trade.getReceiver(), null);
+            receiver_user.setMoney(receiver_user.getMoney() + trade.getReceiverMoney());
+        }
 
         trades.remove(trade);
+    }
+
+    public void endTrade(Trade trade) {
+        Player emitter = Bukkit.getPlayer(trade.getEmitter());
+        Player receiver = Bukkit.getPlayer(trade.getReceiver());
+
+        if (emitter == null || receiver == null) {
+            cancelTrade(trade);
+            return;
+        }
+
+        trades.remove(trade);
+
+        //FIXME: money
+
+        SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(emitter.getUniqueId(), emitter.getName());
+        SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(receiver.getUniqueId(), receiver.getName());
+
+        if (emitter_user.getMoney() > 0) {
+            emitter_user.setMoney(emitter_user.getMoney() - trade.getEmitterMoney());
+            receiver_user.setMoney(receiver_user.getMoney() + trade.getEmitterMoney());
+        }
+        if (receiver_user.getMoney() > 0) {
+            receiver_user.setMoney(receiver_user.getMoney() - trade.getReceiverMoney());
+            emitter_user.setMoney(emitter_user.getMoney() + trade.getReceiverMoney());
+        }
+
+
+        for (ItemStack item : trade.getReceiverItems()) {
+            emitter.getInventory().addItem(item);
+        }
+        emitter.closeInventory();
+        emitter.sendMessage(Component.text("§6§lTrade §8» §aL'échange avec §f" + receiver.getName() + " §aa été " +
+                "effectué."));
+        for (ItemStack item : trade.getEmitterItems()) {
+            receiver.getInventory().addItem(item);
+        }
+        receiver.closeInventory();
+        receiver.sendMessage(Component.text("§6§lTrade §8» §aL'échange avec §f" + emitter.getName() + " §aa été " +
+                "effectué."));
     }
 
     public ArrayList<String> getNameOfPeopleWhoWantToTradeWith(Player player) {

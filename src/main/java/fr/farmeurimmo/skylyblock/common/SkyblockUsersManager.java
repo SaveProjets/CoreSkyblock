@@ -16,6 +16,10 @@ public class SkyblockUsersManager {
         return users.stream().filter(user -> user.getUuid().equals(uuid)).findFirst().orElse(null);
     }
 
+    public SkyblockUser getLocalUser(String name) {
+        return users.stream().filter(user -> user.getName().equals(name)).findFirst().orElse(null);
+    }
+
     public void addUser(SkyblockUser user) {
         users.add(user);
     }

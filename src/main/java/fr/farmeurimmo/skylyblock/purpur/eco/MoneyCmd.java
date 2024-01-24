@@ -13,11 +13,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.UUID;
 
 public class MoneyCmd implements TabCompleter, CommandExecutor {
 
-    private static final Component USAGE_ADMIN = Component.text("Usage: /money <give|take|set> <player> <amount>");
+    private static final Component USAGE_ADMIN = Component.text("Usage: /money <player> <give|take|set> <amount>");
     private static final Component USAGE_PLAYER = Component.text("Usage: /money");
 
     @Override
@@ -40,8 +39,8 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
             return false;
         }
         if (args.length == 3) {
-            String action = args[0].toLowerCase();
-            String playerName = args[1];
+            String playerName = args[0];
+            String action = args[1].toLowerCase();
             String amountStr = args[2];
 
             double amount;
@@ -57,7 +56,7 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
             }
 
             //FIXME get player by name
-            SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getUser(UUID.randomUUID());
+            SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getLocalUser(playerName);
             if (skyblockUser == null) {
                 sender.sendMessage(Component.text("§cCe joueur n'existe pas !"));
                 return false;
