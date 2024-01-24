@@ -17,9 +17,10 @@ import java.util.UUID;
 
 public class TradeInv extends FastInv {
 
-    private final static int MAX_PER_TRADE = 12;
-    private final int[] leftSlots = new int[]{10, 11, 12, 19, 20, 21, 28, 29, 30, 37, 38, 39};
-    private final int[] rightSlots = new int[]{14, 15, 16, 23, 24, 25, 32, 33, 34, 41, 42, 43};
+    private final static int MAX_PER_TRADE = 20;
+    private static final int[] PANE_SLOTS = new int[]{4, 13, 22, 31, 40, 49};
+    private final int[] leftSlots = new int[]{9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47, 48};
+    private final int[] rightSlots = new int[]{14, 15, 16, 17, 23, 24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44, 50, 51, 52, 53};
     private final UUID emitter;
     private final UUID receiver;
 
@@ -261,10 +262,10 @@ public class TradeInv extends FastInv {
                 update(p, emitter, receiver);
             });
         }
-        setItem(5, ready_right);
-        setItem(6, nugget_right);
-        setItem(7, goldIngot_right);
-        setItem(8, goldBlock_right);
+        setItem(8, ready_right);
+        setItem(7, nugget_right);
+        setItem(6, goldIngot_right);
+        setItem(5, goldBlock_right);
 
         // place the items (the player should always have his items on the left side)
         // so if he is the emitter, he will have his items on the left side same for the receiver
@@ -308,6 +309,8 @@ public class TradeInv extends FastInv {
                 setItem(rightSlots[i], trade.getEmitterItems().get(i));
             }
         }
+
+        setItems(PANE_SLOTS, ItemBuilder.copyOf(new ItemStack(Material.GRAY_STAINED_GLASS_PANE)).name("§7").build());
     }
 
     @Override
@@ -327,13 +330,15 @@ public class TradeInv extends FastInv {
         }
         if (isEmitter) {
             if (trade.getEmitterItems().size() >= MAX_PER_TRADE) {
-                e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de 12 items."));
+                e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de " +
+                        MAX_PER_TRADE + " items."));
                 return;
             }
             trade.addItem(trade.getEmitter(), item);
         } else {
             if (trade.getReceiverItems().size() >= MAX_PER_TRADE) {
-                e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de 12 items."));
+                e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de " +
+                        MAX_PER_TRADE + " items."));
                 return;
             }
             trade.addItem(trade.getReceiver(), item);
