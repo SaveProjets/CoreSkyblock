@@ -1,6 +1,7 @@
 package fr.farmeurimmo.skylyblock.purpur;
 
 import com.grinderwolf.swm.api.SlimePlugin;
+import fr.farmeurimmo.skylyblock.common.DatabaseManager;
 import fr.farmeurimmo.skylyblock.common.JedisManager;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsCmd;
@@ -22,6 +23,8 @@ import fr.farmeurimmo.skylyblock.purpur.minions.MinionsCmd;
 import fr.farmeurimmo.skylyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.skylyblock.purpur.minions.MinionsManager;
 import fr.farmeurimmo.skylyblock.purpur.scoreboard.ScoreboardManager;
+import fr.farmeurimmo.skylyblock.purpur.shop.ShopCmd;
+import fr.farmeurimmo.skylyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.skylyblock.purpur.trade.*;
 import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
 import fr.farmeurimmo.skylyblock.utils.InventorySyncUtils;
@@ -64,6 +67,7 @@ public final class SkylyBlock extends JavaPlugin {
     @Override
     public void onEnable() {
         long startTime = System.currentTimeMillis();
+        saveResource("old-shop.yml", true);
 
         console.sendMessage("§b[SkylyBlock] §7Démarrage du plugin SkylyBlock...");
 
@@ -77,6 +81,9 @@ public final class SkylyBlock extends JavaPlugin {
         SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
 
         console.sendMessage("§b[SkylyBlock] §7Démarrage des managers...");
+        new DatabaseManager("jdbc:mysql://tools-databases-mariadb-1:3306/skyblock", "skyblock",
+                "VNGsQzbUnYvw5Fpo");
+
         new SkyblockUsersManager();
         new IslandsManager(INSTANCE);
 
@@ -86,6 +93,8 @@ public final class SkylyBlock extends JavaPlugin {
         new ChestsManager();
         new MinionsManager();
         new TradesManager();
+
+        new ShopsManager();
 
         console.sendMessage("§b[SkylyBlock] §7Connexion à redis...");
         new JedisManager();
@@ -111,6 +120,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("tradecancel").setExecutor(new TradeCancelCmd());
         getCommand("buildspawn").setExecutor(new BuildSpawnCmd());
         getCommand("spawn").setExecutor(new SpawnCmd());
+        getCommand("shop").setExecutor(new ShopCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);

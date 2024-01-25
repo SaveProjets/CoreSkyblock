@@ -1,0 +1,836 @@
+blocks:
+  1:
+    material: MAGMA_BLOCK
+    buy: 80
+    sell: 5
+  2:
+    material: PACKED_ICE
+    buy: 150
+    sell: 17
+  41:
+    material: ICE
+    buy: 80
+    sell: 10
+  3:
+    material: SOUL_SAND
+    buy: 40
+    sell: 4
+  4:
+    material: STONE
+    buy: 80
+    sell: 2
+  5:
+    material: GLOWSTONE
+    buy: 50
+    sell: 6
+  6:
+    material: SEA_LANTERN
+    buy: 70
+    sell: 12
+  7:
+    material: SHROOMLIGHT
+    buy: 80
+    sell: 12
+  8:
+    material: ANDESITE
+    buy: 60
+    sell: 2
+  9:
+    material: BLACKSTONE
+    buy: 50
+    sell: 3
+  10:
+    material: BRICKS
+    buy: 90
+    sell: 2
+  11:
+    material: BASALT
+    buy: 40
+    sell: 2
+  12:
+    material: COBBLESTONE
+    buy: 40
+    sell: 1
+  13:
+    material: DIORITE
+    buy: 60
+    sell: 5
+  14:
+    material: CLAY
+    buy: 50
+    sell: 0.80
+  15:
+    material: DIRT
+    buy: 40
+    sell: 1
+  16:
+    material: GRASS_BLOCK
+    buy: 120
+    sell: 55
+  17:
+    material: GRAVEL
+    buy: 40
+    sell: 2
+  18:
+    material: MYCELIUM
+    buy: 120
+    sell: 56
+  19:
+    material: PODZOL
+    buy: 120
+    sell: 10
+  20:
+    material: END_STONE
+    buy: 100
+    sell: 2
+  22:
+    material: GRANITE
+    buy: 40
+    sell: 3
+  23:
+    material: NETHERRACK
+    buy: 20
+    sell: 3
+  24:
+    material: NETHER_BRICKS
+    buy: 90
+    sell: 5
+  25:
+    material: RED_NETHER_BRICKS
+    buy: 120
+    sell: 5
+  26:
+    material: OBSIDIAN
+    buy: 100
+    sell: 10
+  27:
+    material: PRISMARINE
+    buy: 50
+    sell: 0.5
+  28:
+    material: DARK_PRISMARINE
+    buy: 75
+    sell: 0.5
+  29:
+    material: PURPUR_BLOCK
+    buy: 75
+    sell: 2
+  30:
+    material: RED_SAND
+    buy: 58
+    sell: 2
+  31:
+    material: SAND
+    buy: 50
+    sell: 2
+  32:
+    material: SANDSTONE
+    buy: 65
+    sell: 3
+  33:
+    material: RED_SANDSTONE
+    buy: 62
+    sell: 3
+  34:
+    material: ACACIA_LOG
+    buy: 40
+    sell: 9
+  35:
+    material: BIRCH_LOG
+    buy: 40
+    sell: 11
+  36:
+    material: DARK_OAK_LOG
+    buy: 40
+    sell: 8
+  37:
+    material: JUNGLE_LOG
+    buy: 40
+    sell: 8
+  38:
+    material: OAK_LOG
+    buy: 40
+    sell: 11
+  39:
+    material: SPRUCE_LOG
+    buy: 40
+    sell: 8
+  40:
+    material: TNT
+    buy: 40
+    sell: 6
+  42:
+    material: WARPED_STEM
+    buy: 40
+    sell: 6
+  43:
+    material: CRIMSON_STEM
+    buy: 40
+    sell: 6
+  44:
+    material: BUDDING_AMETHYST
+    buy: 70
+    sell: 8
+  45:
+    material: AMETHYST_SHARD
+    buy: 70
+    sell: 6
+
+####################
+
+dyes:
+  1:
+    material: BLACK_DYE
+    buy: 20
+    sell: -1
+  2:
+    material: BLUE_DYE
+    buy: 20
+    sell: -1
+  3:
+    material: BROWN_DYE
+    buy: 20
+    sell: -1
+  4:
+    material: CYAN_DYE
+    buy: 20
+    sell: -1
+  5:
+    material: GRAY_DYE
+    buy: 20
+    sell: -1
+  6:
+    material: GREEN_DYE
+    buy: 20
+    sell: -1
+  7:
+    material: LIGHT_BLUE_DYE
+    buy: 20
+    sell: -1
+  8:
+    material: LIGHT_GRAY_DYE
+    buy: 20
+    sell: -1
+  9:
+    material: LIME_DYE
+    buy: 20
+    sell: -1
+  10:
+    material: MAGENTA_DYE
+    buy: 20
+    sell: -1
+  11:
+    material: ORANGE_DYE
+    buy: 20
+    sell: -1
+  12:
+    material: PINK_DYE
+    buy: 20
+    sell: -1
+  13:
+    material: PURPLE_DYE
+    buy: 20
+    sell: -1
+  14:
+    material: RED_DYE
+    buy: 20
+    sell: -1
+  15:
+    material: WHITE_DYE
+    buy: 20
+    sell: -1
+  16:
+    material: YELLOW_DYE
+    buy: 20
+    sell: 0.18
+  17:
+    material: AZURE_BLUET
+    buy: 20
+    sell: -1
+  18:
+    material: BLUE_ORCHID
+    buy: 20
+    sell: -1
+  19:
+    material: CORNFLOWER
+    buy: 20
+    sell: -1
+  20:
+    material: RED_TULIP
+    buy: 20
+    sell: -1
+  21:
+    material: SUNFLOWER
+    buy: 20
+    sell: -1
+
+  ####################
+
+agriculture:
+
+  1:
+    material: BAMBOO
+    buy: 45
+    sell: 1.7
+  5:
+    material: BROWN_MUSHROOM
+    buy: 36
+    sell: 12
+  6:
+    material: CACTUS
+    buy: 32
+    sell: 2.1
+  7:
+    material: CARROT
+    buy: 40
+    sell: 3.8
+  10:
+    material: COCOA_BEANS
+    buy: 48
+    sell: 3.9
+  12:
+    material: EGG
+    buy: 35
+    sell: 4
+  13:
+    material: KELP
+    buy: 25
+    sell: 1.8
+  14:
+    material: DRIED_KELP
+    buy: 25
+    sell: 2.3
+  15:
+    material: MELON
+    buy: 59
+    sell: 6.5
+  17:
+    material: MELON_SLICE
+    buy: 15
+    sell: 1.5
+  18:
+    material: NETHER_WART
+    buy: 60
+    sell: 3.7
+  19:
+    material: POTATO
+    buy: 40
+    sell: 3.8
+  20:
+    material: PUMPKIN
+    buy: 60
+    sell: 5
+  22:
+    material: RED_MUSHROOM
+    buy: 60
+    sell: 14
+  23:
+    material: SUGAR_CANE
+    buy: 50
+    sell: 3.6
+  25:
+    material: WHEAT
+    buy: 60
+    sell: 8.8
+  26:
+    material: WHEAT_SEEDS
+    buy: 20
+    sell: -1
+  27:
+    material: OAK_SAPLING
+    buy: 20
+    sell: 5
+  28:
+    material: SPRUCE_SAPLING
+    buy: 20
+    sell: 5
+  29:
+    material: BIRCH_SAPLING
+    buy: 20
+    sell: 5
+  30:
+    material: JUNGLE_SAPLING
+    buy: 20
+    sell: 5
+  31:
+    material: ACACIA_SAPLING
+    buy: 20
+    sell: 5
+  32:
+    material: DARK_OAK_SAPLING
+    buy: 20
+    sell: 5
+  33:
+    material: HAY_BLOCK
+    buy: 160
+    sell: 80
+  34:
+    material: BEETROOT
+    buy: 60
+    sell: 9.6
+  35:
+    material: VINE
+    buy: 40
+    sell: 1.8
+  36:
+    material: NETHER_WART_BLOCK
+    buy: 130
+    sell: 38
+  40:
+    material: SWEET_BERRIES
+    buy: 130
+    sell: 2.8
+  41:
+    material: GLOW_LICHEN
+    buy: 130
+    sell: 2.1
+  42:
+    material: MOSS_BLOCK
+    buy: 110
+    sell: -1
+  43:
+    material: GLOW_BERRIES
+    buy: 100
+    sell: 2.8
+
+  ####################
+
+food:
+
+  1:
+    material: APPLE
+    buy: 15
+    sell: 13
+  2:
+    material: BREAD
+    buy: 20
+    sell: -1
+  3:
+    material: CAKE
+    buy: 60
+    sell: -1
+  4:
+    material: COOKED_SALMON
+    buy: 20
+    sell: -1
+  5:
+    material: COOKIE
+    buy: 20
+    sell: 5
+  7:
+    material: HONEY_BOTTLE
+    buy: 15
+    sell: -1
+  8:
+    material: BAKED_POTATO
+    buy: 20
+    sell: -1
+  9:
+    material: COOKED_BEEF
+    buy: 20
+    sell: 7
+  10:
+    material: COOKED_CHICKEN
+    buy: 20
+    sell: 7
+  11:
+    material: COOKED_MUTTON
+    buy: 20
+    sell: 7
+  12:
+    material: COOKED_PORKCHOP
+    buy: 20
+    sell: 7
+  13:
+    material: COOKED_RABBIT
+    buy: 20
+    sell: 7
+  14:
+    material: BEEF
+    buy: 10
+    sell: 4
+  15:
+    material: CHICKEN
+    buy: 10
+    sell: 4
+  16:
+    material: MUTTON
+    buy: 10
+    sell: 4
+  17:
+    material: PORKCHOP
+    buy: 10
+    sell: 4
+  18:
+    material: RABBIT
+    buy: 10
+    sell: 4
+  19:
+    material: PUMPKIN_PIE
+    buy: 20
+    sell: 18
+  20:
+    material: PUFFERFISH
+    buy: 20
+    sell: 12
+  21:
+    material: TROPICAL_FISH
+    buy: 100
+    sell: 10
+  22:
+    material: COD
+    buy: 15
+    sell: 5.8
+  23:
+    material: SALMON
+    buy: 15
+    sell: 7
+
+#######################
+mobs:
+
+  1:
+    material: ARROW
+    buy: 40
+    sell: 8
+  3:
+    material: BLAZE_ROD
+    buy: 55
+    sell: 12
+  4:
+    material: BONE
+    buy: 60
+    sell: 6
+  5:
+    material: FEATHER
+    buy: 65
+    sell: 8
+  7:
+    material: GHAST_TEAR
+    buy: 65
+    sell: 20
+  8:
+    material: GUNPOWDER
+    buy: 50
+    sell: 7
+  9:
+    material: MAGMA_CREAM
+    buy: 40
+    sell: 11
+  10:
+    material: NAUTILUS_SHELL
+    buy: 180
+    sell: 40
+  11:
+    material: PHANTOM_MEMBRANE
+    buy: 140
+    sell: 20
+  12:
+    material: RABBIT_FOOT
+    buy: 250
+    sell: 40
+  13:
+    material: RABBIT_HIDE
+    buy: 65
+    sell: 9
+  14:
+    material: ROTTEN_FLESH
+    buy: 45
+    sell: 7
+  15:
+    material: SPIDER_EYE
+    buy: 65
+    sell: 10
+  16:
+    material: STRING
+    buy: 50
+    sell: 7
+  17:
+    material: SLIME_BALL
+    buy: 70
+    sell: 9
+  18:
+    material: LEATHER
+    buy: 60
+    sell: 5
+  19:
+    material: ENDER_PEARL
+    buy: 60
+    sell: 15
+  20:
+    material: INK_SAC
+    buy: 30
+    sell: 3
+
+###################
+ores:
+
+  4:
+    material: COAL
+    buy: 15
+    sell: 8
+  17:
+    material: LAPIS_LAZULI
+    buy: 14
+    sell: 7
+  22:
+    material: REDSTONE
+    buy: 10
+    sell: 8
+  15:
+    material: IRON_INGOT
+    buy: 180
+    sell: 12
+  13:
+    material: GOLD_INGOT
+    buy: 230
+    sell: 20
+  8:
+    material: DIAMOND
+    buy: 620
+    sell: 30
+  10:
+    material: EMERALD
+    buy: 400
+    sell: 40
+  19:
+    material: NETHERITE_INGOT
+    buy: 500
+    sell: 260
+  33:
+    material: ANCIENT_DEBRIS
+    buy: 500
+    sell: 40
+  20:
+    material: QUARTZ
+    buy: 8
+    sell: 6
+  21:
+    material: NETHERITE_SCRAP
+    buy: 500
+    sell: 45
+  28:
+    material: COPPER_INGOT
+    buy: 70
+    sell: 12
+
+  #################################
+others:
+
+  1:
+    material: WITHER_SKELETON_SKULL
+    buy: 2500
+    sell: -1
+  3:
+    material: BELL
+    buy: 1000
+    sell: -1
+  8:
+    material: ENDER_CHEST
+    buy: 200
+    sell: -1
+  10:
+    material: EXPERIENCE_BOTTLE
+    buy: 300
+    sell: -1
+  13:
+    material: HONEYCOMB
+    buy: 60
+    sell: 15
+  14:
+    material: LAVA_BUCKET
+    buy: 300
+    sell: -1
+  15:
+    material: LEAD
+    buy: 80
+    sell: -1
+  17:
+    material: LODESTONE
+    buy: 1000
+    sell: -1
+  18:
+    material: MAP
+    buy: 120
+    sell: -1
+  20:
+    material: NAME_TAG
+    buy: 1500
+    sell: -1
+  25:
+    material: SADDLE
+    buy: 60
+    sell: -1
+  28:
+    material: SHULKER_SHELL
+    buy: 2000
+    sell: -1
+  32:
+    material: SPONGE
+    buy: 525
+    sell: -1
+  34:
+    material: TOTEM_OF_UNDYING
+    buy: 10000
+    sell: -1
+  35:
+    material: TRIDENT
+    buy: 3500
+    sell: -1
+  39:
+    material: WATER_BUCKET
+    buy: 100
+    sell: -1
+  40:
+    material: WRITABLE_BOOK
+    buy: 60
+    sell: -1
+  49:
+    material: BEACON
+    buy: 10000
+    sell: -1
+  50:
+    material: END_ROD
+    buy: 60
+    sell: -1
+  51:
+    material: LANTERN
+    buy: 45
+    sell: -1
+  52:
+    material: SOUL_LANTERN
+    buy: 45
+    sell: -1
+  53:
+    material: CAMPFIRE
+    buy: 35
+    sell: -1
+  54:
+    material: SOUL_CAMPFIRE
+    buy: 35
+    sell: -1
+
+  ###########################
+
+redstone:
+
+  2:
+    material: DAYLIGHT_DETECTOR
+    buy: 125
+    sell: -1
+  3:
+    material: DISPENSER
+    buy: 55
+    sell: -1
+  4:
+    material: DROPPER
+    buy: 45
+    sell: -1
+  5:
+    material: HOPPER
+    buy: 120
+    sell: -1
+  7:
+    material: JUKEBOX
+    buy: 229
+    sell: -1
+  10:
+    material: NOTE_BLOCK
+    buy: 40
+    sell: -1
+  11:
+    material: OBSERVER
+    buy: 80
+    sell: -1
+  12:
+    material: REDSTONE_LAMP
+    buy: 35
+    sell: -1
+  14:
+    material: RESPAWN_ANCHOR
+    buy: 500
+    sell: -1
+  15:
+    material: TARGET
+    buy: 85
+    sell: -1
+  21:
+    material: PISTON
+    buy: 180
+    sell: -1
+
+  #######################
+spawners:
+
+  2:
+    material: SPAWNER
+    spawnertype: BLAZE
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eBlaze"
+    buy: 60000
+    sell: -1
+  3:
+    material: SPAWNER
+    spawnertype: CHICKEN
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7ePoulet"
+    buy: 20000
+    sell: -1
+  4:
+    material: SPAWNER
+    spawnertype: COW
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eVache"
+    buy: 50000
+    sell: -1
+  5:
+    material: SPAWNER
+    spawnertype: CREEPER
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eCreeper"
+    buy: 40000
+    sell: -1
+  6:
+    material: SPAWNER
+    spawnertype: ENDERMAN
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eEnderman"
+    buy: 50000
+    sell: -1
+  11:
+    material: SPAWNER
+    spawnertype: IRON_GOLEM
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eIrongolem"
+    buy: 800000
+    sell: -1
+  17:
+    material: SPAWNER
+    spawnertype: RABBIT
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eLapin"
+    buy: 25000
+    sell: -1
+  18:
+    material: SPAWNER
+    spawnertype: SHEEP
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eMouton"
+    buy: 25000
+    sell: -1
+  20:
+    material: SPAWNER
+    spawnertype: SKELETON
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eSquelette"
+    buy: 30000
+    sell: -1
+  22:
+    material: SPAWNER
+    spawnertype: SPIDER
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eAraign\u00e9e"
+    buy: 40000
+    sell: -1
+  25:
+    material: SPAWNER
+    spawnertype: WITCH
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eSorci\u00e8re"
+    buy: 75000
+    sell: -1
+  27:
+    material: SPAWNER
+    spawnertype: ZOMBIE
+    name: "\u00a7fG\u00e9n\u00e9rateur \u00e0 \u00a7eZombie"
+    buy: 25000
+    sell: -1

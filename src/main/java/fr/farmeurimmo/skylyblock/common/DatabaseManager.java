@@ -1,6 +1,15 @@
 package fr.farmeurimmo.skylyblock.common;
 
+import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
+import fr.farmeurimmo.skylyblock.purpur.shop.ShopItem;
+import fr.farmeurimmo.skylyblock.purpur.shop.ShopPage;
+import fr.farmeurimmo.skylyblock.purpur.shop.ShopType;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
 import java.sql.*;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
@@ -17,6 +26,12 @@ public class DatabaseManager {
         this.host = host;
         this.user = user;
         this.password = password;
+
+        try {
+            startConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void startConnection() throws Exception {
@@ -26,39 +41,56 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new Exception("Unable to connect to the database");
         }
-        String tableName = "skyblock_users";
-        connection.prepareStatement("CREATE DATABASE IF NOT EXISTS skylyblock").executeUpdate();
-        connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tableName + " (uuid VARCHAR(36) primary key, " +
-                " money DOUBLE, adventureExp DOUBLE, adventureLevel DOUBLE, flyTime INT, hasteLevel INT, speedLevel INT," +
-                "jumpLevel INT, hasteActive BOOL, speedActive BOOL, jumpActive BOOL)").executeUpdate();
-        connection.prepareStatement("USE " + tableName).executeUpdate();
+        String tableName = "shops";
+        connection.prepareStatement("CREATE DATABASE IF NOT EXISTS skyblock").executeUpdate();
+        connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tableName + " (uuid VARCHAR(36) PRIMARY KEY, " +
+                "shopType VARCHAR(20),itemName VARCHAR(255), material VARCHAR(30), buyPrice FLOAT,  sellPrice FLOAT)").executeUpdate();
+
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tableName);
+        statement.execute();
+        ResultSet resultSet = statement.getResultSet();
+        if (!resultSet.next()) {
+            System.out.println("Table " + tableName + " is empty, inserting default values...");
+            initTableFromConfig().join();
+        }
     }
 
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(host, user, password);
     }
 
-    public CompletableFuture<Void> createUser(SkyblockUser skyblockUser) {
+    public CompletableFuture<Void> initTableFromConfig() {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         CompletableFuture.runAsync(() -> {
+            long startTime = System.currentTimeMillis();
             try {
-                PreparedStatement statement = connection.prepareStatement(
-                        "INSERT IGNORE INTO users (uuid, money, adventureExp, adventureLevel, flyTime, hasteLevel, " +
-                                "speedLevel, jumpLevel, hasteActive, speedActive, jumpActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                statement.setString(1, skyblockUser.getUuid().toString());
-                statement.setDouble(2, skyblockUser.getMoney());
-                statement.setDouble(3, skyblockUser.getAdventureExp());
-                statement.setDouble(4, skyblockUser.getAdventureLevel());
-                statement.setInt(5, skyblockUser.getFlyTime());
-                statement.setInt(6, skyblockUser.getHasteLevel());
-                statement.setInt(7, skyblockUser.getSpeedLevel());
-                statement.setInt(8, skyblockUser.getJumpLevel());
-                statement.setBoolean(9, skyblockUser.isHasteActive());
-                statement.setBoolean(10, skyblockUser.isSpeedActive());
-                statement.setBoolean(11, skyblockUser.isJumpActive());
+                File file = new File(SkylyBlock.INSTANCE.getDataFolder(), "old-shop.yml");
+                YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-                statement.execute();
+                for (String key : config.getKeys(false)) {
+                    for (String key2 : config.getConfigurationSection(key).getKeys(false)) {
+                        String itemName = config.getString(key + "." + key2 + ".name");
+                        Material material = Material.valueOf(config.getString(key + "." + key2 + ".material"));
+                        double buyPrice = config.getDouble(key + "." + key2 + ".buy");
+                        double sellPrice = config.getDouble(key + "." + key2 + ".sell");
+                        String shopType = key.toUpperCase();
+
+                        PreparedStatement statement = connection.prepareStatement(
+                                "INSERT INTO shops (uuid, shopType, itemName, material, buyPrice, sellPrice) VALUES (?, ?, ?, ?, ?, ?)");
+                        statement.setString(1, UUID.randomUUID().toString());
+                        statement.setString(2, shopType);
+                        statement.setString(3, itemName);
+                        statement.setString(4, material.name());
+                        statement.setDouble(5, buyPrice);
+                        statement.setDouble(6, sellPrice);
+
+                        statement.execute();
+                    }
+                }
+
+                System.out.println("Successfully inserted " + config.getKeys(false).size() + " shops in "
+                        + (System.currentTimeMillis() - startTime) + "ms");
                 future.complete(null);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -69,7 +101,7 @@ public class DatabaseManager {
         return future;
     }
 
-    public CompletableFuture<Void> updateUser(SkyblockUser skyblockUser) {
+    /*public CompletableFuture<Void> updateUser(SkyblockUser skyblockUser) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         CompletableFuture.runAsync(() -> {
@@ -98,35 +130,27 @@ public class DatabaseManager {
         });
 
         return future;
-    }
+    }*/
 
-    public CompletableFuture<SkyblockUser> getUser(String uuid) {
+    public CompletableFuture<ShopPage> getShopPage(ShopType shopType) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE uuid = ?");
-                statement.setString(1, uuid);
-
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM shops WHERE shopType = ?");
+                statement.setString(1, shopType.name());
                 statement.execute();
+
                 ResultSet resultSet = statement.getResultSet();
+                ShopPage shopPage = new ShopPage(shopType);
+                while (resultSet.next()) {
+                    String itemName = resultSet.getString("itemName");
+                    Material material = Material.valueOf(resultSet.getString("material"));
+                    float buyPrice = resultSet.getFloat("buyPrice");
+                    float sellPrice = resultSet.getFloat("sellPrice");
 
-                if (resultSet.next()) {
-
-                    /*return new SkyblockUser(UUID.fromString(uuid),
-                            resultSet.getDouble("money"),
-                            resultSet.getDouble("adventureExp"),
-                            resultSet.getDouble("adventureLevel"),
-                            resultSet.getInt("flyTime"),
-                            resultSet.getInt("hasteLevel"),
-                            resultSet.getInt("speedLevel"),
-                            resultSet.getInt("jumpLevel"),
-                            resultSet.getBoolean("hasteActive"),
-                            resultSet.getBoolean("speedActive"),
-                            resultSet.getBoolean("jumpActive"));*/
-                    return null;
-                } else {
-                    return null;
+                    shopPage.addItem(new ShopItem(itemName, material, buyPrice, sellPrice));
                 }
 
+                return shopPage;
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
