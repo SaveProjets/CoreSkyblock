@@ -1,5 +1,10 @@
-package fr.farmeurimmo.skylyblock.purpur.shop;
+package fr.farmeurimmo.skylyblock.purpur.shop.objects;
 
+import fr.farmeurimmo.skylyblock.purpur.shop.ShopType;
+import fr.mrmicky.fastinv.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
+
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class ShopPage {
@@ -33,5 +38,12 @@ public class ShopPage {
 
     public ShopType getType() {
         return type;
+    }
+
+    public ItemStack getGlassPane(boolean isAdd, int amount) {
+        return ItemBuilder.copyOf(new ItemStack((isAdd ?
+                        org.bukkit.Material.GREEN_STAINED_GLASS_PANE : org.bukkit.Material.RED_STAINED_GLASS_PANE), amount))
+                .name((isAdd ? "§aAjouter " + NumberFormat.getInstance().format(amount) : "§cRetirer " + NumberFormat.getInstance().format(amount)))
+                .build();
     }
 }

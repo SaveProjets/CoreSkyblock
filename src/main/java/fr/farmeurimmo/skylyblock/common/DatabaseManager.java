@@ -1,9 +1,9 @@
 package fr.farmeurimmo.skylyblock.common;
 
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
-import fr.farmeurimmo.skylyblock.purpur.shop.ShopItem;
-import fr.farmeurimmo.skylyblock.purpur.shop.ShopPage;
 import fr.farmeurimmo.skylyblock.purpur.shop.ShopType;
+import fr.farmeurimmo.skylyblock.purpur.shop.objects.ShopItem;
+import fr.farmeurimmo.skylyblock.purpur.shop.objects.ShopPage;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 

@@ -1,5 +1,7 @@
-package fr.farmeurimmo.skylyblock.purpur.shop;
+package fr.farmeurimmo.skylyblock.purpur.shop.invs;
 
+import fr.farmeurimmo.skylyblock.purpur.shop.objects.ShopItem;
+import fr.farmeurimmo.skylyblock.purpur.shop.objects.ShopPage;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -13,7 +15,10 @@ public class ShopPageInv extends FastInv {
             34, 37, 38, 39, 40, 41, 42, 43};
 
     public ShopPageInv(ShopPage shopPage, int page) {
-        super(54, "§6Boutique - " + shopPage.getName());
+        super(54, "§8Boutique - " + shopPage.getName());
+
+        setItems(new int[]{9, 0, 1, 7, 8, 17, 52, 53, 44, 36, 45, 46}, ItemBuilder.copyOf(new ItemStack(
+                Material.LIME_STAINED_GLASS_PANE)).name("§6").build());
 
         int maxPage = (int) Math.ceil((double) shopPage.getItems().size() / SLOTS.length);
         if (page > maxPage) {
@@ -26,13 +31,20 @@ public class ShopPageInv extends FastInv {
         for (int i = start; i < end; i++) {
             ShopItem item = shopPage.getItem(i);
             if (item == null) break;
+            int finalPage1 = page;
             setItem(SLOTS[i - start], item.getItemStack(), e -> {
                 if (e.isLeftClick()) {
-                    // buy
-                    e.getWhoClicked().sendMessage(Component.text("You bought " + item.material()));
+                    if (item.isBuyable()) {
+                        new ShopAmountInv(item, true, shopPage, finalPage1).open((Player) e.getWhoClicked());
+                    } else {
+                        e.getWhoClicked().sendMessage(Component.text("§cCet item n'est pas achetable"));
+                    }
                 } else if (e.isRightClick()) {
-                    // sell
-                    e.getWhoClicked().sendMessage(Component.text("You sold " + item.material()));
+                    if (item.isSellable()) {
+                        new ShopAmountInv(item, false, shopPage, finalPage1).open((Player) e.getWhoClicked());
+                    } else {
+                        e.getWhoClicked().sendMessage(Component.text("§cCet item n'est pas vendable"));
+                    }
                 }
             });
         }

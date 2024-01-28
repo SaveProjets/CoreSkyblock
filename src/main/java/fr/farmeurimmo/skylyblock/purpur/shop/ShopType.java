@@ -2,15 +2,15 @@ package fr.farmeurimmo.skylyblock.purpur.shop;
 
 public enum ShopType {
 
-    BLOCKS("§6Blocs"),
-    DYES("§6Colorants"),
-    AGRICULTURE("§6Agriculture"),
-    FOOD("§6Nourritures"),
-    ORES("§6Minerais"),
-    OTHERS("§6Autres"),
-    MOBS("§6Loots de mobs"),
-    REDSTONE("§6Redstone"),
-    SPAWNERS("§6Spawneurs");
+    BLOCKS("§8Blocs"),
+    DYES("§8Colorants"),
+    AGRICULTURE("§8Agriculture"),
+    FOOD("§8Nourritures"),
+    ORES("§8Minerais"),
+    OTHERS("§8Autres"),
+    MOBS("§8Loots de mobs"),
+    REDSTONE("§8Redstone"),
+    SPAWNERS("§8Spawneurs");
 
     private final String name;
 

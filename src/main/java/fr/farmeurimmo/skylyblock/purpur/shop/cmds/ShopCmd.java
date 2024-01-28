@@ -1,5 +1,6 @@
-package fr.farmeurimmo.skylyblock.purpur.shop;
+package fr.farmeurimmo.skylyblock.purpur.shop.cmds;
 
+import fr.farmeurimmo.skylyblock.purpur.shop.invs.ShopInv;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

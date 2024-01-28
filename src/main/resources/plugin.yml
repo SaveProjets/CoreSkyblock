@@ -19,7 +19,6 @@ commands:
   is:
     description: Permet d'accéder aux commandes de l'île
     aliases:
-      - island
       - ile
   chests:
     permission: skylyblock.chests
