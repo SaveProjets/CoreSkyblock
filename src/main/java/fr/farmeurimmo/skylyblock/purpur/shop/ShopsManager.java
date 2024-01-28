@@ -1,6 +1,7 @@
 package fr.farmeurimmo.skylyblock.purpur.shop;
 
 import fr.farmeurimmo.skylyblock.common.DatabaseManager;
+import fr.farmeurimmo.skylyblock.purpur.shop.objects.ShopItem;
 import fr.farmeurimmo.skylyblock.purpur.shop.objects.ShopPage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -56,7 +57,32 @@ public class ShopsManager {
         if (p.getInventory().getBoots() == null) {
             space -= iS.getMaxStackSize();
         }
-        System.out.println("Space available for " + iS.getType().name() + " : " + space);
         return space;
+    }
+
+    public int getAmountOf(Player p, ItemStack iS) {
+        int amount = 0;
+        for (int i = 0; i < p.getInventory().getSize(); i++) {
+            ItemStack item = p.getInventory().getItem(i);
+            if (item != null && item.isSimilar(iS)) {
+                amount += item.getAmount();
+            }
+        }
+        return amount;
+    }
+
+    public double getSellPrice(ItemStack iS) {
+        for (ShopPage page : pages) {
+            for (ShopItem item : page.getItems()) {
+                if (item.getPureItemStack().isSimilar(iS)) {
+                    return item.sellPrice();
+                }
+            }
+        }
+        return -1;
+    }
+
+    public boolean isSellable(ItemStack iS) {
+        return getSellPrice(iS) > 0;
     }
 }

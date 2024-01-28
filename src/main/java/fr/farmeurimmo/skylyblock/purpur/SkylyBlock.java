@@ -24,6 +24,7 @@ import fr.farmeurimmo.skylyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.skylyblock.purpur.minions.MinionsManager;
 import fr.farmeurimmo.skylyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.skylyblock.purpur.shop.ShopsManager;
+import fr.farmeurimmo.skylyblock.purpur.shop.cmds.SellAllCmd;
 import fr.farmeurimmo.skylyblock.purpur.shop.cmds.ShopCmd;
 import fr.farmeurimmo.skylyblock.purpur.trade.*;
 import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
@@ -121,6 +122,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("buildspawn").setExecutor(new BuildSpawnCmd());
         getCommand("spawn").setExecutor(new SpawnCmd());
         getCommand("shop").setExecutor(new ShopCmd());
+        getCommand("sellall").setExecutor(new SellAllCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);

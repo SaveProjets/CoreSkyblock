@@ -132,9 +132,35 @@ public class ShopAmountInv extends FastInv {
                 new ShopStacksInv(item, shopPage, page).open((Player) e.getWhoClicked());
             });
         } else {
-            setItem(40, ItemBuilder.copyOf(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE, 64))
+            setItem(40, ItemBuilder.copyOf(new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 64))
                     .name("§6Tout vendre").build(), e -> {
-                //FIXME
+                SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(e.getWhoClicked().getUniqueId());
+                if (user == null) {
+                    e.getWhoClicked().sendMessage("§cUne erreur est survenue lors de la récupération de votre profil.");
+                    return;
+                }
+                double sellPrice = ShopsManager.INSTANCE.getSellPrice(item.getPureItemStack());
+                if (sellPrice <= 0) {
+                    e.getWhoClicked().sendMessage("§cVous ne pouvez pas vendre cet item !");
+                    return;
+                }
+                int amount = ShopsManager.INSTANCE.getAmountOf((Player) e.getWhoClicked(), item.getPureItemStack());
+                if (amount <= 0) {
+                    e.getWhoClicked().sendMessage("§cVous n'avez pas cet item dans votre inventaire !");
+                    return;
+                }
+                double total = sellPrice * amount;
+                user.addMoney(total);
+                for (int i = 0; i < e.getWhoClicked().getInventory().getSize(); i++) {
+                    ItemStack itemStack = e.getWhoClicked().getInventory().getItem(i);
+                    if (itemStack == null) continue;
+                    if (itemStack.isSimilar(item.getPureItemStack())) {
+                        e.getWhoClicked().getInventory().setItem(i, null);
+                    }
+                }
+                e.getWhoClicked().sendMessage("§aVous avez vendu §e" + amount + " " + item.getPureItemStack().getType().name() +
+                        "§a pour §e" + NumberFormat.getInstance().format(total) + "$§a.");
+                e.getWhoClicked().closeInventory();
             });
         }
     }

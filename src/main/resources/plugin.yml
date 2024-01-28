@@ -31,3 +31,5 @@ commands:
   tradecancel:
   spawn:
   shop:
+  sellall:
+    permission: skylyblock.sellall
