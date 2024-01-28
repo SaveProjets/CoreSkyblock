@@ -33,3 +33,10 @@ commands:
   shop:
   sellall:
     permission: skylyblock.sellall
+  trash:
+  craft:
+    permission: skylyblock.craft
+  enchantement:
+    permission: skylyblock.enchantement
+  anvil:
+    permission: skylyblock.anvil

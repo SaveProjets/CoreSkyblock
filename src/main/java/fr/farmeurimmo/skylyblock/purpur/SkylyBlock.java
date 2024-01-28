@@ -7,9 +7,7 @@ import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsManager;
-import fr.farmeurimmo.skylyblock.purpur.cmds.BuildSpawnCmd;
-import fr.farmeurimmo.skylyblock.purpur.cmds.IslandCmd;
-import fr.farmeurimmo.skylyblock.purpur.cmds.SpawnCmd;
+import fr.farmeurimmo.skylyblock.purpur.cmds.*;
 import fr.farmeurimmo.skylyblock.purpur.eco.MoneyCmd;
 import fr.farmeurimmo.skylyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.skylyblock.purpur.featherfly.FeatherFlyCmd;
@@ -123,6 +121,10 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("spawn").setExecutor(new SpawnCmd());
         getCommand("shop").setExecutor(new ShopCmd());
         getCommand("sellall").setExecutor(new SellAllCmd());
+        getCommand("trash").setExecutor(new TrashCmd());
+        getCommand("craft").setExecutor(new CraftCmd());
+        getCommand("enchantement").setExecutor(new EnchantementCmd());
+        getCommand("anvil").setExecutor(new AnvilCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
