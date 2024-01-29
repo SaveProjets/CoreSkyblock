@@ -42,3 +42,4 @@ commands:
     permission: skylyblock.anvil
   furnace:
     permission: skylyblock.furnace
+  silo:

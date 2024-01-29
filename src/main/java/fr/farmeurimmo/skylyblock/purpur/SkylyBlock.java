@@ -24,6 +24,8 @@ import fr.farmeurimmo.skylyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.skylyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.skylyblock.purpur.shop.cmds.SellAllCmd;
 import fr.farmeurimmo.skylyblock.purpur.shop.cmds.ShopCmd;
+import fr.farmeurimmo.skylyblock.purpur.silos.SiloCmd;
+import fr.farmeurimmo.skylyblock.purpur.silos.SilosManager;
 import fr.farmeurimmo.skylyblock.purpur.trade.*;
 import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
 import fr.farmeurimmo.skylyblock.utils.InventorySyncUtils;
@@ -93,6 +95,7 @@ public final class SkylyBlock extends JavaPlugin {
         new TradesManager();
 
         new ShopsManager();
+        new SilosManager();
 
         console.sendMessage("§b[SkylyBlock] §7Connexion à redis...");
         new JedisManager();
@@ -125,6 +128,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("enchantement").setExecutor(new EnchantementCmd());
         getCommand("anvil").setExecutor(new AnvilCmd());
         getCommand("furnace").setExecutor(new FurnaceCmd());
+        getCommand("silo").setExecutor(new SiloCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
