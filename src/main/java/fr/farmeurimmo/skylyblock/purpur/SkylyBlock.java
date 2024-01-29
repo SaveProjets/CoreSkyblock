@@ -124,6 +124,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("craft").setExecutor(new CraftCmd());
         getCommand("enchantement").setExecutor(new EnchantementCmd());
         getCommand("anvil").setExecutor(new AnvilCmd());
+        getCommand("furnace").setExecutor(new FurnaceCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);

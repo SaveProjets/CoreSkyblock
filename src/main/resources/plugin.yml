@@ -40,3 +40,5 @@ commands:
     permission: skylyblock.enchantement
   anvil:
     permission: skylyblock.anvil
+  furnace:
+    permission: skylyblock.furnace
