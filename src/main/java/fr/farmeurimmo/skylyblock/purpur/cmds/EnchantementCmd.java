@@ -2,8 +2,6 @@ package fr.farmeurimmo.skylyblock.purpur.cmds;
 
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,13 +16,7 @@ public class EnchantementCmd implements CommandExecutor {
             sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande"));
             return false;
         }
-        Block block = SkylyBlock.SPAWN.clone().add(0, 25, 0).getBlock();
-        if (block.getType().isAir()) {
-            block.setType(Material.ENCHANTING_TABLE);
-            p.openEnchanting(block.getLocation(), true);
-            block.setType(Material.AIR);
-        }
-        //FIXME: Find a better way + a level 30 enchantment table
+        p.openEnchanting(SkylyBlock.ENCHANTING_TABLE_LOCATION, true);
         return false;
     }
 }

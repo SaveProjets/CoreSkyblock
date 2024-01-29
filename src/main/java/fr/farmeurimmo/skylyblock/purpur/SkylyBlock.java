@@ -29,10 +29,8 @@ import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
 import fr.farmeurimmo.skylyblock.utils.InventorySyncUtils;
 import fr.mrmicky.fastinv.FastInvManager;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,6 +45,7 @@ public final class SkylyBlock extends JavaPlugin {
     public static SkylyBlock INSTANCE;
     public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
     public static String SERVER_NAME;
+    public static Location ENCHANTING_TABLE_LOCATION;
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
@@ -129,8 +128,31 @@ public final class SkylyBlock extends JavaPlugin {
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
         clockForBuildMode();
+        setupEnchantingTable();
 
         console.sendMessage("§b[SkylyBlock] §aDémarrage du plugin SkylyBlock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
+    }
+
+    public void setupEnchantingTable() {
+        World w = Bukkit.getWorld(SPAWN_WORLD_NAME);
+        if (w == null) return;
+        Location loc = SPAWN.clone();
+        loc.setY(loc.getWorld().getMaxHeight() - 2);
+        Block block = loc.getBlock();
+        block.setType(Material.ENCHANTING_TABLE);
+        ENCHANTING_TABLE_LOCATION = block.getLocation();
+        for (int x = -2; x <= 2; x++) {
+            //if (x == 0 || x == 1 || x == -1) continue;
+            for (int z = -2; z <= 2; z++) {
+                if (z == 0 || z == 1 || z == -1) continue;
+                for (int y = 0; y <= 2; y++) {
+                    Block b = block.getRelative(x, y, z);
+                    if (b.getType().isAir()) {
+                        b.setType(Material.BOOKSHELF);
+                    }
+                }
+            }
+        }
     }
 
     @Override
