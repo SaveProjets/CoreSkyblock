@@ -25,6 +25,7 @@ import fr.farmeurimmo.skylyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.skylyblock.purpur.shop.cmds.SellAllCmd;
 import fr.farmeurimmo.skylyblock.purpur.shop.cmds.ShopCmd;
 import fr.farmeurimmo.skylyblock.purpur.silos.SiloCmd;
+import fr.farmeurimmo.skylyblock.purpur.silos.SilosListener;
 import fr.farmeurimmo.skylyblock.purpur.silos.SilosManager;
 import fr.farmeurimmo.skylyblock.purpur.trade.*;
 import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
@@ -108,6 +109,7 @@ public final class SkylyBlock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChestsListener(), this);
         getServer().getPluginManager().registerEvents(new MinionsListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(), this);
+        getServer().getPluginManager().registerEvents(new SilosListener(), this);
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des commandes...");
         getCommand("featherfly").setExecutor(new FeatherFlyCmd());
@@ -134,6 +136,7 @@ public final class SkylyBlock extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
         clockForBuildMode();
         setupEnchantingTable();
+        optimizeSpawn();
 
         console.sendMessage("§b[SkylyBlock] §aDémarrage du plugin SkylyBlock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }
