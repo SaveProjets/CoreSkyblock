@@ -54,7 +54,8 @@ public class SilosManager {
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.displayName(Component.text(String.format(NAME_FORMAT, silosType.getName())));
         itemMeta.lore(List.of(Component.text(LORE_FORMAT.formatted(0, silosType.getName())),
-                Component.text("§0" + UUID.randomUUID()), Component.text("§7Stocke tous vos " + silosType.getName().toLowerCase()),
+                Component.text("§0" + UUID.randomUUID()),
+                Component.text("§7Stocke tous/toute vos/votre " + silosType.getName().toLowerCase()),
                 Component.text("§7cultures en un seul endroit."), Component.text(""),
                 Component.text("§7Clic droit pour ouvrir.")));
         itemMeta.setUnbreakable(true);

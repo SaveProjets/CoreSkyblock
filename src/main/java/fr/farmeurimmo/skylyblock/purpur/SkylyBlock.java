@@ -4,6 +4,7 @@ import com.grinderwolf.swm.api.SlimePlugin;
 import fr.farmeurimmo.skylyblock.common.DatabaseManager;
 import fr.farmeurimmo.skylyblock.common.JedisManager;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.skylyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsManager;
@@ -97,6 +98,8 @@ public final class SkylyBlock extends JavaPlugin {
 
         new ShopsManager();
         new SilosManager();
+
+        new ChatDisplayManager();
 
         console.sendMessage("§b[SkylyBlock] §7Connexion à redis...");
         new JedisManager();
