@@ -51,3 +51,6 @@ commands:
   fix:
     permission: skylyblock.fix
   kits:
+  tpa:
+  tpayes:
+  tpadeny:

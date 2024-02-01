@@ -28,6 +28,8 @@ import fr.farmeurimmo.skylyblock.purpur.shop.cmds.ShopCmd;
 import fr.farmeurimmo.skylyblock.purpur.silos.SiloCmd;
 import fr.farmeurimmo.skylyblock.purpur.silos.SilosListener;
 import fr.farmeurimmo.skylyblock.purpur.silos.SilosManager;
+import fr.farmeurimmo.skylyblock.purpur.tpa.TpaCmd;
+import fr.farmeurimmo.skylyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.skylyblock.purpur.trade.*;
 import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
 import fr.farmeurimmo.skylyblock.utils.InventorySyncUtils;
@@ -95,6 +97,7 @@ public final class SkylyBlock extends JavaPlugin {
         new ChestsManager();
         new MinionsManager();
         new TradesManager();
+        new TpasManager();
 
         new ShopsManager();
         new SilosManager();
@@ -138,6 +141,7 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("near").setExecutor(new NearCmd());
         getCommand("fix").setExecutor(new FixCmd());
         getCommand("kits").setExecutor(new KitsCmd());
+        getCommand("tpa").setExecutor(new TpaCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
