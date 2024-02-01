@@ -4,14 +4,17 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class FeedCmd implements CommandExecutor {
+public class FeedCmd implements CommandExecutor, TabCompleter {
 
     public static final int COOLDOWN = 30;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
@@ -32,5 +35,10 @@ public class FeedCmd implements CommandExecutor {
                     " seconde(s) avant de pouvoir vous nourrir."));
         }
         return false;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        return null;
     }
 }

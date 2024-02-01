@@ -48,3 +48,6 @@ commands:
     permission: skylyblock.feed
   near:
     permission: skylyblock.near
+  fix:
+    permission: skylyblock.fix
+  kits:

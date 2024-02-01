@@ -4,13 +4,16 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class NearCmd implements CommandExecutor {
+public class NearCmd implements CommandExecutor, TabCompleter {
 
     public static final long COOLDOWN = 5 * 60;
     public static final int MAX_NEAR = 50;
@@ -49,5 +52,10 @@ public class NearCmd implements CommandExecutor {
             p.sendMessage(Component.text("§e" + player.getName() + " §7- §e" + distance + " §7m"));
         });
         return false;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        return List.of();
     }
 }
