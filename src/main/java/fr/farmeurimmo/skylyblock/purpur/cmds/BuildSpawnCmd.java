@@ -13,7 +13,7 @@ public class BuildSpawnCmd implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage("§cVous devez être un joueur pour exécuter cette commande");
+            sender.sendMessage("§cVous devez être un joueur pour exécuter cette commande.");
             return false;
         }
         if (SkylyBlock.INSTANCE.buildModePlayers.contains(p.getUniqueId())) {
@@ -22,7 +22,7 @@ public class BuildSpawnCmd implements CommandExecutor {
             p.sendActionBar(Component.text());
         } else {
             SkylyBlock.INSTANCE.buildModePlayers.add(p.getUniqueId());
-            p.sendMessage("§aVous avez rejoint le mode construction");
+            p.sendMessage("§aVous avez rejoint le mode construction.");
             p.sendActionBar(Component.text("§c§lVous êtes en mode construction."));
         }
         return false;

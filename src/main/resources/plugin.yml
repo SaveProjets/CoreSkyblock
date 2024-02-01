@@ -43,3 +43,8 @@ commands:
   furnace:
     permission: skylyblock.furnace
   silo:
+    permission: skylyblock.silo
+  feed:
+    permission: skylyblock.feed
+  near:
+    permission: skylyblock.near

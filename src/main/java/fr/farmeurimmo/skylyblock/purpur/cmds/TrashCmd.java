@@ -13,7 +13,7 @@ public class TrashCmd implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande"));
+            sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
             return false;
         }
         FastInv inv = new FastInv(45, "§8Poubelle");

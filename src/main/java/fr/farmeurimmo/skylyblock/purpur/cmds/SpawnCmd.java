@@ -21,7 +21,7 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("skylyblock.admin")) {
                 Player target = Bukkit.getPlayer(args[0]);
                 if (target == null) {
-                    sender.sendMessage(Component.text("§cErreur, joueur inconnu ou non connecté sur ce server !"));
+                    sender.sendMessage(Component.text("§cErreur, joueur inconnu ou non connecté sur ce serveur !"));
                     return false;
                 }
                 target.sendActionBar(Component.text("§aTéléportation au spawn par la force..."));
@@ -37,7 +37,7 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
             }
         }
         if (!(sender instanceof Player p)) {
-            sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande"));
+            sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
             return false;
         }
         p.sendActionBar(Component.text("§aTéléportation au spawn..."));

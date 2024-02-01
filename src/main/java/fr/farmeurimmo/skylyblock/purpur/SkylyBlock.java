@@ -134,6 +134,8 @@ public final class SkylyBlock extends JavaPlugin {
         getCommand("anvil").setExecutor(new AnvilCmd());
         getCommand("furnace").setExecutor(new FurnaceCmd());
         getCommand("silo").setExecutor(new SiloCmd());
+        getCommand("feed").setExecutor(new FeedCmd());
+        getCommand("near").setExecutor(new NearCmd());
 
         console.sendMessage("§b[SkylyBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
