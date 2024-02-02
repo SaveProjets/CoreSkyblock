@@ -2,6 +2,8 @@ package fr.farmeurimmo.skylyblock.purpur.scoreboard;
 
 import fr.farmeurimmo.skylyblock.common.SkyblockUser;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.skylyblock.common.islands.Island;
+import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
 import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.Bukkit;
@@ -38,10 +40,25 @@ public class ScoreboardManager {
         if (boardNumber.containsKey(uuid)) number = boardNumber.get(uuid);
         Player p = Bukkit.getPlayer(uuid);
         if (p == null) return;
-        SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(uuid);
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
+        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
         if (user == null) {
-            board.updateTitle("§4§lErreur lors du chargement du profil");
+            board.updateTitle("§a§lChargement...");
             return;
+        }
+        ArrayList<String> islandLines = new ArrayList<>();
+        if (island != null) {
+            islandLines.add("§6§lVotre île §8[§7#" + "EN DEV" + "§8]");
+            islandLines.add("§8┃ §7Rang: §4" + island.getMembers().get(p.getUniqueId()).getName());
+            islandLines.add("§8┃ §7Membres: §e" + island.getMembers().size());
+            islandLines.add("§8┃ §7Cristaux: §d" + NumberFormat.getInstance().format(island.getBankCrystals()));
+            islandLines.add("§8┃ §7Niveau: §b" + NumberFormat.getInstance().format(island.getLevel()));
+            islandLines.add("§8┃ §8[§b||||||||||||||||||||§7]");
+        } else {
+            islandLines.add("§6§lVous n'avez pas d'île");
+            islandLines.add("§8┃ §7/is create pour en créer une");
+            islandLines.add("§8┃ §7/is join <joueur> pour rejoindre une");
+            islandLines.add("§8┃ §7île avec une invitation");
         }
         if (number == 0) {
             board.updateTitle("§4»§c» §c§lSKYBLOCK §c«§4«");
@@ -52,12 +69,13 @@ public class ScoreboardManager {
                     "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
                     "§8┃ §7Grade: §c????",
                     "",
-                    "§6§lVotre île §8[§7#????§8]",
-                    "§8┃ §7Rang: §4???",
-                    "§8┃ §7Membres: §e??",
-                    "§8┃ §7Cristaux: §d???",
-                    "§8┃ §7Niveau: §b??",
-                    "§8┃ §8[§b┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃§7┃§8]",
+                    islandLines.get(0),
+                    islandLines.get(1),
+                    islandLines.get(2),
+                    islandLines.get(3),
+                    islandLines.stream().skip(4).findFirst().orElse(""),
+                    islandLines.stream().skip(5).findFirst().orElse(""),
+                    islandLines.stream().skip(6).findFirst().orElse(""),
                     "",
                     "§f» §c§lplay.skyly.fr"
             );

@@ -135,7 +135,11 @@ public class TradeInv extends FastInv {
                     e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier votre mise car vous êtes prêt."));
                     return;
                 }
-                SkyblockUser user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(e.getWhoClicked().getUniqueId(), e.getWhoClicked().getName());
+                SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
+                if (user == null) {
+                    e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la récupération de votre profil."));
+                    return;
+                }
                 if (e.isLeftClick()) {
                     if (user.getMoney() < trade.getEmitterMoney() + 1000) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent."));
@@ -156,7 +160,11 @@ public class TradeInv extends FastInv {
                     e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier votre mise car vous êtes prêt."));
                     return;
                 }
-                SkyblockUser user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(e.getWhoClicked().getUniqueId(), e.getWhoClicked().getName());
+                SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
+                if (user == null) {
+                    e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la récupération de votre profil."));
+                    return;
+                }
                 if (e.isLeftClick()) {
                     if (user.getMoney() < trade.getEmitterMoney() + 10000) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent."));
@@ -178,7 +186,11 @@ public class TradeInv extends FastInv {
                     return;
                 }
                 if (e.isLeftClick()) {
-                    SkyblockUser user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(e.getWhoClicked().getUniqueId(), e.getWhoClicked().getName());
+                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
+                    if (user == null) {
+                        e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la récupération de votre profil."));
+                        return;
+                    }
                     if (user.getMoney() < trade.getEmitterMoney() + 100000) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent."));
                         return;
@@ -204,7 +216,11 @@ public class TradeInv extends FastInv {
                     return;
                 }
                 if (e.isLeftClick()) {
-                    SkyblockUser user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(e.getWhoClicked().getUniqueId(), e.getWhoClicked().getName());
+                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
+                    if (user == null) {
+                        e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la récupération de votre profil."));
+                        return;
+                    }
                     if (user.getMoney() < trade.getReceiverMoney() + 1000) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent."));
                         return;
@@ -225,7 +241,11 @@ public class TradeInv extends FastInv {
                     return;
                 }
                 if (e.isLeftClick()) {
-                    SkyblockUser user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(e.getWhoClicked().getUniqueId(), e.getWhoClicked().getName());
+                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
+                    if (user == null) {
+                        e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la récupération de votre profil."));
+                        return;
+                    }
                     if (user.getMoney() < trade.getReceiverMoney() + 10000) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent."));
                         return;
@@ -246,7 +266,11 @@ public class TradeInv extends FastInv {
                     return;
                 }
                 if (e.isLeftClick()) {
-                    SkyblockUser user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(e.getWhoClicked().getUniqueId(), e.getWhoClicked().getName());
+                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
+                    if (user == null) {
+                        e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la récupération de votre profil."));
+                        return;
+                    }
                     if (user.getMoney() < trade.getReceiverMoney() + 100000) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent."));
                         return;

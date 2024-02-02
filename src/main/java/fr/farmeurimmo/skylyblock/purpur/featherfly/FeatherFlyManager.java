@@ -29,7 +29,8 @@ public class FeatherFlyManager {
     }
 
     public void clock() {
-        for (SkyblockUser user : SkyblockUsersManager.INSTANCE.getLocalUsers()) {
+        for (SkyblockUser user : SkyblockUsersManager.INSTANCE.getCachedUsers().values()) {
+            if (user == null) continue;
             if (user.getFlyTime() <= 0) continue;
             if (players.contains(user.getUuid())) continue;
             Player p = Bukkit.getPlayer(user.getUuid());
@@ -38,7 +39,7 @@ public class FeatherFlyManager {
         }
         ArrayList<UUID> toRemove = new ArrayList<>();
         for (UUID uuid : players) {
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(uuid);
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(uuid);
             if (user == null) continue;
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) {
@@ -98,7 +99,7 @@ public class FeatherFlyManager {
     }
 
     public boolean enableFly(Player p, int time) {
-        SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) return false;
         int flyLeft = user.getFlyTime();
         if (flyLeft + time > 86400) {

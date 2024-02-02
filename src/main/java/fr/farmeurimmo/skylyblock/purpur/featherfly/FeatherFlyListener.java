@@ -55,7 +55,7 @@ public class FeatherFlyListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         if (IslandsManager.INSTANCE.isAnIsland(p.getWorld())) {
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
             if (user != null) {
                 if (user.getFlyTime() > 0) {
                     FeatherFlyManager.INSTANCE.enableFly(p, 0);

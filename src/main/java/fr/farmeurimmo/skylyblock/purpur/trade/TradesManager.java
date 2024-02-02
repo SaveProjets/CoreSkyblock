@@ -97,14 +97,14 @@ public class TradesManager {
             for (ItemStack item : trade.getEmitterItems()) {
                 emitter.getInventory().addItem(item);
             }
-            SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(trade.getEmitter(), null);
+            SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getEmitter());
             emitter_user.setMoney(emitter_user.getMoney() + trade.getEmitterMoney());
         }
         if (receiver != null) {
             for (ItemStack item : trade.getReceiverItems()) {
                 receiver.getInventory().addItem(item);
             }
-            SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(trade.getReceiver(), null);
+            SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getReceiver());
             receiver_user.setMoney(receiver_user.getMoney() + trade.getReceiverMoney());
         }
 
@@ -124,8 +124,8 @@ public class TradesManager {
 
         //FIXME: money
 
-        SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(emitter.getUniqueId(), emitter.getName());
-        SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(receiver.getUniqueId(), receiver.getName());
+        SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getEmitter());
+        SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getReceiver());
 
         if (emitter_user.getMoney() > 0) {
             emitter_user.setMoney(emitter_user.getMoney() - trade.getEmitterMoney());

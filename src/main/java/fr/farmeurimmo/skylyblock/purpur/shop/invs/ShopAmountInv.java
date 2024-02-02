@@ -75,7 +75,8 @@ public class ShopAmountInv extends FastInv {
         });
 
         setItem(13, item.getItemStack(buy, amount), e -> {
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(e.getWhoClicked().getUniqueId());
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
+                    .getUniqueId());
             if (user == null) {
                 e.getWhoClicked().sendMessage("§cUne erreur est survenue lors de la récupération de votre profil.");
                 return;
@@ -134,7 +135,8 @@ public class ShopAmountInv extends FastInv {
         } else {
             setItem(40, ItemBuilder.copyOf(new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 64))
                     .name("§6Tout vendre").build(), e -> {
-                SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(e.getWhoClicked().getUniqueId());
+                SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
+                        .getUniqueId());
                 if (user == null) {
                     e.getWhoClicked().sendMessage("§cUne erreur est survenue lors de la récupération de votre profil.");
                     return;

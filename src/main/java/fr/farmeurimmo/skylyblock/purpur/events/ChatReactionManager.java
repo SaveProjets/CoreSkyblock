@@ -67,7 +67,7 @@ public class ChatReactionManager {
                     DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§f."));
             isRunning = false;
 
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
             if (user == null) {
                 return;
             }

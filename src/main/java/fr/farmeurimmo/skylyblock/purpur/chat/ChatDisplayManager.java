@@ -47,7 +47,7 @@ public class ChatDisplayManager {
     }
 
     public Component getComponentForMoney(Player p) {
-        SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) {
             return Component.text("§6[Argent : §cErreur INTERNE$§6]§f");
         }

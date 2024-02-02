@@ -21,21 +21,24 @@ public class IslandCmd implements CommandExecutor {
             sender.sendMessage("§cVous devez être un joueur pour exécuter cette commande.");
             return false;
         }
-        //FIXME: check if user as an island
-        if (args.length == 0) {
-            p.sendMessage(USAGE_NO_IS);
-            return false;
-        }
-        if (args[0].equalsIgnoreCase("create")) {
-            JedisManager.INSTANCE.publishToRedis("skylyblock", "island:create:" + p.getUniqueId());
+        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+        if (island == null) {
+            if (args.length == 0) {
+                p.sendMessage(USAGE_NO_IS);
+                return false;
+            }
+            if (args[0].equalsIgnoreCase("create")) {
+                JedisManager.INSTANCE.publishToRedis("skylyblock", "island:create:" + p.getUniqueId());
             /*if (SkylyBlock.INSTANCE.getServerType() != ServerType.SKYBLOCK_ISLAND) {
                 return false;
             }*/
+                return false;
+            }
+            p.sendMessage(USAGE_NO_IS);
             return false;
         }
-        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
-        if (island == null) {
-            p.sendMessage(USAGE_NO_IS);
+        if (args.length == 0) {
+            //open Island Inv
             return false;
         }
         if (args[0].equalsIgnoreCase("go")) {

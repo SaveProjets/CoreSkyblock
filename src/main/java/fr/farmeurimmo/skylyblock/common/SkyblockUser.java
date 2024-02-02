@@ -1,6 +1,7 @@
 package fr.farmeurimmo.skylyblock.common;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class SkyblockUser {
 
@@ -10,28 +11,16 @@ public class SkyblockUser {
     private double adventureExp;
     private double adventureLevel;
     private int flyTime;
-    private int hasteLevel;
-    private int speedLevel;
-    private int jumpLevel;
-    private boolean hasteActive;
-    private boolean speedActive;
-    private boolean jumpActive;
 
-    public SkyblockUser(UUID uuid, String name, double money, double adventureExp, double adventureLevel, int flyTime,
-                        int hasteLevel, int speedLevel, int jumpLevel, boolean hasteActive, boolean speedActive,
-                        boolean jumpActive) {
+    private boolean modified = false;
+
+    public SkyblockUser(UUID uuid, String name, double money, double adventureExp, double adventureLevel, int flyTime) {
         this.uuid = uuid;
         this.name = name;
         this.money = money;
         this.adventureExp = adventureExp;
         this.adventureLevel = adventureLevel;
         this.flyTime = flyTime;
-        this.hasteLevel = hasteLevel;
-        this.speedLevel = speedLevel;
-        this.jumpLevel = jumpLevel;
-        this.hasteActive = hasteActive;
-        this.speedActive = speedActive;
-        this.jumpActive = jumpActive;
     }
 
     public SkyblockUser(UUID uuid, String name) {
@@ -41,12 +30,6 @@ public class SkyblockUser {
         this.adventureExp = 0;
         this.adventureLevel = 0;
         this.flyTime = 0;
-        this.hasteLevel = 0;
-        this.speedLevel = 0;
-        this.jumpLevel = 0;
-        this.hasteActive = false;
-        this.speedActive = false;
-        this.jumpActive = false;
     }
 
     public UUID getUuid() {
@@ -63,6 +46,7 @@ public class SkyblockUser {
 
     public void setMoney(double money) {
         this.money = money;
+        update();
     }
 
     public double getAdventureExp() {
@@ -71,6 +55,7 @@ public class SkyblockUser {
 
     public void setAdventureExp(double adventureExp) {
         this.adventureExp = adventureExp;
+        setModified(true);
     }
 
     public double getAdventureLevel() {
@@ -79,6 +64,7 @@ public class SkyblockUser {
 
     public void setAdventureLevel(double adventureLevel) {
         this.adventureLevel = adventureLevel;
+        setModified(true);
     }
 
     public int getFlyTime() {
@@ -87,58 +73,25 @@ public class SkyblockUser {
 
     public void setFlyTime(int flyTime) {
         this.flyTime = flyTime;
-    }
-
-    public int getHasteLevel() {
-        return hasteLevel;
-    }
-
-    public void setHasteLevel(int hasteLevel) {
-        this.hasteLevel = hasteLevel;
-    }
-
-    public int getSpeedLevel() {
-        return speedLevel;
-    }
-
-    public void setSpeedLevel(int speedLevel) {
-        this.speedLevel = speedLevel;
-    }
-
-    public int getJumpLevel() {
-        return jumpLevel;
-    }
-
-    public void setJumpLevel(int jumpLevel) {
-        this.jumpLevel = jumpLevel;
-    }
-
-    public boolean isHasteActive() {
-        return hasteActive;
-    }
-
-    public void setHasteActive(boolean hasteActive) {
-        this.hasteActive = hasteActive;
-    }
-
-    public boolean isSpeedActive() {
-        return speedActive;
-    }
-
-    public void setSpeedActive(boolean speedActive) {
-        this.speedActive = speedActive;
-    }
-
-    public boolean isJumpActive() {
-        return jumpActive;
-    }
-
-    public void setJumpActive(boolean jumpActive) {
-        this.jumpActive = jumpActive;
+        setModified(true);
     }
 
     public void addMoney(double money) {
         this.money += money;
+        update();
+    }
+
+    public void update() {
+        CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.updateUserSync(this));
+        setModified(false);
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 
 }

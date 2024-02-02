@@ -51,6 +51,15 @@ public enum IslandPerms {
         return valueOf(str);
     }
 
+    public static IslandPerms getById(int id) {
+        for (IslandPerms islandPerms : values()) {
+            if (islandPerms.getId() == id) {
+                return islandPerms;
+            }
+        }
+        return null;
+    }
+
     public String getDescription() {
         return description;
     }

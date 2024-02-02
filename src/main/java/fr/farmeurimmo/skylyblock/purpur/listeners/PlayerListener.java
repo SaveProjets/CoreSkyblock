@@ -1,14 +1,19 @@
 package fr.farmeurimmo.skylyblock.purpur.listeners;
 
+import fr.farmeurimmo.skylyblock.common.SkyblockUser;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
 import fr.farmeurimmo.skylyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.skylyblock.purpur.trade.TradesManager;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
+
+import java.util.concurrent.CompletableFuture;
 
 public class PlayerListener implements Listener {
 
@@ -16,16 +21,16 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
 
-        SkyblockUsersManager.INSTANCE.checkForAccountOrCreate(p.getUniqueId(), p.getName());
+        SkyblockUsersManager.INSTANCE.loadUser(p.getUniqueId(), p.getName()).exceptionally(ex -> {
+            p.kick(Component.text("§cErreur lors de la connexion au serveur, veuillez réessayer plus tard !"));
+            return null;
+        });
 
         ScoreboardManager.INSTANCE.addPlayer(p);
 
-        e.setJoinMessage(null);
+        e.joinMessage(null);
 
         p.teleportAsync(SkylyBlock.SPAWN);
-
-        /*JedisManager.INSTANCE.publishToRedis("skylyblock", "sync:inv:" + p.getUniqueId() + ":" +
-                InventorySyncUtils.INSTANCE.toBase64(inv));*/
     }
 
     @EventHandler
@@ -38,7 +43,17 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
 
-        e.setQuitMessage(null);
+        e.quitMessage(null);
+
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
+        if (user != null) {
+            CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.updateUserSync(user)).thenRun(() -> {
+                Bukkit.getScheduler().callSyncMethod(SkylyBlock.INSTANCE, () -> {
+                    SkyblockUsersManager.INSTANCE.getCachedUsers().remove(p.getUniqueId());
+                    return null;
+                });
+            });
+        }
     }
 
     @EventHandler

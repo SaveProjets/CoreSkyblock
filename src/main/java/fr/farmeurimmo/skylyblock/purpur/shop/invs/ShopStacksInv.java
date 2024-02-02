@@ -35,7 +35,8 @@ public class ShopStacksInv extends FastInv {
             setItem(j, item.getItemStackForStackBuy(finalCurrentStacks), e -> {
                 if (ShopsManager.INSTANCE.getSpaceAvailableFor((Player) e.getWhoClicked(), item.getPureItemStack()) >=
                         (finalCurrentStacks * item.getPureItemStack().getMaxStackSize())) {
-                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(e.getWhoClicked().getUniqueId());
+                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
+                            .getUniqueId());
                     if (user == null) {
                         e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la " +
                                 "récupération de votre profil."));

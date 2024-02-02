@@ -2,17 +2,19 @@ package fr.farmeurimmo.skylyblock.common.islands;
 
 public enum IslandRanks {
 
-    CHEF("Chef"),
-    COCHEF("Cochef"),
-    MODERATEUR("Modérateur"),
-    MEMBRE("Membre"),
-    COOP("Membre temporaire"),
-    VISITEUR("Visiteur");
+    CHEF("Chef", 0),
+    COCHEF("Cochef", 1),
+    MODERATEUR("Modérateur", 2),
+    MEMBRE("Membre", 3),
+    COOP("Membre temporaire", 4),
+    VISITEUR("Visiteur", 5);
 
-    private String name;
+    private final String name;
+    private final int id;
 
-    IslandRanks(String name) {
+    IslandRanks(String name, int id) {
         this.name = name;
+        this.id = id;
     }
 
     public static IslandRanks match(String str) {
@@ -24,8 +26,21 @@ public enum IslandRanks {
         return valueOf(str);
     }
 
+    public static IslandRanks getById(int id) {
+        for (IslandRanks islandRanks : values()) {
+            if (islandRanks.getId() == id) {
+                return islandRanks;
+            }
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public int getId() {
+        return id;
     }
 }
 

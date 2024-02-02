@@ -26,7 +26,7 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
                 sender.sendMessage(USAGE_ADMIN);
                 return false;
             }
-            SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+            SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
             if (skyblockUser == null) {
                 p.sendMessage(Component.text("§cErreur lors de la récupération de votre compte !"));
                 return false;
@@ -55,8 +55,8 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
                 return false;
             }
 
-            //FIXME get player by name
-            SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getLocalUser(playerName);
+            SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getCachedUsers().values().stream()
+                    .filter(user -> user.getName().equalsIgnoreCase(playerName)).findFirst().orElse(null);
             if (skyblockUser == null) {
                 sender.sendMessage(Component.text("§cCe joueur n'existe pas !"));
                 return false;

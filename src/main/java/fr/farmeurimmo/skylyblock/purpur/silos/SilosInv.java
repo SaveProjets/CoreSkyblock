@@ -45,7 +45,7 @@ public class SilosInv extends FastInv {
 
             e.getWhoClicked().sendMessage("§aVous avez vendu §6x" + finalAmount + " " + silosType.getName() +
                     "§a pour §6" + priceFormatted + "$§a.");
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(e.getWhoClicked().getUniqueId());
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked()).getUniqueId());
             user.setMoney(user.getMoney() + price);
             SilosManager.INSTANCE.setAmount(itemStack, silosType, 0);
         });

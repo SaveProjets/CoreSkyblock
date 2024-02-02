@@ -22,7 +22,7 @@ public class SellAllCmd implements CommandExecutor {
             sender.sendMessage(Component.text("§cVous devez être un joueur pour faire cela !"));
             return false;
         }
-        SkyblockUser user = SkyblockUsersManager.INSTANCE.getUser(p.getUniqueId());
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) {
             sender.sendMessage(Component.text("§cUne erreur est survenue, veuillez réessayer plus tard."));
             return false;
