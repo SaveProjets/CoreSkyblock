@@ -9,6 +9,8 @@ import fr.farmeurimmo.skylyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.skylyblock.purpur.chests.ChestsManager;
 import fr.farmeurimmo.skylyblock.purpur.cmds.*;
+import fr.farmeurimmo.skylyblock.purpur.cmds.base.*;
+import fr.farmeurimmo.skylyblock.purpur.cmds.islands.IslandCmd;
 import fr.farmeurimmo.skylyblock.purpur.eco.MoneyCmd;
 import fr.farmeurimmo.skylyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.skylyblock.purpur.featherfly.FeatherFlyCmd;

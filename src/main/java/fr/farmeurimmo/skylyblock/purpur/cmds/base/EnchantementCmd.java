@@ -1,5 +1,6 @@
-package fr.farmeurimmo.skylyblock.purpur.cmds;
+package fr.farmeurimmo.skylyblock.purpur.cmds.base;
 
+import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CraftCmd implements CommandExecutor, TabCompleter {
+public class EnchantementCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -19,7 +20,7 @@ public class CraftCmd implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
             return false;
         }
-        p.openWorkbench(null, true);
+        p.openEnchanting(SkylyBlock.ENCHANTING_TABLE_LOCATION, true);
         return false;
     }
 

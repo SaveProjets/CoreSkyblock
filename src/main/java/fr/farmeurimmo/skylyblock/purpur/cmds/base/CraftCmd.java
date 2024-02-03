@@ -1,6 +1,5 @@
-package fr.farmeurimmo.skylyblock.purpur.cmds;
+package fr.farmeurimmo.skylyblock.purpur.cmds.base;
 
-import fr.mrmicky.fastinv.FastInv;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TrashCmd implements CommandExecutor, TabCompleter {
+public class CraftCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -20,9 +19,7 @@ public class TrashCmd implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
             return false;
         }
-        FastInv inv = new FastInv(45, "§8Poubelle");
-        inv.addClickHandler(e -> e.setCancelled(false));
-        inv.open(p);
+        p.openWorkbench(null, true);
         return false;
     }
 

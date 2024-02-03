@@ -1,4 +1,4 @@
-package fr.farmeurimmo.skylyblock.purpur.cmds;
+package fr.farmeurimmo.skylyblock.purpur.cmds.base;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;

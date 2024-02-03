@@ -1,4 +1,4 @@
-package fr.farmeurimmo.skylyblock.purpur.cmds;
+package fr.farmeurimmo.skylyblock.purpur.cmds.islands;
 
 import fr.farmeurimmo.skylyblock.common.JedisManager;
 import fr.farmeurimmo.skylyblock.common.islands.Island;
