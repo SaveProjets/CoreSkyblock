@@ -1,8 +1,9 @@
-package fr.farmeurimmo.skylyblock.purpur;
+package fr.farmeurimmo.skylyblock.purpur.islands;
 
 import fr.farmeurimmo.skylyblock.common.IslandsDataManager;
 import fr.farmeurimmo.skylyblock.common.islands.Island;
 import fr.farmeurimmo.skylyblock.purpur.worlds.WorldManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -33,19 +34,27 @@ public class IslandsManager {
         if (player == null) return;
         player.sendMessage("§b[SkylyBlock] §aCréation de votre île...");
 
-        WorldManager.INSTANCE.cloneAndLoad(worldName, "island_template_1");
         Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 80.1, -0.5,
                 -50, 5), owner);
-        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.saveIsland(island));
-        IslandsDataManager.INSTANCE.getCache().put(islandId, island);
-
-        Player ownerPlayer = plugin.getServer().getPlayer(owner);
-        if (ownerPlayer == null) return;
-        World w = Bukkit.getWorld(worldName);
-        if (w == null) return;
-        w.setSpawnLocation(new Location(w, 0, 80, 0, -38, 5));
-        ownerPlayer.teleportAsync(w.getSpawnLocation());
-        ownerPlayer.sendMessage("§b[SkylyBlock] §aVotre île a été créée en " + (System.currentTimeMillis() - startTime) + "ms");
+        CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.saveIsland(island)).thenAccept(result -> {
+            if (!result) {
+                player.sendMessage(Component.text("§cUne erreur est survenue lors de la création de votre île."));
+                player.sendMessage(Component.text("§cVeuillez réessayer plus tard."));
+                return;
+            }
+            Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                WorldManager.INSTANCE.cloneAndLoad(worldName, "island_template_1");
+                IslandsDataManager.INSTANCE.getCache().put(islandId, island);
+                Player ownerPlayer = plugin.getServer().getPlayer(owner);
+                if (ownerPlayer == null) return null;
+                World w = Bukkit.getWorld(worldName);
+                if (w == null) return null;
+                w.setSpawnLocation(new Location(w, 0, 80, 0, -38, 5));
+                ownerPlayer.teleportAsync(w.getSpawnLocation());
+                ownerPlayer.sendMessage("§b[SkylyBlock] §aVotre île a été créée en " + (System.currentTimeMillis() - startTime) + "ms");
+                return null;
+            });
+        });
     }
 
     public String getIslandWorldName(UUID islandUUID) {
@@ -70,5 +79,13 @@ public class IslandsManager {
 
     public boolean isAnIsland(World world) {
         return world.getName().startsWith("island_");
+    }
+
+    public void teleportToIsland(Island island, Player p) {
+        if (island == null) {
+            p.sendMessage(Component.text(""));
+            return;
+        }
+        //p.sendMessage();
     }
 }

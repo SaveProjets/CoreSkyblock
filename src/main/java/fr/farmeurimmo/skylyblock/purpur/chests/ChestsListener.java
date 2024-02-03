@@ -1,6 +1,6 @@
 package fr.farmeurimmo.skylyblock.purpur.chests;
 
-import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
+import fr.farmeurimmo.skylyblock.purpur.islands.IslandsManager;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

@@ -2,8 +2,8 @@ package fr.farmeurimmo.skylyblock.purpur.featherfly;
 
 import fr.farmeurimmo.skylyblock.common.SkyblockUser;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
-import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
+import fr.farmeurimmo.skylyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.skylyblock.utils.DateUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

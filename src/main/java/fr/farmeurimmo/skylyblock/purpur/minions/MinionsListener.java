@@ -1,6 +1,6 @@
 package fr.farmeurimmo.skylyblock.purpur.minions;
 
-import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
+import fr.farmeurimmo.skylyblock.purpur.islands.IslandsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;

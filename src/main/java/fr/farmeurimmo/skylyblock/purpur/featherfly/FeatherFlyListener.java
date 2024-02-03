@@ -2,7 +2,7 @@ package fr.farmeurimmo.skylyblock.purpur.featherfly;
 
 import fr.farmeurimmo.skylyblock.common.SkyblockUser;
 import fr.farmeurimmo.skylyblock.common.SkyblockUsersManager;
-import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
+import fr.farmeurimmo.skylyblock.purpur.islands.IslandsManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

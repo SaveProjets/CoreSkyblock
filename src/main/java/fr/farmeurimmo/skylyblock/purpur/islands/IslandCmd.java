@@ -1,8 +1,7 @@
-package fr.farmeurimmo.skylyblock.purpur.cmds.islands;
+package fr.farmeurimmo.skylyblock.purpur.islands;
 
 import fr.farmeurimmo.skylyblock.common.JedisManager;
 import fr.farmeurimmo.skylyblock.common.islands.Island;
-import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

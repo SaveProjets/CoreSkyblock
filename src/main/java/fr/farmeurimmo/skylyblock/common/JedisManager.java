@@ -1,7 +1,7 @@
 package fr.farmeurimmo.skylyblock.common;
 
-import fr.farmeurimmo.skylyblock.purpur.IslandsManager;
 import fr.farmeurimmo.skylyblock.purpur.SkylyBlock;
+import fr.farmeurimmo.skylyblock.purpur.islands.IslandsManager;
 import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
