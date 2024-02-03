@@ -30,14 +30,11 @@ public class SkyblockUsersManager {
 
     public CompletableFuture<Void> loadUser(UUID uuid, String name) {
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                if (cache.containsKey(uuid)) return null;
-                PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                        "SELECT * FROM skyblock_users WHERE uuid = ?");
+            if (cache.containsKey(uuid)) return null;
+            try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                    "SELECT * FROM skyblock_users WHERE uuid = ?")) {
                 statement.setString(1, uuid.toString());
-                statement.execute();
-
-                ResultSet resultSet = statement.getResultSet();
+                ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     return new SkyblockUser(uuid, name, resultSet.getDouble("money"),
                             resultSet.getDouble("adventure_exp"), resultSet.getDouble("adventure_level"),
@@ -51,17 +48,35 @@ public class SkyblockUsersManager {
                 e.printStackTrace();
             }
             return null;
-        }).thenAccept(user -> Bukkit.getScheduler().callSyncMethod(SkylyBlock.INSTANCE, () -> {
-            cache.put(uuid, user);
-            return null;
-        }));
+        }).thenAccept(user -> {
+            if (user != null) {
+                Bukkit.getScheduler().callSyncMethod(SkylyBlock.INSTANCE, () -> {
+                    cache.put(uuid, user);
+                    return null;
+                });
+            }
+        });
+    }
+
+    public void updateUserSync(SkyblockUser user) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "UPDATE skyblock_users SET money = ?, adventure_exp = ?, adventure_level = ?, fly_time = ?, " +
+                        "updated_at = CURRENT_TIMESTAMP WHERE uuid = ?")) {
+            statement.setDouble(1, user.getMoney());
+            statement.setDouble(2, user.getAdventureExp());
+            statement.setDouble(3, user.getAdventureLevel());
+            statement.setInt(4, user.getFlyTime());
+            statement.setString(5, user.getUuid().toString());
+            statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void createUser(SkyblockUser user) {
-        try {
-            PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                    "INSERT INTO skyblock_users (uuid, name, money, adventure_exp, adventure_level, fly_time, created_at, updated_at) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "INSERT INTO skyblock_users (uuid, name, money, adventure_exp, adventure_level, fly_time, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
             statement.setDouble(3, user.getMoney());
@@ -74,26 +89,10 @@ public class SkyblockUsersManager {
         }
     }
 
-    public void updateUserSync(SkyblockUser user) {
-        try {
-            PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                    "UPDATE skyblock_users SET money = ?, adventure_exp = ?, adventure_level = ?, fly_time = ?, " +
-                            "updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-            statement.setDouble(1, user.getMoney());
-            statement.setDouble(2, user.getAdventureExp());
-            statement.setDouble(3, user.getAdventureLevel());
-            statement.setInt(4, user.getFlyTime());
-            statement.setString(5, user.getUuid().toString());
-            statement.executeUpdate();
-        } catch (Exception ignored) {
-        }
-    }
-
     public CompletableFuture<SkyblockUser> updateUserFromDatabase(SkyblockUser user) {
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                        "SELECT * FROM skyblock_users WHERE uuid = ?");
+            try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                    "SELECT * FROM skyblock_users WHERE uuid = ?")) {
                 statement.setString(1, user.getUuid().toString());
                 statement.execute();
 
