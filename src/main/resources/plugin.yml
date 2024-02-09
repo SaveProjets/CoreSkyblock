@@ -1,19 +1,19 @@
-name: SkylyBlock
+name: MineBlock
 version: '${version}'
-main: fr.farmeurimmo.skylyblock.purpur.SkylyBlock
+main: fr.farmeurimmo.mineblock.purpur.MineBlock
 api-version: '1.18'
-author: Skyly
-description: Skyly skyblock plugin
-website: https://skyly.fr
+author: Mine
+description: Mine skyblock plugin
+website: https://mine.fr
 depend:
   - SlimeWorldManager
 commands:
   buildspawn:
     description: Permet de modifier le spawn (déconseillé il faut modifier la template)
-    permission: skylyblock.buildspawn
+    permission: mineblock.buildspawn
   featherfly:
     description: Donne des plumes de fly temporaire
-    permission: skylyblock.featherfly
+    permission: mineblock.featherfly
   money:
     description: Montre l'argent du joueur
   is:
@@ -21,35 +21,35 @@ commands:
     aliases:
       - ile
   chests:
-    permission: skylyblock.chests
+    permission: mineblock.chests
   minions:
-    permission: skylyblock.minions
+    permission: mineblock.minions
   trade:
-    permission: skylyblock.trade
+    permission: mineblock.trade
   tradeaccept:
   tradedeny:
   tradecancel:
   spawn:
   shop:
   sellall:
-    permission: skylyblock.sellall
+    permission: mineblock.sellall
   trash:
   craft:
-    permission: skylyblock.craft
+    permission: mineblock.craft
   enchantement:
-    permission: skylyblock.enchantement
+    permission: mineblock.enchantement
   anvil:
-    permission: skylyblock.anvil
+    permission: mineblock.anvil
   furnace:
-    permission: skylyblock.furnace
+    permission: mineblock.furnace
   silo:
-    permission: skylyblock.silo
+    permission: mineblock.silo
   feed:
-    permission: skylyblock.feed
+    permission: mineblock.feed
   near:
-    permission: skylyblock.near
+    permission: mineblock.near
   fix:
-    permission: skylyblock.fix
+    permission: mineblock.fix
   kits:
   tpa:
   tpayes:

@@ -1,4 +1,4 @@
-# Plugin SkylyBlock
+# Plugin MineBlock
 
 # Convention utilisation du pubsub
 
@@ -7,7 +7,7 @@
 Le pubsub est un système de publication / souscription. Il permet de faire communiquer des composants entre eux sans
 qu'ils aient besoin de se connaitre.
 
-**Channel = "skylyblock"**
+**Channel = "Mineblock"**
 
 ## SkyblockUser
 
