@@ -20,18 +20,14 @@ public class DatabaseManager {
     private final String password;
     private Connection connection;
 
-    public DatabaseManager(String host, String user, String password) {
+    public DatabaseManager(String host, String user, String password) throws Exception {
         INSTANCE = this;
 
         this.host = host;
         this.user = user;
         this.password = password;
 
-        try {
-            startConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        startConnection();
     }
 
     public void startConnection() throws Exception {
@@ -42,7 +38,7 @@ public class DatabaseManager {
             throw new Exception("Unable to connect to the database");
         }
         String tableName = "shops";
-        connection.prepareStatement("CREATE DATABASE IF NOT EXISTS skyblock").executeUpdate();
+        //connection.prepareStatement("CREATE DATABASE IF NOT EXISTS skyblock").executeUpdate();
         connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tableName + " (uuid VARCHAR(36) PRIMARY KEY, " +
                 "shopType VARCHAR(20),itemName VARCHAR(255), material VARCHAR(30), buyPrice FLOAT,  sellPrice FLOAT)").executeUpdate();
 

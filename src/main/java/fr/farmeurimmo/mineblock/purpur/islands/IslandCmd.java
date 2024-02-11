@@ -1,6 +1,5 @@
 package fr.farmeurimmo.mineblock.purpur.islands;
 
-import fr.farmeurimmo.mineblock.common.JedisManager;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
@@ -27,7 +26,8 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             if (args[0].equalsIgnoreCase("create")) {
-                JedisManager.INSTANCE.publishToRedis("MineBlock", "island:create:" + p.getUniqueId());
+                //JedisManager.INSTANCE.publishToRedis("MineBlock", "island:create:" + p.getUniqueId());
+                IslandsManager.INSTANCE.createIsland(p.getUniqueId());
             /*if (MineBlock.INSTANCE.getServerType() != ServerType.SKYBLOCK_ISLAND) {
                 return false;
             }*/

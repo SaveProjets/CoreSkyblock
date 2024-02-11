@@ -38,7 +38,7 @@ public class Island {
         this.spawn = spawn;
         this.members = members;
         this.perms = perms;
-        if (perms.isEmpty()) setDefaultPerms();
+        if (perms.isEmpty()) setDefaultPerms(true);
         this.maxSize = maxSize;
         this.maxMembers = maxMembers;
         this.generatorLevel = generatorLevel;
@@ -58,7 +58,7 @@ public class Island {
         this.members = new HashMap<>();
         this.members.put(owner, IslandRanks.CHEF); // this is an exception, please use the addMember method to trigger an update
         this.perms = new HashMap<>();
-        setDefaultPerms();
+        setDefaultPerms(false);
         this.maxSize = 40;
         this.maxMembers = 4;
         this.generatorLevel = 1;
@@ -70,7 +70,7 @@ public class Island {
         this.levelExp = 0;
     }
 
-    public void setDefaultPerms() {
+    public void setDefaultPerms(boolean update) {
         ArrayList<IslandPerms> permsVisit = new ArrayList<>();
         permsVisit.add(IslandPerms.INTERACT);
         perms.put(IslandRanks.VISITEUR, permsVisit);
@@ -87,20 +87,21 @@ public class Island {
 
         ArrayList<IslandPerms> permsMod = new ArrayList<>();
         permsMod.addAll(permsMembre);
-        permsMod.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.PROMOTE, IslandPerms.DEMOTE, IslandPerms.MINIONS_REMOVE));
+        permsMod.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.PROMOTE, IslandPerms.DEMOTE));
         this.perms.put(IslandRanks.MODERATEUR, permsMod);
 
         ArrayList<IslandPerms> permsCoChef = new ArrayList<>();
         permsCoChef.addAll(permsMod);
-        permsCoChef.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.PROMOTE, IslandPerms.DEMOTE,
-                IslandPerms.INVITE, IslandPerms.BAN));
+        permsCoChef.addAll(Arrays.asList(IslandPerms.INVITE, IslandPerms.BAN));
         this.perms.put(IslandRanks.COCHEF, permsCoChef);
 
         ArrayList<IslandPerms> permsChef = new ArrayList<>();
         permsChef.add(IslandPerms.ALL_PERMS);
         this.perms.put(IslandRanks.CHEF, permsChef);
 
-        arePermsModified = true;
+        if (update) {
+            arePermsModified = true;
+        }
     }
 
     public UUID getIslandUUID() {

@@ -48,7 +48,7 @@ public class IslandsManager {
         if (player == null) return;
         player.sendMessage("§b[MineBlock] §aCréation de votre île...");
 
-        Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 80.1, -0.5,
+        Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 62.1, -0.5,
                 -50, 5), owner);
         CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.saveIsland(island)).thenAccept(result -> {
             if (!result) {

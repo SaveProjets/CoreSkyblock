@@ -75,6 +75,7 @@ public final class MineBlock extends JavaPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
         saveResource("old-shop.yml", true);
+        saveResource("config.yml", false);
 
         console.sendMessage("§b[MineBlock] §7Démarrage du plugin MineBlock...");
 
@@ -87,10 +88,21 @@ public final class MineBlock extends JavaPlugin {
 
         SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
 
-        console.sendMessage("§b[MineBlock] §7Démarrage des managers...");
-        new DatabaseManager("jdbc:mysql://tools-databases-mariadb-1:3306/skyblock", "skyblock",
-                "VNGsQzbUnYvw5Fpo");
+        console.sendMessage("§b[MineBlock] §7Connexion à la base de donnée...");
+        try {
+            String host = getConfig().getString("mysql.host");
+            String user = getConfig().getString("mysql.user");
+            String password = getConfig().getString("mysql.password");
+            String database = getConfig().getString("mysql.database");
+            int port = getConfig().getInt("mysql.port");
+            new DatabaseManager("jdbc:mysql://" + host + ":" + port + "/" + database, user, password);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.shutdown();
+            return;
+        }
 
+        console.sendMessage("§b[MineBlock] §7Démarrage des managers...");
         new SkyblockUsersManager();
         new IslandsManager(INSTANCE);
 
@@ -149,7 +161,7 @@ public final class MineBlock extends JavaPlugin {
         console.sendMessage("§b[MineBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
         clockForBuildMode();
-        setupEnchantingTable();
+        //setupEnchantingTable();
         optimizeSpawn();
 
         console.sendMessage("§b[MineBlock] §aDémarrage du plugin MineBlock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
@@ -225,7 +237,8 @@ public final class MineBlock extends JavaPlugin {
             sb.append(player.getUniqueId()).append(":").append(player.getName()).append(",");
         }
         if (!sb.isEmpty()) sb.deleteCharAt(sb.length() - 1);
-        JedisManager.INSTANCE.sendToRedis("MineBlock:players:" + SERVER_NAME, sb.toString());
+        //FIXME: redis
+        //JedisManager.INSTANCE.sendToRedis("MineBlock:players:" + SERVER_NAME, sb.toString());
     }
 
     public boolean isASpawn(World world) {

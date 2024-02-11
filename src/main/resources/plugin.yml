@@ -2,9 +2,9 @@ name: MineBlock
 version: '${version}'
 main: fr.farmeurimmo.mineblock.purpur.MineBlock
 api-version: '1.18'
-author: Mine
+author: Farmeurimmo
 description: Mine skyblock plugin
-website: https://mine.fr
+website: https://edmine.fr
 depend:
   - SlimeWorldManager
 commands:

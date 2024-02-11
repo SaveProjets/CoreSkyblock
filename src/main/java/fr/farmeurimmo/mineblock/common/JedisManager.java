@@ -1,13 +1,7 @@
 package fr.farmeurimmo.mineblock.common;
 
-import fr.farmeurimmo.mineblock.purpur.MineBlock;
-import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
-import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPubSub;
-
-import java.util.UUID;
 
 public class JedisManager {
 
@@ -26,7 +20,7 @@ public class JedisManager {
             pool = new JedisPool(REDIS_HOST, 6379);
             return;
         }
-        pool = new JedisPool(REDIS_HOST, 6379);
+        /*pool = new JedisPool(REDIS_HOST, 6379);
 
         JedisPubSub jedisPubSub = new JedisPubSub() {
             @Override
@@ -52,7 +46,7 @@ public class JedisManager {
                 jedis.auth(REDIS_PASSWORD);
                 jedis.subscribe(jedisPubSub, "MineBlock");
             }
-        }).start();
+        }).start();*/
 
         //publishToRedis("MineBlock", "test");
         //publishToRedis("MineBlock", "test2");
