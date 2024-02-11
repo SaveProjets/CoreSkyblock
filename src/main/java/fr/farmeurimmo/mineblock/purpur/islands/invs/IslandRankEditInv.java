@@ -2,8 +2,8 @@ package fr.farmeurimmo.mineblock.purpur.islands.invs;
 
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandPerms;
-import fr.farmeurimmo.mineblock.common.islands.IslandRank;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanks;
+import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;
@@ -13,6 +13,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 
 public class IslandRankEditInv extends FastInv {
+
+    private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
+            33, 34, 37, 38, 39, 40, 41, 42, 43};
 
     public IslandRankEditInv(Island island, Player p) {
         super(54, "§8Permissions des grades de l'île");
@@ -30,7 +33,13 @@ public class IslandRankEditInv extends FastInv {
                         "§7tous les membres de l'île.", "", "§7Les COOP(s) et les visiteurs bénéficient uniquement",
                         "§7des permissions de couleur blanche.").build());
 
-        int currentSlot = 10;
+        update(island);
+    }
+
+    public void update(Island island) {
+        if (island == null) return;
+
+        int currentSlot = 0;
         for (IslandPerms perm : IslandPerms.values()) {
             ItemStack custom = new ItemStack(perm.getMaterial());
             if (custom.getType() == Material.AIR) continue;
@@ -50,14 +59,15 @@ public class IslandRankEditInv extends FastInv {
                     lore.add("§c" + rank.name());
                 }
             }
-            setItem(currentSlot, ItemBuilder.copyOf(custom).name(perm.getDescription()).lore(lore).build(), e -> {
+            setItem(slots[currentSlot], ItemBuilder.copyOf(custom).name(perm.getDescription()).lore(lore).build(), e -> {
                 if (e.isLeftClick()) {
-                    island.removePermsToRank(IslandRank.instance.getNextRankForPerm(perm, island), perm);
+                    island.removePermsToRank(IslandRanksManager.INSTANCE.getPreviousRankForPerm(perm, island), perm);
                 } else {
-                    island.addPermsToRank(IslandRank.instance.getNextRankForPerm(perm, island), perm);
+                    island.addPermsToRank(IslandRanksManager.INSTANCE.getNextRankForPerm(perm, island), perm);
                 }
-                new IslandRankEditInv(island, p).open(p);
+                update(island);
             });
+            currentSlot++;
         }
     }
 }

@@ -2,14 +2,14 @@ package fr.farmeurimmo.mineblock.common.islands;
 
 import java.util.HashMap;
 
-public class IslandRank {
+public class IslandRanksManager {
 
-    public static IslandRank instance;
+    public static IslandRanksManager INSTANCE;
 
-    private static HashMap<IslandRanks, Integer> islandRankPos = new HashMap<>();
+    private final HashMap<IslandRanks, Integer> islandRankPos = new HashMap<>();
 
-    public IslandRank() {
-        instance = this;
+    public IslandRanksManager() {
+        INSTANCE = this;
         for (IslandRanks rank : IslandRanks.values()) {
             if (rank == IslandRanks.CHEF) {
                 islandRankPos.put(rank, 0);
@@ -32,7 +32,7 @@ public class IslandRank {
         }
     }
 
-    public static boolean isUp(IslandRanks rank, IslandRanks otherRank) {
+    public boolean isUp(IslandRanks rank, IslandRanks otherRank) {
         if (rank == IslandRanks.CHEF) {
             return true;
         } else if (rank == IslandRanks.COCHEF && otherRank != IslandRanks.COCHEF && otherRank != IslandRanks.CHEF) {
@@ -45,7 +45,7 @@ public class IslandRank {
                     otherRank != IslandRanks.COCHEF && otherRank != IslandRanks.CHEF;
     }
 
-    public static IslandRanks getNextRank(IslandRanks rank) {
+    public IslandRanks getNextRank(IslandRanks rank) {
         return switch (rank) {
             case MODERATEUR -> IslandRanks.COCHEF;
             case MEMBRE -> IslandRanks.MODERATEUR;
@@ -53,7 +53,7 @@ public class IslandRank {
         };
     }
 
-    public static IslandRanks getPreviousRank(IslandRanks rank) {
+    public IslandRanks getPreviousRank(IslandRanks rank) {
         return switch (rank) {
             case COCHEF -> IslandRanks.MODERATEUR;
             case MODERATEUR -> IslandRanks.MEMBRE;
@@ -61,7 +61,7 @@ public class IslandRank {
         };
     }
 
-    public static HashMap<IslandRanks, Integer> getIslandRankPos() {
+    public HashMap<IslandRanks, Integer> getIslandRankPos() {
         return islandRankPos;
     }
 

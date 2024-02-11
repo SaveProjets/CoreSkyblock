@@ -25,7 +25,7 @@ public class IslandInv extends FastInv {
         meta.setOwner("Farmeurimmo");
         member.setItemMeta(meta);
 
-        setItem(11, member, e -> e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+        setItem(11, member, e -> new IslandMembersInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
         setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BLAST_FURNACE))
                 .name("§6Améliorations §8| §7(clic gauche)").build(), e ->

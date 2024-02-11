@@ -23,6 +23,7 @@ public class SilosListener implements Listener {
             type = SilosType.getByAlternativeMaterial(e.getBlock().getType());
             if (type == null) return;
         }
+        if (!SilosManager.INSTANCE.hasSiloInInventory(p, type)) return;
         int multiplier = 1;
         if (type.isHigh()) {
             int currentY = e.getBlock().getY() + 1;

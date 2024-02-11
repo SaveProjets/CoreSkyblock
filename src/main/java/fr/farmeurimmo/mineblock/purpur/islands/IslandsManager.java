@@ -2,6 +2,7 @@ package fr.farmeurimmo.mineblock.purpur.islands;
 
 import fr.farmeurimmo.mineblock.common.IslandsDataManager;
 import fr.farmeurimmo.mineblock.common.islands.Island;
+import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.farmeurimmo.mineblock.purpur.worlds.WorldManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -25,6 +26,7 @@ public class IslandsManager {
         this.plugin = plugin;
 
         new IslandsDataManager();
+        new IslandRanksManager();
     }
 
     public boolean isBypassing(UUID uuid) {
@@ -48,7 +50,7 @@ public class IslandsManager {
         if (player == null) return;
         player.sendMessage("§b[MineBlock] §aCréation de votre île...");
 
-        Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 62.1, -0.5,
+        Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 80, -0.5,
                 -50, 5), owner);
         CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.saveIsland(island)).thenAccept(result -> {
             if (!result) {
@@ -63,7 +65,7 @@ public class IslandsManager {
                 if (ownerPlayer == null) return null;
                 World w = Bukkit.getWorld(worldName);
                 if (w == null) return null;
-                w.setSpawnLocation(new Location(w, 0, 80, 0, -38, 5));
+                w.setSpawnLocation(new Location(w, 0, 62.1, 0, -38, 5));
                 ownerPlayer.teleportAsync(w.getSpawnLocation());
                 ownerPlayer.sendMessage("§b[MineBlock] §aVotre île a été créée en " + (System.currentTimeMillis() - startTime) + "ms");
                 return null;
@@ -97,9 +99,19 @@ public class IslandsManager {
 
     public void teleportToIsland(Island island, Player p) {
         if (island == null) {
-            p.sendMessage(Component.text(""));
+            p.sendMessage(Component.text("§cVous n'avez pas d'île."));
             return;
         }
-        //p.sendMessage();
+        long startTime = System.currentTimeMillis();
+        p.sendMessage(Component.text("§aTéléportation en cours..."));
+        p.teleportAsync(island.getSpawn()).thenAccept(result -> {
+            if (result) {
+                p.sendMessage(Component.text("§aVous avez été téléporté sur votre île. ("
+                        + (System.currentTimeMillis() - startTime) + "ms)"));
+            } else {
+                p.sendMessage(Component.text("§cUne erreur est survenue lors de la téléportation. ("
+                        + (System.currentTimeMillis() - startTime) + "ms)"));
+            }
+        });
     }
 }

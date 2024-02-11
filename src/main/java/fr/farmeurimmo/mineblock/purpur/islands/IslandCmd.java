@@ -1,6 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.islands;
 
 import fr.farmeurimmo.mineblock.common.islands.Island;
+import fr.farmeurimmo.mineblock.purpur.islands.invs.IslandInv;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,12 +38,11 @@ public class IslandCmd implements CommandExecutor {
             return false;
         }
         if (args.length == 0) {
-            //open Island Inv
+            new IslandInv(island).open(p);
             return false;
         }
         if (args[0].equalsIgnoreCase("go")) {
-            p.sendMessage("§aTéléportation à votre île...");
-            p.teleportAsync(island.getSpawn());
+            IslandsManager.INSTANCE.teleportToIsland(island, p);
             return false;
         }
         return false;

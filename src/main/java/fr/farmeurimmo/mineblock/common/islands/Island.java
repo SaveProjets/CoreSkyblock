@@ -265,7 +265,7 @@ public class Island {
     public boolean downPerms(Player player, Island island, IslandPerms islandPerms, IslandRanks islandRank) {
         IslandRanks playerRank = island.getMembers().get(player.getUniqueId());
         if (!island.getOwnerUUID().equals(player.getUniqueId())) {
-            if (!IslandRank.isUp(playerRank, IslandRank.instance.getNextRankForPerm(islandPerms, island))) {
+            if (!IslandRanksManager.INSTANCE.isUp(playerRank, IslandRanksManager.INSTANCE.getNextRankForPerm(islandPerms, island))) {
                 return false;
             }
         }
@@ -303,7 +303,7 @@ public class Island {
     public boolean upPerms(Player player, Island island, IslandPerms islandPerms, IslandRanks islandRank) {
         IslandRanks playerRank = island.getMembers().get(player.getUniqueId());
         if (!island.getOwnerUUID().equals(player.getUniqueId())) {
-            if (!IslandRank.isUp(playerRank, IslandRank.instance.getNextRankForPerm(islandPerms, island))) {
+            if (!IslandRanksManager.INSTANCE.isUp(playerRank, IslandRanksManager.INSTANCE.getNextRankForPerm(islandPerms, island))) {
                 return false;
             }
         }
