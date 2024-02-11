@@ -38,8 +38,10 @@ import fr.farmeurimmo.mineblock.purpur.worlds.WorldManager;
 import fr.farmeurimmo.mineblock.utils.InventorySyncUtils;
 import fr.mrmicky.fastinv.FastInvManager;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -161,7 +163,7 @@ public final class MineBlock extends JavaPlugin {
         console.sendMessage("§b[MineBlock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
         clockForBuildMode();
-        //setupEnchantingTable();
+        setupEnchantingTable();
         optimizeSpawn();
 
         console.sendMessage("§b[MineBlock] §aDémarrage du plugin MineBlock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
@@ -170,7 +172,8 @@ public final class MineBlock extends JavaPlugin {
     public void setupEnchantingTable() {
         World w = Bukkit.getWorld(SPAWN_WORLD_NAME);
         if (w == null) return;
-        Location loc = SPAWN.clone();
+        ENCHANTING_TABLE_LOCATION = new Location(w, 0, 318, 0);
+        /*Location loc = SPAWN.clone();
         loc.setY(loc.getWorld().getMaxHeight() - 2);
         Block block = loc.getBlock();
         block.setType(Material.ENCHANTING_TABLE);
@@ -186,7 +189,7 @@ public final class MineBlock extends JavaPlugin {
                     }
                 }
             }
-        }
+        }*/
     }
 
     @Override

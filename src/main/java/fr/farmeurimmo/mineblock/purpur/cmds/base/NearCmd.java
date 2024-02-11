@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +37,8 @@ public class NearCmd implements CommandExecutor, TabCompleter {
         Map<Player, Double> near = new java.util.HashMap<>();
         for (Player player : p.getWorld().getPlayers()) {
             if (player == p) continue;
+            if (player.isDead()) continue;
+            if (p.spigot().getHiddenPlayers().contains(player)) continue;
             double distance = player.getLocation().distance(p.getLocation());
             if (distance <= MAX_NEAR) {
                 near.put(player, distance);
@@ -48,7 +51,7 @@ public class NearCmd implements CommandExecutor, TabCompleter {
         p.sendMessage(Component.text("§6Joueurs à proximité:"));
         near.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(entry -> {
             Player player = entry.getKey();
-            double distance = entry.getValue();
+            String distance = NumberFormat.getInstance().format(entry.getValue());
             p.sendMessage(Component.text("§e" + player.getName() + " §7- §e" + distance + " §7m"));
         });
         return false;

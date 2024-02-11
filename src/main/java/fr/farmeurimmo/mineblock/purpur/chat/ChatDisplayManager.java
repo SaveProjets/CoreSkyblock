@@ -7,10 +7,10 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.NumberFormat;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 public class ChatDisplayManager {
 
@@ -21,29 +21,9 @@ public class ChatDisplayManager {
     }
 
     public Component getComponentForItem(ItemStack item) {
-        if (!item.hasItemMeta()) {
-            return Component.text("[" + item.getType().getKey().getKey() + "]").color(NamedTextColor.GOLD);
-        }
-        ItemMeta itemMeta = item.getItemMeta();
-
-        Component displayName = Component.text((item.hasDisplayName() ? item.getDisplayName() :
-                Objects.requireNonNull(item.getType().getKey()).getKey())).color(NamedTextColor.GOLD);
-
-        Component lore = Component.text("");
-        if (itemMeta.lore() != null) {
-            for (Component component : Objects.requireNonNull(itemMeta.lore())) {
-                lore = lore.append(component).append(Component.newline());
-            }
-        }
-
-        return Component.text()
-                .append(Component.text("[").color(NamedTextColor.GRAY))
-                .append(Component.text("x" + item.getAmount()).color(NamedTextColor.GOLD))
-                .append(Component.text(" "))
-                .append(displayName)
-                .append(Component.text("]").color(NamedTextColor.GRAY))
-                .hoverEvent(HoverEvent.showText(lore))
-                .build();
+        return Component.text("[" + (item.hasDisplayName() ? item.getDisplayName() :
+                        Objects.requireNonNull(item.getType().getKey()).getKey()) + "]").color(NamedTextColor.GOLD)
+                .hoverEvent(item.asHoverEvent(UnaryOperator.identity()));
     }
 
     public Component getComponentForMoney(Player p) {
@@ -51,6 +31,7 @@ public class ChatDisplayManager {
         if (user == null) {
             return Component.text("§6[Argent : §cErreur INTERNE$§6]§f");
         }
-        return Component.text("§6[Argent : " + NumberFormat.getInstance().format(user.getMoney()) + "$]§f");
+        return Component.text("§6[Argent]§f").hoverEvent(HoverEvent.showText(Component.text(
+                "§7Solde : §6" + NumberFormat.getInstance().format(user.getMoney()) + " §6$")));
     }
 }
