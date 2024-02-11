@@ -166,6 +166,11 @@ public final class MineBlock extends JavaPlugin {
         setupEnchantingTable();
         optimizeSpawn();
 
+        World world = Bukkit.getWorld("world");
+        if (world != null) {
+            world.setSpawnLocation(SPAWN);
+        }
+
         console.sendMessage("§b[MineBlock] §aDémarrage du plugin MineBlock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }
 
@@ -235,6 +240,7 @@ public final class MineBlock extends JavaPlugin {
         w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
         w.setGameRule(GameRule.MOB_GRIEFING, false);
         w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        w.setGameRule(GameRule.KEEP_INVENTORY, true);
     }
 
     public void clockSendPlayerConnectedToRedis() {
