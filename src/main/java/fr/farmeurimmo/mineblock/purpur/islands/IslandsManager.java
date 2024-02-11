@@ -7,11 +7,13 @@ import fr.farmeurimmo.mineblock.purpur.worlds.WorldManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -121,5 +123,62 @@ public class IslandsManager {
                         + (System.currentTimeMillis() - startTime) + "ms)"));
             }
         });
+    }
+
+    public int getSizeFromLevel(int level) {
+        return switch (level) {
+            case 2 -> 50;
+            case 3 -> 100;
+            case 4 -> 200;
+            case 5 -> 250;
+            default -> 25;
+        };
+    }
+
+    public double getSizePriceFromLevel(int level) {
+        return switch (level) {
+            case 2 -> 200;
+            case 3 -> 500;
+            case 4 -> 1000;
+            case 5 -> 2000;
+            default -> 0;
+        };
+    }
+
+    public int getMaxMembersFromLevel(int level) {
+        return switch (level) {
+            case 2 -> 6;
+            case 3 -> 8;
+            case 4 -> 10;
+            case 5 -> 12;
+            default -> 4;
+        };
+    }
+
+    public double getMembersPriceFromLevel(int level) {
+        return switch (level) {
+            case 2 -> 200;
+            case 3 -> 500;
+            case 4 -> 1000;
+            case 5 -> 2000;
+            default -> 0;
+        };
+    }
+
+    public Map<Material, Float> getGeneratorFromLevel(int level) {
+        return switch (level) {
+            //FIXME: Add the correct values
+            default -> Map.of(Material.COBBLESTONE, 100f);
+        };
+    }
+
+    public double getGeneratorPriceFromLevel(int level) {
+        return switch (level) {
+            case 2 -> 200;
+            case 3 -> 500;
+            case 4 -> 1000;
+            case 5 -> 2000;
+            default -> 0;
+        };
     }
 }

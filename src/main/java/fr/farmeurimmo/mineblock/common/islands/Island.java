@@ -64,8 +64,8 @@ public class Island {
         this.membersNames.put(owner, MineBlock.INSTANCE.getServer().getOfflinePlayer(owner).getName());
         this.perms = new HashMap<>();
         setDefaultPerms(false);
-        this.maxSize = 40;
-        this.maxMembers = 4;
+        this.maxSize = 1;
+        this.maxMembers = 1;
         this.generatorLevel = 1;
         this.bankMoney = 0;
         this.bankCrystals = 0;

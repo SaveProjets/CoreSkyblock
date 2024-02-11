@@ -29,7 +29,7 @@ public class IslandInv extends FastInv {
 
         setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BLAST_FURNACE))
                 .name("§6Améliorations §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+                new IslandUpgradesInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
         setItem(13, ItemBuilder.copyOf(new ItemStack(Material.BOOKSHELF))
                 .name("§6Permissions §8| §7(clic gauche)").build(), e ->
