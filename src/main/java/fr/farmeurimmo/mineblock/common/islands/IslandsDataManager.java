@@ -1,11 +1,10 @@
-package fr.farmeurimmo.mineblock.common;
+package fr.farmeurimmo.mineblock.common.islands;
 
-import fr.farmeurimmo.mineblock.common.islands.Island;
-import fr.farmeurimmo.mineblock.common.islands.IslandPerms;
-import fr.farmeurimmo.mineblock.common.islands.IslandRanks;
+import fr.farmeurimmo.mineblock.common.DatabaseManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.mineblock.utils.LocationTranslator;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -23,11 +22,11 @@ public class IslandsDataManager {
             "upgrade_generator INT, bank_money DOUBLE, bank_crystals DOUBLE, is_public BOOLEAN, level DOUBLE, " +
             "exp DOUBLE, created_at TIMESTAMP, updated_at TIMESTAMP)";
     private static final String CREATE_ISLAND_MEMBERS_TABLE = "CREATE TABLE IF NOT EXISTS island_members (island_uuid "
-            + "VARCHAR(36), uuid VARCHAR(36), rank_id INT, created_at TIMESTAMP, updated_at TIMESTAMP, " +
+            + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id INT, created_at TIMESTAMP, updated_at TIMESTAMP, " +
             "PRIMARY KEY(island_uuid, uuid))";
     private static final String CREATE_ISLAND_RANKS_PERMISSIONS_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "island_ranks_permissions (island_uuid VARCHAR(36), rank_id INT, permission_id INT, created_at " +
-            "TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY(island_uuid, rank_id, permission_id))";
+            "TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY(island_uuid, permission_id))";
     private static final String CREATE_ISLAND_BANNEDS_TABLE = "CREATE TABLE IF NOT EXISTS island_banneds " +
             "(island_uuid VARCHAR(36), uuid VARCHAR(36), created_at TIMESTAMP, updated_at TIMESTAMP, " +
             "PRIMARY KEY(island_uuid, uuid))";
@@ -42,7 +41,7 @@ public class IslandsDataManager {
         Bukkit.getScheduler().runTaskTimerAsynchronously(MineBlock.INSTANCE, () -> {
             for (Island island : cache.values()) {
                 if (island.needUpdate()) {
-                    island.update();
+                    island.update(true);
                 }
             }
         }, 0, 20 * 60 * 3);
@@ -120,15 +119,16 @@ public class IslandsDataManager {
                 double level = result.getDouble("level");
                 double levelExp = result.getDouble("exp");
 
-                Map<UUID, IslandRanks> members = loadIslandMembers(uuid);
+                Pair<Map<UUID, IslandRanks>, Map<UUID, String>> members = loadIslandMembers(uuid);
 
                 Map<IslandRanks, ArrayList<IslandPerms>> perms = loadIslandPerms(uuid);
+
 
                 ArrayList<UUID> bannedPlayers = new ArrayList<>(loadIslandBanned(uuid));
 
                 Location spawn = LocationTranslator.fromString(locationString);
 
-                Island island = new Island(uuid, name, spawn, members, perms, upgradeSize, upgradeMembers, upgradeGenerator,
+                Island island = new Island(uuid, name, spawn, members.left(), members.right(), perms, upgradeSize, upgradeMembers, upgradeGenerator,
                         bankMoney, bankCrystals, bannedPlayers, isPublic, level, levelExp);
 
                 Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
@@ -163,11 +163,11 @@ public class IslandsDataManager {
             return false;
         }
 
-        if (!saveIslandMembers(island.getIslandUUID(), island.getMembers())) {
+        if (!saveIslandMembers(island.getIslandUUID(), island.getMembers(), island.getMembersNames())) {
             return false;
         }
 
-        if (!saveIslandPerms(island.getIslandUUID(), island.getPerms())) {
+        if (!saveIslandPerms(island.getIslandUUID(), island.getRanksPermsReduced())) {
             return false;
         }
 
@@ -219,12 +219,26 @@ public class IslandsDataManager {
 
     private void updateIslandMembers(Island island) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "UPDATE island_members SET rank_id = ?, updated_at = CURRENT_TIMESTAMP " +
-                        "WHERE island_uuid = ? AND uuid = ?")) {
+                "INSERT IGNORE INTO island_members (island_uuid, uuid, username, rank_id, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+            for (Map.Entry<UUID, IslandRanks> entry : island.getMembers().entrySet()) {
+                statement.setString(1, island.getIslandUUID().toString());
+                statement.setString(2, entry.getKey().toString());
+                statement.setString(3, island.getMemberName(entry.getKey()));
+                statement.setInt(4, entry.getValue().getId());
+                statement.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "UPDATE island_members SET rank_id = ?, updated_at = CURRENT_TIMESTAMP, " +
+                        "username = ? WHERE island_uuid = ? AND uuid = ?")) {
             for (Map.Entry<UUID, IslandRanks> entry : island.getMembers().entrySet()) {
                 statement.setInt(1, entry.getValue().getId());
-                statement.setString(2, island.getIslandUUID().toString());
-                statement.setString(3, entry.getKey().toString());
+                statement.setString(2, island.getMemberName(entry.getKey()));
+                statement.setString(3, island.getIslandUUID().toString());
+                statement.setString(4, entry.getKey().toString());
                 statement.executeUpdate();
             }
         } catch (Exception e) {
@@ -234,13 +248,27 @@ public class IslandsDataManager {
 
     private void updateIslandPerms(Island island) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "UPDATE island_ranks_permissions SET permission_id = ?, updated_at = CURRENT_TIMESTAMP " +
-                        "WHERE island_uuid = ? AND rank_id = ?")) {
-            for (Map.Entry<IslandRanks, ArrayList<IslandPerms>> entry : island.getPerms().entrySet()) {
+                "INSERT IGNORE INTO island_ranks_permissions (island_uuid, rank_id, permission_id, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+            for (Map.Entry<IslandRanks, ArrayList<IslandPerms>> entry : island.getRanksPermsReduced().entrySet()) {
                 for (IslandPerms perm : entry.getValue()) {
-                    statement.setInt(1, perm.getId());
+                    statement.setString(1, island.getIslandUUID().toString());
+                    statement.setInt(2, entry.getKey().getId());
+                    statement.setInt(3, perm.getId());
+                    statement.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "UPDATE island_ranks_permissions SET rank_id = ?, updated_at = CURRENT_TIMESTAMP WHERE " +
+                        "island_uuid = ? AND permission_id = ?")) {
+            for (Map.Entry<IslandRanks, ArrayList<IslandPerms>> entry : island.getRanksPermsReduced().entrySet()) {
+                for (IslandPerms perm : entry.getValue()) {
+                    statement.setInt(1, entry.getKey().getId());
                     statement.setString(2, island.getIslandUUID().toString());
-                    statement.setInt(3, entry.getKey().getId());
+                    statement.setInt(3, perm.getId());
                     statement.executeUpdate();
                 }
             }
@@ -263,8 +291,9 @@ public class IslandsDataManager {
         }
     }
 
-    public Map<UUID, IslandRanks> loadIslandMembers(UUID islandUUID) {
+    public Pair<Map<UUID, IslandRanks>, Map<UUID, String>> loadIslandMembers(UUID islandUUID) {
         Map<UUID, IslandRanks> members = new HashMap<>();
+        Map<UUID, String> membersNames = new HashMap<>();
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "SELECT * FROM island_members WHERE island_uuid = ?")) {
             statement.setString(1, islandUUID.toString());
@@ -272,12 +301,14 @@ public class IslandsDataManager {
             while (result.next()) {
                 UUID memberUUID = UUID.fromString(result.getString("uuid"));
                 IslandRanks rank = IslandRanks.getById(result.getInt("rank_id"));
+                String username = result.getString("username");
                 members.put(memberUUID, rank);
+                membersNames.put(memberUUID, username);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return members;
+        return Pair.of(members, membersNames);
     }
 
     public Map<IslandRanks, ArrayList<IslandPerms>> loadIslandPerms(UUID islandUUID) {
@@ -300,7 +331,7 @@ public class IslandsDataManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return perms;
+        return Island.getRanksPermsFromReduced(perms);
     }
 
     public List<UUID> loadIslandBanned(UUID islandUUID) {
@@ -319,13 +350,14 @@ public class IslandsDataManager {
         return bannedPlayers;
     }
 
-    public boolean saveIslandMembers(UUID islandUUID, Map<UUID, IslandRanks> members) {
+    public boolean saveIslandMembers(UUID islandUUID, Map<UUID, IslandRanks> members, Map<UUID, String> membersNames) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "INSERT INTO island_members (island_uuid, uuid, rank_id, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                "INSERT INTO island_members (island_uuid, uuid, username, rank_id, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
                 statement.setString(1, islandUUID.toString());
                 statement.setString(2, entry.getKey().toString());
-                statement.setInt(3, entry.getValue().getId());
+                statement.setString(3, membersNames.get(entry.getKey()));
+                statement.setInt(4, entry.getValue().getId());
                 statement.executeUpdate();
             }
             return true;

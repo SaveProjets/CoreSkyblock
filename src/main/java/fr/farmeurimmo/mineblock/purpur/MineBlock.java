@@ -3,7 +3,7 @@ package fr.farmeurimmo.mineblock.purpur;
 import com.grinderwolf.swm.api.SlimePlugin;
 import fr.farmeurimmo.mineblock.common.DatabaseManager;
 import fr.farmeurimmo.mineblock.common.JedisManager;
-import fr.farmeurimmo.mineblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.mineblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.mineblock.purpur.chests.ChestsListener;
@@ -198,6 +198,10 @@ public final class MineBlock extends JavaPlugin {
 
         WorldManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
         WorldManager.INSTANCE.unload("island_template_1", false);
+
+        IslandsManager.INSTANCE.onDisable();
+
+        DatabaseManager.INSTANCE.closeConnection();
 
         JedisManager.INSTANCE.onDisable();
 

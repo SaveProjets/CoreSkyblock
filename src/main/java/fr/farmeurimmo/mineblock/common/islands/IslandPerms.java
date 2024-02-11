@@ -17,7 +17,7 @@ public enum IslandPerms {
     PUBLIC("§6Définir la visibilité de l'île sur publique", 10, Material.BLUE_BED),
     CHANGE_ISLAND_BIOME("§6Changer le biome de l'île", 11, Material.CLAY),
     SET_HOME("§6Définir le home de l'île", 12, Material.GRASS_BLOCK),
-    CHANGE_PERMS("§6Définir les permissions jusqu'à son niveau de grade", 13, Material.EMERALD_BLOCK),
+    CHANGE_PERMS("§6Définir les permissions depuis son niveau de grade", 13, Material.EMERALD_BLOCK),
     ALL_PERMS("§6Toutes les permissions (Bypass les autres permissions)", 14, Material.BEDROCK),
     ADD_COOP("§6Ajouter un membre temporaire", 15, Material.BONE_BLOCK),
     REMOVE_COOP("§6Retirer un membre temporaire", 16, Material.BONE_MEAL),

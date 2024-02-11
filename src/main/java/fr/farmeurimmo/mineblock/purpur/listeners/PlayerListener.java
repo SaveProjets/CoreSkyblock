@@ -1,7 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.listeners;
 
-import fr.farmeurimmo.mineblock.common.SkyblockUser;
-import fr.farmeurimmo.mineblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.mineblock.purpur.trade.TradesManager;

@@ -1,7 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.featherfly;
 
-import fr.farmeurimmo.mineblock.common.SkyblockUser;
-import fr.farmeurimmo.mineblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

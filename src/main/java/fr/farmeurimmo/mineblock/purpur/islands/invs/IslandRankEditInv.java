@@ -6,6 +6,7 @@ import fr.farmeurimmo.mineblock.common.islands.IslandRanks;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -60,8 +61,32 @@ public class IslandRankEditInv extends FastInv {
                 }
             }
             setItem(slots[currentSlot], ItemBuilder.copyOf(custom).name(perm.getDescription()).lore(lore).build(), e -> {
+                IslandRanks rank = island.getMembers().get(e.getWhoClicked().getUniqueId());
+                if (rank == null) return;
+                if (!island.hasPerms(rank, IslandPerms.CHANGE_PERMS, e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas la permission de modifier " +
+                            "les permissions."));
+                    return;
+                }
+                if (!island.hasPerms(rank, perm, e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier une permission " +
+                            "que vous n'avez pas."));
+                    return;
+                }
                 if (e.isLeftClick()) {
-                    island.removePermsToRank(IslandRanksManager.INSTANCE.getPreviousRankForPerm(perm, island), perm);
+                    IslandRanks previousRank = IslandRanksManager.INSTANCE.getPreviousRankForPerm(perm, island);
+                    if (previousRank == null) return;
+                    if (previousRank.getId() <= rank.getId()) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas retirer une " +
+                                "permission à un grade supérieur ou égal au vôtre."));
+                        return;
+                    }
+                    if (perm != IslandPerms.ALL_PERMS && island.hasPerms(previousRank, IslandPerms.ALL_PERMS, null)) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas retirer une " +
+                                "permission à un grade qui a toutes les permissions."));
+                        return;
+                    }
+                    island.removePermsToRank(previousRank, perm);
                 } else {
                     island.addPermsToRank(IslandRanksManager.INSTANCE.getNextRankForPerm(perm, island), perm);
                 }

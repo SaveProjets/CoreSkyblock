@@ -1,7 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.chat;
 
-import fr.farmeurimmo.mineblock.common.SkyblockUser;
-import fr.farmeurimmo.mineblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;

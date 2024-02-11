@@ -1,8 +1,8 @@
 package fr.farmeurimmo.mineblock.purpur.scoreboard;
 
-import fr.farmeurimmo.mineblock.common.SkyblockUser;
-import fr.farmeurimmo.mineblock.common.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.common.islands.Island;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import fr.mrmicky.fastboard.FastBoard;

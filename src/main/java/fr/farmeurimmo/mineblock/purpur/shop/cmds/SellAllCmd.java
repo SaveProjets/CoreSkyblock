@@ -1,7 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.shop.cmds;
 
-import fr.farmeurimmo.mineblock.common.SkyblockUser;
-import fr.farmeurimmo.mineblock.common.SkyblockUsersManager;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.shop.ShopsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;

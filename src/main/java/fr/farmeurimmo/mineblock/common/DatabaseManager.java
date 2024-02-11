@@ -51,6 +51,14 @@ public class DatabaseManager {
         }
     }
 
+    public void closeConnection() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(host, user, password);
     }

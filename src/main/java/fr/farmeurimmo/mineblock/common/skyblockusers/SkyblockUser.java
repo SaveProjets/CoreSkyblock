@@ -1,4 +1,4 @@
-package fr.farmeurimmo.mineblock.common;
+package fr.farmeurimmo.mineblock.common.skyblockusers;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

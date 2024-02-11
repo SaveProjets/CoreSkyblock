@@ -1,8 +1,8 @@
 package fr.farmeurimmo.mineblock.purpur.islands;
 
-import fr.farmeurimmo.mineblock.common.IslandsDataManager;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
+import fr.farmeurimmo.mineblock.common.islands.IslandsDataManager;
 import fr.farmeurimmo.mineblock.purpur.worlds.WorldManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -27,6 +27,14 @@ public class IslandsManager {
 
         new IslandsDataManager();
         new IslandRanksManager();
+    }
+
+    public void onDisable() {
+        for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+            if (island.needUpdate()) {
+                island.update(false);
+            }
+        }
     }
 
     public boolean isBypassing(UUID uuid) {

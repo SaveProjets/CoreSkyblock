@@ -1,5 +1,6 @@
-package fr.farmeurimmo.mineblock.common;
+package fr.farmeurimmo.mineblock.common.skyblockusers;
 
+import fr.farmeurimmo.mineblock.common.DatabaseManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import org.bukkit.Bukkit;
 

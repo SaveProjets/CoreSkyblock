@@ -1,5 +1,9 @@
 package fr.farmeurimmo.mineblock.common.islands;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+
 public enum IslandRanks {
 
     CHEF("Chef", 0),
@@ -15,6 +19,12 @@ public enum IslandRanks {
     IslandRanks(String name, int id) {
         this.name = name;
         this.id = id;
+    }
+
+    public static LinkedList<IslandRanks> getRanksReverse() {
+        LinkedList<IslandRanks> ranks = new LinkedList<>(Arrays.asList(IslandRanks.values()));
+        Collections.reverse(ranks);
+        return ranks;
     }
 
     public static IslandRanks match(String str) {

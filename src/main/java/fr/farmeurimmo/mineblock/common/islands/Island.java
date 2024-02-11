@@ -1,7 +1,8 @@
 package fr.farmeurimmo.mineblock.common.islands;
 
-import fr.farmeurimmo.mineblock.common.IslandsDataManager;
+import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -13,7 +14,9 @@ public class Island {
     private final UUID islandUUID;
     private final Map<UUID, IslandRanks> members;
     private final Map<IslandRanks, ArrayList<IslandPerms>> perms;
+    private final Map<UUID, String> membersNames = new HashMap<>();
     private final ArrayList<UUID> bannedPlayers;
+    private final Map<UUID, Long> invites = new HashMap<>();
     private String name;
     private Location spawn;
     private int maxSize;
@@ -24,19 +27,20 @@ public class Island {
     private boolean isPublic;
     private double level;
     private double levelExp;
-
     private boolean isModified = false;
     private boolean areMembersModified = false;
     private boolean arePermsModified = false;
     private boolean areBannedPlayersModified = false;
 
-    public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<IslandRanks,
-            ArrayList<IslandPerms>> perms, int maxSize, int maxMembers, int generatorLevel, double bankMoney,
-                  double bankCrystals, ArrayList<UUID> bannedPlayers, boolean isPublic, double level, double levelExp) {
+    public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
+            String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
+                  int generatorLevel, double bankMoney, double bankCrystals, ArrayList<UUID> bannedPlayers,
+                  boolean isPublic, double level, double levelExp) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
         this.members = members;
+        this.membersNames.putAll(membersNames);
         this.perms = perms;
         if (perms.isEmpty()) setDefaultPerms(true);
         this.maxSize = maxSize;
@@ -57,6 +61,7 @@ public class Island {
         this.spawn = spawn;
         this.members = new HashMap<>();
         this.members.put(owner, IslandRanks.CHEF); // this is an exception, please use the addMember method to trigger an update
+        this.membersNames.put(owner, MineBlock.INSTANCE.getServer().getOfflinePlayer(owner).getName());
         this.perms = new HashMap<>();
         setDefaultPerms(false);
         this.maxSize = 40;
@@ -68,6 +73,19 @@ public class Island {
         this.isPublic = true;
         this.level = 1;
         this.levelExp = 0;
+    }
+
+    public static Map<IslandRanks, ArrayList<IslandPerms>> getRanksPermsFromReduced(Map<IslandRanks, ArrayList<IslandPerms>> reducedPerms) {
+        Map<IslandRanks, ArrayList<IslandPerms>> toReturn = new HashMap<>();
+        ArrayList<IslandPerms> alreadyAdded = new ArrayList<>();
+        for (IslandRanks rank : IslandRanks.getRanksReverse()) {
+            reducedPerms.computeIfAbsent(rank, k -> new ArrayList<>());
+            ArrayList<IslandPerms> perms = new ArrayList<>(reducedPerms.get(rank));
+            perms.addAll(alreadyAdded);
+            toReturn.put(rank, perms);
+            alreadyAdded.addAll(perms);
+        }
+        return toReturn;
     }
 
     public void setDefaultPerms(boolean update) {
@@ -166,7 +184,7 @@ public class Island {
 
     public void setBankMoney(double bankMoney) {
         this.bankMoney = bankMoney;
-        update();
+        update(true);
     }
 
     public double getBankCrystals() {
@@ -175,7 +193,7 @@ public class Island {
 
     public void setCrystalMoney(double bankCrystals) {
         this.bankCrystals = bankCrystals;
-        update();
+        update(true);
     }
 
     public ArrayList<UUID> getBannedPlayers() {
@@ -188,7 +206,7 @@ public class Island {
 
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
-        update();
+        update(true);
     }
 
     public double getLevel() {
@@ -197,7 +215,7 @@ public class Island {
 
     public void setLevel(double level) {
         this.level = level;
-        update();
+        update(true);
     }
 
     public double getLevelExp() {
@@ -209,19 +227,31 @@ public class Island {
         isModified = true;
     }
 
-    public void addMember(UUID uuid, IslandRanks rank) {
+    public void addMember(UUID uuid, String name, IslandRanks rank) {
+        boolean needUpdate = !this.members.containsKey(uuid);
         this.members.put(uuid, rank);
-        update();
+        this.membersNames.put(uuid, name);
+
+        if (needUpdate) areMembersModified = true;
+        else update(true);
     }
 
     public void removeMember(UUID uuid) {
         this.members.remove(uuid);
-        update();
+
+        Player player = MineBlock.INSTANCE.getServer().getPlayer(uuid);
+        if (player != null) {
+            player.teleportAsync(MineBlock.SPAWN);
+            player.sendMessage(Component.text("§cVous avez été retiré de l'île."));
+        }
+
+        update(true);
     }
 
-    public void update() {
-        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.update(this, areMembersModified,
+    public void update(boolean async) {
+        if (async) CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.update(this, areMembersModified,
                 arePermsModified, areBannedPlayersModified));
+        else IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified, areBannedPlayersModified);
 
         isModified = false;
         areMembersModified = false;
@@ -262,79 +292,107 @@ public class Island {
         return null;
     }
 
-    public boolean downPerms(Player player, Island island, IslandPerms islandPerms, IslandRanks islandRank) {
-        IslandRanks playerRank = island.getMembers().get(player.getUniqueId());
-        if (!island.getOwnerUUID().equals(player.getUniqueId())) {
-            if (!IslandRanksManager.INSTANCE.isUp(playerRank, IslandRanksManager.INSTANCE.getNextRankForPerm(islandPerms, island))) {
-                return false;
-            }
-        }
-        if (playerRank == islandRank) {
-            if (!island.hasPerms(islandRank, null, player.getUniqueId())) {
-                return false;
-            }
-        }
-        if (islandRank == IslandRanks.COCHEF) {
-            return removePermsToRank(IslandRanks.COCHEF, islandPerms);
-        } else if (islandRank == IslandRanks.MODERATEUR) {
-            return removePermsToRank(IslandRanks.MODERATEUR, islandPerms);
-        } else if (islandRank == IslandRanks.MEMBRE) {
-            return removePermsToRank(IslandRanks.MEMBRE, islandPerms);
-        } else if (islandRank == IslandRanks.COOP) {
-            return removePermsToRank(IslandRanks.COOP, islandPerms);
-        } else if (islandRank == IslandRanks.VISITEUR) {
-            return removePermsToRank(IslandRanks.VISITEUR, islandPerms);
-        }
-        return false;
-    }
-
-    public boolean removePermsToRank(IslandRanks islandRank, IslandPerms islandPerms) {
+    public void removePermsToRank(IslandRanks islandRank, IslandPerms islandPerms) {
         if (getPerms().get(islandRank) == null) {
-            return false;
+            return;
         }
         if (!getPerms().get(islandRank).contains(islandPerms)) {
-            return false;
+            return;
         }
         getPerms().get(islandRank).remove(islandPerms);
         arePermsModified = true;
-        return true;
     }
 
-    public boolean upPerms(Player player, Island island, IslandPerms islandPerms, IslandRanks islandRank) {
-        IslandRanks playerRank = island.getMembers().get(player.getUniqueId());
-        if (!island.getOwnerUUID().equals(player.getUniqueId())) {
-            if (!IslandRanksManager.INSTANCE.isUp(playerRank, IslandRanksManager.INSTANCE.getNextRankForPerm(islandPerms, island))) {
-                return false;
-            }
-        }
-        if (playerRank == islandRank) {
-            if (!island.hasPerms(islandRank, null, player.getUniqueId())) {
-                return false;
-            }
-        }
-        if (islandRank == IslandRanks.COCHEF) {
-            return addPermsToRank(IslandRanks.COCHEF, islandPerms);
-        } else if (islandRank == IslandRanks.MODERATEUR) {
-            return addPermsToRank(IslandRanks.MODERATEUR, islandPerms);
-        } else if (islandRank == IslandRanks.MEMBRE) {
-            return addPermsToRank(IslandRanks.MEMBRE, islandPerms);
-        } else if (islandRank == IslandRanks.COOP) {
-            return addPermsToRank(IslandRanks.COOP, islandPerms);
-        } else if (islandRank == IslandRanks.VISITEUR) {
-            return addPermsToRank(IslandRanks.VISITEUR, islandPerms);
-        }
-        return false;
-    }
-
-    public boolean addPermsToRank(IslandRanks islandRank, IslandPerms islandPerms) {
+    public void addPermsToRank(IslandRanks islandRank, IslandPerms islandPerms) {
         if (getPerms().get(islandRank) == null) {
-            return false;
+            return;
         }
         if (getPerms().get(islandRank).contains(islandPerms)) {
-            return false;
+            return;
         }
         getPerms().get(islandRank).add(islandPerms);
         arePermsModified = true;
+    }
+
+    public boolean promote(UUID uuid) {
+        if (!members.containsKey(uuid)) return false;
+        IslandRanks rank = members.get(uuid);
+        if (rank == IslandRanks.CHEF) return false;
+        IslandRanks nextRank = IslandRanksManager.INSTANCE.getNextRank(rank);
+        if (nextRank == null) return false;
+        if (nextRank == IslandRanks.CHEF) return false;
+        members.put(uuid, nextRank);
+        areMembersModified = true;
         return true;
     }
+
+    public boolean demote(UUID uuid) {
+        if (!members.containsKey(uuid)) return false;
+        IslandRanks rank = members.get(uuid);
+        if (rank == IslandRanks.MEMBRE) return false;
+        IslandRanks previousRank = IslandRanksManager.INSTANCE.getPreviousRank(rank);
+        if (previousRank == null) return false;
+        members.put(uuid, previousRank);
+        areMembersModified = true;
+        return true;
+    }
+
+    public void addInvite(UUID uuid) {
+        invites.put(uuid, System.currentTimeMillis());
+    }
+
+    public boolean isInvited(UUID uuid) {
+        if (!invites.containsKey(uuid)) return false;
+        if (System.currentTimeMillis() - invites.get(uuid) > 1000 * 60 * 5) {
+            invites.remove(uuid);
+            return false;
+        }
+        return true;
+    }
+
+    public void removeInvite(UUID uuid) {
+        invites.remove(uuid);
+    }
+
+    public void sendMessage(String message, IslandPerms perm) {
+        for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
+            if (hasPerms(entry.getValue(), perm, entry.getKey())) {
+                Player player = MineBlock.INSTANCE.getServer().getPlayer(entry.getKey());
+                if (player != null) {
+                    player.sendMessage(Component.text(message));
+                }
+            }
+        }
+    }
+
+    public void sendMessageToAll(String message) {
+        for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
+            Player player = MineBlock.INSTANCE.getServer().getPlayer(entry.getKey());
+            if (player != null) {
+                player.sendMessage(Component.text(message));
+            }
+        }
+    }
+
+    public String getMemberName(UUID uuid) {
+        return membersNames.get(uuid);
+    }
+
+    public Map<UUID, String> getMembersNames() {
+        return membersNames;
+    }
+
+    public Map<IslandRanks, ArrayList<IslandPerms>> getRanksPermsReduced() {
+        Map<IslandRanks, ArrayList<IslandPerms>> reducedPerms = new HashMap<>();
+        ArrayList<IslandPerms> alreadyAdded = new ArrayList<>();
+        for (IslandRanks rank : IslandRanks.getRanksReverse()) {
+            reducedPerms.computeIfAbsent(rank, k -> new ArrayList<>());
+            ArrayList<IslandPerms> perms = new ArrayList<>(this.perms.get(rank));
+            perms.removeAll(alreadyAdded);
+            reducedPerms.put(rank, perms);
+            alreadyAdded.addAll(perms);
+        }
+        return reducedPerms;
+    }
+
 }
