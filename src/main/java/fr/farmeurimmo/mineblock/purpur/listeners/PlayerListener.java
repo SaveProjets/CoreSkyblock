@@ -3,6 +3,7 @@ package fr.farmeurimmo.mineblock.purpur.listeners;
 import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
+import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.mineblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.mineblock.purpur.trade.TradesManager;
 import net.kyori.adventure.text.Component;
@@ -31,6 +32,8 @@ public class PlayerListener implements Listener {
         e.joinMessage(null);
 
         p.teleportAsync(MineBlock.SPAWN);
+
+        IslandsManager.INSTANCE.checkLoadedIsland(p);
     }
 
     @EventHandler
@@ -54,6 +57,8 @@ public class PlayerListener implements Listener {
                 });
             });
         }
+
+        IslandsManager.INSTANCE.checkUnloadIsland(p);
     }
 
     @EventHandler

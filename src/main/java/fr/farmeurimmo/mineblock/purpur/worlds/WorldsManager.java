@@ -9,14 +9,14 @@ import org.bukkit.Bukkit;
 
 import java.util.concurrent.CompletableFuture;
 
-public class WorldManager {
+public class WorldsManager {
 
-    public static WorldManager INSTANCE;
+    public static WorldsManager INSTANCE;
 
     SlimePropertyMap properties = new SlimePropertyMap();
     SlimeLoader loader;
 
-    public WorldManager() {
+    public WorldsManager() {
         INSTANCE = this;
 
         properties.setValue(SlimeProperties.PVP, false);
@@ -27,19 +27,16 @@ public class WorldManager {
         loader = MineBlock.INSTANCE.slimePlugin.getLoader("mysql");
     }
 
-    public void loadOrCreate(String name, boolean readOnly) {
+    public void loadOrCreate(String name, boolean readOnly) { //only used for the spawn world
         try {
             if (loader.worldExists(name)) {
-                load(name, readOnly);
+                loadAsync(name, readOnly);
             } else {
-                MineBlock.INSTANCE.console.sendMessage("§b[MineBlock] §aCréation du monde...");
-
                 try {
                     //the boolean is for loading the world in read-only mode
                     SlimeWorld world = MineBlock.INSTANCE.slimePlugin.createEmptyWorld(loader, name, readOnly, properties);
 
                     MineBlock.INSTANCE.slimePlugin.generateWorld(world);
-                    MineBlock.INSTANCE.console.sendMessage("§b[MineBlock] §aMonde " + name + " créé");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -49,19 +46,21 @@ public class WorldManager {
         }
     }
 
-    public CompletableFuture<SlimeWorld> loadAsync(String name, boolean readOnly) {
+    public CompletableFuture<Void> loadAsync(String name, boolean readOnly) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 //the boolean is for loading the world in read-only mode
-                SlimeWorld world = MineBlock.INSTANCE.slimePlugin.loadWorld(loader, name, readOnly, properties);
-                MineBlock.INSTANCE.console.sendMessage("§b[MineBlock] §aMonde " + name + " chargé");
-
-                MineBlock.INSTANCE.slimePlugin.generateWorld(world);
-                return world;
+                return MineBlock.INSTANCE.slimePlugin.loadWorld(loader, name, readOnly, properties);
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
+        }).thenAccept(world -> {
+            if (world == null) return;
+            Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
+                MineBlock.INSTANCE.slimePlugin.generateWorld(world);
+                return null;
+            });
         });
     }
 
@@ -69,30 +68,16 @@ public class WorldManager {
         try {
             //the boolean is for loading the world in read-only mode
             if (!loader.worldExists(cloneFrom)) return null;
-            SlimeWorld worldToClone = MineBlock.INSTANCE.slimePlugin.loadWorld(loader, cloneFrom, true, properties);
-            MineBlock.INSTANCE.slimePlugin.generateWorld(worldToClone);
-
+            SlimeWorld worldToClone = MineBlock.INSTANCE.slimePlugin.getWorld(cloneFrom);
             if (worldToClone == null) return null;
+
             SlimeWorld world = worldToClone.clone(name, loader, true);
-            MineBlock.INSTANCE.console.sendMessage("§b[MineBlock] §aMonde " + name + " chargé");
 
             MineBlock.INSTANCE.slimePlugin.generateWorld(world);
             return world;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }
-    }
-
-    public void load(String name, boolean readOnly) {
-        try {
-            //the boolean is for loading the world in read-only mode
-            SlimeWorld world = MineBlock.INSTANCE.slimePlugin.loadWorld(loader, name, readOnly, properties);
-            MineBlock.INSTANCE.console.sendMessage("§b[MineBlock] §aMonde " + name + " chargé");
-
-            MineBlock.INSTANCE.slimePlugin.generateWorld(world);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

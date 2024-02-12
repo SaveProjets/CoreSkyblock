@@ -108,7 +108,6 @@ public class TradeInv extends FastInv {
                 long timeLeft2 = 5000 - (System.currentTimeMillis() - trade.getReceiverReadyTime());
                 if (timeLeft2 <= 0 && timeLeft <= 0) {
                     TradesManager.INSTANCE.endTrade(trade);
-                    System.out.println("3");
                     return;
                 }
                 long time = Math.max(timeLeft, timeLeft2);

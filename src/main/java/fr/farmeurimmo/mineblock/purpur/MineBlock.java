@@ -34,7 +34,7 @@ import fr.farmeurimmo.mineblock.purpur.silos.SilosManager;
 import fr.farmeurimmo.mineblock.purpur.tpa.TpaCmd;
 import fr.farmeurimmo.mineblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.mineblock.purpur.trade.*;
-import fr.farmeurimmo.mineblock.purpur.worlds.WorldManager;
+import fr.farmeurimmo.mineblock.purpur.worlds.WorldsManager;
 import fr.farmeurimmo.mineblock.utils.InventorySyncUtils;
 import fr.mrmicky.fastinv.FastInvManager;
 import net.kyori.adventure.text.Component;
@@ -67,10 +67,10 @@ public final class MineBlock extends JavaPlugin {
         console = getServer().getConsoleSender();
         console.sendMessage("§b[MineBlock] §7Chargement des mondes...");
         slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
-        new WorldManager();
+        new WorldsManager();
 
         console.sendMessage("§b[MineBlock] §7Chargement du spawn...");
-        WorldManager.INSTANCE.loadOrCreate(SPAWN_WORLD_NAME, SPAWN_IN_READ_ONLY);
+        WorldsManager.INSTANCE.loadOrCreate(SPAWN_WORLD_NAME, SPAWN_IN_READ_ONLY);
     }
 
     @Override
@@ -201,8 +201,8 @@ public final class MineBlock extends JavaPlugin {
     public void onDisable() {
         console.sendMessage("§6Arrêt du plugin MineBlock");
 
-        WorldManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
-        WorldManager.INSTANCE.unload("island_template_1", false);
+        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
+        WorldsManager.INSTANCE.unload("island_template_1", false);
 
         IslandsManager.INSTANCE.onDisable();
 

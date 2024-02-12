@@ -1,9 +1,10 @@
 package fr.farmeurimmo.mineblock.purpur.islands;
 
+import com.grinderwolf.swm.api.world.SlimeWorld;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.farmeurimmo.mineblock.common.islands.IslandsDataManager;
-import fr.farmeurimmo.mineblock.purpur.worlds.WorldManager;
+import fr.farmeurimmo.mineblock.purpur.worlds.WorldsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,6 +30,46 @@ public class IslandsManager {
 
         new IslandsDataManager();
         new IslandRanksManager();
+
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                boolean gotUpdate = false;
+                if (island.isLoadTimeout() && island.isLoaded()) {
+                    WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
+                    island.setLoaded(false);
+                    gotUpdate = true;
+                }
+                if (island.needUpdate()) {
+                    island.update(true);
+                }
+                if (island.isLoaded() && !gotUpdate) {
+                    World world = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
+                    if (world != null) {
+                        world.save();
+                    }
+                }
+            }
+        }, 0, 20 * 60 * 5);
+
+        WorldsManager.INSTANCE.loadAsync("island_template_1", true);
+    }
+
+    public void checkLoadedIsland(Player p) {
+        Island island = getIslandOf(p.getUniqueId());
+        if (island != null) {
+            if (!island.isLoaded()) {
+                loadIsland(island);
+            }
+        }
+    }
+
+    public void checkUnloadIsland(Player p) {
+        Island island = getIslandOf(p.getUniqueId());
+        if (island != null) {
+            if (island.isLoaded()) {
+                island.setLoadTimeout(System.currentTimeMillis());
+            }
+        }
     }
 
     public void onDisable() {
@@ -69,7 +110,12 @@ public class IslandsManager {
                 return;
             }
             Bukkit.getScheduler().callSyncMethod(plugin, () -> {
-                WorldManager.INSTANCE.cloneAndLoad(worldName, "island_template_1");
+                SlimeWorld slimeWorld = WorldsManager.INSTANCE.cloneAndLoad(worldName, "island_template_1");
+                if (slimeWorld == null) {
+                    player.sendMessage(Component.text("§cUne erreur est survenue lors de la création de votre île."));
+                    player.sendMessage(Component.text("§cVeuillez réessayer plus tard."));
+                    return null;
+                }
                 IslandsDataManager.INSTANCE.getCache().put(islandId, island);
                 Player ownerPlayer = plugin.getServer().getPlayer(owner);
                 if (ownerPlayer == null) return null;
@@ -95,12 +141,19 @@ public class IslandsManager {
     }
 
     public void loadIsland(Island island) {
-        WorldManager.INSTANCE.load(getIslandWorldName(island.getIslandUUID()), false);
+        if (island.isLoaded()) return;
+        WorldsManager.INSTANCE.loadAsync(getIslandWorldName(island.getIslandUUID()), false).thenRun(() -> {
+            Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                Location spawn = island.getSpawn();
+                if (spawn != null) {
+                    spawn.setWorld(Bukkit.getWorld(getIslandWorldName(island.getIslandUUID())));
+                }
+                island.setLoaded(true);
 
-        Location spawn = island.getSpawn();
-        if (spawn != null) {
-            spawn.setWorld(Bukkit.getWorld(getIslandWorldName(island.getIslandUUID())));
-        }
+                island.sendMessageToAll("§aVotre île a été chargée.");
+                return null;
+            });
+        });
     }
 
     public boolean isAnIsland(World world) {

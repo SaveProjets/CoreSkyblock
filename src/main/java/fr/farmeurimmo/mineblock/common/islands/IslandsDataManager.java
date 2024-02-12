@@ -2,7 +2,6 @@ package fr.farmeurimmo.mineblock.common.islands;
 
 import fr.farmeurimmo.mineblock.common.DatabaseManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
-import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.mineblock.utils.LocationTranslator;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
@@ -70,7 +69,6 @@ public class IslandsDataManager {
     }
 
     public void loadAllIslands() {
-        long startTime = System.currentTimeMillis();
         List<UUID> islandUUIDs = new ArrayList<>();
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement("SELECT * FROM islands")) {
             ResultSet result = statement.executeQuery();
@@ -86,18 +84,7 @@ public class IslandsDataManager {
                 .map(uuid -> CompletableFuture.runAsync(() -> loadIsland(uuid)))
                 .toArray(CompletableFuture[]::new);
 
-        CompletableFuture.allOf(futures).thenRun(() -> {
-            Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
-                for (UUID islandUUID : islandUUIDs) {
-                    Island island = cache.get(islandUUID);
-                    if (island != null) {
-                        IslandsManager.INSTANCE.loadIsland(island);
-                    }
-                }
-                return null;
-            });
-            System.out.println("Loaded " + islandUUIDs.size() + " islands in " + (System.currentTimeMillis() - startTime) + "ms");
-        });
+        CompletableFuture.allOf(futures);
     }
 
     public void loadIsland(UUID uuid) {

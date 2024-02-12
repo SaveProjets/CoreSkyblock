@@ -75,7 +75,6 @@ public class ScoreboardManager {
                     islandLines.get(3),
                     islandLines.stream().skip(4).findFirst().orElse(""),
                     islandLines.stream().skip(5).findFirst().orElse(""),
-                    islandLines.stream().skip(6).findFirst().orElse(""),
                     "",
                     "§f» §c§lplay.edmine.net"
             );

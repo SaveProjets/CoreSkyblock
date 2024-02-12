@@ -27,6 +27,10 @@ public class Island {
     private boolean isPublic;
     private double level;
     private double levelExp;
+
+    private boolean loaded = false;
+    private long loadTimeout = -1;
+
     private boolean isModified = false;
     private boolean areMembersModified = false;
     private boolean arePermsModified = false;
@@ -354,6 +358,21 @@ public class Island {
         invites.remove(uuid);
     }
 
+    public ArrayList<Player> getOnlineMembers() {
+        ArrayList<Player> onlineMembers = new ArrayList<>();
+        for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
+            Player player = MineBlock.INSTANCE.getServer().getPlayer(entry.getKey());
+            if (player != null) {
+                onlineMembers.add(player);
+            }
+        }
+        return onlineMembers;
+    }
+
+    public int getOnlineMembersCount() {
+        return getOnlineMembers().size();
+    }
+
     public void sendMessage(String message, IslandPerms perm) {
         for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
             if (hasPerms(entry.getValue(), perm, entry.getKey())) {
@@ -393,6 +412,26 @@ public class Island {
             alreadyAdded.addAll(perms);
         }
         return reducedPerms;
+    }
+
+    public boolean isLoaded() {
+        return this.loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
+    public boolean isLoadTimeout() {
+        return this.loadTimeout != -1 && System.currentTimeMillis() - this.loadTimeout > 1000 * 60 * 3;
+    }
+
+    public long getLoadTimeout() {
+        return this.loadTimeout;
+    }
+
+    public void setLoadTimeout(long loadTimeout) {
+        this.loadTimeout = loadTimeout;
     }
 
 }
