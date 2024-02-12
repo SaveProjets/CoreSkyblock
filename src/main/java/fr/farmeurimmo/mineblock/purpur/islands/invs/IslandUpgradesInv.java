@@ -17,19 +17,18 @@ public class IslandUpgradesInv extends FastInv {
             return;
         }
 
+        int currentLevelSize = island.getMaxSize();
         String[] lore = new String[5];
         for (int i = 1; i <= 5; i++) {
-            lore[i - 1] = "§7" + i + ": §6" + IslandsManager.INSTANCE.getSizeFromLevel(i) + "§7x§6" +
-                    IslandsManager.INSTANCE.getSizeFromLevel(i) + " §8| §7Prix xp: §e" +
-                    IslandsManager.INSTANCE.getSizePriceFromLevel(i) + "§7$";
+            lore[i - 1] = "§7" + i + ": §6" + IslandsManager.INSTANCE.getSizeFromLevel(i) + "§fx§6" +
+                    IslandsManager.INSTANCE.getSizeFromLevel(i) + " §8| " + (currentLevelSize >= i ? "§aDéjà achetée" :
+                    "§7Prix: §e" + IslandsManager.INSTANCE.getSizePriceFromLevel(i) + "§6§lexp");
         }
-
         setItem(10, ItemBuilder.copyOf(new ItemStack(Material.GRASS_BLOCK))
                 .name("§6Taille de l'île").lore(lore).build(), e -> {
-            int currentLevel = island.getMaxSize();
-            if (currentLevel < 5) {
-                double price = IslandsManager.INSTANCE.getSizePriceFromLevel(currentLevel + 1);
-                p.sendMessage("§aEn développement... Prix: " + price + "xp");
+            if (currentLevelSize < 5) {
+                double price = IslandsManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
+                p.sendMessage("§aEn développement... Prix: " + price + "exp");
             } else {
                 p.sendMessage("§cVotre île est déjà au niveau maximum !");
             }
@@ -40,7 +39,7 @@ public class IslandUpgradesInv extends FastInv {
             int currentLevel = island.getGeneratorLevel();
             if (currentLevel < 5) {
                 double price = IslandsManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
-                p.sendMessage("§aEn développement... Prix: " + price + "xp");
+                p.sendMessage("§aEn développement... Prix: " + price + "exp");
             } else {
                 p.sendMessage("§cVotre générateur est déjà au niveau maximum !");
             }
@@ -51,7 +50,7 @@ public class IslandUpgradesInv extends FastInv {
             int currentLevel = island.getMaxMembers();
             if (currentLevel < 5) {
                 double price = IslandsManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);
-                p.sendMessage("§aEn développement... Prix: " + price + "xp");
+                p.sendMessage("§aEn développement... Prix: " + price + "exp");
             } else {
                 p.sendMessage("§cVotre île est déjà au niveau maximum !");
             }
