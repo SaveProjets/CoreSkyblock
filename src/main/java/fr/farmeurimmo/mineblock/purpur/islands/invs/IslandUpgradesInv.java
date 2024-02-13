@@ -2,6 +2,8 @@ package fr.farmeurimmo.mineblock.purpur.islands.invs;
 
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsGeneratorManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;
@@ -17,29 +19,46 @@ public class IslandUpgradesInv extends FastInv {
             return;
         }
 
+        update(island, p);
+
+        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+                .name("§6Retour §8| §7(clic gauche)").build(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+    }
+
+    private void update(Island island, Player p) {
+        if (island == null) {
+            return;
+        }
+
         int currentLevelSize = island.getMaxSize();
         String[] lore = new String[5];
         for (int i = 1; i <= 5; i++) {
-            lore[i - 1] = "§7" + i + ": §6" + IslandsManager.INSTANCE.getSizeFromLevel(i) + "§fx§6" +
-                    IslandsManager.INSTANCE.getSizeFromLevel(i) + " §8| " + (currentLevelSize >= i ? "§aDéjà achetée" :
-                    "§7Prix: §e" + IslandsManager.INSTANCE.getSizePriceFromLevel(i) + "§6§lexp");
+            lore[i - 1] = "§7" + i + ": §6" + IslandsSizeManager.INSTANCE.getSizeFromLevel(i) + "§fx§6" +
+                    IslandsSizeManager.INSTANCE.getSizeFromLevel(i) + " §8| " + (currentLevelSize >= i ? "§aDéjà achetée" :
+                    "§7Prix: §e" + IslandsSizeManager.INSTANCE.getSizePriceFromLevel(i) + "§6§lexp");
         }
         setItem(10, ItemBuilder.copyOf(new ItemStack(Material.GRASS_BLOCK))
                 .name("§6Taille de l'île").lore(lore).build(), e -> {
             if (currentLevelSize < 5) {
-                double price = IslandsManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
+                double price = IslandsSizeManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
+                //FIXME: Add the possibility to buy the upgrade
+                island.setMaxSize(currentLevelSize + 1);
                 p.sendMessage("§aEn développement... Prix: " + price + "exp");
+                update(island, p);
             } else {
                 p.sendMessage("§cVotre île est déjà au niveau maximum !");
             }
         });
 
-        setItem(11, ItemBuilder.copyOf(new ItemStack(Material.COBBLESTONE))
-                .name("§6Générateur de l'île").build(), e -> {
+        setItem(11, ItemBuilder.copyOf(new ItemStack(Material.COBBLESTONE)).name("§6Générateur de l'île")
+                .lore(IslandsGeneratorManager.INSTANCE.getLore(island.getGeneratorLevel())).build(), e -> {
             int currentLevel = island.getGeneratorLevel();
             if (currentLevel < 5) {
-                double price = IslandsManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
+                double price = IslandsGeneratorManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
+                //FIXME: Add the possibility to buy the upgrade
                 p.sendMessage("§aEn développement... Prix: " + price + "exp");
+                island.setGeneratorLevel(currentLevel + 1);
+                update(island, p);
             } else {
                 p.sendMessage("§cVotre générateur est déjà au niveau maximum !");
             }
@@ -51,6 +70,8 @@ public class IslandUpgradesInv extends FastInv {
             if (currentLevel < 5) {
                 double price = IslandsManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);
                 p.sendMessage("§aEn développement... Prix: " + price + "exp");
+                island.setMaxMembers(currentLevel + 1);
+                update(island, p);
             } else {
                 p.sendMessage("§cVotre île est déjà au niveau maximum !");
             }
@@ -70,9 +91,5 @@ public class IslandUpgradesInv extends FastInv {
                 .name("§6Spawneurs").build(), e -> {
             p.sendMessage("§cEn développement...");
         });
-
-
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
-                .name("§6Retour §8| §7(clic gauche)").build(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
     }
 }

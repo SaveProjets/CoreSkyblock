@@ -63,6 +63,7 @@ public class IslandMembersInv extends FastInv {
                 ItemStack custom = new ItemStack(Material.PLAYER_HEAD);
                 SkullMeta meta = (SkullMeta) custom.getItemMeta();
                 meta.setOwner(island.getMemberName(playerEntry.getKey()));
+                meta.displayName(Component.text("§f" + island.getMemberName(playerEntry.getKey())));
                 custom.setItemMeta(meta);
                 ArrayList<String> lore = new ArrayList<>();
                 lore.add("§7Clic droit pour promouvoir");

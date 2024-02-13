@@ -2,6 +2,7 @@ package fr.farmeurimmo.mineblock.common.islands;
 
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -162,6 +163,8 @@ public class Island {
     public void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
         isModified = true;
+
+        IslandsSizeManager.INSTANCE.updateWorldBorder(this);
     }
 
     public int getMaxMembers() {

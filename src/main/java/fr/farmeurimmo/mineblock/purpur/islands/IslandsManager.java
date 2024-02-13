@@ -4,17 +4,17 @@ import com.grinderwolf.swm.api.world.SlimeWorld;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.farmeurimmo.mineblock.common.islands.IslandsDataManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsGeneratorManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.mineblock.purpur.worlds.WorldsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,6 +30,8 @@ public class IslandsManager {
 
         new IslandsDataManager();
         new IslandRanksManager();
+        new IslandsGeneratorManager();
+        new IslandsSizeManager();
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
@@ -52,6 +54,15 @@ public class IslandsManager {
         }, 0, 20 * 60 * 5);
 
         WorldsManager.INSTANCE.loadAsync("island_template_1", true);
+    }
+
+    public Island getIslandByLoc(Location loc) {
+        for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+            if (island.getSpawn().getWorld().equals(loc.getWorld())) {
+                return island;
+            }
+        }
+        return null;
     }
 
     public void checkLoadedIsland(Player p) {
@@ -149,6 +160,7 @@ public class IslandsManager {
                     spawn.setWorld(Bukkit.getWorld(getIslandWorldName(island.getIslandUUID())));
                 }
                 island.setLoaded(true);
+                IslandsSizeManager.INSTANCE.updateWorldBorder(island);
 
                 island.sendMessageToAll("§aVotre île a été chargée.");
                 return null;
@@ -176,26 +188,7 @@ public class IslandsManager {
                         + (System.currentTimeMillis() - startTime) + "ms)"));
             }
         });
-    }
-
-    public int getSizeFromLevel(int level) {
-        return switch (level) {
-            case 2 -> 50;
-            case 3 -> 100;
-            case 4 -> 200;
-            case 5 -> 250;
-            default -> 25;
-        };
-    }
-
-    public double getSizePriceFromLevel(int level) {
-        return switch (level) {
-            case 2 -> 200;
-            case 3 -> 500;
-            case 4 -> 1000;
-            case 5 -> 2000;
-            default -> 0;
-        };
+        IslandsSizeManager.INSTANCE.updateWorldBorder(island);
     }
 
     public int getMaxMembersFromLevel(int level) {
@@ -209,23 +202,6 @@ public class IslandsManager {
     }
 
     public double getMembersPriceFromLevel(int level) {
-        return switch (level) {
-            case 2 -> 200;
-            case 3 -> 500;
-            case 4 -> 1000;
-            case 5 -> 2000;
-            default -> 0;
-        };
-    }
-
-    public Map<Material, Float> getGeneratorFromLevel(int level) {
-        return switch (level) {
-            //FIXME: Add the correct values
-            default -> Map.of(Material.COBBLESTONE, 100f);
-        };
-    }
-
-    public double getGeneratorPriceFromLevel(int level) {
         return switch (level) {
             case 2 -> 200;
             case 3 -> 500;
