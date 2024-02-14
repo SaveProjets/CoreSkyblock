@@ -63,17 +63,20 @@ public class ChatReactionManager {
 
     public void end(Player p, String message) {
         if (message.equalsIgnoreCase(chatReactions.get(selectedWord))) {
-            Bukkit.broadcast(Component.text("§6§lChatReaction §8» §f" + p.getName() + " a recopié le mot en §a" +
-                    DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§f."));
-            isRunning = false;
+            Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
+                Bukkit.broadcast(Component.text("§6§lChatReaction §8» §f" + p.getName() + " a recopié le mot en §a" +
+                        DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§f."));
+                isRunning = false;
 
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
-            if (user == null) {
-                return;
-            }
-            user.setMoney(user.getMoney() + 5_000);
-            p.sendMessage(Component.text("§6§lChatReaction §8» §fVous avez gagné §e" +
-                    NumberFormat.getInstance().format(5_000) + " §f$ !"));
+                SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
+                if (user == null) {
+                    return null;
+                }
+                user.setMoney(user.getMoney() + 5_000);
+                p.sendMessage(Component.text("§6§lChatReaction §8» §fVous avez gagné §e" +
+                        NumberFormat.getInstance().format(5_000) + " §f$ !"));
+                return null;
+            });
         }
     }
 
