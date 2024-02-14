@@ -1,5 +1,6 @@
 package fr.farmeurimmo.mineblock.purpur.chests;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,22 +19,22 @@ public class ChestsCmd implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (args.length != 2) {
-            sender.sendMessage("§cErreur, utilisation /chests <joueur> <type>");
+            sender.sendMessage(Component.text("§cErreur, utilisation /chests <joueur> <type>"));
             return false;
         }
         Player target = sender.getServer().getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage("§cErreur, joueur inconnu");
+            sender.sendMessage(Component.text("§cErreur, joueur inconnu"));
             return false;
         }
         ChestType type = ChestType.getByName(args[1]);
         if (type == null) {
-            sender.sendMessage("§cErreur, coffre/hoppeur inconnu");
+            sender.sendMessage(Component.text("§cErreur, coffre/hoppeur inconnu"));
             return false;
         }
         ChestsManager.INSTANCE.giveItem(target, type);
-        sender.sendMessage("§aVous avez donné un " + type.getName() + "§a à §e" + target.getName() + "§a.");
-        target.sendMessage("§aVous avez reçu un " + type.getName() + "§a de la part de §e" + sender.getName() + "§a.");
+        sender.sendMessage(Component.text("§aVous avez donné un " + type.getName() + "§a à §e" + target.getName() + "§a."));
+        target.sendMessage(Component.text("§aVous avez reçu un " + type.getName() + "§a de la part de §e" + sender.getName() + "§a."));
         return false;
     }
 

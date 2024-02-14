@@ -27,10 +27,10 @@ public enum IslandPerms {
     BREAK("§fCasser", 20, Material.DIAMOND_AXE),
     INTERACT("§fIntéragir avec les blocs", 21, Material.IRON_HOE),
     CONTAINER("§fOuvrir les conteneurs", 22, Material.CHEST),
-    //FIXME: add perms for trapped chest (secure chest)
     MINIONS_ADD("§6Ajouter un minion", 23, Material.DRAGON_BREATH),
     MINIONS_REMOVE("§6Retirer un minion", 24, Material.DRAGON_EGG),
-    MINIONS_INTERACT("§6Intéragir avec un minion", 25, Material.DRAGON_HEAD);
+    MINIONS_INTERACT("§6Intéragir avec un minion", 25, Material.DRAGON_HEAD),
+    SECURED_CHEST("§6Utiliser un coffre sécurisé", 26, Material.IRON_CHESTPLATE);
 
     private final String description;
     private final int id;

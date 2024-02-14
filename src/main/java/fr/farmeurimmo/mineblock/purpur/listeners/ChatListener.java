@@ -6,12 +6,12 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class ChatListener implements Listener {
 
     @EventHandler
-    public void onChat(PlayerChatEvent e) {
+    public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
 
         String message = e.getMessage();
@@ -31,10 +31,8 @@ public class ChatListener implements Listener {
                     .build());
         }
 
-        Component result = Component.text("§8[§b??§8] §6???? " + p.getName() + " §8» §f").append(component);
-
         e.setCancelled(true);
 
-        p.getServer().sendMessage(result);
+        p.getServer().sendMessage(Component.text("§8[§b??§8] §6???? " + p.getName() + " §8» §f").append(component));
     }
 }

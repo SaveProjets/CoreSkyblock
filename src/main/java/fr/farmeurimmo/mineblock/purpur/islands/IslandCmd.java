@@ -21,7 +21,7 @@ public class IslandCmd implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage("§cVous devez être un joueur pour exécuter cette commande.");
+            sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
             return false;
         }
         Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
@@ -36,22 +36,22 @@ public class IslandCmd implements CommandExecutor {
             }
             if (args[0].equalsIgnoreCase("accept") || args[0].equalsIgnoreCase("join")) {
                 if (args.length != 2) {
-                    p.sendMessage("§cUtilisation: /is accept <joueur>");
+                    p.sendMessage(Component.text("§cUtilisation: /is accept <joueur>"));
                     return false;
                 }
                 OfflinePlayer target = p.getServer().getOfflinePlayer(args[1]);
                 Island targetIsland = IslandsManager.INSTANCE.getIslandOf(target.getUniqueId());
                 if (targetIsland == null) {
-                    p.sendMessage("§cLe joueur n'a pas d'île.");
+                    p.sendMessage(Component.text("§cLe joueur n'a pas d'île."));
                     return false;
                 }
                 if (!targetIsland.isInvited(p.getUniqueId())) {
-                    p.sendMessage("§cVous n'avez pas été invité par ce joueur.");
+                    p.sendMessage(Component.text("§cVous n'avez pas été invité par ce joueur."));
                     return false;
                 }
                 targetIsland.removeInvite(p.getUniqueId());
                 targetIsland.addMember(p.getUniqueId(), p.getName(), IslandRanks.MEMBRE);
-                p.sendMessage("§aVous avez rejoint l'île de " + args[1] + ".");
+                p.sendMessage(Component.text("§aVous avez rejoint l'île de " + args[1] + "."));
                 targetIsland.sendMessageToAll("§a" + p.getName() + " a rejoint l'île.");
                 return false;
             }
@@ -69,39 +69,39 @@ public class IslandCmd implements CommandExecutor {
 
         IslandRanks rank = island.getMembers().get(p.getUniqueId());
         if (rank == null) {
-            p.sendMessage("§cVous n'êtes pas membre de cette île.");
+            p.sendMessage(Component.text("§cVous n'êtes pas membre de cette île."));
             return false;
         }
 
         if (args[0].equalsIgnoreCase("invite")) {
             if (args.length != 2) {
-                p.sendMessage("§cUtilisation: /is invite <joueur>");
+                p.sendMessage(Component.text("§cUtilisation: /is invite <joueur>"));
                 return false;
             }
             if (!island.hasPerms(rank, IslandPerms.INVITE, p.getUniqueId())) {
-                p.sendMessage("§cVous n'avez pas la permission d'inviter des joueurs.");
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'inviter des joueurs."));
                 return false;
             }
             Player target = p.getServer().getPlayer(args[1]);
             if (target == null) {
-                p.sendMessage("§cLe joueur n'est pas en ligne.");
+                p.sendMessage(Component.text("§cLe joueur n'est pas en ligne."));
                 return false;
             }
             if (island.getMembers().containsKey(target.getUniqueId())) {
-                p.sendMessage("§cLe joueur est déjà membre de l'île.");
+                p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
                 return false;
             }
             if (island.isInvited(target.getUniqueId())) {
-                p.sendMessage("§cLe joueur a déjà été invité.");
+                p.sendMessage(Component.text("§cLe joueur a déjà été invité."));
                 return false;
             }
             island.addInvite(target.getUniqueId());
-            target.sendMessage("§b[MineBlock] §aVous avez été invité à rejoindre l'île de " + p.getName() + ". " +
-                    "Elle expire dans 1 minute.");
+            target.sendMessage(Component.text("§b[MineBlock] §aVous avez été invité à rejoindre l'île de " +
+                    p.getName() + ". " + "Elle expire dans 1 minute."));
             target.sendMessage(Component.text("§2[Cliquez sur ce message pour accepter l'invitation.]")
                     .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/is accept " + p.getName()))
                     .hoverEvent(Component.text("§aAccepter l'invitation")));
-            p.sendMessage("§aLe joueur a été invité.");
+            p.sendMessage(Component.text("§aLe joueur a été invité."));
             island.sendMessage("§a" + target.getName() + " a été invité à rejoindre l'île.", IslandPerms.INVITE);
             return false;
         }

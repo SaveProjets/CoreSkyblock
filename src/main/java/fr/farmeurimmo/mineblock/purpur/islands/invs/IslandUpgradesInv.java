@@ -6,6 +6,7 @@ import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,10 +44,10 @@ public class IslandUpgradesInv extends FastInv {
                 double price = IslandsSizeManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
                 //FIXME: Add the possibility to buy the upgrade
                 island.setMaxSize(currentLevelSize + 1);
-                p.sendMessage("§aEn développement... Prix: " + price + "exp");
+                p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
                 update(island, p);
             } else {
-                p.sendMessage("§cVotre île est déjà au niveau maximum !");
+                p.sendMessage(Component.text("§cVotre île est déjà au niveau maximum !"));
             }
         });
 
@@ -56,11 +57,11 @@ public class IslandUpgradesInv extends FastInv {
             if (currentLevel < 5) {
                 double price = IslandsGeneratorManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
                 //FIXME: Add the possibility to buy the upgrade
-                p.sendMessage("§aEn développement... Prix: " + price + "exp");
+                p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
                 island.setGeneratorLevel(currentLevel + 1);
                 update(island, p);
             } else {
-                p.sendMessage("§cVotre générateur est déjà au niveau maximum !");
+                p.sendMessage(Component.text("§cVotre générateur est déjà au niveau maximum !"));
             }
         });
 
@@ -69,27 +70,21 @@ public class IslandUpgradesInv extends FastInv {
             int currentLevel = island.getMaxMembers();
             if (currentLevel < 5) {
                 double price = IslandsManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);
-                p.sendMessage("§aEn développement... Prix: " + price + "exp");
+                p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
                 island.setMaxMembers(currentLevel + 1);
                 update(island, p);
             } else {
-                p.sendMessage("§cVotre île est déjà au niveau maximum !");
+                p.sendMessage(Component.text("§cVotre île est déjà au niveau maximum !"));
             }
         });
 
         setItem(14, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
-                .name("§6Warps d'île").build(), e -> {
-            p.sendMessage("§cEn développement...");
-        });
+                .name("§6Warps d'île").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
         setItem(15, ItemBuilder.copyOf(new ItemStack(Material.CHEST))
-                .name("§6Coffres et Hoppeurs").build(), e -> {
-            p.sendMessage("§cEn développement...");
-        });
+                .name("§6Coffres et Hoppeurs").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER))
-                .name("§6Spawneurs").build(), e -> {
-            p.sendMessage("§cEn développement...");
-        });
+                .name("§6Spawneurs").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
     }
 }

@@ -38,7 +38,6 @@ public class DatabaseManager {
             throw new Exception("Unable to connect to the database");
         }
         String tableName = "shops";
-        //connection.prepareStatement("CREATE DATABASE IF NOT EXISTS skyblock").executeUpdate();
         connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tableName + " (uuid VARCHAR(36) PRIMARY KEY, " +
                 "shopType VARCHAR(20),itemName VARCHAR(255), material VARCHAR(30), buyPrice FLOAT,  sellPrice FLOAT)").executeUpdate();
 
@@ -104,37 +103,6 @@ public class DatabaseManager {
 
         return future;
     }
-
-    /*public CompletableFuture<Void> updateUser(SkyblockUser skyblockUser) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE users SET money = ?, adventureExp = ?, adventureLevel = ?, flyTime = ?, hasteLevel = ?, " +
-                                "speedLevel = ?, jumpLevel = ?, hasteActive = ?, speedActive = ?, jumpActive = ? WHERE uuid = ?");
-                statement.setDouble(1, skyblockUser.getMoney());
-                statement.setDouble(2, skyblockUser.getAdventureExp());
-                statement.setDouble(3, skyblockUser.getAdventureLevel());
-                statement.setInt(4, skyblockUser.getFlyTime());
-                statement.setInt(5, skyblockUser.getHasteLevel());
-                statement.setInt(6, skyblockUser.getSpeedLevel());
-                statement.setInt(7, skyblockUser.getJumpLevel());
-                statement.setBoolean(8, skyblockUser.isHasteActive());
-                statement.setBoolean(9, skyblockUser.isSpeedActive());
-                statement.setBoolean(10, skyblockUser.isJumpActive());
-                statement.setString(11, skyblockUser.getUuid().toString());
-
-                statement.execute();
-                future.complete(null);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                future.completeExceptionally(e);
-            }
-        });
-
-        return future;
-    }*/
 
     public CompletableFuture<ShopPage> getShopPage(ShopType shopType) {
         return CompletableFuture.supplyAsync(() -> {

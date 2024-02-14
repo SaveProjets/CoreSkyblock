@@ -3,6 +3,7 @@ package fr.farmeurimmo.mineblock.purpur.featherfly;
 import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,11 +37,11 @@ public class FeatherFlyListener implements Listener {
                         int timeInt = Integer.parseInt(time);
                         if (timeInt <= 0) return;
                         if (!FeatherFlyManager.INSTANCE.enableFly(p, timeInt)) {
-                            p.sendMessage("§aErreur lors de l'activation du fly ! Code PLUMEFLY-0");
+                            p.sendMessage(Component.text("§aErreur lors de l'activation du fly ! Code PLUMEFLY-0"));
                             return;
                         }
                     } catch (NumberFormatException ignored) {
-                        p.sendMessage("§aErreur lors de l'activation du fly ! Code PLUMEFLY-1");
+                        p.sendMessage(Component.text("§aErreur lors de l'activation du fly ! Code PLUMEFLY-1"));
                         return;
                     }
                     ItemStack aaa = e.getItem();

@@ -5,6 +5,7 @@ import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.mineblock.purpur.shop.ShopsManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -38,14 +39,14 @@ public class SilosInv extends FastInv {
                 .name("§aTout vendre").lore("§6Gains prévus: §a" + priceFormatted + "$").build(), e -> {
             e.setCancelled(true);
             if (finalAmount < 1) {
-                e.getWhoClicked().sendMessage("§cIl n'y a pas assez d'items dans ce silo.");
+                e.getWhoClicked().sendMessage(Component.text("§cIl n'y a pas assez d'items dans ce silo."));
                 return;
             }
             e.getWhoClicked().closeInventory();
 
-            e.getWhoClicked().sendMessage("§aVous avez vendu §6x" + finalAmount + " " + silosType.getName() +
-                    "§a pour §6" + priceFormatted + "$§a.");
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked()).getUniqueId());
+            e.getWhoClicked().sendMessage(Component.text("§aVous avez vendu §6x" + finalAmount + " " +
+                    silosType.getName() + "§a pour §6" + priceFormatted + "$§a."));
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
             user.setMoney(user.getMoney() + price);
             SilosManager.INSTANCE.setAmount(itemStack, silosType, 0);
         });
@@ -58,16 +59,17 @@ public class SilosInv extends FastInv {
             int space = ShopsManager.INSTANCE.getSpaceAvailableFor((Player) e.getWhoClicked(),
                     new ItemStack(material));
             if (space == 0) {
-                e.getWhoClicked().sendMessage("§cVotre inventaire est plein.");
+                e.getWhoClicked().sendMessage(Component.text("§cVotre inventaire est plein."));
                 return;
             }
             if (finalAmount1 < 1) {
-                e.getWhoClicked().sendMessage("§cIl n'y a pas assez d'items dans ce silo.");
+                e.getWhoClicked().sendMessage(Component.text("§cIl n'y a pas assez d'items dans ce silo."));
                 return;
             }
             e.getWhoClicked().closeInventory();
             int total = Math.min(space, finalAmount1);
-            e.getWhoClicked().sendMessage("§aVous avez récupéré §6x" + total + " " + silosType.getName() + "§a.");
+            e.getWhoClicked().sendMessage(Component.text("§aVous avez récupéré §6x" + total + " " +
+                    silosType.getName() + "§a."));
             SilosManager.INSTANCE.setAmount(itemStack, silosType, finalAmount1 - total);
             for (int i = 0; i < finalAmount1; i++) {
                 e.getWhoClicked().getInventory().addItem(new ItemStack(material));
@@ -82,16 +84,17 @@ public class SilosInv extends FastInv {
             int space = ShopsManager.INSTANCE.getSpaceAvailableFor((Player) e.getWhoClicked(),
                     new ItemStack(material));
             if (space == 0) {
-                e.getWhoClicked().sendMessage("§cVotre inventaire est plein.");
+                e.getWhoClicked().sendMessage(Component.text("§cVotre inventaire est plein."));
                 return;
             }
             if (finalAmount2 < 64) {
-                e.getWhoClicked().sendMessage("§cIl n'y a pas assez d'items dans ce silo.");
+                e.getWhoClicked().sendMessage(Component.text("§cIl n'y a pas assez d'items dans ce silo."));
                 return;
             }
             e.getWhoClicked().closeInventory();
             int total = Math.min(space, 64);
-            e.getWhoClicked().sendMessage("§aVous avez récupéré §6x" + total + " " + silosType.getName() + "§a.");
+            e.getWhoClicked().sendMessage(Component.text("§aVous avez récupéré §6x" + total + " " +
+                    silosType.getName() + "§a."));
             SilosManager.INSTANCE.setAmount(itemStack, silosType, finalAmount2 - total);
             for (int i = 0; i < total; i++) {
                 e.getWhoClicked().getInventory().addItem(new ItemStack(material));

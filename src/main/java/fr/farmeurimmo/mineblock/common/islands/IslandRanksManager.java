@@ -32,19 +32,6 @@ public class IslandRanksManager {
         }
     }
 
-    public boolean isUp(IslandRanks rank, IslandRanks otherRank) {
-        if (rank == IslandRanks.CHEF) {
-            return true;
-        } else if (rank == IslandRanks.COCHEF && otherRank != IslandRanks.COCHEF && otherRank != IslandRanks.CHEF) {
-            return true;
-        } else if (rank == IslandRanks.MODERATEUR && otherRank != IslandRanks.MODERATEUR && otherRank != IslandRanks.COCHEF &&
-                otherRank != IslandRanks.CHEF) {
-            return true;
-        } else
-            return rank == IslandRanks.MEMBRE && otherRank != IslandRanks.MEMBRE && otherRank != IslandRanks.MODERATEUR &&
-                    otherRank != IslandRanks.COCHEF && otherRank != IslandRanks.CHEF;
-    }
-
     public IslandRanks getNextRank(IslandRanks rank) {
         return switch (rank) {
             case MODERATEUR -> IslandRanks.COCHEF;

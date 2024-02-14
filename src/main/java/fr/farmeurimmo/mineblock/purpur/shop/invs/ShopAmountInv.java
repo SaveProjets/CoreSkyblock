@@ -7,6 +7,7 @@ import fr.farmeurimmo.mineblock.purpur.shop.objects.ShopItem;
 import fr.farmeurimmo.mineblock.purpur.shop.objects.ShopPage;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -87,15 +88,16 @@ public class ShopAmountInv extends FastInv {
                     if (user.getMoney() >= item.price() * amount) {
                         user.setMoney(user.getMoney() - item.price() * amount);
                         e.getWhoClicked().getInventory().addItem(new ItemStack(item.material(), amount));
-                        e.getWhoClicked().sendMessage("§aVous avez acheté §ex" + amount + " " + item.material() +
-                                "§a pour §e" + NumberFormat.getInstance().format(item.price() * amount) + "$.");
+                        e.getWhoClicked().sendMessage(Component.text("§aVous avez acheté §ex" + amount + " " +
+                                item.material() + "§a pour §e" +
+                                NumberFormat.getInstance().format(item.price() * amount) + "$."));
                     } else {
-                        e.getWhoClicked().sendMessage("§cVous n'avez pas assez d'argent pour acheter §ex" + amount + " "
-                                + item.getName() + "§c.");
+                        e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'argent pour " +
+                                "acheter §ex" + amount + " " + item.getName() + "§c."));
                     }
                 } else {
-                    e.getWhoClicked().sendMessage("§cVous n'avez pas assez de place dans votre inventaire pour " +
-                            "acheter §ex" + amount + " " + item.getName() + "§c.");
+                    e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez de place dans votre " +
+                            "inventaire pour acheter §ex" + amount + " " + item.getName() + "§c."));
                 }
             } else {
                 int amountInInventory = 0;
@@ -113,11 +115,11 @@ public class ShopAmountInv extends FastInv {
                 if (amountInInventory >= amount) {
                     user.setMoney(user.getMoney() + item.sellPrice() * amount);
                     e.getWhoClicked().getInventory().removeItem(new ItemStack(item.material(), amount));
-                    e.getWhoClicked().sendMessage("§aVous avez vendu §ex" + amount + " " + item.material() +
-                            "§a pour §e" + item.sellPrice() * amount + "$");
+                    e.getWhoClicked().sendMessage(Component.text("§aVous avez vendu §ex" + amount + " " +
+                            item.material() + "§a pour §e" + item.sellPrice() * amount + "$"));
                 } else {
-                    e.getWhoClicked().sendMessage("§cVous n'avez pas assez d'items pour vendre §ex" + amount + " "
-                            + item.getName());
+                    e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas assez d'items pour vendre" +
+                            " §ex" + amount + " " + item.getName()));
                 }
             }
             e.getWhoClicked().closeInventory();
@@ -138,17 +140,18 @@ public class ShopAmountInv extends FastInv {
                 SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
                         .getUniqueId());
                 if (user == null) {
-                    e.getWhoClicked().sendMessage("§cUne erreur est survenue lors de la récupération de votre profil.");
+                    e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la " +
+                            "récupération de votre profil."));
                     return;
                 }
                 double sellPrice = ShopsManager.INSTANCE.getSellPrice(item.getPureItemStack());
                 if (sellPrice <= 0) {
-                    e.getWhoClicked().sendMessage("§cVous ne pouvez pas vendre cet item !");
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas vendre cet item !"));
                     return;
                 }
                 int amount = ShopsManager.INSTANCE.getAmountOf((Player) e.getWhoClicked(), item.getPureItemStack());
                 if (amount <= 0) {
-                    e.getWhoClicked().sendMessage("§cVous n'avez pas cet item dans votre inventaire !");
+                    e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas cet item dans votre inventaire !"));
                     return;
                 }
                 double total = sellPrice * amount;
@@ -160,8 +163,9 @@ public class ShopAmountInv extends FastInv {
                         e.getWhoClicked().getInventory().setItem(i, null);
                     }
                 }
-                e.getWhoClicked().sendMessage("§aVous avez vendu §e" + amount + " " + item.getPureItemStack().getType().name() +
-                        "§a pour §e" + NumberFormat.getInstance().format(total) + "$§a.");
+                e.getWhoClicked().sendMessage(Component.text("§aVous avez vendu §e" + amount + " " +
+                        item.getPureItemStack().getType().name() + "§a pour §e" +
+                        NumberFormat.getInstance().format(total) + "$§a."));
                 e.getWhoClicked().closeInventory();
             });
         }

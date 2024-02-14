@@ -80,7 +80,6 @@ public class SilosListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent e) {
         if (SilosManager.INSTANCE.isASilo(e.getItemInHand())) {
             e.setCancelled(true);
-            return;
         }
     }
 

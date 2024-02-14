@@ -73,15 +73,12 @@ public class FeatherFlyManager {
         });
     }
 
-    public void addToPlayerList(UUID uuid) {
-        players.add(uuid);
-    }
-
     public boolean giveFeatherFly(Player p, long time, boolean force) {
         ItemStack featherFly = new ItemStack(Material.FEATHER);
         ItemMeta featherFlyMeta = featherFly.getItemMeta();
-        featherFlyMeta.setDisplayName("§6§lPlume de vol §8[§7" + time + "s§8]");
-        featherFlyMeta.setLore(List.of("§7Plûme qui vous donne la possibilité de", "§7voler pendant un temps définit."));
+        featherFlyMeta.displayName(Component.text("§6§lPlume de vol §8[§7" + time + "s§8]"));
+        featherFlyMeta.lore(List.of(Component.text("§7Plûme qui vous donne la possibilité de"),
+                Component.text("§7voler pendant un temps définit.")));
         featherFlyMeta.setUnbreakable(true);
         featherFlyMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
         featherFly.setItemMeta(featherFlyMeta);
@@ -89,7 +86,7 @@ public class FeatherFlyManager {
         if (p.getInventory().firstEmpty() == -1) {
             if (force) {
                 p.getWorld().dropItem(p.getLocation(), featherFly);
-                p.sendMessage("§cErreur, votre inventaire est plein, la plume a été drop à vos pieds !");
+                p.sendMessage(Component.text("§cErreur, votre inventaire est plein, la plume a été drop à vos pieds !"));
                 return false;
             }
             return false;

@@ -1,6 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.chests;
 
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,11 +32,11 @@ public class ChestsListener implements Listener {
             Player p = e.getPlayer();
 
             if (!IslandsManager.INSTANCE.isAnIsland(p.getWorld())) {
-                p.sendMessage("§b[MineBlock] §cVous ne pouvez placer ce coffre que sur votre île !");
+                p.sendMessage(Component.text("§b[MineBlock] §cVous ne pouvez placer ce coffre que sur votre île !"));
                 return;
             }
 
-            p.sendMessage("§b[MineBlock] §cIndisponible pour le moment !");
+            p.sendMessage(Component.text("§b[MineBlock] §cIndisponible pour le moment !"));
 
             //FIXME: CHESTS
         }

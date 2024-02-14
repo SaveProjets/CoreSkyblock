@@ -110,7 +110,7 @@ public class IslandsManager {
 
         Player player = plugin.getServer().getPlayer(owner);
         if (player == null) return;
-        player.sendMessage("§b[MineBlock] §aCréation de votre île...");
+        player.sendMessage(Component.text("§b[MineBlock] §aCréation de votre île..."));
 
         Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 80, -0.5,
                 -50, 5), owner);
@@ -134,7 +134,8 @@ public class IslandsManager {
                 if (w == null) return null;
                 w.setSpawnLocation(new Location(w, 0, 62.1, 0, -38, 5));
                 ownerPlayer.teleportAsync(w.getSpawnLocation());
-                ownerPlayer.sendMessage("§b[MineBlock] §aVotre île a été créée en " + (System.currentTimeMillis() - startTime) + "ms");
+                ownerPlayer.sendMessage(Component.text("§b[MineBlock] §aVotre île a été créée en " +
+                        (System.currentTimeMillis() - startTime) + "ms"));
                 return null;
             });
         });

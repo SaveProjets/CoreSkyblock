@@ -18,14 +18,6 @@ public class SiloCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 0) {
-            if (!(sender instanceof Player p)) {
-                sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
-                return false;
-            }
-            //FIXME: SilosManager.INSTANCE.openSilo(p);
-            return false;
-        }
         if (!sender.hasPermission("MineBlock.silos.admin")) {
             sender.sendMessage(Component.text("§cVous n'avez pas la permission d'exécuter cette partie de la commande."));
             return false;

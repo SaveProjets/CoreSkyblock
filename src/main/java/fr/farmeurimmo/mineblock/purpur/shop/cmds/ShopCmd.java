@@ -1,6 +1,7 @@
 package fr.farmeurimmo.mineblock.purpur.shop.cmds;
 
 import fr.farmeurimmo.mineblock.purpur.shop.invs.ShopInv;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +14,7 @@ public class ShopCmd implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label,
                              @NotNull String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage("§cVous devez être un joueur pour faire cela !");
+            sender.sendMessage(Component.text("§cVous devez être un joueur pour faire cela !"));
             return false;
         }
         new ShopInv().open(p);

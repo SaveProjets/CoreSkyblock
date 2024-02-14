@@ -122,8 +122,6 @@ public class TradesManager {
 
         trades.remove(trade);
 
-        //FIXME: money
-
         SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getEmitter());
         SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getReceiver());
 
