@@ -4,6 +4,8 @@ import com.grinderwolf.swm.api.world.SlimeWorld;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.farmeurimmo.mineblock.common.islands.IslandsDataManager;
+import fr.farmeurimmo.mineblock.purpur.MineBlock;
+import fr.farmeurimmo.mineblock.purpur.islands.listeners.IslandsProtectionListener;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.mineblock.purpur.worlds.WorldsManager;
@@ -54,6 +56,8 @@ public class IslandsManager {
         }, 0, 20 * 60 * 5);
 
         WorldsManager.INSTANCE.loadAsync("island_template_1", true);
+
+        MineBlock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
     }
 
     public Island getIslandByLoc(Location loc) {

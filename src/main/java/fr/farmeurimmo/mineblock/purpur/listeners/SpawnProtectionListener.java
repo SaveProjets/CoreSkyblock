@@ -43,5 +43,4 @@ public class SpawnProtectionListener implements Listener {
         if (MineBlock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
         e.setCancelled(true);
     }
-
 }
