@@ -7,6 +7,7 @@ import fr.farmeurimmo.mineblock.common.islands.IslandsDataManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.listeners.IslandsProtectionListener;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsGeneratorManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.mineblock.purpur.worlds.WorldsManager;
 import net.kyori.adventure.text.Component;
@@ -34,6 +35,7 @@ public class IslandsManager {
         new IslandRanksManager();
         new IslandsGeneratorManager();
         new IslandsSizeManager();
+        new IslandsMaxMembersManager();
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
@@ -194,25 +196,5 @@ public class IslandsManager {
             }
         });
         IslandsSizeManager.INSTANCE.updateWorldBorder(island);
-    }
-
-    public int getMaxMembersFromLevel(int level) {
-        return switch (level) {
-            case 2 -> 6;
-            case 3 -> 8;
-            case 4 -> 10;
-            case 5 -> 12;
-            default -> 4;
-        };
-    }
-
-    public double getMembersPriceFromLevel(int level) {
-        return switch (level) {
-            case 2 -> 200;
-            case 3 -> 500;
-            case 4 -> 1000;
-            case 5 -> 2000;
-            default -> 0;
-        };
     }
 }

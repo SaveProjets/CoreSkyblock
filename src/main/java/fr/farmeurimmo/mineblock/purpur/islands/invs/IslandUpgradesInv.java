@@ -1,8 +1,8 @@
 package fr.farmeurimmo.mineblock.purpur.islands.invs;
 
 import fr.farmeurimmo.mineblock.common.islands.Island;
-import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsGeneratorManager;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -31,15 +31,9 @@ public class IslandUpgradesInv extends FastInv {
             return;
         }
 
-        int currentLevelSize = island.getMaxSize();
-        String[] lore = new String[5];
-        for (int i = 1; i <= 5; i++) {
-            lore[i - 1] = "§7" + i + ": §6" + IslandsSizeManager.INSTANCE.getSizeFromLevel(i) + "§fx§6" +
-                    IslandsSizeManager.INSTANCE.getSizeFromLevel(i) + " §8| " + (currentLevelSize >= i ? "§aDéjà achetée" :
-                    "§7Prix: §e" + IslandsSizeManager.INSTANCE.getSizePriceFromLevel(i) + "§6§lexp");
-        }
-        setItem(10, ItemBuilder.copyOf(new ItemStack(Material.GRASS_BLOCK))
-                .name("§6Taille de l'île").lore(lore).build(), e -> {
+        setItem(10, ItemBuilder.copyOf(new ItemStack(Material.GRASS_BLOCK)).name("§6Taille de l'île")
+                .lore(IslandsSizeManager.INSTANCE.getLore(island.getMaxSize())).build(), e -> {
+            int currentLevelSize = island.getMaxSize();
             if (currentLevelSize < 5) {
                 double price = IslandsSizeManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
                 //FIXME: Add the possibility to buy the upgrade
@@ -65,11 +59,11 @@ public class IslandUpgradesInv extends FastInv {
             }
         });
 
-        setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BEACON))
-                .name("§6Membres de l'île").build(), e -> {
+        setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BEACON)).name("§6Membres de l'île")
+                .lore(IslandsMaxMembersManager.INSTANCE.getLore(island.getMaxMembers())).build(), e -> {
             int currentLevel = island.getMaxMembers();
             if (currentLevel < 5) {
-                double price = IslandsManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);
+                double price = IslandsMaxMembersManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);
                 p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
                 island.setMaxMembers(currentLevel + 1);
                 update(island, p);

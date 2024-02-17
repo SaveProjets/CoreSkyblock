@@ -4,6 +4,7 @@ import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandPerms;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanks;
 import fr.farmeurimmo.mineblock.purpur.islands.invs.IslandInv;
+import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.OfflinePlayer;
@@ -49,6 +50,11 @@ public class IslandCmd implements CommandExecutor {
                     p.sendMessage(Component.text("§cVous n'avez pas été invité par ce joueur."));
                     return false;
                 }
+                if (IslandsMaxMembersManager.INSTANCE.isFull(targetIsland.getMaxMembers(),
+                        targetIsland.getMembers().size())) {
+                    p.sendMessage(Component.text("§cL'île est pleine."));
+                    return false;
+                }
                 targetIsland.removeInvite(p.getUniqueId());
                 targetIsland.addMember(p.getUniqueId(), p.getName(), IslandRanks.MEMBRE);
                 p.sendMessage(Component.text("§aVous avez rejoint l'île de " + args[1] + "."));
@@ -89,6 +95,10 @@ public class IslandCmd implements CommandExecutor {
             }
             if (island.getMembers().containsKey(target.getUniqueId())) {
                 p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
+                return false;
+            }
+            if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(), island.getMembers().size())) {
+                p.sendMessage(Component.text("§cL'île est pleine."));
                 return false;
             }
             if (island.isInvited(target.getUniqueId())) {

@@ -6,6 +6,8 @@ import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.util.List;
+
 public class IslandsSizeManager {
 
     public static IslandsSizeManager INSTANCE;
@@ -43,5 +45,15 @@ public class IslandsSizeManager {
                 w.getWorldBorder().setSize(getSizeFromLevel(island.getMaxSize()));
             }
         }, 5);
+    }
+
+    public List<String> getLore(int level) {
+        List<String> lore = new java.util.ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            lore.add("§7" + i + ": §6" + IslandsSizeManager.INSTANCE.getSizeFromLevel(i) + "§fx§6" +
+                    IslandsSizeManager.INSTANCE.getSizeFromLevel(i) + " §8| " + (level >= i ? "§aDéjà achetée" :
+                    "§7Prix: §e" + IslandsSizeManager.INSTANCE.getSizePriceFromLevel(i) + "§6§lexp"));
+        }
+        return lore;
     }
 }
