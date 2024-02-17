@@ -51,20 +51,17 @@ public class ShopPageInv extends FastInv {
 
         if (page > 1) {
             int finalPage = page;
-            setItem(45, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page précédente").build(), e -> {
-                new ShopPageInv(shopPage, finalPage - 1).open((Player) e.getWhoClicked());
-            });
+            setItem(45, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page précédente").build(), e ->
+                    new ShopPageInv(shopPage, finalPage - 1).open((Player) e.getWhoClicked()));
         }
 
         if (page < maxPage) {
             int finalPage = page;
-            setItem(53, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page suivante").build(), e -> {
-                new ShopPageInv(shopPage, finalPage + 1).open((Player) e.getWhoClicked());
-            });
+            setItem(53, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page suivante").build(), e ->
+                    new ShopPageInv(shopPage, finalPage + 1).open((Player) e.getWhoClicked()));
         }
 
-        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e -> {
-            new ShopInv().open((Player) e.getWhoClicked());
-        });
+        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e ->
+                new ShopInv().open((Player) e.getWhoClicked()));
     }
 }

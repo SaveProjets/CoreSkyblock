@@ -35,7 +35,7 @@ public class ShopStacksInv extends FastInv {
             setItem(j, item.getItemStackForStackBuy(finalCurrentStacks), e -> {
                 if (ShopsManager.INSTANCE.getSpaceAvailableFor((Player) e.getWhoClicked(), item.getPureItemStack()) >=
                         (finalCurrentStacks * item.getPureItemStack().getMaxStackSize())) {
-                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
+                    SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked()
                             .getUniqueId());
                     if (user == null) {
                         e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la " +
@@ -66,8 +66,7 @@ public class ShopStacksInv extends FastInv {
             if (currentStacks > 22) currentStacks++;
         }
 
-        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e -> {
-            new ShopAmountInv(item, true, shopPage, page).open((Player) e.getWhoClicked());
-        });
+        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e ->
+                new ShopAmountInv(item, true, shopPage, page).open((Player) e.getWhoClicked()));
     }
 }

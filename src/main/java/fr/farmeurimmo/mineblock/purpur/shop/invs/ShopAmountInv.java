@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.NumberFormat;
+import java.util.Objects;
 
 public class ShopAmountInv extends FastInv {
 
@@ -33,50 +34,50 @@ public class ShopAmountInv extends FastInv {
         setItems(new int[]{9, 0, 1, 7, 8, 17, 52, 53, 44, 36, 45, 46}, ItemBuilder.copyOf(new ItemStack(
                 Material.LIME_STAINED_GLASS_PANE)).name("§6").build());
 
-        setItem(20, shopPage.getGlassPane(true, 1), e -> {
+        setItem(23, shopPage.getGlassPane(true, 1), e -> {
             if (amount + 1 < MAX_AMOUNT) amount++;
             else amount = 64;
             update(shopPage, item, buy, page);
         });
-        setItem(21, shopPage.getGlassPane(true, 4), e -> {
+        setItem(24, shopPage.getGlassPane(true, 4), e -> {
             if (amount + 4 < MAX_AMOUNT) amount += 4;
             else amount = 64;
             update(shopPage, item, buy, page);
         });
-        setItem(29, shopPage.getGlassPane(true, 16), e -> {
+        setItem(32, shopPage.getGlassPane(true, 16), e -> {
             if (amount + 16 < MAX_AMOUNT) amount += 16;
             else amount = 64;
             update(shopPage, item, buy, page);
         });
-        setItem(30, shopPage.getGlassPane(true, 32), e -> {
+        setItem(33, shopPage.getGlassPane(true, 32), e -> {
             if (amount + 32 < MAX_AMOUNT) amount += 32;
             else amount = 64;
             update(shopPage, item, buy, page);
         });
 
-        setItem(23, shopPage.getGlassPane(false, 1), e -> {
+        setItem(20, shopPage.getGlassPane(false, 1), e -> {
             if (amount - 1 > 1) amount--;
             else amount = 1;
             update(shopPage, item, buy, page);
         });
-        setItem(24, shopPage.getGlassPane(false, 4), e -> {
+        setItem(21, shopPage.getGlassPane(false, 4), e -> {
             if (amount - 4 > 1) amount -= 4;
             else amount = 1;
             update(shopPage, item, buy, page);
         });
-        setItem(32, shopPage.getGlassPane(false, 16), e -> {
+        setItem(29, shopPage.getGlassPane(false, 16), e -> {
             if (amount - 16 > 1) amount -= 16;
             else amount = 1;
             update(shopPage, item, buy, page);
         });
-        setItem(33, shopPage.getGlassPane(false, 32), e -> {
+        setItem(30, shopPage.getGlassPane(false, 32), e -> {
             if (amount - 32 > 1) amount -= 32;
             else amount = 1;
             update(shopPage, item, buy, page);
         });
 
         setItem(13, item.getItemStack(buy, amount), e -> {
-            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked()
                     .getUniqueId());
             if (user == null) {
                 e.getWhoClicked().sendMessage("§cUne erreur est survenue lors de la récupération de votre profil.");
@@ -106,7 +107,8 @@ public class ShopAmountInv extends FastInv {
                     if (itemStack.getType() != item.material()) continue;
                     if (itemStack.hasItemMeta()) {
                         ItemMeta meta = itemStack.getItemMeta();
-                        if (meta.hasDisplayName() && meta.getDisplayName().equals(item.getName())) {
+                        if (meta.hasDisplayName() && Objects.requireNonNull(meta.displayName()).
+                                contains(Component.text(item.getName()))) {
                             amountInInventory += itemStack.getAmount();
                         }
                     }
@@ -125,19 +127,17 @@ public class ShopAmountInv extends FastInv {
             e.getWhoClicked().closeInventory();
         });
 
-        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e -> {
-            new ShopPageInv(shopPage, page).open((Player) e.getWhoClicked());
-        });
+        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e ->
+                new ShopPageInv(shopPage, page).open((Player) e.getWhoClicked()));
 
         if (buy) {
             setItem(40, ItemBuilder.copyOf(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE, 64))
-                    .name("§6Acheter des stacks").build(), e -> {
-                new ShopStacksInv(item, shopPage, page).open((Player) e.getWhoClicked());
-            });
+                    .name("§6Acheter des stacks").build(), e ->
+                    new ShopStacksInv(item, shopPage, page).open((Player) e.getWhoClicked()));
         } else {
             setItem(40, ItemBuilder.copyOf(new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 64))
                     .name("§6Tout vendre").build(), e -> {
-                SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(((Player) e.getWhoClicked())
+                SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked()
                         .getUniqueId());
                 if (user == null) {
                     e.getWhoClicked().sendMessage(Component.text("§cUne erreur est survenue lors de la " +
