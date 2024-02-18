@@ -63,7 +63,7 @@ public class IslandInv extends FastInv {
 
         setItem(23, ItemBuilder.copyOf(new ItemStack(Material.COMPARATOR))
                 .name("§6Paramètres d'îles §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+                new IslandSettingsInv(island).open((Player) e.getWhoClicked()));
 
 
         setItem(28, ItemBuilder.copyOf(new ItemStack(Material.SPRUCE_SAPLING))

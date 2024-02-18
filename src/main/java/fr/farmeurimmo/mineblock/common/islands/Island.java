@@ -18,6 +18,7 @@ public class Island {
     private final Map<UUID, String> membersNames = new HashMap<>();
     private final ArrayList<UUID> bannedPlayers;
     private final Map<UUID, Long> invites = new HashMap<>();
+    private final List<IslandSettings> settings;
     private String name;
     private Location spawn;
     private int maxSize;
@@ -28,7 +29,6 @@ public class Island {
     private boolean isPublic;
     private double level;
     private double levelExp;
-
     private boolean loaded = false;
     private long loadTimeout = -1;
 
@@ -36,11 +36,12 @@ public class Island {
     private boolean areMembersModified = false;
     private boolean arePermsModified = false;
     private boolean areBannedPlayersModified = false;
+    private boolean areSettingsModified = false;
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
                   int generatorLevel, double bankMoney, double bankCrystals, ArrayList<UUID> bannedPlayers,
-                  boolean isPublic, double level, double levelExp) {
+                  boolean isPublic, double level, double levelExp, List<IslandSettings> settings) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
@@ -57,6 +58,7 @@ public class Island {
         this.isPublic = isPublic;
         this.level = level;
         this.levelExp = levelExp;
+        this.settings = settings;
     }
 
     //default just the necessary to establish a start island
@@ -78,6 +80,8 @@ public class Island {
         this.isPublic = true;
         this.level = 1;
         this.levelExp = 0;
+        this.settings = new ArrayList<>();
+        addDefaultSettings();
     }
 
     public static Map<IslandRanks, ArrayList<IslandPerms>> getRanksPermsFromReduced(Map<IslandRanks, ArrayList<IslandPerms>> reducedPerms) {
@@ -125,6 +129,16 @@ public class Island {
         if (update) {
             arePermsModified = true;
         }
+    }
+
+    public void addDefaultSettings() {
+        addSetting(IslandSettings.TIME_DEFAULT);
+        addSetting(IslandSettings.WEATHER_DEFAULT);
+        addSetting(IslandSettings.BLOCK_BURNING);
+        addSetting(IslandSettings.LIGHTNING_STRIKE);
+        addSetting(IslandSettings.BLOCK_EXPLOSION);
+        addSetting(IslandSettings.MOB_SPAWNING);
+        addSetting(IslandSettings.MOB_GRIEFING);
     }
 
     public UUID getIslandUUID() {
@@ -257,19 +271,22 @@ public class Island {
 
     public void update(boolean async) {
         if (async) CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.update(this, areMembersModified,
-                arePermsModified, areBannedPlayersModified));
-        else IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified, areBannedPlayersModified);
+                arePermsModified, areBannedPlayersModified, areSettingsModified));
+        else IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
+                areBannedPlayersModified, areSettingsModified);
 
         isModified = false;
         areMembersModified = false;
         arePermsModified = false;
         areBannedPlayersModified = false;
+        areSettingsModified = false;
     }
 
     public boolean needUpdate() {
         if (isModified) return true;
         if (areMembersModified) return true;
         if (arePermsModified) return true;
+        if (areSettingsModified) return true;
         return areBannedPlayersModified;
     }
 
@@ -435,6 +452,26 @@ public class Island {
 
     public void setLoadTimeout(long loadTimeout) {
         this.loadTimeout = loadTimeout;
+    }
+
+    public List<IslandSettings> getSettings() {
+        return settings;
+    }
+
+    public boolean hasSettingActivated(IslandSettings setting) {
+        return settings.contains(setting);
+    }
+
+    public void addSetting(IslandSettings setting) {
+        settings.add(setting);
+
+        areSettingsModified = true;
+    }
+
+    public void removeSetting(IslandSettings setting) {
+        settings.remove(setting);
+
+        areSettingsModified = true;
     }
 
 }

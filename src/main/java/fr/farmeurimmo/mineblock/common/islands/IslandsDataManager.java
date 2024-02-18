@@ -29,6 +29,9 @@ public class IslandsDataManager {
     private static final String CREATE_ISLAND_BANNEDS_TABLE = "CREATE TABLE IF NOT EXISTS island_banneds " +
             "(island_uuid VARCHAR(36), uuid VARCHAR(36), created_at TIMESTAMP, updated_at TIMESTAMP, " +
             "PRIMARY KEY(island_uuid, uuid))";
+    private static final String CREATE_ISLAND_SETTINGS_TABLE = "CREATE TABLE IF NOT EXISTS island_settings " +
+            "(island_uuid VARCHAR(36), setting_id INT, value BOOLEAN, created_at TIMESTAMP, updated_at TIMESTAMP, " +
+            "PRIMARY KEY(island_uuid, setting_id))";
     public static IslandsDataManager INSTANCE;
     private final Map<UUID, Island> cache = new HashMap<>();
 
@@ -56,6 +59,9 @@ public class IslandsDataManager {
                 statement.executeUpdate();
             }
             try (PreparedStatement statement = connection.prepareStatement(CREATE_ISLAND_BANNEDS_TABLE)) {
+                statement.executeUpdate();
+            }
+            try (PreparedStatement statement = connection.prepareStatement(CREATE_ISLAND_SETTINGS_TABLE)) {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -115,8 +121,10 @@ public class IslandsDataManager {
 
                 Location spawn = LocationTranslator.fromString(locationString);
 
+                List<IslandSettings> settings = loadIslandSettings(uuid);
+
                 Island island = new Island(uuid, name, spawn, members.left(), members.right(), perms, upgradeSize, upgradeMembers, upgradeGenerator,
-                        bankMoney, bankCrystals, bannedPlayers, isPublic, level, levelExp);
+                        bankMoney, bankCrystals, bannedPlayers, isPublic, level, levelExp, settings);
 
                 Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
                     cache.put(uuid, island);
@@ -161,11 +169,15 @@ public class IslandsDataManager {
         if (!saveIslandBanned(island.getIslandUUID(), island.getBannedPlayers())) {
             return false;
         }
+        if (!saveIslandSettings(island.getIslandUUID(), island.getSettings())) {
+            return false;
+        }
 
         return true;
     }
 
-    public void update(Island island, boolean membersModified, boolean permsModified, boolean bannedModified) {
+    public void update(Island island, boolean membersModified, boolean permsModified, boolean bannedModified,
+                       boolean settingsModified) {
         try {
             updateIsland(island);
             if (membersModified) {
@@ -176,6 +188,9 @@ public class IslandsDataManager {
             }
             if (bannedModified) {
                 updateIslandBanned(island);
+            }
+            if (settingsModified) {
+                updateIslandSettings(island);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -266,11 +281,37 @@ public class IslandsDataManager {
 
     private void updateIslandBanned(Island island) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "INSERT INTO island_banneds (island_uuid, uuid, created_at, updated_at) VALUES (?, ?, " +
+                "INSERT IGNORE INTO island_banneds (island_uuid, uuid, created_at, updated_at) VALUES (?, ?, " +
                         "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             for (UUID banned : island.getBannedPlayers()) {
                 statement.setString(1, island.getIslandUUID().toString());
                 statement.setString(2, banned.toString());
+                statement.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void updateIslandSettings(Island island) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "INSERT IGNORE INTO island_settings (island_uuid, setting_id, value, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+            for (IslandSettings setting : IslandSettings.values()) {
+                statement.setString(1, island.getIslandUUID().toString());
+                statement.setInt(2, setting.getId());
+                statement.setBoolean(3, island.getSettings().contains(setting));
+                statement.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "UPDATE island_settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE island_uuid = ? AND setting_id = ?")) {
+            for (IslandSettings setting : IslandSettings.values()) {
+                statement.setBoolean(1, island.getSettings().contains(setting));
+                statement.setString(2, island.getIslandUUID().toString());
+                statement.setInt(3, setting.getId());
                 statement.executeUpdate();
             }
         } catch (Exception e) {
@@ -337,6 +378,24 @@ public class IslandsDataManager {
         return bannedPlayers;
     }
 
+    public List<IslandSettings> loadIslandSettings(UUID islandUUID) {
+        List<IslandSettings> settings = new ArrayList<>();
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "SELECT * FROM island_settings WHERE island_uuid = ?")) {
+            statement.setString(1, islandUUID.toString());
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                IslandSettings setting = IslandSettings.getById(result.getInt("setting_id"));
+                if (result.getBoolean("value")) {
+                    settings.add(setting);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return settings;
+    }
+
     public boolean saveIslandMembers(UUID islandUUID, Map<UUID, IslandRanks> members, Map<UUID, String> membersNames) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "INSERT INTO island_members (island_uuid, uuid, username, rank_id, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
@@ -387,4 +446,19 @@ public class IslandsDataManager {
         }
     }
 
+    public boolean saveIslandSettings(UUID islandUuid, List<IslandSettings> settings) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "INSERT INTO island_settings (island_uuid, setting_id, value, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+            for (IslandSettings setting : IslandSettings.values()) {
+                statement.setString(1, islandUuid.toString());
+                statement.setInt(2, setting.getId());
+                statement.setBoolean(3, settings.contains(setting));
+                statement.executeUpdate();
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -3,6 +3,7 @@ package fr.farmeurimmo.mineblock.purpur.islands;
 import com.grinderwolf.swm.api.world.SlimeWorld;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
+import fr.farmeurimmo.mineblock.common.islands.IslandSettings;
 import fr.farmeurimmo.mineblock.common.islands.IslandsDataManager;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.listeners.IslandsProtectionListener;
@@ -12,6 +13,7 @@ import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.mineblock.purpur.worlds.WorldsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -62,9 +64,9 @@ public class IslandsManager {
         MineBlock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
     }
 
-    public Island getIslandByLoc(Location loc) {
+    public Island getIslandByLoc(World world) {
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-            if (island.getSpawn().getWorld().equals(loc.getWorld())) {
+            if (island.getSpawn().getWorld().equals(world)) {
                 return island;
             }
         }
@@ -138,6 +140,7 @@ public class IslandsManager {
                 if (ownerPlayer == null) return null;
                 World w = Bukkit.getWorld(worldName);
                 if (w == null) return null;
+                applyTimeAndWeather(w, island);
                 w.setSpawnLocation(new Location(w, 0, 62.1, 0, -38, 5));
                 ownerPlayer.teleportAsync(w.getSpawnLocation());
                 ownerPlayer.sendMessage(Component.text("§b[MineBlock] §aVotre île a été créée en " +
@@ -151,6 +154,10 @@ public class IslandsManager {
         return "island_" + islandUUID;
     }
 
+    public World getIslandWorld(UUID islandUUID) {
+        return Bukkit.getWorld(getIslandWorldName(islandUUID));
+    }
+
     public Island getIslandOf(UUID uuid) {
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
             if (island.getMembers().containsKey(uuid)) return island;
@@ -158,14 +165,46 @@ public class IslandsManager {
         return null;
     }
 
+    public void applyTimeAndWeather(World world, Island island) {
+        if (world != null) {
+            if (!island.hasSettingActivated(IslandSettings.TIME_DEFAULT)) {
+                for (IslandSettings setting : island.getSettings()) {
+                    if (setting.name().contains("TIME") && island.hasSettingActivated(setting)) {
+                        world.setTime(setting.getTime());
+                        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+                        break;
+                    }
+                }
+            } else {
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+            }
+            if (!island.hasSettingActivated(IslandSettings.WEATHER_DEFAULT)) {
+                for (IslandSettings setting : island.getSettings()) {
+                    if (setting.name().contains("WEATHER") && island.hasSettingActivated(setting)) {
+                        world.setStorm(setting == IslandSettings.WEATHER_RAIN);
+                        world.setThundering(setting == IslandSettings.WEATHER_RAIN);
+                        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+                        break;
+                    }
+                }
+            } else {
+                world.setGameRule(GameRule.DO_WEATHER_CYCLE, true);
+                world.setStorm(false);
+                world.setThundering(false);
+            }
+        }
+    }
+
     public void loadIsland(Island island) {
         if (island.isLoaded()) return;
         WorldsManager.INSTANCE.loadAsync(getIslandWorldName(island.getIslandUUID()), false).thenRun(() -> {
             Bukkit.getScheduler().callSyncMethod(plugin, () -> {
                 Location spawn = island.getSpawn();
+                World w = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
                 if (spawn != null) {
-                    spawn.setWorld(Bukkit.getWorld(getIslandWorldName(island.getIslandUUID())));
+                    spawn.setWorld(w);
                 }
+                applyTimeAndWeather(w, island);
                 island.setLoaded(true);
                 IslandsSizeManager.INSTANCE.updateWorldBorder(island);
 

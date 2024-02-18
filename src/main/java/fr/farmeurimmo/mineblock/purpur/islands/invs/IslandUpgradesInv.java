@@ -72,13 +72,13 @@ public class IslandUpgradesInv extends FastInv {
             }
         });
 
-        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
-                .name("§6Warps d'île").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
+        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.PAPER)).name("§6Warps d'île")
+                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
-        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.CHEST))
-                .name("§6Coffres et Hoppeurs").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
+        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
+                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
-        setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER))
-                .name("§6Spawneurs").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
+        setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
+                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
     }
 }

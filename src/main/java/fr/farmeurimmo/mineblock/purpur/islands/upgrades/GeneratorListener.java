@@ -11,7 +11,7 @@ public class GeneratorListener implements Listener {
 
     @EventHandler
     public void onGenerate(BlockFormEvent e) {
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getBlock().getLocation());
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getBlock().getWorld());
         ;
         if (island != null) {
             if (e.getNewState().getType() == Material.COBBLESTONE) {
