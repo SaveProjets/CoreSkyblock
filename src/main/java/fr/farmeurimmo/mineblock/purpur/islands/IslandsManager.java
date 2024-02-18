@@ -41,6 +41,7 @@ public class IslandsManager {
         new IslandsMaxMembersManager();
 
         new IslandsBlocksValues();
+        new IslandsBankManager();
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
@@ -68,6 +69,7 @@ public class IslandsManager {
     }
 
     public Island getIslandByLoc(World world) {
+        if (world == null) return null;
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
             if (island.getSpawn().getWorld().equals(world)) {
                 return island;

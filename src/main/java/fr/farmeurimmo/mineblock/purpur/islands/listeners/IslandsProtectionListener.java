@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 
 public class IslandsProtectionListener implements Listener {
@@ -42,8 +43,8 @@ public class IslandsProtectionListener implements Listener {
     @EventHandler
     public void onWeatherChange(WeatherChangeEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getWorld());
         if (e.getCause() == WeatherChangeEvent.Cause.PLUGIN) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getWorld());
         if (island != null && !island.hasSettingActivated(IslandSettings.WEATHER_DEFAULT)) {
             e.setCancelled(true);
         }
@@ -72,7 +73,7 @@ public class IslandsProtectionListener implements Listener {
     }
 
     @EventHandler
-    public void onLightningStrike(org.bukkit.event.weather.LightningStrikeEvent e) {
+    public void onLightningStrike(LightningStrikeEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getLightning().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getLightning().getWorld());
         if (island != null && !island.hasSettingActivated(IslandSettings.LIGHTNING_STRIKE)) {

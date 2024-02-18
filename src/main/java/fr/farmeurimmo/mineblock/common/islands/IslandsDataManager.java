@@ -207,8 +207,8 @@ public class IslandsDataManager {
             statement.setDouble(6, island.getBankMoney());
             statement.setBoolean(7, island.isPublic());
             statement.setDouble(8, island.getExp());
-            statement.setString(9, island.getIslandUUID().toString());
-            statement.setFloat(10, island.getLevel());
+            statement.setFloat(9, island.getLevel());
+            statement.setString(10, island.getIslandUUID().toString());
             statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

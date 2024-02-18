@@ -1,8 +1,11 @@
 package fr.farmeurimmo.mineblock.purpur.listeners;
 
+import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.chat.ChatDisplayManager;
+import fr.farmeurimmo.mineblock.purpur.islands.IslandsBankManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +16,24 @@ public class ChatListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
+
+        if (IslandsBankManager.INSTANCE.isAwaitingAmount(p.getUniqueId())) {
+            e.setCancelled(true);
+            try {
+                double amount = Double.parseDouble(e.getMessage());
+                if (amount <= 0) {
+                    p.sendMessage(Component.text("§cVeuillez entrer un nombre positif."));
+                    return;
+                }
+                Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
+                    IslandsBankManager.INSTANCE.removeAwaitingAmount(p, true, amount);
+                    return null;
+                });
+            } catch (NumberFormatException ex) {
+                p.sendMessage(Component.text("§cVeuillez entrer un nombre valide."));
+            }
+            return;
+        }
 
         String message = e.getMessage();
         boolean item = message.contains("[item]");

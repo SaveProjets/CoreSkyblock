@@ -53,9 +53,9 @@ public class IslandInv extends FastInv {
                 .name("§6Challenges §8| §7(clic gauche)").build(), e ->
                 e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
 
-        setItem(21, ItemBuilder.copyOf(new ItemStack(Material.CHEST))
+        setItem(21, ItemBuilder.copyOf(new ItemStack(Material.GOLD_BLOCK))
                 .name("§6Banque §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+                new IslandBankInv(island).open((Player) e.getWhoClicked()));
 
         setItem(22, ItemBuilder.copyOf(new ItemStack(Material.BEDROCK))
                 .name("§c???").build(), e ->
