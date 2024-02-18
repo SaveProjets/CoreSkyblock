@@ -242,4 +242,19 @@ public class IslandsManager {
         });
         IslandsSizeManager.INSTANCE.updateWorldBorder(island);
     }
+
+    public void checkForPlayerOnAccessibilityChange(Island island) {
+        if (island != null) {
+            if (island.isPublic()) return;
+            World world = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
+            if (world != null) {
+                ArrayList<Player> players = new ArrayList<>(island.getOnlineMembers());
+                for (Player p : world.getPlayers()) {
+                    if (players.contains(p)) continue;
+                    p.teleportAsync(MineBlock.SPAWN);
+                    p.sendMessage(Component.text("§cCette île est maintenant privée."));
+                }
+            }
+        }
+    }
 }

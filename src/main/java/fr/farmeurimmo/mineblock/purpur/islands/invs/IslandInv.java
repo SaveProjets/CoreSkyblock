@@ -69,5 +69,13 @@ public class IslandInv extends FastInv {
         setItem(28, ItemBuilder.copyOf(new ItemStack(Material.SPRUCE_SAPLING))
                 .name("§6Biome §8| §7(clic gauche)").build(), e ->
                 e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+
+        setItem(29, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).
+                name("§6Accessibilité §8| §7(clic gauche)").lore("§7Actuellement: " + (island.isPublic() ? "§aPublique"
+                        : "§cPrivée")).build(), e -> {
+            Player p = (Player) e.getWhoClicked();
+            p.chat("/is " + (island.isPublic() ? "private" : "public"));
+            new IslandInv(island).open(p);
+        });
     }
 }

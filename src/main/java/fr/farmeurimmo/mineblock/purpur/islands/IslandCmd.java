@@ -84,6 +84,26 @@ public class IslandCmd implements CommandExecutor {
             }
             return false;
         }
+        if (args[0].equalsIgnoreCase("private") || args[0].equalsIgnoreCase("privée")) {
+            if (!island.isPublic()) {
+                p.sendMessage(Component.text("§cVotre île est déjà privée."));
+                return false;
+            }
+            island.setPublic(false);
+            p.sendMessage(Component.text("§aVotre île est désormais §cprivée§a."));
+            island.sendMessageToAll("§aL'île est désormais §cprivée§a.");
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("public") || args[0].equalsIgnoreCase("publique")) {
+            if (island.isPublic()) {
+                p.sendMessage(Component.text("§cVotre île est déjà publique."));
+                return false;
+            }
+            island.setPublic(true);
+            p.sendMessage(Component.text("§aVotre île est désormais §2publique§a."));
+            island.sendMessageToAll("§aL'île est désormais §2publique§a.");
+            return false;
+        }
 
         IslandRanks rank = island.getMembers().get(p.getUniqueId());
         if (rank == null) {

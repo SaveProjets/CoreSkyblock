@@ -3,6 +3,7 @@ package fr.farmeurimmo.mineblock.purpur.islands.listeners;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandSettings;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TNTPrimed;
@@ -17,6 +18,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 
@@ -37,6 +39,18 @@ public class IslandsProtectionListener implements Listener {
         WorldBorder border = e.getPlayer().getWorld().getWorldBorder();
         if (e.getTo().getX() > border.getSize() / 2 || e.getTo().getZ() > border.getSize() / 2) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerChangeWorld(PlayerTeleportEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getTo().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getTo().getWorld());
+        if (island != null && !island.isPublic()) {
+            if (!island.getMembers().containsKey(e.getPlayer().getUniqueId())) {
+                e.setCancelled(true);
+                e.getPlayer().sendMessage(Component.text("§cCette île est privée, vous ne pouvez pas y accéder."));
+            }
         }
     }
 

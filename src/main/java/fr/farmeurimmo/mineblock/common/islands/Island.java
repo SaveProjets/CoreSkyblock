@@ -216,6 +216,8 @@ public class Island {
 
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
+        if (!isPublic) IslandsManager.INSTANCE.checkForPlayerOnAccessibilityChange(this);
+
         update(true);
     }
 
