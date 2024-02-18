@@ -64,12 +64,24 @@ public class IslandCmd implements CommandExecutor {
             p.sendMessage(USAGE_NO_IS);
             return false;
         }
+
+
         if (args.length == 0) {
             new IslandInv(island).open(p);
             return false;
         }
         if (args[0].equalsIgnoreCase("go")) {
             IslandsManager.INSTANCE.teleportToIsland(island, p);
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("chat")) {
+            if (IslandsChatManager.INSTANCE.isInIslandChat(p.getUniqueId())) {
+                IslandsChatManager.INSTANCE.removeInIslandChat(p.getUniqueId());
+                p.sendMessage(Component.text("§aVos messages seront désormais envoyés dans le chat §6général§a."));
+            } else {
+                IslandsChatManager.INSTANCE.addInIslandChat(p.getUniqueId());
+                p.sendMessage(Component.text("§aVos messages seront désormais envoyés dans le §6chat de l'île§a."));
+            }
             return false;
         }
 

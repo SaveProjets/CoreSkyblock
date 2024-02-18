@@ -3,6 +3,7 @@ package fr.farmeurimmo.mineblock.purpur.listeners;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsBankManager;
+import fr.farmeurimmo.mineblock.purpur.islands.IslandsChatManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;
@@ -32,6 +33,15 @@ public class ChatListener implements Listener {
             } catch (NumberFormatException ex) {
                 p.sendMessage(Component.text("§cVeuillez entrer un nombre valide."));
             }
+            return;
+        }
+
+        if (IslandsChatManager.INSTANCE.isInIslandChat(p.getUniqueId())) {
+            e.setCancelled(true);
+            Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
+                IslandsChatManager.INSTANCE.sendIslandChatMessage(p, e.getMessage());
+                return null;
+            });
             return;
         }
 
