@@ -25,10 +25,10 @@ public class Island {
     private int maxMembers;
     private int generatorLevel;
     private double bankMoney;
-    private double bankCrystals;
     private boolean isPublic;
-    private double level;
-    private double levelExp;
+    private double exp;
+    private float level;
+
     private boolean loaded = false;
     private long loadTimeout = -1;
 
@@ -40,8 +40,8 @@ public class Island {
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
-                  int generatorLevel, double bankMoney, double bankCrystals, ArrayList<UUID> bannedPlayers,
-                  boolean isPublic, double level, double levelExp, List<IslandSettings> settings) {
+                  int generatorLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic, double exp,
+                  List<IslandSettings> settings, float level) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
@@ -53,12 +53,11 @@ public class Island {
         this.maxMembers = maxMembers;
         this.generatorLevel = generatorLevel;
         this.bankMoney = bankMoney;
-        this.bankCrystals = bankCrystals;
         this.bannedPlayers = bannedPlayers;
         this.isPublic = isPublic;
-        this.level = level;
-        this.levelExp = levelExp;
+        this.exp = exp;
         this.settings = settings;
+        this.level = level;
     }
 
     //default just the necessary to establish a start island
@@ -75,12 +74,11 @@ public class Island {
         this.maxMembers = 1;
         this.generatorLevel = 1;
         this.bankMoney = 0;
-        this.bankCrystals = 0;
         this.bannedPlayers = new ArrayList<>();
         this.isPublic = true;
-        this.level = 1;
-        this.levelExp = 0;
+        this.exp = 0;
         this.settings = new ArrayList<>();
+        this.level = 0;
         addDefaultSettings();
     }
 
@@ -208,15 +206,6 @@ public class Island {
         update(true);
     }
 
-    public double getBankCrystals() {
-        return this.bankCrystals;
-    }
-
-    public void setCrystalMoney(double bankCrystals) {
-        this.bankCrystals = bankCrystals;
-        update(true);
-    }
-
     public ArrayList<UUID> getBannedPlayers() {
         return this.bannedPlayers;
     }
@@ -230,21 +219,12 @@ public class Island {
         update(true);
     }
 
-    public double getLevel() {
-        return this.level;
+    public double getExp() {
+        return this.exp;
     }
 
-    public void setLevel(double level) {
-        this.level = level;
-        update(true);
-    }
-
-    public double getLevelExp() {
-        return this.levelExp;
-    }
-
-    public void setLevelExp(double levelExp) {
-        this.levelExp = levelExp;
+    public void setLevelExp(double exp) {
+        this.exp = exp;
         isModified = true;
     }
 
@@ -474,4 +454,11 @@ public class Island {
         areSettingsModified = true;
     }
 
+    public float getLevel() {
+        return this.level;
+    }
+
+    public void setLevel(float level) {
+        this.level = level;
+    }
 }

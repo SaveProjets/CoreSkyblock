@@ -18,11 +18,11 @@ public class IslandsDataManager {
 
     private static final String CREATE_ISLANDS_TABLE = "CREATE TABLE IF NOT EXISTS islands (uuid VARCHAR(36) " +
             "PRIMARY KEY, name VARCHAR(255), spawn VARCHAR(255), upgrade_size INT, upgrade_members INT, " +
-            "upgrade_generator INT, bank_money DOUBLE, bank_crystals DOUBLE, is_public BOOLEAN, level DOUBLE, " +
-            "exp DOUBLE, created_at TIMESTAMP, updated_at TIMESTAMP)";
+            "upgrade_generator INT, bank_money DOUBLE, is_public BOOLEAN, exp DOUBLE, level FLOAT, " +
+            "created_at TIMESTAMP, updated_at TIMESTAMP)";
     private static final String CREATE_ISLAND_MEMBERS_TABLE = "CREATE TABLE IF NOT EXISTS island_members (island_uuid "
-            + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id INT, created_at TIMESTAMP, updated_at TIMESTAMP, " +
-            "PRIMARY KEY(island_uuid, uuid))";
+            + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id INT, created_at TIMESTAMP, " +
+            "updated_at TIMESTAMP, PRIMARY KEY(island_uuid, uuid))";
     private static final String CREATE_ISLAND_RANKS_PERMISSIONS_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "island_ranks_permissions (island_uuid VARCHAR(36), rank_id INT, permission_id INT, created_at " +
             "TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY(island_uuid, permission_id))";
@@ -107,10 +107,9 @@ public class IslandsDataManager {
                 int upgradeMembers = result.getInt("upgrade_members");
                 int upgradeGenerator = result.getInt("upgrade_generator");
                 double bankMoney = result.getDouble("bank_money");
-                double bankCrystals = result.getDouble("bank_crystals");
                 boolean isPublic = result.getBoolean("is_public");
-                double level = result.getDouble("level");
-                double levelExp = result.getDouble("exp");
+                double exp = result.getDouble("exp");
+                float level = result.getFloat("level");
 
                 Pair<Map<UUID, IslandRanks>, Map<UUID, String>> members = loadIslandMembers(uuid);
 
@@ -124,7 +123,7 @@ public class IslandsDataManager {
                 List<IslandSettings> settings = loadIslandSettings(uuid);
 
                 Island island = new Island(uuid, name, spawn, members.left(), members.right(), perms, upgradeSize, upgradeMembers, upgradeGenerator,
-                        bankMoney, bankCrystals, bannedPlayers, isPublic, level, levelExp, settings);
+                        bankMoney, bannedPlayers, isPublic, exp, settings, level);
 
                 Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
                     cache.put(uuid, island);
@@ -139,8 +138,8 @@ public class IslandsDataManager {
     public boolean saveIsland(Island island) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "INSERT INTO islands (uuid, name, spawn, upgrade_size, upgrade_members, upgrade_generator, " +
-                        "bank_money, bank_crystals, is_public, level, exp, created_at, updated_at) VALUES (?, " +
-                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                        "bank_money, is_public, exp, level, created_at, updated_at) VALUES (?, " +
+                        "?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             statement.setString(1, island.getIslandUUID().toString());
             statement.setString(2, island.getName());
             statement.setString(3, LocationTranslator.fromLocation(island.getSpawn()));
@@ -148,10 +147,9 @@ public class IslandsDataManager {
             statement.setInt(5, island.getMaxMembers());
             statement.setInt(6, island.getGeneratorLevel());
             statement.setDouble(7, island.getBankMoney());
-            statement.setDouble(8, island.getBankCrystals());
-            statement.setBoolean(9, island.isPublic());
-            statement.setDouble(10, island.getLevel());
-            statement.setDouble(11, island.getLevelExp());
+            statement.setBoolean(8, island.isPublic());
+            statement.setDouble(9, island.getExp());
+            statement.setFloat(10, island.getLevel());
             statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,19 +198,17 @@ public class IslandsDataManager {
     private void updateIsland(Island island) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "UPDATE islands SET name = ?, spawn = ?, upgrade_size = ?, upgrade_members = ?, upgrade_generator = ?, " +
-                        "bank_money = ?, bank_crystals = ?, is_public = ?, level = ?, exp = ?, " +
-                        "updated_at = CURRENT_TIMESTAMP WHERE uuid = ?")) {
+                        "bank_money = ?, is_public = ?, exp = ?, level = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?")) {
             statement.setString(1, island.getName());
             statement.setString(2, LocationTranslator.fromLocation(island.getSpawn()));
             statement.setInt(3, island.getMaxSize());
             statement.setInt(4, island.getMaxMembers());
             statement.setInt(5, island.getGeneratorLevel());
             statement.setDouble(6, island.getBankMoney());
-            statement.setDouble(7, island.getBankCrystals());
-            statement.setBoolean(8, island.isPublic());
-            statement.setDouble(9, island.getLevel());
-            statement.setDouble(10, island.getLevelExp());
-            statement.setString(11, island.getIslandUUID().toString());
+            statement.setBoolean(7, island.isPublic());
+            statement.setDouble(8, island.getExp());
+            statement.setString(9, island.getIslandUUID().toString());
+            statement.setFloat(10, island.getLevel());
             statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

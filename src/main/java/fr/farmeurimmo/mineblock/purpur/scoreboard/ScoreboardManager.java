@@ -51,13 +51,13 @@ public class ScoreboardManager {
             islandLines.add("§6§lVotre île §8[§7#" + "EN DEV" + "§8]");
             islandLines.add("§8┃ §7Rang: §4" + island.getMembers().get(p.getUniqueId()).getName());
             islandLines.add("§8┃ §7Membres: §e" + island.getMembers().size());
-            islandLines.add("§8┃ §7Cristaux: §d" + NumberFormat.getInstance().format(island.getBankCrystals()));
-            islandLines.add("§8┃ §7Niveau: §b" + NumberFormat.getInstance().format(island.getLevel()));
-            islandLines.add("§8┃ §8[§b||||||||||||||||||||§7]");
+            islandLines.add("§8┃ §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));
+            islandLines.add("§8┃ §7Expérience: §b" + NumberFormat.getInstance().format(island.getExp()));
+            islandLines.add("§8┃ §7Niveau: §3" + NumberFormat.getInstance().format(island.getLevel()));
         } else {
             islandLines.add("§6§lVous n'avez pas d'île");
             islandLines.add("§8┃ §7/is create pour en créer une");
-            islandLines.add("§8┃ §7/is join <joueur> pour rejoindre une");
+            islandLines.add("§8┃ §7/is accept <joueur> pour rejoindre une");
             islandLines.add("§8┃ §7île avec une invitation");
         }
         if (number == 0) {
