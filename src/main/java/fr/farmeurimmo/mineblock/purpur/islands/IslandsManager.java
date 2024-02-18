@@ -34,10 +34,13 @@ public class IslandsManager {
         this.plugin = plugin;
 
         new IslandsDataManager();
+
         new IslandRanksManager();
         new IslandsGeneratorManager();
         new IslandsSizeManager();
         new IslandsMaxMembersManager();
+
+        new IslandsBlocksValues();
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {

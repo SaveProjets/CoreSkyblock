@@ -37,7 +37,7 @@ public class IslandInv extends FastInv {
 
         setItem(14, ItemBuilder.copyOf(new ItemStack(Material.EMERALD_BLOCK))
                 .name("§6Valeur des blocs §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+                new IslandBlocksValues(island).open((Player) e.getWhoClicked()));
 
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.BEACON))
