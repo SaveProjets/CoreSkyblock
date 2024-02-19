@@ -30,7 +30,8 @@ public enum IslandPerms {
     MINIONS_ADD("§6Ajouter un minion", 23, Material.DRAGON_BREATH),
     MINIONS_REMOVE("§6Retirer un minion", 24, Material.DRAGON_EGG),
     MINIONS_INTERACT("§6Intéragir avec un minion", 25, Material.DRAGON_HEAD),
-    SECURED_CHEST("§6Utiliser un coffre sécurisé", 26, Material.IRON_CHESTPLATE);
+    SECURED_CHEST("§6Utiliser un coffre sécurisé", 26, Material.IRON_CHESTPLATE),
+    CALCULATE_ISLAND_LEVEL("§6Calculer le niveau de l'île", 27, Material.CALCITE);
 
     private final String description;
     private final int id;

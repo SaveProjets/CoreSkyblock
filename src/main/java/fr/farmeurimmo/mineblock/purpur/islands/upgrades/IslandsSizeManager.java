@@ -42,7 +42,7 @@ public class IslandsSizeManager {
             World w = Bukkit.getWorld(IslandsManager.INSTANCE.getIslandWorldName(island.getIslandUUID()));
             if (w != null) {
                 w.getWorldBorder().setCenter(0, 0);
-                w.getWorldBorder().setSize(getSizeFromLevel(island.getMaxSize()));
+                w.getWorldBorder().setSize(getSizeFromLevel(island.getMaxSize()) * 2);
             }
         }, 5);
     }

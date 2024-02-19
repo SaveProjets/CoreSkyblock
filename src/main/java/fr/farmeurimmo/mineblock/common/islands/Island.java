@@ -462,5 +462,7 @@ public class Island {
 
     public void setLevel(float level) {
         this.level = level;
+
+        isModified = true;
     }
 }

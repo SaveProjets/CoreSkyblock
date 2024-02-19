@@ -3,6 +3,7 @@ package fr.farmeurimmo.mineblock.purpur.islands;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandPerms;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanks;
+import fr.farmeurimmo.mineblock.purpur.islands.invs.IslandBankInv;
 import fr.farmeurimmo.mineblock.purpur.islands.invs.IslandInv;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import net.kyori.adventure.text.Component;
@@ -13,6 +14,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.text.NumberFormat;
 
 public class IslandCmd implements CommandExecutor {
 
@@ -84,24 +87,8 @@ public class IslandCmd implements CommandExecutor {
             }
             return false;
         }
-        if (args[0].equalsIgnoreCase("private") || args[0].equalsIgnoreCase("privée")) {
-            if (!island.isPublic()) {
-                p.sendMessage(Component.text("§cVotre île est déjà privée."));
-                return false;
-            }
-            island.setPublic(false);
-            p.sendMessage(Component.text("§aVotre île est désormais §cprivée§a."));
-            island.sendMessageToAll("§aL'île est désormais §cprivée§a.");
-            return false;
-        }
-        if (args[0].equalsIgnoreCase("public") || args[0].equalsIgnoreCase("publique")) {
-            if (island.isPublic()) {
-                p.sendMessage(Component.text("§cVotre île est déjà publique."));
-                return false;
-            }
-            island.setPublic(true);
-            p.sendMessage(Component.text("§aVotre île est désormais §2publique§a."));
-            island.sendMessageToAll("§aL'île est désormais §2publique§a.");
+        if (args[0].equalsIgnoreCase("bank") || args[0].equalsIgnoreCase("banque")) {
+            new IslandBankInv(island).open(p);
             return false;
         }
 
@@ -146,6 +133,50 @@ public class IslandCmd implements CommandExecutor {
             p.sendMessage(Component.text("§aLe joueur a été invité."));
             island.sendMessage("§a" + target.getName() + " a été invité à rejoindre l'île.", IslandPerms.INVITE);
             return false;
+        }
+        if (args[0].equalsIgnoreCase("private") || args[0].equalsIgnoreCase("privée")) {
+            if (!island.hasPerms(rank, IslandPerms.PRIVATE, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de changer la visibilité de l'île."));
+                return false;
+            }
+            if (!island.isPublic()) {
+                p.sendMessage(Component.text("§cVotre île est déjà privée."));
+                return false;
+            }
+            //FIXME: cooldown
+            island.setPublic(false);
+            p.sendMessage(Component.text("§aVotre île est désormais §cprivée§a."));
+            island.sendMessageToAll("§aL'île est désormais §cprivée§a.");
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("public") || args[0].equalsIgnoreCase("publique")) {
+            if (!island.hasPerms(rank, IslandPerms.PUBLIC, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de changer la visibilité de l'île."));
+                return false;
+            }
+            if (island.isPublic()) {
+                p.sendMessage(Component.text("§cVotre île est déjà publique."));
+                return false;
+            }
+            //FIXME: cooldown
+            island.setPublic(true);
+            p.sendMessage(Component.text("§aVotre île est désormais §2publique§a."));
+            island.sendMessageToAll("§aL'île est désormais §2publique§a.");
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("level")) {
+            if (!island.hasPerms(rank, IslandPerms.CALCULATE_ISLAND_LEVEL, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de calculer le niveau de l'île."));
+                return false;
+            }
+            //FIXME: cooldown
+            float level = island.getLevel();
+            if (level != 0) {
+                p.sendMessage(Component.text("§aNiveau de l'île: §6" + NumberFormat.getInstance().format(level) + "."));
+            } else {
+                p.sendMessage(Component.text("§cLe niveau de l'île n'a pas encore été calculé, veuillez patienter."));
+            }
+            IslandsLevelCalculator.INSTANCE.calculateIslandLevel(island, p.getUniqueId());
         }
         return false;
     }

@@ -43,6 +43,7 @@ public class IslandsManager {
         new IslandsBlocksValues();
         new IslandsBankManager();
         new IslandsChatManager();
+        new IslandsLevelCalculator();
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
