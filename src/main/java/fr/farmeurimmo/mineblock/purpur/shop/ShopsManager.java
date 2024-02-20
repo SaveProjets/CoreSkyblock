@@ -1,12 +1,15 @@
 package fr.farmeurimmo.mineblock.purpur.shop;
 
 import fr.farmeurimmo.mineblock.common.DatabaseManager;
+import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.shop.objects.ShopItem;
 import fr.farmeurimmo.mineblock.purpur.shop.objects.ShopPage;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 public class ShopsManager {
 
@@ -16,15 +19,36 @@ public class ShopsManager {
     public ShopsManager() {
         INSTANCE = this;
 
-        for (ShopType type : ShopType.values()) {
-            long start = System.currentTimeMillis();
-            DatabaseManager.INSTANCE.getShopPage(type).thenAccept(page -> {
-                if (page != null) {
-                    pages.add(page);
-                    System.out.println("Loaded shop page " + type.getName() + "§f in §6" + (System.currentTimeMillis() - start) + "ms");
-                }
+        loadShops();
+    }
+
+    public CompletableFuture<Void> loadShops() {
+        return CompletableFuture.runAsync(() -> {
+            ArrayList<CompletableFuture<ShopPage>> futures = new ArrayList<>();
+            for (ShopType type : ShopType.values()) {
+                long start = System.currentTimeMillis();
+                CompletableFuture<ShopPage> future = DatabaseManager.INSTANCE.getShopPage(type);
+                future.thenAccept(page -> {
+                    if (page != null) {
+                        System.out.println("Loaded shop page " + type.getName() + "§f in §6" + (System.currentTimeMillis() - start) + "ms");
+                    }
+                });
+                futures.add(future);
+            }
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
+                System.out.println("Loaded §6" + futures.size() + "§f shop pages");
+                Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
+                    this.pages.clear();
+                    futures.forEach(future -> future.thenAccept(page -> {
+                        if (page != null) {
+                            this.pages.add(page);
+                        }
+                    }));
+                    return null;
+                });
             });
-        }
+        });
     }
 
     public ShopPage getPage(ShopType type) {

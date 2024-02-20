@@ -93,7 +93,7 @@ public final class MineBlock extends JavaPlugin {
         if (spawnWorld != null) {
             spawnWorld.setSpawnLocation(SPAWN);
             spawnWorld.getWorldBorder().setCenter(SPAWN);
-            spawnWorld.getWorldBorder().setSize(400);
+            spawnWorld.getWorldBorder().setSize(500);
         }
 
         console.sendMessage("§b[MineBlock] §7Connexion à la base de donnée...");
