@@ -1,6 +1,6 @@
 package fr.farmeurimmo.mineblock.purpur;
 
-import com.grinderwolf.swm.api.SlimePlugin;
+import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.mineblock.common.DatabaseManager;
 import fr.farmeurimmo.mineblock.common.JedisManager;
 import fr.farmeurimmo.mineblock.common.skyblockusers.SkyblockUsersManager;

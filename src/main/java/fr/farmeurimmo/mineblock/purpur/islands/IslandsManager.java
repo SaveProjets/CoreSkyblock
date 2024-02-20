@@ -1,6 +1,6 @@
 package fr.farmeurimmo.mineblock.purpur.islands;
 
-import com.grinderwolf.swm.api.world.SlimeWorld;
+import com.infernalsuite.aswm.api.world.SlimeWorld;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanksManager;
 import fr.farmeurimmo.mineblock.common.islands.IslandSettings;

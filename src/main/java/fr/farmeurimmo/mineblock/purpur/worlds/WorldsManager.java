@@ -1,9 +1,9 @@
 package fr.farmeurimmo.mineblock.purpur.worlds;
 
-import com.grinderwolf.swm.api.loaders.SlimeLoader;
-import com.grinderwolf.swm.api.world.SlimeWorld;
-import com.grinderwolf.swm.api.world.properties.SlimeProperties;
-import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
+import com.infernalsuite.aswm.api.loaders.SlimeLoader;
+import com.infernalsuite.aswm.api.world.SlimeWorld;
+import com.infernalsuite.aswm.api.world.properties.SlimeProperties;
+import com.infernalsuite.aswm.api.world.properties.SlimePropertyMap;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import org.bukkit.Bukkit;
 
@@ -36,7 +36,7 @@ public class WorldsManager {
                     //the boolean is for loading the world in read-only mode
                     SlimeWorld world = MineBlock.INSTANCE.slimePlugin.createEmptyWorld(loader, name, readOnly, properties);
 
-                    MineBlock.INSTANCE.slimePlugin.generateWorld(world);
+                    MineBlock.INSTANCE.slimePlugin.loadWorld(world);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -58,7 +58,7 @@ public class WorldsManager {
         }).thenAccept(world -> {
             if (world == null) return;
             Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
-                MineBlock.INSTANCE.slimePlugin.generateWorld(world);
+                MineBlock.INSTANCE.slimePlugin.loadWorld(world);
                 return null;
             });
         });
@@ -71,9 +71,9 @@ public class WorldsManager {
             SlimeWorld worldToClone = MineBlock.INSTANCE.slimePlugin.getWorld(cloneFrom);
             if (worldToClone == null) return null;
 
-            SlimeWorld world = worldToClone.clone(name, loader, true);
+            SlimeWorld world = worldToClone.clone(name, loader);
 
-            MineBlock.INSTANCE.slimePlugin.generateWorld(world);
+            MineBlock.INSTANCE.slimePlugin.loadWorld(world);
             return world;
         } catch (Exception e) {
             e.printStackTrace();
