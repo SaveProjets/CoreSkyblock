@@ -4,10 +4,7 @@ import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsSizeManager;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.text.NumberFormat;
@@ -38,12 +35,13 @@ public class IslandsLevelCalculator {
         long start = System.currentTimeMillis();
         for (int x = (int) minX; x < (maxX + 16); x += 16) {
             for (int z = (int) minZ; z < (maxZ + 16); z += 16) {
-                if (!world.getBlockAt(x, 0, z).getChunk().isLoaded()) {
-                    world.getBlockAt(x, 0, z).getChunk().load();
-                    chunks.add(world.getBlockAt(x, 0, z).getChunk().getChunkSnapshot(false, false, false));
-                    world.getBlockAt(x, 0, z).getChunk().unload();
+                Chunk chunk = world.getChunkAt(x, z);
+                if (!chunk.isLoaded()) {
+                    chunk.load(false);
+                    chunks.add(chunk.getChunkSnapshot(true, false, false));
+                    chunk.unload();
                 } else {
-                    chunks.add(world.getBlockAt(x, 0, z).getChunk().getChunkSnapshot());
+                    chunks.add(chunk.getChunkSnapshot());
                 }
             }
         }
