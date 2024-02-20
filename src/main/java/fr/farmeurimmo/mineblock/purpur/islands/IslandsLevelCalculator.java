@@ -26,18 +26,18 @@ public class IslandsLevelCalculator {
     }
 
     public void calculateIslandLevel(Island island, UUID uuid) {
-        int minX = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-        int minZ = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-        int maxX = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-        int maxZ = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double minX = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double minZ = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double maxX = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double maxZ = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
 
         World world = IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID());
 
         Set<ChunkSnapshot> chunks = new HashSet<>();
 
         long start = System.currentTimeMillis();
-        for (int x = minX; x < (maxX + 16); x += 16) {
-            for (int z = minZ; z < (maxZ + 16); z += 16) {
+        for (int x = (int) minX; x < (maxX + 16); x += 16) {
+            for (int z = (int) minZ; z < (maxZ + 16); z += 16) {
                 if (!world.getBlockAt(x, 0, z).getChunk().isLoaded()) {
                     world.getBlockAt(x, 0, z).getChunk().load();
                     chunks.add(world.getBlockAt(x, 0, z).getChunk().getChunkSnapshot(false, false, false));

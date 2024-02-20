@@ -89,6 +89,12 @@ public final class MineBlock extends JavaPlugin {
         new InventorySyncUtils();
 
         SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
+        World spawnWorld = Bukkit.getWorld(SPAWN_WORLD_NAME);
+        if (spawnWorld != null) {
+            spawnWorld.setSpawnLocation(SPAWN);
+            spawnWorld.getWorldBorder().setCenter(SPAWN);
+            spawnWorld.getWorldBorder().setSize(400);
+        }
 
         console.sendMessage("§b[MineBlock] §7Connexion à la base de donnée...");
         try {

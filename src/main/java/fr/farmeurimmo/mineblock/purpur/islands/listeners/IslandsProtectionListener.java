@@ -2,6 +2,7 @@ package fr.farmeurimmo.mineblock.purpur.islands.listeners;
 
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandSettings;
+import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.IslandsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.WorldBorder;
@@ -37,8 +38,16 @@ public class IslandsProtectionListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
         WorldBorder border = e.getPlayer().getWorld().getWorldBorder();
-        if (e.getTo().getX() > border.getSize() / 2 || e.getTo().getZ() > border.getSize() / 2) {
+        if (e.getTo().getX() > border.getSize() / 2 + 0.2 || e.getTo().getZ() > border.getSize() / 2 + 0.2) {
             e.setCancelled(true);
+            e.getPlayer().teleportAsync(MineBlock.SPAWN).thenRun(() ->
+                    e.getPlayer().sendMessage(Component.text("§cVous ne pouvez pas sortir de l'île.")));
+            return;
+        }
+        if (e.getTo().getX() < -border.getSize() / 2 || e.getTo().getZ() < -border.getSize() / 2) {
+            e.setCancelled(true);
+            e.getPlayer().teleportAsync(MineBlock.SPAWN).thenRun(() ->
+                    e.getPlayer().sendMessage(Component.text("§cVous ne pouvez pas sortir de l'île.")));
         }
     }
 
