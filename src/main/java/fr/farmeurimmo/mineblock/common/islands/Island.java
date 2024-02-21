@@ -152,6 +152,11 @@ public class Island {
     }
 
     public Location getSpawn() {
+        if (this.spawn == null) {
+            if (isLoaded()) {
+                this.spawn.setWorld(IslandsManager.INSTANCE.getIslandWorld(this.islandUUID));
+            }
+        }
         return this.spawn;
     }
 

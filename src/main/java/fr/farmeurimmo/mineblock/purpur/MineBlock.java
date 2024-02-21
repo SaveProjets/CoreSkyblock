@@ -65,12 +65,16 @@ public final class MineBlock extends JavaPlugin {
     public void onLoad() {
         INSTANCE = this;
         console = getServer().getConsoleSender();
-        console.sendMessage("§b[MineBlock] §7Chargement des mondes...");
+        console.sendMessage("§b[MineBlock] §7Récupération du plugin SlimeWorldManager...");
         slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
         new WorldsManager();
 
-        console.sendMessage("§b[MineBlock] §7Chargement du spawn...");
-        WorldsManager.INSTANCE.loadOrCreate(SPAWN_WORLD_NAME, SPAWN_IN_READ_ONLY);
+        //This is now handled by the SlimeWorldManager plugin
+        /*console.sendMessage("§b[MineBlock] §7Chargement du spawn...");
+        if (Bukkit.getWorld(SPAWN_WORLD_NAME) == null) {
+            console.sendMessage("§b[MineBlock] §7Création du monde spawn...");
+            WorldsManager.INSTANCE.loadOrCreate(SPAWN_WORLD_NAME, SPAWN_IN_READ_ONLY);
+        }*/
     }
 
     @Override
@@ -172,7 +176,7 @@ public final class MineBlock extends JavaPlugin {
         setupEnchantingTable();
         optimizeSpawn();
 
-        World world = Bukkit.getWorld("world");
+        World world = Bukkit.getWorld("spawn");
         if (world != null) {
             world.setSpawnLocation(SPAWN);
         }

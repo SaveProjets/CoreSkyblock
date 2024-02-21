@@ -101,6 +101,10 @@ public class IslandsManager {
 
     public void onDisable() {
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+            if (island.isLoaded()) {
+                WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
+                island.setLoaded(false);
+            }
             if (island.needUpdate()) {
                 island.update(false);
             }
@@ -128,8 +132,8 @@ public class IslandsManager {
         if (player == null) return;
         player.sendMessage(Component.text("§b[MineBlock] §aCréation de votre île..."));
 
-        Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), -0.5, 80, -0.5,
-                -50, 5), owner);
+        Island island = new Island(islandId, new Location(Bukkit.getWorld(worldName), 0.5, 80.1, 0.5,
+                40, 0), owner);
         CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.saveIsland(island)).thenAccept(result -> {
             if (!result) {
                 player.sendMessage(Component.text("§cUne erreur est survenue lors de la création de votre île."));
@@ -144,12 +148,15 @@ public class IslandsManager {
                     return null;
                 }
                 IslandsDataManager.INSTANCE.getCache().put(islandId, island);
-                Player ownerPlayer = plugin.getServer().getPlayer(owner);
-                if (ownerPlayer == null) return null;
                 World w = Bukkit.getWorld(worldName);
                 if (w == null) return null;
+                island.setLoaded(true);
+                island.getSpawn().setWorld(w);
+                w.setSpawnLocation(island.getSpawn());
                 applyTimeAndWeather(w, island);
-                w.setSpawnLocation(new Location(w, 0, 62.1, 0, -38, 5));
+                IslandsSizeManager.INSTANCE.updateWorldBorder(island);
+                Player ownerPlayer = plugin.getServer().getPlayer(owner);
+                if (ownerPlayer == null) return null;
                 ownerPlayer.teleportAsync(w.getSpawnLocation());
                 ownerPlayer.sendMessage(Component.text("§b[MineBlock] §aVotre île a été créée en " +
                         (System.currentTimeMillis() - startTime) + "ms"));

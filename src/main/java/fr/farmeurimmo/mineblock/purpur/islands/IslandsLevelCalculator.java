@@ -35,16 +35,18 @@ public class IslandsLevelCalculator {
         long start = System.currentTimeMillis();
         for (int x = (int) minX; x < (maxX + 16); x += 16) {
             for (int z = (int) minZ; z < (maxZ + 16); z += 16) {
-                Chunk chunk = world.getChunkAt(x, z);
+                Chunk chunk = world.getChunkAt(x >> 4, z >> 4);
                 if (!chunk.isLoaded()) {
-                    chunk.load(false);
-                    chunks.add(chunk.getChunkSnapshot(true, false, false));
-                    chunk.unload();
+                    if (chunk.load(false)) {
+                        chunks.add(chunk.getChunkSnapshot(true, false, false));
+                        chunk.unload();
+                    }
                 } else {
-                    chunks.add(chunk.getChunkSnapshot());
+                    chunks.add(chunk.getChunkSnapshot(true, false, false));
                 }
             }
         }
+
         System.out.println("Time to get snapshots: " + (System.currentTimeMillis() - start) + "ms");
 
         int minY = world.getMinHeight();

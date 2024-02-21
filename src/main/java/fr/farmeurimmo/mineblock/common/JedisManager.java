@@ -53,7 +53,10 @@ public class JedisManager {
     }
 
     public void onDisable() {
-        pool.close();
+        try {
+            pool.close();
+        } catch (Exception ignored) {
+        }
     }
 
     public void sendToRedis(String arg0, String data) {
