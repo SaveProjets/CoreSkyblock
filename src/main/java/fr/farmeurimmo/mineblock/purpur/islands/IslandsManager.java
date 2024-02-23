@@ -28,6 +28,7 @@ public class IslandsManager {
     public static IslandsManager INSTANCE;
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
+    private final ArrayList<UUID> deleteConfirmation = new ArrayList<>();
 
     public IslandsManager(JavaPlugin plugin) {
         INSTANCE = this;
@@ -265,5 +266,26 @@ public class IslandsManager {
                 }
             }
         }
+    }
+
+    public ArrayList<UUID> getDeleteConfirmation() {
+        return deleteConfirmation;
+    }
+
+    public void deleteIsland(Island island) {
+        if (island == null) return;
+        if (island.isLoaded()) {
+            World world = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
+            if (world != null) {
+                for (Player p : world.getPlayers()) {
+                    p.teleportAsync(MineBlock.SPAWN).thenRun(() -> p.sendMessage(Component
+                            .text("§cVous avez été téléporté au spawn car votre île a été supprimée.")));
+                }
+            }
+            Bukkit.getScheduler().runTaskLater(plugin, () ->
+                    WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true), 20);
+            island.setLoaded(false);
+        }
+        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID()));
     }
 }

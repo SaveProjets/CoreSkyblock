@@ -22,16 +22,18 @@ public class IslandsDataManager {
             "created_at TIMESTAMP, updated_at TIMESTAMP)";
     private static final String CREATE_ISLAND_MEMBERS_TABLE = "CREATE TABLE IF NOT EXISTS island_members (island_uuid "
             + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id INT, created_at TIMESTAMP, " +
-            "updated_at TIMESTAMP, PRIMARY KEY(island_uuid, uuid))";
+            "updated_at TIMESTAMP, PRIMARY KEY(island_uuid, uuid), FOREIGN KEY(island_uuid) " +
+            "REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_RANKS_PERMISSIONS_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "island_ranks_permissions (island_uuid VARCHAR(36), rank_id INT, permission_id INT, created_at " +
-            "TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY(island_uuid, permission_id))";
+            "TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY(island_uuid, permission_id), FOREIGN KEY(island_uuid) " +
+            "REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_BANNEDS_TABLE = "CREATE TABLE IF NOT EXISTS island_banneds " +
             "(island_uuid VARCHAR(36), uuid VARCHAR(36), created_at TIMESTAMP, updated_at TIMESTAMP, " +
-            "PRIMARY KEY(island_uuid, uuid))";
+            "PRIMARY KEY(island_uuid, uuid), FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_SETTINGS_TABLE = "CREATE TABLE IF NOT EXISTS island_settings " +
             "(island_uuid VARCHAR(36), setting_id INT, value BOOLEAN, created_at TIMESTAMP, updated_at TIMESTAMP, " +
-            "PRIMARY KEY(island_uuid, setting_id))";
+            "PRIMARY KEY(island_uuid, setting_id), FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
     public static IslandsDataManager INSTANCE;
     private final Map<UUID, Island> cache = new HashMap<>();
 
@@ -456,5 +458,19 @@ public class IslandsDataManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void deleteIsland(UUID islandUUID) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "DELETE FROM islands WHERE uuid = ?")) {
+            statement.setString(1, islandUUID.toString());
+            statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Bukkit.getScheduler().callSyncMethod(MineBlock.INSTANCE, () -> {
+            cache.remove(islandUUID);
+            return null;
+        });
     }
 }

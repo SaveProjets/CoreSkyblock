@@ -3,11 +3,13 @@ package fr.farmeurimmo.mineblock.purpur.islands;
 import fr.farmeurimmo.mineblock.common.islands.Island;
 import fr.farmeurimmo.mineblock.common.islands.IslandPerms;
 import fr.farmeurimmo.mineblock.common.islands.IslandRanks;
+import fr.farmeurimmo.mineblock.purpur.MineBlock;
 import fr.farmeurimmo.mineblock.purpur.islands.invs.IslandBankInv;
 import fr.farmeurimmo.mineblock.purpur.islands.invs.IslandInv;
 import fr.farmeurimmo.mineblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -177,6 +179,29 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cLe niveau de l'île n'a pas encore été calculé, veuillez patienter."));
             }
             IslandsLevelCalculator.INSTANCE.calculateIslandLevel(island, p.getUniqueId());
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("supprimer")) {
+            if (rank.getId() != 0) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de supprimer l'île."));
+                return false;
+            }
+            if (!IslandsManager.INSTANCE.getDeleteConfirmation().contains(p.getUniqueId())) {
+                IslandsManager.INSTANCE.getDeleteConfirmation().add(p.getUniqueId());
+                p.sendMessage(Component.text("§cÊtes-vous sûr de vouloir supprimer l'île ? " +
+                        "Tapez §a/is delete§c à nouveau pour confirmer."));
+                Bukkit.getScheduler().runTaskLater(MineBlock.INSTANCE, () -> {
+                    if (IslandsManager.INSTANCE.getDeleteConfirmation().contains(p.getUniqueId())) {
+                        IslandsManager.INSTANCE.getDeleteConfirmation().remove(p.getUniqueId());
+                        p.sendMessage(Component.text("§cLa confirmation de suppression a expiré."));
+                    }
+                }, 20 * 10);
+                return false;
+            }
+            IslandsManager.INSTANCE.getDeleteConfirmation().remove(p.getUniqueId());
+            IslandsManager.INSTANCE.deleteIsland(island);
+            p.sendMessage(Component.text("§aL'île a été supprimée."));
+            return false;
         }
         return false;
     }
