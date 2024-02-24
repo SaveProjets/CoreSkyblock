@@ -54,3 +54,5 @@ commands:
   tpa:
   tpayes:
   tpadeny:
+  inventorysync:
+    permission: coreskyblock.inventorysync

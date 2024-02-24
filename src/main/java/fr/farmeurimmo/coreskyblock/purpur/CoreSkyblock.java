@@ -9,6 +9,7 @@ import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsManager;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.BuildSpawnCmd;
+import fr.farmeurimmo.coreskyblock.purpur.cmds.InventorySyncCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.base.*;
 import fr.farmeurimmo.coreskyblock.purpur.eco.MoneyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
@@ -171,6 +172,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getCommand("fix").setExecutor(new FixCmd());
         getCommand("kits").setExecutor(new KitsCmd());
         getCommand("tpa").setExecutor(new TpaCmd());
+        getCommand("inventorysync").setExecutor(new InventorySyncCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
