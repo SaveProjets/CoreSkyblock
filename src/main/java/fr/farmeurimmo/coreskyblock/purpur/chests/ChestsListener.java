@@ -19,6 +19,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class ChestsListener implements Listener {
@@ -120,8 +121,8 @@ public class ChestsListener implements Listener {
             Block b = chest.getBlock().getBlock();
             if (b.getType() != ChestType.CROP_HOPPER.getMaterial()) continue;
             Hopper hopper = (Hopper) b.getState();
-            if (hopper.getCustomName() == null) continue;
-            if (hopper.getCustomName().contains(ChestType.CROP_HOPPER.getNameWithoutColor()))
+            if (hopper.customName() == null) continue;
+            if (Objects.requireNonNull(hopper.customName()).contains(Component.text(ChestType.CROP_HOPPER.getNameWithoutColor())))
                 continue;
             int amount = InventoryUtils.INSTANCE.getAmountToFillInInv(e.getEntity().getItemStack(), hopper.getInventory());
             if (amount == 0) continue;
@@ -130,7 +131,7 @@ public class ChestsListener implements Listener {
                 hopper.getInventory().addItem(e.getEntity().getItemStack());
                 break;
             } else {
-                ItemStack item = e.getEntity().getItemStack();
+                ItemStack item = e.getEntity().getItemStack().clone();
                 item.setAmount(amount);
                 e.getEntity().getItemStack().setAmount(e.getEntity().getItemStack().getAmount() - amount);
                 hopper.getInventory().addItem(item);
