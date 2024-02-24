@@ -48,21 +48,20 @@ public class IslandsManager {
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-                boolean gotUpdate = false;
                 if (island.isLoadTimeout() && island.isLoaded()) {
                     WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
                     island.setLoaded(false);
-                    gotUpdate = true;
                 }
                 if (island.needUpdate()) {
                     island.update(true);
                 }
-                if (island.isLoaded() && !gotUpdate) {
+                // ASWM already saves the world
+                /*if (island.isLoaded() && !gotUpdate) {
                     World world = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
                     if (world != null) {
                         world.save();
                     }
-                }
+                }*/
             }
         }, 0, 20 * 60 * 5);
 
