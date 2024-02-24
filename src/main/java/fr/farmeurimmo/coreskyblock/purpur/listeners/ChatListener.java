@@ -1,9 +1,11 @@
 package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
+import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsChatManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;
@@ -11,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+
+import java.text.NumberFormat;
 
 public class ChatListener implements Listener {
 
@@ -20,6 +24,14 @@ public class ChatListener implements Listener {
 
         if (IslandsBankManager.INSTANCE.isAwaitingAmount(p.getUniqueId())) {
             e.setCancelled(true);
+            if (e.getMessage().equalsIgnoreCase("cancel")) {
+                p.sendMessage(Component.text("§cOpération annulée."));
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    IslandsBankManager.INSTANCE.removeAwaitingAmount(p, false, 0);
+                    return null;
+                });
+                return;
+            }
             try {
                 double amount = Double.parseDouble(e.getMessage());
                 if (amount <= 0) {
@@ -38,10 +50,7 @@ public class ChatListener implements Listener {
 
         if (IslandsChatManager.INSTANCE.isInIslandChat(p.getUniqueId())) {
             e.setCancelled(true);
-            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                IslandsChatManager.INSTANCE.sendIslandChatMessage(p, e.getMessage());
-                return null;
-            });
+            IslandsChatManager.INSTANCE.sendIslandChatMessage(p, e.getMessage());
             return;
         }
 
@@ -64,6 +73,8 @@ public class ChatListener implements Listener {
 
         e.setCancelled(true);
 
-        p.getServer().sendMessage(Component.text("§8[§b??§8] §6???? " + p.getName() + " §8» §f").append(component));
+        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+        String level = (island != null) ? "§8[§e" + NumberFormat.getInstance().format(island.getLevel()) + "§8] " : "";
+        p.getServer().sendMessage(Component.text(level + "§6???? " + p.getName() + " §8» §f").append(component));
     }
 }

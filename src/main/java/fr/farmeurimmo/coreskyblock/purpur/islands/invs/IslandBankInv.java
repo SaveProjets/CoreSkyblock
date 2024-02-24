@@ -21,11 +21,13 @@ public class IslandBankInv extends FastInv {
         setItem(13, ItemBuilder.copyOf(new ItemStack(Material.GOLD_NUGGET)).name("§6Argent de l'île")
                 .lore("", "§aClic droit pour déposer de l'argent", "§cClic gauche pour retirer de l'argent").build(), e -> {
             if (e.isLeftClick()) {
-                e.getWhoClicked().sendMessage(Component.text("§aMerci d'entrer le montant que vous souhaitez §cretirer§a."));
+                e.getWhoClicked().sendMessage(Component.text("§aMerci d'entrer le montant que vous " +
+                        "souhaitez §cretirer§a. Tapez §2cancel§a pour annuler."));
                 IslandsBankManager.INSTANCE.addAwaitingAmount(e.getWhoClicked().getUniqueId(), false);
                 e.getWhoClicked().closeInventory();
             } else {
-                e.getWhoClicked().sendMessage(Component.text("§aMerci d'entrer le montant que vous souhaitez §2déposer§a."));
+                e.getWhoClicked().sendMessage(Component.text("§aMerci d'entrer le montant que vous " +
+                        "souhaitez §2déposer§a. Tapez §2cancel§a pour annuler."));
                 IslandsBankManager.INSTANCE.addAwaitingAmount(e.getWhoClicked().getUniqueId(), true);
                 e.getWhoClicked().closeInventory();
             }
