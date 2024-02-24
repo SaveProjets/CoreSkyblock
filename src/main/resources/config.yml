@@ -2,5 +2,5 @@ mysql:
   host: localhost
   user: farmeurimmo
   password: farmeurimmo
-  database: mineblock
+  database: coreskyblock
   port: 3306

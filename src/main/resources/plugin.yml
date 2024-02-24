@@ -1,6 +1,6 @@
-name: MineBlock
+name: CoreSkyblock
 version: '${version}'
-main: fr.farmeurimmo.mineblock.purpur.MineBlock
+main: fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock
 api-version: '1.20'
 author: Farmeurimmo
 description: Mine skyblock plugin
@@ -10,10 +10,10 @@ depend:
 commands:
   buildspawn:
     description: Permet de modifier le spawn (déconseillé il faut modifier la template)
-    permission: mineblock.buildspawn
+    permission: coreskyblock.buildspawn
   featherfly:
     description: Donne des plumes de fly temporaire
-    permission: mineblock.featherfly
+    permission: coreskyblock.featherfly
   money:
     description: Montre l'argent du joueur
   is:
@@ -21,35 +21,35 @@ commands:
     aliases:
       - ile
   chests:
-    permission: mineblock.chests
+    permission: coreskyblock.chests
   minions:
-    permission: mineblock.minions
+    permission: coreskyblock.minions
   trade:
-    permission: mineblock.trade
+    permission: coreskyblock.trade
   tradeaccept:
   tradedeny:
   tradecancel:
   spawn:
   shop:
   sellall:
-    permission: mineblock.sellall
+    permission: coreskyblock.sellall
   trash:
   craft:
-    permission: mineblock.craft
+    permission: coreskyblock.craft
   enchantement:
-    permission: mineblock.enchantement
+    permission: coreskyblock.enchantement
   anvil:
-    permission: mineblock.anvil
+    permission: coreskyblock.anvil
   furnace:
-    permission: mineblock.furnace
+    permission: coreskyblock.furnace
   silo:
-    permission: mineblock.silo
+    permission: coreskyblock.silo
   feed:
-    permission: mineblock.feed
+    permission: coreskyblock.feed
   near:
-    permission: mineblock.near
+    permission: coreskyblock.near
   fix:
-    permission: mineblock.fix
+    permission: coreskyblock.fix
   kits:
   tpa:
   tpayes:
