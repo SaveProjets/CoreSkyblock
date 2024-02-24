@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -97,6 +98,37 @@ public class InventorySyncUtils {
             return items;
         } catch (ClassNotFoundException e) {
             throw new IOException("Unable to decode class type.", e);
+        }
+    }
+
+    public String itemStackToBase64(ItemStack itemStack) throws IllegalStateException {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+            if (itemStack == null) {
+                return "";
+            }
+
+            // Write the item stack
+            dataOutput.writeObject(itemStack);
+
+            // Serialize that item stack
+            dataOutput.close();
+            return Base64Coder.encodeLines(outputStream.toByteArray());
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to save item stack.", e);
+        }
+    }
+
+    public ItemStack itemStackFromBase64(String data) {
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            ItemStack item = (ItemStack) dataInput.readObject();
+            dataInput.close();
+            return item;
+        } catch (IOException | ClassNotFoundException e) {
+            return new ItemStack(Material.AIR);
         }
     }
 }

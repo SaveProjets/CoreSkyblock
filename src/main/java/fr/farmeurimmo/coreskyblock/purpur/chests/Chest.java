@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class Chest {
 
-    private final UUID id;
+    private final UUID uuid;
     private final UUID islandId;
     private final ChestType type;
     private final Location block;
@@ -15,9 +15,11 @@ public class Chest {
     private double price;
     private boolean isSell;
     private boolean activeSellOrBuy;
+    private long amountOfStackedBlocks;
 
-    public Chest(UUID uuid, UUID islandId, ChestType type, Location block, ItemStack itemToBuySell, double price, boolean isSell, boolean activeSellOrBuy) {
-        this.id = uuid;
+    public Chest(UUID uuid, UUID islandId, ChestType type, Location block, ItemStack itemToBuySell, double price,
+                 boolean isSell, boolean activeSellOrBuy, long amountOfStackedBlocks) {
+        this.uuid = uuid;
         this.islandId = islandId;
         this.type = type;
         this.block = block;
@@ -25,10 +27,11 @@ public class Chest {
         this.price = price;
         this.isSell = isSell;
         this.activeSellOrBuy = activeSellOrBuy;
+        this.amountOfStackedBlocks = amountOfStackedBlocks;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getUuid() {
+        return uuid;
     }
 
     public UUID getIslandId() {
@@ -85,6 +88,14 @@ public class Chest {
 
     public String getActiveSellOrBuyColor() {
         return activeSellOrBuy ? "§a" : "§c";
+    }
+
+    public long getAmountOfStackedBlocks() {
+        return amountOfStackedBlocks;
+    }
+
+    public void setAmountOfStackedBlocks(long amountOfStackedBlocks) {
+        this.amountOfStackedBlocks = amountOfStackedBlocks;
     }
 
 

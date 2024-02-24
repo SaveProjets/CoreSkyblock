@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.common.islands;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import net.kyori.adventure.text.Component;
@@ -19,6 +20,7 @@ public class Island {
     private final ArrayList<UUID> bannedPlayers;
     private final Map<UUID, Long> invites = new HashMap<>();
     private final List<IslandSettings> settings;
+    private final List<Chest> chests;
     private String name;
     private Location spawn;
     private int maxSize;
@@ -28,7 +30,6 @@ public class Island {
     private boolean isPublic;
     private double exp;
     private float level;
-
     private boolean loaded = false;
     private long loadTimeout = -1;
 
@@ -37,11 +38,12 @@ public class Island {
     private boolean arePermsModified = false;
     private boolean areBannedPlayersModified = false;
     private boolean areSettingsModified = false;
+    private boolean areChestsModified = false;
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
                   int generatorLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic, double exp,
-                  List<IslandSettings> settings, float level) {
+                  List<IslandSettings> settings, float level, List<Chest> chests) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
@@ -58,6 +60,7 @@ public class Island {
         this.exp = exp;
         this.settings = settings;
         this.level = level;
+        this.chests = chests;
     }
 
     //default just the necessary to establish a start island
@@ -80,6 +83,7 @@ public class Island {
         this.settings = new ArrayList<>();
         this.level = 0;
         addDefaultSettings();
+        this.chests = new ArrayList<>();
     }
 
     public static Map<IslandRanks, ArrayList<IslandPerms>> getRanksPermsFromReduced(Map<IslandRanks, ArrayList<IslandPerms>> reducedPerms) {
@@ -258,15 +262,16 @@ public class Island {
 
     public void update(boolean async) {
         if (async) CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.update(this, areMembersModified,
-                arePermsModified, areBannedPlayersModified, areSettingsModified));
+                arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified));
         else IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
-                areBannedPlayersModified, areSettingsModified);
+                areBannedPlayersModified, areSettingsModified, areChestsModified);
 
         isModified = false;
         areMembersModified = false;
         arePermsModified = false;
         areBannedPlayersModified = false;
         areSettingsModified = false;
+        areChestsModified = false;
     }
 
     public boolean needUpdate() {
@@ -274,6 +279,7 @@ public class Island {
         if (areMembersModified) return true;
         if (arePermsModified) return true;
         if (areSettingsModified) return true;
+        if (areChestsModified) return true;
         return areBannedPlayersModified;
     }
 
@@ -469,5 +475,21 @@ public class Island {
         this.level = level;
 
         isModified = true;
+    }
+
+    public List<Chest> getChests() {
+        return this.chests;
+    }
+
+    public void addChest(Chest chest) {
+        this.chests.add(chest);
+
+        areChestsModified = true;
+    }
+
+    public void removeChest(Chest chest) {
+        this.chests.remove(chest);
+
+        areChestsModified = true;
     }
 }

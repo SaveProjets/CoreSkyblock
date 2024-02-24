@@ -14,7 +14,10 @@ public enum ChestType {
     SELL_CHEST(1, "§6§lSellChest", Material.CHEST, List.of("§7Une fois placé, il va de temps en temps",
             "§7vendre les items qui entrent dans son", "§7inventaire et vous donner l'argent.")),
     PLAYER_SHOP(2, "§6§lPlayerShop", Material.CHEST, List.of("§7Une fois placé, il vous permettra de",
-            "§7vendre/acheter des items à d'autres joueurs."));
+            "§7vendre/acheter des items à d'autres joueurs.")),
+    BLOCK_STOCKER(3, "§6§lBlockStocker", null, List.of("§7Une fois placé, vous pourrez stocker",
+            "§7un type de bloc possédant une valeur d'île", "§7Il permet de limiter le nombre de blocs",
+            "§7sur l'île pour un même is level."));
 
     private final int id;
     private final String name;
