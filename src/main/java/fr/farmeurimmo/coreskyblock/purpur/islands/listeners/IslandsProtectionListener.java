@@ -10,7 +10,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
@@ -27,6 +26,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 public class IslandsProtectionListener implements Listener {
 
@@ -173,21 +173,23 @@ public class IslandsProtectionListener implements Listener {
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         Player p = e.getPlayer();
         IslandRanks rank = island.getMembers().get(e.getPlayer().getUniqueId());
-        if (block instanceof Container) {
+        if (block.getType() == Material.TRAPPED_CHEST) {
+            if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
+                e.setUseInteractedBlock(Event.Result.DENY);
+                e.setCancelled(true);
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'ouvrir les coffres sécurisés."));
+                return;
+            }
+            return;
+        }
+        if (block.getState() instanceof InventoryHolder) {
             if (!island.hasPerms(rank, IslandPerms.CONTAINER, p.getUniqueId())) {
                 e.setUseInteractedBlock(Event.Result.DENY);
                 e.setCancelled(true);
                 p.sendMessage(Component.text("§cVous n'avez pas la permission d'ouvrir les conteneurs."));
                 return;
             }
-            if (block.getType() == Material.TRAPPED_CHEST) {
-                if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
-                    e.setUseInteractedBlock(Event.Result.DENY);
-                    e.setCancelled(true);
-                    p.sendMessage(Component.text("§cVous n'avez pas la permission d'ouvrir les coffres sécurisés."));
-                    return;
-                }
-            }
+            return;
         }
         if (!island.hasPerms(rank, IslandPerms.INTERACT, p.getUniqueId())) {
             e.setUseInteractedBlock(Event.Result.DENY);

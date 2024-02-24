@@ -19,7 +19,6 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class ChestsListener implements Listener {
@@ -47,22 +46,12 @@ public class ChestsListener implements Listener {
 
             Island island = IslandsManager.INSTANCE.getIslandByLoc(p.getWorld());
 
-            p.sendMessage(Component.text("§baaaa"));
             ChestType type = ChestType.getByName(item.getItemMeta().getDisplayName());
             if (type == null) return;
-            p.sendMessage(Component.text("§baaaaaaaaa"));
 
             island.addChest(new Chest(UUID.randomUUID(), island.getIslandUUID(), type, e.getBlock().getLocation(),
                     null, 0, false, false, 0));
-            if (type == ChestType.CROP_HOPPER) {
-                p.sendMessage(Component.text("§b§aVous avez placé un CropHopper sur votre île !"));
-            } else if (type == ChestType.SELL_CHEST) {
-                p.sendMessage(Component.text("§b§aVous avez placé un SellChest sur votre île !"));
-            } else if (type == ChestType.PLAYER_SHOP) {
-                p.sendMessage(Component.text("§b§aVous avez placé un PlayerShop sur votre île !"));
-            } else if (type == ChestType.BLOCK_STOCKER) {
-                p.sendMessage(Component.text("§b§aVous avez placé un BlockStocker sur votre île !"));
-            }
+            p.sendMessage(Component.text("§b§aVous avez placé un " + type.getName() + "§a sur votre île !"));
 
             e.setCancelled(false);
         }
@@ -131,8 +120,8 @@ public class ChestsListener implements Listener {
             Block b = chest.getBlock().getBlock();
             if (b.getType() != ChestType.CROP_HOPPER.getMaterial()) continue;
             Hopper hopper = (Hopper) b.getState();
-            if (hopper.customName() == null) continue;
-            if (!Objects.requireNonNull(hopper.customName()).contains(Component.text(ChestType.CROP_HOPPER.getNameWithoutColor())))
+            if (hopper.getCustomName() == null) continue;
+            if (hopper.getCustomName().contains(ChestType.CROP_HOPPER.getNameWithoutColor()))
                 continue;
             int amount = InventoryUtils.INSTANCE.getAmountToFillInInv(e.getEntity().getItemStack(), hopper.getInventory());
             if (amount == 0) continue;

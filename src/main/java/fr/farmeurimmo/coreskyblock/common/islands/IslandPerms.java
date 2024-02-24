@@ -7,11 +7,11 @@ public enum IslandPerms {
     PROMOTE("§6Promouvoir un membre inférieur à lui", 0, Material.NETHERITE_SWORD), // implemented
     DEMOTE("§6Rétrograder un membre inférieur à lui", 1, Material.DIAMOND_SWORD), // implemented
     INVITE("§6Inviter un membre", 2, Material.BOOK), // implemented
-    CANCEL_INVITE("§6Annuler les invitations d'un membre", 3, Material.KNOWLEDGE_BOOK), // not
-    KICK("§6Expulser un membre inférieur à lui", 4, Material.LEATHER_BOOTS), // not
+    CANCEL_INVITE("§6Annuler les invitations d'un membre", 3, Material.KNOWLEDGE_BOOK), // implemented
+    KICK("§6Expulser un membre inférieur à lui", 4, Material.LEATHER_BOOTS), // implemented
     BAN("§6Bannir un visiteur", 5, Material.ANVIL), // not
     UNBAN("§6Débannir un visiteur", 6, Material.DAMAGED_ANVIL), // not
-    EXPEL("§6Expulser un visiteur", 7, Material.DIAMOND_HOE),  // not
+    EXPEL("§6Expulser un visiteur", 7, Material.DIAMOND_HOE),  // implemented
     SET_ISLAND_NAME("§6Définir le nom de l'île", 8, Material.NAME_TAG), // not
     PRIVATE("§6Définir la visibilité de l'île sur privée", 9, Material.RED_BED), // implemented
     PUBLIC("§6Définir la visibilité de l'île sur publique", 10, Material.BLUE_BED), // implemented

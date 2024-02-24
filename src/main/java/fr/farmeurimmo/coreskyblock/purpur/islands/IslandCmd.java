@@ -136,6 +136,76 @@ public class IslandCmd implements CommandExecutor {
             island.sendMessage("§a" + target.getName() + " a été invité à rejoindre l'île.", IslandPerms.INVITE);
             return false;
         }
+        if (args[0].equalsIgnoreCase("cancelinvite") || args[0].equalsIgnoreCase("annulerinvite")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is cancelinvite <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.CANCEL_INVITE, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'annuler des invitations."));
+                return false;
+            }
+            OfflinePlayer target = p.getServer().getOfflinePlayer(args[1]);
+            if (!island.isInvited(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur n'a pas été invité."));
+                return false;
+            }
+            island.removeInvite(target.getUniqueId());
+            p.sendMessage(Component.text("§aL'invitation a été annulée."));
+            island.sendMessage("§aL'invitation de " + target.getName() + " a été annulée.", IslandPerms.CANCEL_INVITE);
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("expulser")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is kick <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.KICK, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'expulser des joueurs."));
+                return false;
+            }
+            OfflinePlayer target = p.getServer().getOfflinePlayer(args[1]);
+            if (!island.getMembers().containsKey(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas membre de l'île."));
+                return false;
+            }
+            if (rank.getId() >= island.getMembers().get(target.getUniqueId()).getId()) {
+                p.sendMessage(Component.text("§cVous ne pouvez pas expulser un joueur de ce grade ou supérieur."));
+                return false;
+            }
+            island.removeMember(target.getUniqueId());
+            p.sendMessage(Component.text("§aLe joueur a été expulsé."));
+            island.sendMessage("§a" + target.getName() + " a été expulsé de l'île.", IslandPerms.KICK);
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("expel")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is expel <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.EXPEL, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'expulser des visiteurs."));
+                return false;
+            }
+            Player target = p.getServer().getPlayer(args[1]);
+            if (target == null) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas en ligne."));
+                return false;
+            }
+            if (!target.getWorld().getName().equals(IslandsManager.INSTANCE.getIslandWorldName(island.getIslandUUID()))) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas sur l'île."));
+                return false;
+            }
+            if (island.getMembers().containsKey(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur est membre de l'île."));
+                return false;
+            }
+            target.teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
+                    target.sendMessage(Component.text("§cVous avez été expulsé du mode visiteur de l'île.")));
+            p.sendMessage(Component.text("§aLe visiteur a été expulsé."));
+            island.sendMessage("§a" + target.getName() + " a été expulsé de l'île.", IslandPerms.EXPEL);
+            return false;
+        }
         if (args[0].equalsIgnoreCase("private") || args[0].equalsIgnoreCase("privée")) {
             if (!island.hasPerms(rank, IslandPerms.PRIVATE, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de changer la visibilité de l'île."));
