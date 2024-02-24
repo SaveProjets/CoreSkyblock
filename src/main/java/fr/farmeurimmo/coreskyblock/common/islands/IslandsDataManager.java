@@ -178,7 +178,8 @@ public class IslandsDataManager {
 
             saveIslandPerms(connection, island.getIslandUUID(), island.getRanksPermsReduced());
 
-            saveIslandBanned(connection, island.getIslandUUID(), island.getBannedPlayers());
+            // Not needed to save banned players because the island just got created
+            //saveIslandBanned(connection, island.getIslandUUID(), island.getBannedPlayers());
 
             saveIslandSettings(connection, island.getIslandUUID(), island.getSettings());
 
@@ -410,13 +411,13 @@ public class IslandsDataManager {
         }
     }
 
-    public void saveIslandBanned(Connection connection, UUID islandUUID, List<UUID> bannedPlayers) {
+    /*public void saveIslandBanned(Connection connection, UUID islandUUID, List<UUID> bannedPlayers) {
         for (UUID banned : bannedPlayers) {
             String query = "INSERT INTO island_banneds (island_uuid, uuid, created_at, updated_at) VALUES (?, ?, " +
                     "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
             executeUpdate(connection, query, islandUUID.toString(), banned.toString());
         }
-    }
+    }*/
 
     public void saveIslandSettings(Connection connection, UUID islandUuid, List<IslandSettings> settings) {
         for (IslandSettings setting : IslandSettings.values()) {
@@ -455,6 +456,24 @@ public class IslandsDataManager {
         String query = "DELETE FROM island_chests WHERE uuid = ?";
         try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
             executeUpdate(connection, query, chestUUID.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteBanned(UUID islandUUID, UUID bannedUUID) {
+        String query = "DELETE FROM island_banneds WHERE island_uuid = ? AND uuid = ?";
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            executeUpdate(connection, query, islandUUID.toString(), bannedUUID.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteMember(UUID islandUUID, UUID memberUUID) {
+        String query = "DELETE FROM island_members WHERE island_uuid = ? AND uuid = ?";
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            executeUpdate(connection, query, islandUUID.toString(), memberUUID.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -60,10 +60,16 @@ public class IslandsProtectionListener implements Listener {
     public void onPlayerChangeWorld(PlayerTeleportEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getTo().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getTo().getWorld());
-        if (island != null && !island.isPublic()) {
-            if (!island.getMembers().containsKey(e.getPlayer().getUniqueId())) {
+        if (island != null) {
+            if (!island.isPublic()) {
+                if (!island.getMembers().containsKey(e.getPlayer().getUniqueId())) {
+                    e.setCancelled(true);
+                    e.getPlayer().sendMessage(Component.text("§cCette île est privée, vous ne pouvez pas y accéder."));
+                }
+            }
+            if (island.getBannedPlayers().contains(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);
-                e.getPlayer().sendMessage(Component.text("§cCette île est privée, vous ne pouvez pas y accéder."));
+                e.getPlayer().sendMessage(Component.text("§cVous avez été banni de cette île."));
             }
         }
     }

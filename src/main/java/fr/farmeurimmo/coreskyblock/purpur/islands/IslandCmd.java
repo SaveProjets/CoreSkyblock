@@ -118,6 +118,10 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
                 return false;
             }
+            if (island.getBannedPlayers().contains(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur est banni de l'île."));
+                return false;
+            }
             if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(), island.getMembers().size())) {
                 p.sendMessage(Component.text("§cL'île est pleine."));
                 return false;
@@ -204,6 +208,54 @@ public class IslandCmd implements CommandExecutor {
                     target.sendMessage(Component.text("§cVous avez été expulsé du mode visiteur de l'île.")));
             p.sendMessage(Component.text("§aLe visiteur a été expulsé."));
             island.sendMessage("§a" + target.getName() + " a été expulsé de l'île.", IslandPerms.EXPEL);
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("bannir")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is ban <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.BAN, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de bannir des joueurs."));
+                return false;
+            }
+            //ban is for visitors
+            OfflinePlayer target = p.getServer().getOfflinePlayer(args[1]);
+            if (island.getMembers().containsKey(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur est membre de l'île."));
+                return false;
+            }
+            if (island.getBannedPlayers().contains(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur est déjà banni."));
+                return false;
+            }
+            island.addBannedPlayer(target.getUniqueId());
+            p.sendMessage(Component.text("§aLe visiteur a été banni."));
+            island.sendMessage("§a" + target.getName() + " a été banni de l'île.", IslandPerms.BAN);
+
+            if (target.getPlayer() != null) target.getPlayer().teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
+                    target.getPlayer().sendMessage(Component.text("§cVous avez été banni du mode visiteur de l'île.")));
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("unban") || args[0].equalsIgnoreCase("debannir")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is unban <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.UNBAN, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de débannir des joueurs."));
+                return false;
+            }
+            OfflinePlayer target = p.getServer().getOfflinePlayer(args[1]);
+            if (!island.getBannedPlayers().contains(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas banni."));
+                return false;
+            }
+            island.removeBannedPlayer(target.getUniqueId());
+            p.sendMessage(Component.text("§aLe joueur a été débanni."));
+            island.sendMessage("§a" + target.getName() + " a été débanni de l'île.", IslandPerms.UNBAN);
+            if (target.getPlayer() != null) target.getPlayer().sendMessage(Component.text(
+                    "§aVous avez été débanni du mode visiteur de l'île " + island.getName() + "."));
             return false;
         }
         if (args[0].equalsIgnoreCase("private") || args[0].equalsIgnoreCase("privée")) {

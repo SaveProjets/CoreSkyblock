@@ -219,6 +219,17 @@ public class Island {
         return this.bannedPlayers;
     }
 
+    public void addBannedPlayer(UUID uuid) {
+        this.bannedPlayers.add(uuid);
+        areBannedPlayersModified = true;
+    }
+
+    public void removeBannedPlayer(UUID uuid) {
+        this.bannedPlayers.remove(uuid);
+
+        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteBanned(islandUUID, uuid));
+    }
+
     public boolean isPublic() {
         return this.isPublic;
     }
@@ -251,13 +262,13 @@ public class Island {
     public void removeMember(UUID uuid) {
         this.members.remove(uuid);
 
+        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteMember(islandUUID, uuid));
+
         Player player = CoreSkyblock.INSTANCE.getServer().getPlayer(uuid);
         if (player != null) {
             player.teleportAsync(CoreSkyblock.SPAWN);
             player.sendMessage(Component.text("§cVous avez été retiré de l'île."));
         }
-
-        update(true);
     }
 
     public void update(boolean async) {
