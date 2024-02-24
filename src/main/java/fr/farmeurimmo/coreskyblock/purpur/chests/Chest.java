@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.chests;
 
+import fr.farmeurimmo.coreskyblock.common.islands.Island;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,6 +45,12 @@ public class Chest {
     }
 
     public Location getBlock() {
+        if (block.getWorld() == null) {
+            Island island = IslandsManager.INSTANCE.getIslandByUUID(islandId);
+            if (island != null && island.isLoaded()) {
+                block.setWorld(IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID()));
+            }
+        }
         return block;
     }
 

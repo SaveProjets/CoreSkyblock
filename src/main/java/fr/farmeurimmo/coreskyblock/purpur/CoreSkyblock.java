@@ -36,6 +36,7 @@ import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.*;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsManager;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
+import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInvManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -91,6 +92,7 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des dépendances...");
         FastInvManager.register(INSTANCE);
         new InventorySyncUtils();
+        new InventoryUtils();
 
         SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
         World spawnWorld = Bukkit.getWorld(SPAWN_WORLD_NAME);

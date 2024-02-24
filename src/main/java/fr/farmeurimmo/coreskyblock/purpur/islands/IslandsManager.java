@@ -82,6 +82,10 @@ public class IslandsManager {
         return null;
     }
 
+    public Island getIslandByUUID(UUID uuid) {
+        return IslandsDataManager.INSTANCE.getCache().get(uuid);
+    }
+
     public void checkLoadedIsland(Player p) {
         Island island = getIslandOf(p.getUniqueId());
         if (island != null) {

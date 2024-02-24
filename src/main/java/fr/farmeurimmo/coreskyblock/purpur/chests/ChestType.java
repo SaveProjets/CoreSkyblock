@@ -42,7 +42,7 @@ public enum ChestType {
 
     public static ChestType getByName(String name) {
         for (ChestType type : values()) {
-            if (type.getNameWithoutColor().equalsIgnoreCase(name)) {
+            if (name.contains(type.getNameWithoutColor())) {
                 return type;
             }
         }

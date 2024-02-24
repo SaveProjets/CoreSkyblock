@@ -490,6 +490,6 @@ public class Island {
     public void removeChest(Chest chest) {
         this.chests.remove(chest);
 
-        areChestsModified = true;
+        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteChest(chest.getUuid()));
     }
 }
