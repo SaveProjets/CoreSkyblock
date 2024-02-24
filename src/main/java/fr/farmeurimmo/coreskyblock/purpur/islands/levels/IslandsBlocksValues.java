@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.islands;
+package fr.farmeurimmo.coreskyblock.purpur.islands.levels;
 
 import org.bukkit.Material;
 

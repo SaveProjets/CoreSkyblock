@@ -1,7 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.common.islands.Island;
-import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsBankManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;

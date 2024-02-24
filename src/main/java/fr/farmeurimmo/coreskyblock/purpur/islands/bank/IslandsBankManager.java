@@ -1,10 +1,11 @@
-package fr.farmeurimmo.coreskyblock.purpur.islands;
+package fr.farmeurimmo.coreskyblock.purpur.islands.bank;
 
 import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandPerms;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 

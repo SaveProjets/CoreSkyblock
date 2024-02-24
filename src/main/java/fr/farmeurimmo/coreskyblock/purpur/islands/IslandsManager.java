@@ -6,6 +6,10 @@ import fr.farmeurimmo.coreskyblock.common.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandSettings;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
+import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.listeners.IslandsProtectionListener;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
@@ -45,6 +49,7 @@ public class IslandsManager {
         new IslandsBankManager();
         new IslandsChatManager();
         new IslandsLevelCalculator();
+        new IslandsCooldownManager();
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {

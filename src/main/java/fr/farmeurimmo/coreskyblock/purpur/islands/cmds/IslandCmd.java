@@ -1,11 +1,15 @@
-package fr.farmeurimmo.coreskyblock.purpur.islands;
+package fr.farmeurimmo.coreskyblock.purpur.islands.cmds;
 
 import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandPerms;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandBankInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandInv;
+import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -219,7 +223,6 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de bannir des joueurs."));
                 return false;
             }
-            //ban is for visitors
             OfflinePlayer target = p.getServer().getOfflinePlayer(args[1]);
             if (island.getMembers().containsKey(target.getUniqueId())) {
                 p.sendMessage(Component.text("§cLe joueur est membre de l'île."));
@@ -267,7 +270,13 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVotre île est déjà privée."));
                 return false;
             }
-            //FIXME: cooldown
+            long cooldownLeft = IslandsCooldownManager.INSTANCE.getCooldownLeft(island.getIslandUUID(), "island-accessibility");
+            if (cooldownLeft >= 0) {
+                p.sendMessage(Component.text("§cVous devez attendre " + cooldownLeft + " secondes avant de pouvoir " +
+                        "changer la visibilité de l'île."));
+                return false;
+            }
+            IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-accessibility");
             island.setPublic(false);
             p.sendMessage(Component.text("§aVotre île est désormais §cprivée§a."));
             island.sendMessageToAll("§aL'île est désormais §cprivée§a.");
@@ -282,7 +291,13 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVotre île est déjà publique."));
                 return false;
             }
-            //FIXME: cooldown
+            long cooldownLeft = IslandsCooldownManager.INSTANCE.getCooldownLeft(island.getIslandUUID(), "island-accessibility");
+            if (cooldownLeft >= 0) {
+                p.sendMessage(Component.text("§cVous devez attendre " + cooldownLeft + " secondes avant de pouvoir " +
+                        "changer la visibilité de l'île."));
+                return false;
+            }
+            IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-accessibility");
             island.setPublic(true);
             p.sendMessage(Component.text("§aVotre île est désormais §2publique§a."));
             island.sendMessageToAll("§aL'île est désormais §2publique§a.");
@@ -293,7 +308,14 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de calculer le niveau de l'île."));
                 return false;
             }
-            //FIXME: cooldown
+            long cooldownLeft = IslandsCooldownManager.INSTANCE.getCooldownLeft(island.getIslandUUID(),
+                    "island-calculation-of-level");
+            if (cooldownLeft >= 0) {
+                p.sendMessage(Component.text("§cVous devez attendre " + cooldownLeft + " secondes avant de pouvoir " +
+                        "calculer le niveau de l'île."));
+                return false;
+            }
+            IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-calculation-of-level");
             float level = island.getLevel();
             if (level != 0) {
                 p.sendMessage(Component.text("§aNiveau de l'île: §6" + NumberFormat.getInstance().format(level) + "."));
@@ -330,6 +352,13 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de définir le point de spawn de l'île."));
                 return false;
             }
+            long cooldownLeft = IslandsCooldownManager.INSTANCE.getCooldownLeft(island.getIslandUUID(), "island-set-home");
+            if (cooldownLeft >= 0) {
+                p.sendMessage(Component.text("§cVous devez attendre " + cooldownLeft + " secondes avant de pouvoir " +
+                        "définir le point de spawn de l'île."));
+                return false;
+            }
+            IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-set-home");
             island.setSpawn(p.getLocation());
             p.sendMessage(Component.text("§aLe point de spawn de l'île a été redéfini."));
             island.sendMessageToAll("§aLe point de spawn de l'île a été redéfini.");
@@ -344,6 +373,13 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is setname <nom>"));
                 return false;
             }
+            long cooldownLeft = IslandsCooldownManager.INSTANCE.getCooldownLeft(island.getIslandUUID(), "island-set-name");
+            if (cooldownLeft >= 0) {
+                p.sendMessage(Component.text("§cVous devez attendre " + cooldownLeft + " secondes avant de pouvoir " +
+                        "changer le nom de l'île."));
+                return false;
+            }
+            IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-set-name");
             String name = String.join(" ", args).substring(8).replaceAll("[^a-zA-Z0-9&]", "");
             if (name.length() > 32) {
                 p.sendMessage(Component.text("§cLe nom de l'île ne peut pas dépasser 32 caractères."));
