@@ -1,23 +1,28 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
 import fr.farmeurimmo.coreskyblock.common.islands.Island;
+import fr.farmeurimmo.coreskyblock.common.islands.IslandPerms;
+import fr.farmeurimmo.coreskyblock.common.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.common.islands.IslandSettings;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.WorldBorder;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
@@ -156,6 +161,66 @@ public class IslandsProtectionListener implements Listener {
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getBlock().getWorld());
         if (island != null && !island.hasSettingActivated(IslandSettings.BLOCK_BURNING)) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        e.setUseItemInHand(PlayerInteractEvent.Result.ALLOW);
+        if (e.getClickedBlock() == null) return;
+        Block block = e.getClickedBlock();
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
+        Player p = e.getPlayer();
+        IslandRanks rank = island.getMembers().get(e.getPlayer().getUniqueId());
+        if (block instanceof Container) {
+            if (!island.hasPerms(rank, IslandPerms.CONTAINER, p.getUniqueId())) {
+                e.setUseInteractedBlock(Event.Result.DENY);
+                e.setCancelled(true);
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'ouvrir les conteneurs."));
+                return;
+            }
+            if (block.getType() == Material.TRAPPED_CHEST) {
+                if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
+                    e.setUseInteractedBlock(Event.Result.DENY);
+                    e.setCancelled(true);
+                    p.sendMessage(Component.text("§cVous n'avez pas la permission d'ouvrir les coffres sécurisés."));
+                    return;
+                }
+            }
+        }
+        if (!island.hasPerms(rank, IslandPerms.INTERACT, p.getUniqueId())) {
+            e.setUseInteractedBlock(Event.Result.DENY);
+            e.setCancelled(true);
+            p.sendMessage(Component.text("§cVous n'avez pas la permission d'intéragir avec les blocs."));
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
+        if (island != null) {
+            Player p = e.getPlayer();
+            IslandRanks rank = island.getMembers().get(p.getUniqueId());
+            if (!island.hasPerms(rank, IslandPerms.BUILD, p.getUniqueId())) {
+                e.setCancelled(true);
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de construire."));
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
+        if (island != null) {
+            Player p = e.getPlayer();
+            IslandRanks rank = island.getMembers().get(p.getUniqueId());
+            if (!island.hasPerms(rank, IslandPerms.BREAK, p.getUniqueId())) {
+                e.setCancelled(true);
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de casser."));
+            }
         }
     }
 }
