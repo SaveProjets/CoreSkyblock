@@ -48,7 +48,7 @@ public class ScoreboardManager {
         }
         ArrayList<String> islandLines = new ArrayList<>();
         if (island != null) {
-            islandLines.add("§6§lVotre île");
+            islandLines.add("§6§l" + island.getName().replace("&", "§"));
             islandLines.add("§8┃ §7Rang: §4" + island.getMembers().get(p.getUniqueId()).getName());
             islandLines.add("§8┃ §7Membres: §e" + island.getMembers().size());
             islandLines.add("§8┃ §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));

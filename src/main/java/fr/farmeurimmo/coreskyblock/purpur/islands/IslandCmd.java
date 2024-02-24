@@ -325,6 +325,39 @@ public class IslandCmd implements CommandExecutor {
             p.sendMessage(Component.text("§aL'île a été supprimée."));
             return false;
         }
+        if (args[0].equalsIgnoreCase("sethome")) {
+            if (!island.hasPerms(rank, IslandPerms.SET_HOME, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de définir le point de spawn de l'île."));
+                return false;
+            }
+            island.setSpawn(p.getLocation());
+            p.sendMessage(Component.text("§aLe point de spawn de l'île a été redéfini."));
+            island.sendMessageToAll("§aLe point de spawn de l'île a été redéfini.");
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("setname")) {
+            if (!island.hasPerms(rank, IslandPerms.SET_ISLAND_NAME, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de changer le nom de l'île."));
+                return false;
+            }
+            if (args.length < 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is setname <nom>"));
+                return false;
+            }
+            String name = String.join(" ", args).substring(8).replaceAll("[^a-zA-Z0-9&]", "");
+            if (name.length() > 32) {
+                p.sendMessage(Component.text("§cLe nom de l'île ne peut pas dépasser 32 caractères."));
+                return false;
+            }
+            if (name.equals(island.getName())) {
+                p.sendMessage(Component.text("§cLe nom de l'île est déjà " + name + "."));
+                return false;
+            }
+            island.setName(name);
+            p.sendMessage(Component.text("§aLe nom de l'île a été changé."));
+            island.sendMessageToAll("§aLe nom de l'île a été changé en §6" + name + "§a.");
+            return false;
+        }
         return false;
     }
 }

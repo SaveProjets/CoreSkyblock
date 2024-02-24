@@ -153,6 +153,7 @@ public class Island {
 
     public void setName(String name) {
         this.name = name;
+        isModified = true;
     }
 
     public Location getSpawn() {
