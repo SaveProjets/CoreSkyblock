@@ -32,7 +32,7 @@ public class InventorySyncCmd implements CommandExecutor {
         }
         System.out.println(inventorySync.get(p.getUniqueId()));
         p.getInventory().clear();
-        p.getInventory().setContents(InventorySyncUtils.INSTANCE.jsonToInventory(inventorySync.get(p.getUniqueId()), p.getInventory().getSize()));
+        p.getInventory().setContents(InventorySyncUtils.INSTANCE.jsonToInventory(inventorySync.get(p.getUniqueId())));
         p.sendMessage(Component.text("§aInventaire synchronisé avec succès."));
         inventorySync.remove(p.getUniqueId());
         return false;

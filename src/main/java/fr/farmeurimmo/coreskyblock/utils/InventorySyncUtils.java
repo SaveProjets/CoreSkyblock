@@ -33,6 +33,7 @@ import java.util.*;
 
 public class InventorySyncUtils {
 
+    private static final int SIZE = 41; // 41 is the max size of a player inventory
     public static InventorySyncUtils INSTANCE;
     private final Gson gson = new Gson();
 
@@ -40,7 +41,7 @@ public class InventorySyncUtils {
         INSTANCE = this;
     }
 
-    public String inventoryToJson(Inventory inventory) {
+    /*public String inventoryToJson(Inventory inventory) {
         JsonObject jsonObject = new JsonObject();
         int position = 0;
         for (ItemStack itemStack : inventory.getContents()) {
@@ -51,11 +52,53 @@ public class InventorySyncUtils {
         }
 
         return jsonObject.toString();
+    }*/
+
+    public String inventoryToJson(Inventory inventory) {
+        Map<JsonObject, List<Integer>> itemMap = new HashMap<>();
+        ItemStack[] contents = inventory.getContents();
+
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack itemStack = contents[i];
+            if (itemStack != null) {
+                JsonObject itemJson = itemStackToJson(itemStack);
+                itemMap.computeIfAbsent(itemJson, k -> new ArrayList<>()).add(i);
+            }
+        }
+
+        JsonObject jsonObject = new JsonObject();
+        for (Map.Entry<JsonObject, List<Integer>> entry : itemMap.entrySet()) {
+            JsonObject itemJson = entry.getKey();
+            List<Integer> slots = entry.getValue();
+            itemJson.add("slots", gson.toJsonTree(slots));
+            jsonObject.add(itemJson.get("type").getAsString(), itemJson);
+        }
+
+        return jsonObject.toString();
     }
 
-    public ItemStack[] jsonToInventory(String json, int size) {
+    public ItemStack[] jsonToInventory(String json) {
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-        ItemStack[] itemStacks = new ItemStack[size];
+        ItemStack[] itemStacks = new ItemStack[SIZE];
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            JsonObject itemJson = entry.getValue().getAsJsonObject();
+            ItemStack itemStack = jsonToItemStack(itemJson);
+            JsonArray slots = itemJson.get("slots").getAsJsonArray();
+            for (JsonElement slot : slots) {
+                itemStacks[slot.getAsInt()] = itemStack;
+            }
+        }
+        for (int i = 0; i < itemStacks.length; i++) {
+            if (itemStacks[i] == null) {
+                itemStacks[i] = new ItemStack(Material.AIR);
+            }
+        }
+        return itemStacks;
+    }
+
+    /*public ItemStack[] jsonToInventory(String json) {
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        ItemStack[] itemStacks = new ItemStack[SIZE];
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             itemStacks[Integer.parseInt(entry.getKey())] = jsonToItemStack(entry.getValue().getAsJsonObject());
         }
@@ -65,7 +108,7 @@ public class InventorySyncUtils {
             }
         }
         return itemStacks;
-    }
+    }*/
 
     public JsonObject itemStackToJson(ItemStack itemStack) {
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -223,7 +266,6 @@ public class InventorySyncUtils {
         if (displayName != null && !displayName.isEmpty())
             itemStack.editMeta(meta -> meta.displayName(Component.text(displayName)));
         ItemMeta itemMeta = itemStack.getItemMeta();
-        System.out.println(jsonObject);
 
         Object[] keys = jsonObject.keySet().toArray();
         for (Object key : keys) {
@@ -359,7 +401,7 @@ public class InventorySyncUtils {
                 case "shulkerBoxInventory" -> {
                     BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
                     ShulkerBox shulkerBox = (ShulkerBox) blockStateMeta.getBlockState();
-                    shulkerBox.getInventory().setContents(jsonToInventory(value.getAsString(), shulkerBox.getInventory().getSize()));
+                    shulkerBox.getInventory().setContents(jsonToInventory(value.getAsString()));
                     blockStateMeta.setBlockState(shulkerBox);
                 }
             }
@@ -403,5 +445,46 @@ public class InventorySyncUtils {
         } catch (IOException | ClassNotFoundException e) {
             return new ItemStack(Material.AIR);
         }
+    }
+
+    public JsonObject potionEffectsToJson(PotionEffect[] potionEffects) {
+        JsonObject jsonObject = new JsonObject();
+        for (int i = 0; i < potionEffects.length; i++) {
+            PotionEffect potionEffect = potionEffects[i];
+            JsonObject potionEffectJson = new JsonObject();
+            potionEffectJson.addProperty("type", potionEffect.getType().getName());
+            potionEffectJson.addProperty("duration", potionEffect.getDuration());
+            potionEffectJson.addProperty("amplifier", potionEffect.getAmplifier());
+            potionEffectJson.addProperty("ambient", potionEffect.isAmbient());
+            potionEffectJson.addProperty("particles", potionEffect.hasParticles());
+            potionEffectJson.addProperty("icon", potionEffect.hasIcon());
+            jsonObject.add(String.valueOf(i), potionEffectJson);
+        }
+        return jsonObject;
+    }
+
+    public String potionEffectsToStringJson(PotionEffect[] potionEffects) {
+        if (potionEffects == null || potionEffects.length == 0) return "";
+        return gson.toJson(potionEffects);
+    }
+
+    public PotionEffect[] jsonToPotionEffects(String json) {
+        if (json == null || json.isEmpty()) return new PotionEffect[0];
+        if (json.length() < 2) return new PotionEffect[0];
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        PotionEffect[] potionEffects = new PotionEffect[jsonObject.size()];
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            JsonObject potionEffectJson = entry.getValue().getAsJsonObject();
+            PotionEffect potionEffect = new PotionEffect(
+                    Objects.requireNonNull(PotionEffectType.getByName(potionEffectJson.get("type").getAsString())),
+                    potionEffectJson.get("duration").getAsInt(),
+                    potionEffectJson.get("amplifier").getAsInt(),
+                    potionEffectJson.get("ambient").getAsBoolean(),
+                    potionEffectJson.get("particles").getAsBoolean(),
+                    potionEffectJson.get("icon").getAsBoolean()
+            );
+            potionEffects[Integer.parseInt(entry.getKey())] = potionEffect;
+        }
+        return potionEffects;
     }
 }

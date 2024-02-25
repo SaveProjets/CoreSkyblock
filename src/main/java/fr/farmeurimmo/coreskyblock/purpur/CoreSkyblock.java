@@ -29,6 +29,7 @@ import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.ShopCmd;
 import fr.farmeurimmo.coreskyblock.purpur.silos.SiloCmd;
 import fr.farmeurimmo.coreskyblock.purpur.silos.SilosListener;
 import fr.farmeurimmo.coreskyblock.purpur.silos.SilosManager;
+import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpaCmd;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.*;
@@ -120,6 +121,7 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§b[CoreSkyblock] §7Démarrage des managers...");
         new SkyblockUsersManager();
         new IslandsManager(INSTANCE);
+        new SyncUsersManager();
 
         new ScoreboardManager();
         new FeatherFlyManager();

@@ -90,19 +90,6 @@ public class IslandsDataManager {
         }
     }
 
-    private ResultSet executeQuery(String query, Object... parameters) {
-        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            for (int i = 0; i < parameters.length; i++) {
-                statement.setObject(i + 1, parameters[i]);
-            }
-            return statement.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public Map<UUID, Island> getCache() {
         return cache;
     }

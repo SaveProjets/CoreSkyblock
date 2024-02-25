@@ -3,6 +3,7 @@ package fr.farmeurimmo.coreskyblock.purpur.listeners;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
+import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.TradesManager;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -33,6 +34,8 @@ public class PlayerListener implements Listener {
 
         p.teleportAsync(CoreSkyblock.SPAWN);
 
+        SyncUsersManager.INSTANCE.startPlayerSync(p);
+
         IslandsManager.INSTANCE.checkLoadedIsland(p);
     }
 
@@ -48,14 +51,15 @@ public class PlayerListener implements Listener {
 
         e.quitMessage(null);
 
+        CompletableFuture.runAsync(() -> SyncUsersManager.INSTANCE.stopPlayerSyncInAsync(p));
+
         SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user != null) {
-            CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.updateUserSync(user)).thenRun(() -> {
-                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                    SkyblockUsersManager.INSTANCE.getCachedUsers().remove(p.getUniqueId());
-                    return null;
-                });
-            });
+            CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.updateUserSync(user)).thenRun(() ->
+                    Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                        SkyblockUsersManager.INSTANCE.getCachedUsers().remove(p.getUniqueId());
+                        return null;
+                    }));
         }
 
         IslandsManager.INSTANCE.checkUnloadIsland(p);

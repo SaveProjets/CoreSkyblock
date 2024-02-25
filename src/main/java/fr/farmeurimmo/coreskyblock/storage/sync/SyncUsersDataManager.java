@@ -1,0 +1,81 @@
+package fr.farmeurimmo.coreskyblock.storage.sync;
+
+import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
+import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+
+public class SyncUsersDataManager {
+
+    private static final String CREATE_INVENTORIES_TABLE = "CREATE TABLE IF NOT EXISTS skyblock_users_inventories " +
+            "(uuid VARCHAR(36) PRIMARY KEY, inventory TEXT, health DOUBLE, food INT, exp FLOAT, potions TEXT, " +
+            "created_at TIMESTAMP, updated_at TIMESTAMP, foreign key (uuid) references skyblock_users(uuid) " +
+            "on delete cascade)";
+    public static SyncUsersDataManager INSTANCE;
+
+    public SyncUsersDataManager() {
+        INSTANCE = this;
+
+        try {
+            createTable(DatabaseManager.INSTANCE.getConnection(), CREATE_INVENTORIES_TABLE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createTable(Connection connection, String createTableQuery) {
+        try (PreparedStatement statement = connection.prepareStatement(createTableQuery)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void executeUpdate(Connection connection, String query, Object... parameters) {
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            for (int i = 0; i < parameters.length; i++) {
+                statement.setObject(i + 1, parameters[i]);
+            }
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveInventory(SyncUser syncUser) {
+        try {
+            String potions = InventorySyncUtils.INSTANCE.potionEffectsToStringJson(syncUser.getPotionEffects());
+            executeUpdate(DatabaseManager.INSTANCE.getConnection(),
+                    "INSERT INTO skyblock_users_inventories (uuid, inventory, health, food, exp, potions) " +
+                            "VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, food = ?, " +
+                            "exp = ?, potions = ?", syncUser.getUuid().toString(), syncUser.getInventory(),
+                    syncUser.getHealth(), syncUser.getFood(), syncUser.getExp(), potions, syncUser.getInventory(),
+                    syncUser.getHealth(), syncUser.getFood(), syncUser.getExp(), potions);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public SyncUser getInventory(UUID uuid) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "SELECT * FROM skyblock_users_inventories WHERE uuid = ?")) {
+            statement.setString(1, uuid.toString());
+            statement.execute();
+
+            ResultSet resultSet = statement.getResultSet();
+            if (resultSet.next()) {
+                return new SyncUser(uuid, resultSet.getString("inventory"),
+                        resultSet.getDouble("health"), resultSet.getInt("food"), resultSet.getFloat("exp"),
+                        InventorySyncUtils.INSTANCE.jsonToPotionEffects(resultSet.getString("potions")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
+}
