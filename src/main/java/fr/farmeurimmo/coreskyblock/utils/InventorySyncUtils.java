@@ -189,11 +189,11 @@ public class InventorySyncUtils {
             jsonObject.addProperty("shulkerBoxInventory", inventoryToJson(shulkerBox.getInventory()));
         }
 
-        if (itemStack.getType().name().contains("PAINTING")) {
+        /*if (itemStack.getType().name().contains("PAINTING")) {
             // Clear the json object and only store the base64 of the item
             jsonObject = new JsonObject();
             jsonObject.addProperty("painting", itemStackToBase64(itemStack));
-        }
+        }*/
 
         return jsonObject;
     }
@@ -203,9 +203,9 @@ public class InventorySyncUtils {
             return null;
         }
 
-        if (jsonObject.has("painting")) {
+        /*if (jsonObject.has("painting")) {
             return itemStackFromBase64(jsonObject.get("painting").getAsString());
-        }
+        }*/
 
         Material material;
         try {
@@ -369,87 +369,10 @@ public class InventorySyncUtils {
         return itemStack;
     }
 
-    /* NO LONGER USED
-    //LINK https://github.com/brunyman/MysqlInventoryBridge/blob/master/Mysql%20Inventory%20Bridge/src/net/craftersland/bridge/inventory/InventoryUtils.java
-    //AUTHOR brunyman
 
-    public String toBase64(Inventory inventory) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            // Write the size of the inventory
-            dataOutput.writeInt(inventory.getSize());
-
-            // Save every element in the list
-            for (int i = 0; i < inventory.getSize(); i++) {
-                dataOutput.writeObject(inventory.getItem(i));
-            }
-
-            // Serialize that array
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to save item stacks.", e);
-        }
-    }
-
-    public Inventory fromBase64(String data) throws IOException {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            Inventory inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
-
-            // Read the serialized inventory
-            for (int i = 0; i < inventory.getSize(); i++) {
-                inventory.setItem(i, (ItemStack) dataInput.readObject());
-            }
-
-            dataInput.close();
-            return inventory;
-        } catch (ClassNotFoundException e) {
-            throw new IOException("Unable to decode class type.", e);
-        }
-    }
-
-    public String itemStackArrayToBase64(ItemStack[] items) throws IllegalStateException {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            // Write the size of the inventory
-            dataOutput.writeInt(items.length);
-
-            // Save every element in the list
-            for (ItemStack item : items) {
-                dataOutput.writeObject(item);
-            }
-
-            // Serialize that array
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to save item stacks.", e);
-        }
-    }
-
-    public ItemStack[] itemStackArrayFromBase64(String data) throws IOException {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            ItemStack[] items = new ItemStack[dataInput.readInt()];
-
-            // Read the serialized inventory
-            for (int i = 0; i < items.length; i++) {
-                items[i] = (ItemStack) dataInput.readObject();
-            }
-
-            dataInput.close();
-            return items;
-        } catch (ClassNotFoundException e) {
-            throw new IOException("Unable to decode class type.", e);
-        }
-    }*/
+    // LINK https://github.com/brunyman/MysqlInventoryBridge/blob/master/Mysql%20Inventory%20Bridge/src/net/craftersland/bridge/inventory/InventoryUtils.java
+    // AUTHOR brunyman
+    // EDITED BY Farmeurimmo
 
     public String itemStackToBase64(ItemStack itemStack) throws IllegalStateException {
         try {
