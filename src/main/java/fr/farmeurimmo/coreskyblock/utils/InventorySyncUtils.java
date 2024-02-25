@@ -9,14 +9,19 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TropicalFish;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -63,87 +68,131 @@ public class InventorySyncUtils {
     }
 
     public JsonObject itemStackToJson(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", itemStack.getType().name());
-        jsonObject.addProperty("amount", itemStack.getAmount());
-        jsonObject.addProperty("durability", itemStack.getDurability());
-        jsonObject.addProperty("displayName", itemStack.getDisplayName());
-        jsonObject.addProperty("lore", Optional.ofNullable(itemStack.getItemMeta()).map(ItemMeta::getLore).map(gson::toJson).orElse(""));
+        if (itemStack.getAmount() > 1)
+            jsonObject.addProperty("amount", itemStack.getAmount());
+        if (itemStack.hasDamage())
+            jsonObject.addProperty("durability", itemStack.getDurability());
+        if (itemStack.hasDisplayName())
+            jsonObject.addProperty("displayName", itemStack.getDisplayName());
+        if (itemStack.hasLore())
+            jsonObject.addProperty("lore", Optional.ofNullable(itemStack.getItemMeta()).map(ItemMeta::getLore).map(gson::toJson).orElse(""));
 
         if (itemStack.hasEnchants())
             jsonObject.addProperty("enchantments", gson.toJson(itemStack.getEnchantments()));
 
-        jsonObject.addProperty("itemFlags", gson.toJson(itemStack.getItemMeta().getItemFlags()));
+        if (!itemStack.getItemFlags().isEmpty())
+            jsonObject.addProperty("itemFlags", gson.toJson(itemStack.getItemMeta().getItemFlags()));
 
         if (itemStack.hasCustomModelData())
             jsonObject.addProperty("customModelData", itemStack.getCustomModelData());
 
-        jsonObject.addProperty("repairCost", itemStack.getRepairCost());
-        jsonObject.addProperty("isUnbreakable", itemStack.getItemMeta().isUnbreakable());
+        if (itemStack.hasRepairCost())
+            jsonObject.addProperty("repairCost", itemStack.getRepairCost());
+        if (itemStack.isUnbreakable())
+            jsonObject.addProperty("isUnbreakable", itemStack.getItemMeta().isUnbreakable());
 
         if (itemStack.hasAttributeModifiers())
             jsonObject.addProperty("attributes", gson.toJson(itemStack.getItemMeta().getAttributeModifiers()));
 
-        if (itemStack.getType().name().contains("TIPPED_ARROW")) {
-            jsonObject.addProperty("potionType", itemStack.getType().name());
-            jsonObject.addProperty("potionData", gson.toJson(itemStack.getDurability()));
-        }
-
-        if (itemStack.getItemMeta() instanceof BookMeta bookMeta) {
+        if (itemMeta instanceof BookMeta bookMeta) {
             jsonObject.addProperty("author", bookMeta.getAuthor());
             jsonObject.addProperty("title", bookMeta.getTitle());
             jsonObject.addProperty("pages", gson.toJson(bookMeta.getPages()));
         }
 
-        if (itemStack.getItemMeta() instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
+        if (itemMeta instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
             jsonObject.addProperty("storedEnchantments", gson.toJson(enchantmentStorageMeta.getStoredEnchants()));
         }
 
-        if (itemStack.getItemMeta() instanceof SkullMeta skullMeta) {
+        if (itemMeta instanceof SkullMeta skullMeta) {
             jsonObject.addProperty("owner", skullMeta.getOwningPlayer().getName());
         }
 
-        if (itemStack.getItemMeta() instanceof BannerMeta bannerMeta) {
-            jsonObject.addProperty("baseColor", bannerMeta.getBaseColor().name());
+        if (itemMeta instanceof BannerMeta bannerMeta) {
+            if (bannerMeta.getBaseColor() != null) {
+                jsonObject.addProperty("baseColor", bannerMeta.getBaseColor().name());
+            }
             jsonObject.addProperty("patterns", gson.toJson(bannerMeta.getPatterns()));
         }
 
-        if (itemStack.getItemMeta() instanceof FireworkMeta) {
-            jsonObject.addProperty("fireworkEffect", gson.toJson(((FireworkMeta) itemStack.getItemMeta()).getEffects()));
-            jsonObject.addProperty("fireworkPower", ((FireworkMeta) itemStack.getItemMeta()).getPower());
+        if (itemMeta instanceof FireworkMeta) {
+            jsonObject.addProperty("fireworkEffect", gson.toJson(((FireworkMeta) itemMeta).getEffects()));
+            jsonObject.addProperty("fireworkPower", ((FireworkMeta) itemMeta).getPower());
         }
 
-        if (itemStack.getItemMeta() instanceof FireworkEffectMeta fireworkEffectMeta) {
+        if (itemMeta instanceof FireworkEffectMeta fireworkEffectMeta) {
             jsonObject.addProperty("fireworkEffect", gson.toJson(fireworkEffectMeta.getEffect()));
         }
 
-        if (itemStack.getItemMeta() instanceof TropicalFishBucketMeta tropicalFishBucketMeta) {
+        if (itemMeta instanceof TropicalFishBucketMeta tropicalFishBucketMeta) {
             jsonObject.addProperty("bodyColor", tropicalFishBucketMeta.getBodyColor().name());
             jsonObject.addProperty("pattern", tropicalFishBucketMeta.getPattern().name());
             jsonObject.addProperty("patternColor", tropicalFishBucketMeta.getPatternColor().name());
         }
 
-        if (itemStack.getItemMeta() instanceof PotionMeta pM) {
-            jsonObject.addProperty("potionEffects", gson.toJson(pM.getCustomEffects()));
+        if (itemMeta instanceof PotionMeta pM) {
+            if (pM.hasCustomEffects()) {
+                jsonObject.addProperty("potionEffects", gson.toJson(pM.getCustomEffects()));
+            }
+            jsonObject.addProperty("potionBaseType", pM.getBasePotionType().name());
         }
 
-        if (itemStack.getItemMeta() instanceof LeatherArmorMeta leatherArmorMeta) {
+        if (itemMeta instanceof LeatherArmorMeta leatherArmorMeta) {
             jsonObject.addProperty("color", leatherArmorMeta.getColor().asRGB());
         }
 
         // We don't need to store the map data
-        /*if (itemStack.getItemMeta() instanceof MapMeta mapMeta) {
+        /*if (itemMeta instanceof MapMeta mapMeta) {
             jsonObject.addProperty("scaling", mapMeta.isScaling());
             jsonObject.addProperty("locationName", mapMeta.getLocationName());
             jsonObject.addProperty("mapId", mapMeta.getMapId());
         }*/
 
-        if (itemStack.getItemMeta() instanceof CompassMeta compassMeta) {
+        if (itemMeta instanceof CompassMeta compassMeta) {
             jsonObject.addProperty("lodestone", LocationTranslator.fromLocation(Objects.requireNonNull(compassMeta.getLodestone())));
         }
 
-        if (itemStack.getItemMeta() instanceof CrossbowMeta crossbowMeta) {
+        if (itemMeta instanceof CrossbowMeta crossbowMeta) {
             jsonObject.addProperty("chargedProjectiles", gson.toJson(crossbowMeta.getChargedProjectiles()));
+        }
+
+        if (itemMeta instanceof SpawnEggMeta spawnEggMeta) {
+            if (spawnEggMeta.getCustomSpawnedType() != null) {
+                jsonObject.addProperty("spawnedType", spawnEggMeta.getCustomSpawnedType().name());
+            }
+        }
+
+        if (itemMeta instanceof SuspiciousStewMeta suspiciousStewMeta) {
+            if (suspiciousStewMeta.hasCustomEffects()) {
+                List<JsonObject> result = new ArrayList<>();
+                for (PotionEffect effect : suspiciousStewMeta.getCustomEffects()) {
+                    JsonObject effectJson = new JsonObject();
+                    effectJson.addProperty("type", effect.getType().getName());
+                    effectJson.addProperty("duration", effect.getDuration());
+                    effectJson.addProperty("amplifier", effect.getAmplifier());
+                    effectJson.addProperty("ambient", effect.isAmbient());
+                    effectJson.addProperty("particles", effect.hasParticles());
+                    effectJson.addProperty("icon", effect.hasIcon());
+                    result.add(effectJson);
+                }
+                jsonObject.addProperty("suspiciousStewEffects", gson.toJson(result));
+            }
+        }
+
+        if (itemStack.getType().name().contains("SHULKER_BOX")) {
+            BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
+            ShulkerBox shulkerBox = (ShulkerBox) blockStateMeta.getBlockState();
+            jsonObject.addProperty("shulkerBoxInventory", inventoryToJson(shulkerBox.getInventory()));
+        }
+
+        if (itemStack.getType().name().contains("PAINTING")) {
+            // Clear the json object and only store the base64 of the item
+            jsonObject = new JsonObject();
+            jsonObject.addProperty("painting", itemStackToBase64(itemStack));
         }
 
         return jsonObject;
@@ -154,145 +203,167 @@ public class InventorySyncUtils {
             return null;
         }
 
-        Material material = jsonObject.has("type") ? Material.getMaterial(jsonObject.get("type").getAsString()) : Material.AIR;
-        int amount = jsonObject.has("amount") ? jsonObject.get("amount").getAsInt() : 1;
-        short durability = jsonObject.has("durability") ? jsonObject.get("durability").getAsShort() : 0;
-        String displayName = jsonObject.has("displayName") ? jsonObject.get("displayName").getAsString() : null;
-        String lore = jsonObject.has("lore") ? jsonObject.get("lore").getAsString() : null;
-        Map<Enchantment, Integer> enchantments = jsonObject.has("enchantments") ? gson.fromJson(jsonObject.get("enchantments").getAsString(), new TypeToken<Map<Enchantment, Integer>>() {
-        }.getType()) : null;
-        List<ItemFlag> itemFlags = jsonObject.has("itemFlags") ? gson.fromJson(jsonObject.get("itemFlags").getAsString(), new TypeToken<List<ItemFlag>>() {
-        }.getType()) : null;
-        Map<Attribute, AttributeModifier> attributes = jsonObject.has("attributes") ? gson.fromJson(jsonObject.get("attributes").getAsString(), new TypeToken<Map<Attribute, AttributeModifier>>() {
-        }.getType()) : null;
-        int customModelData = jsonObject.has("customModelData") ? jsonObject.get("customModelData").getAsInt() : 0;
-        int repairCost = jsonObject.has("repairCost") ? jsonObject.get("repairCost").getAsInt() : 0;
-        boolean isUnbreakable = jsonObject.has("isUnbreakable") && jsonObject.get("isUnbreakable").getAsBoolean();
-        String potionType = jsonObject.has("potionType") ? jsonObject.get("potionType").getAsString() : null;
-        int potionData = jsonObject.has("potionData") ? jsonObject.get("potionData").getAsInt() : 0;
-        String author = jsonObject.has("author") ? jsonObject.get("author").getAsString() : null;
-        String title = jsonObject.has("title") ? jsonObject.get("title").getAsString() : null;
-        List<String> pages = jsonObject.has("pages") ? gson.fromJson(jsonObject.get("pages").getAsString(), List.class) : null;
-        Map<Enchantment, Integer> storedEnchantments = jsonObject.has("storedEnchantments") ? gson.fromJson(jsonObject.get("storedEnchantments").getAsString(), Map.class) : null;
-        String owner = jsonObject.has("owner") ? jsonObject.get("owner").getAsString() : null;
-        DyeColor baseColor = jsonObject.has("baseColor") ? DyeColor.valueOf(jsonObject.get("baseColor").getAsString()) : null;
-        List<Pattern> patterns = jsonObject.has("patterns") ? gson.fromJson(jsonObject.get("patterns").getAsString(), List.class) : null;
-        List<FireworkEffect> fireworkEffect = jsonObject.has("fireworkEffect") ? gson.fromJson(jsonObject.get("fireworkEffect").getAsString(), List.class) : null;
-        int fireworkPower = jsonObject.has("fireworkPower") ? jsonObject.get("fireworkPower").getAsInt() : 0;
-        FireworkEffect fireworkEffect1 = jsonObject.has("fireworkEffect") ? gson.fromJson(jsonObject.get("fireworkEffect").getAsString(), FireworkEffect.class) : null;
-        DyeColor bodyColor = jsonObject.has("bodyColor") ? DyeColor.valueOf(jsonObject.get("bodyColor").getAsString()) : null;
-        TropicalFish.Pattern pattern = jsonObject.has("pattern") ? TropicalFish.Pattern.valueOf(jsonObject.get("pattern").getAsString()) : null;
-        DyeColor patternColor = jsonObject.has("patternColor") ? DyeColor.valueOf(jsonObject.get("patternColor").getAsString()) : null;
-        List<PotionEffect> potionEffects = jsonObject.has("potionEffects") ? gson.fromJson(jsonObject.get("potionEffects").getAsString(), List.class) : null;
-        int color = jsonObject.has("color") ? jsonObject.get("color").getAsInt() : 0;
-        String lodestone = jsonObject.has("lodestone") ? jsonObject.get("lodestone").getAsString() : null;
-        List<ItemStack> chargedProjectiles = jsonObject.has("chargedProjectiles") ? gson.fromJson(jsonObject.get("chargedProjectiles").getAsString(), List.class) : null;
+        if (jsonObject.has("painting")) {
+            return itemStackFromBase64(jsonObject.get("painting").getAsString());
+        }
 
-        ItemStack itemStack = new ItemStack(material, amount, durability);
+        Material material;
+        try {
+            material = Material.getMaterial(jsonObject.get("type").getAsString());
+        } catch (Exception e) {
+            return new ItemStack(Material.AIR);
+        }
+        int amount = (jsonObject.has("amount") ? jsonObject.get("amount").getAsInt() : 1);
+
+        String displayName = (jsonObject.has("displayName") ? jsonObject.get("displayName").getAsString() : null);
+
+        if (material == null) return new ItemStack(Material.AIR);
+
+        ItemStack itemStack = new ItemStack(material, amount);
+        if (displayName != null && !displayName.isEmpty())
+            itemStack.editMeta(meta -> meta.displayName(Component.text(displayName)));
         ItemMeta itemMeta = itemStack.getItemMeta();
+        System.out.println(jsonObject);
 
-        if (displayName != null) {
-            itemMeta.displayName(Component.text(displayName));
-        }
-
-        if (lore != null) {
-            ArrayList<String> loreList = new ArrayList<>();
-            JsonArray jsonArray = JsonParser.parseString(lore).getAsJsonArray();
-            for (JsonElement jsonElement : jsonArray) {
-                loreList.add(jsonElement.getAsString());
+        Object[] keys = jsonObject.keySet().toArray();
+        for (Object key : keys) {
+            String keyStr = (String) key;
+            JsonElement value = jsonObject.get(keyStr);
+            if (value.getAsString().isEmpty()) continue;
+            switch (keyStr) {
+                case "durability" -> itemStack.setDurability(value.getAsShort());
+                case "lore" -> {
+                    ArrayList<String> loreList = new ArrayList<>();
+                    if (value.getAsString() != null) {
+                        if (value.getAsString().isEmpty()) continue;
+                        JsonArray jsonArray = JsonParser.parseString(value.getAsString()).getAsJsonArray();
+                        for (JsonElement jsonElement : jsonArray) {
+                            loreList.add(jsonElement.getAsString());
+                        }
+                        itemMeta.setLore(loreList);
+                    }
+                }
+                case "enchantments" -> {
+                    Map<Enchantment, Integer> enchantments = gson.fromJson(value.getAsString(), new TypeToken<Map<Enchantment, Integer>>() {
+                    }.getType());
+                    enchantments.forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, true));
+                }
+                case "itemFlags" -> {
+                    List<ItemFlag> itemFlags = gson.fromJson(value.getAsString(), new TypeToken<List<ItemFlag>>() {
+                    }.getType());
+                    itemFlags.forEach(itemMeta::addItemFlags);
+                }
+                case "customModelData" -> itemMeta.setCustomModelData(value.getAsInt());
+                case "repairCost" -> itemStack.setRepairCost(value.getAsInt());
+                case "isUnbreakable" -> itemMeta.setUnbreakable(value.getAsBoolean());
+                case "attributes" -> {
+                    Map<Attribute, AttributeModifier> attributes = gson.fromJson(value.getAsString(), new TypeToken<Map<Attribute, AttributeModifier>>() {
+                    }.getType());
+                    attributes.forEach(itemMeta::addAttributeModifier);
+                }
+                case "author" -> {
+                    BookMeta bookMeta = (BookMeta) itemMeta;
+                    bookMeta.setAuthor(value.getAsString());
+                }
+                case "title" -> {
+                    BookMeta bookMeta = (BookMeta) itemMeta;
+                    bookMeta.setTitle(value.getAsString());
+                }
+                case "pages" -> {
+                    BookMeta bookMeta = (BookMeta) itemMeta;
+                    bookMeta.setPages(gson.fromJson(value.getAsString(), List.class));
+                }
+                case "storedEnchantments" -> {
+                    EnchantmentStorageMeta enchantmentStorageMeta = (EnchantmentStorageMeta) itemMeta;
+                    Map<Enchantment, Integer> storedEnchantments = gson.fromJson(value.getAsString(), Map.class);
+                    storedEnchantments.forEach((enchantment, integer) -> enchantmentStorageMeta.addStoredEnchant(enchantment, integer, true));
+                }
+                case "owner" -> {
+                    SkullMeta skullMeta = (SkullMeta) itemMeta;
+                    skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(value.getAsString()));
+                }
+                case "baseColor" -> {
+                    BannerMeta bannerMeta = (BannerMeta) itemMeta;
+                    bannerMeta.setBaseColor(DyeColor.valueOf(value.getAsString()));
+                }
+                case "patterns" -> {
+                    BannerMeta bannerMeta = (BannerMeta) itemMeta;
+                    for (JsonElement jsonElement : JsonParser.parseString(value.getAsString()).getAsJsonArray()) {
+                        JsonObject patternJson = jsonElement.getAsJsonObject();
+                        bannerMeta.addPattern(new Pattern(DyeColor.valueOf(patternJson.get("color").getAsString()),
+                                PatternType.valueOf(patternJson.get("pattern").getAsString())));
+                    }
+                }
+                case "fireworkEffect" -> {
+                    FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+                    fireworkMeta.addEffect(gson.fromJson(value.getAsString(), FireworkEffect.class));
+                }
+                case "fireworkPower" -> {
+                    FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+                    fireworkMeta.setPower(value.getAsInt());
+                }
+                case "bodyColor" -> {
+                    TropicalFishBucketMeta tropicalFishBucketMeta = (TropicalFishBucketMeta) itemMeta;
+                    tropicalFishBucketMeta.setBodyColor(DyeColor.valueOf(value.getAsString()));
+                }
+                case "pattern" -> {
+                    TropicalFishBucketMeta tropicalFishBucketMeta = (TropicalFishBucketMeta) itemMeta;
+                    tropicalFishBucketMeta.setPattern(TropicalFish.Pattern.valueOf(value.getAsString()));
+                }
+                case "patternColor" -> {
+                    TropicalFishBucketMeta tropicalFishBucketMeta = (TropicalFishBucketMeta) itemMeta;
+                    tropicalFishBucketMeta.setPatternColor(DyeColor.valueOf(value.getAsString()));
+                }
+                case "potionEffects" -> {
+                    PotionMeta potionMeta = (PotionMeta) itemMeta;
+                    if (value.getAsString().length() > 2)
+                        potionMeta.addCustomEffect(gson.fromJson(value.getAsString(), PotionEffect.class), true);
+                }
+                case "potionBaseType" -> {
+                    PotionMeta potionMeta = (PotionMeta) itemMeta;
+                    potionMeta.setBasePotionType(PotionType.valueOf(value.getAsString()));
+                }
+                case "color" -> {
+                    LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemMeta;
+                    leatherArmorMeta.setColor(org.bukkit.Color.fromRGB(value.getAsInt()));
+                }
+                case "lodestone" -> {
+                    CompassMeta compassMeta = (CompassMeta) itemMeta;
+                    compassMeta.setLodestone(LocationTranslator.fromString(value.getAsString()));
+                }
+                case "chargedProjectiles" -> {
+                    CrossbowMeta crossbowMeta = (CrossbowMeta) itemMeta;
+                    crossbowMeta.addChargedProjectile(gson.fromJson(value.getAsString(), ItemStack.class));
+                }
+                case "spawnedType" -> {
+                    SpawnEggMeta spawnEggMeta = (SpawnEggMeta) itemMeta;
+                    spawnEggMeta.setCustomSpawnedType(EntityType.valueOf(value.getAsString()));
+                }
+                case "suspiciousStewEffects" -> {
+                    SuspiciousStewMeta suspiciousStewMeta = (SuspiciousStewMeta) itemMeta;
+                    if (value.getAsString().length() > 2) {
+                        JsonArray jsonArray = JsonParser.parseString(value.getAsString()).getAsJsonArray();
+                        for (JsonElement jsonElement : jsonArray) {
+                            JsonObject effectJson = jsonElement.getAsJsonObject();
+                            suspiciousStewMeta.addCustomEffect(new PotionEffect(
+                                    Objects.requireNonNull(PotionEffectType.getByName(effectJson.get("type").getAsString())),
+                                    effectJson.get("duration").getAsInt(),
+                                    effectJson.get("amplifier").getAsInt(),
+                                    effectJson.get("ambient").getAsBoolean(),
+                                    effectJson.get("particles").getAsBoolean(),
+                                    effectJson.get("icon").getAsBoolean()
+                            ), true);
+                        }
+                    }
+                }
+                case "shulkerBoxInventory" -> {
+                    BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
+                    ShulkerBox shulkerBox = (ShulkerBox) blockStateMeta.getBlockState();
+                    shulkerBox.getInventory().setContents(jsonToInventory(value.getAsString(), shulkerBox.getInventory().getSize()));
+                    blockStateMeta.setBlockState(shulkerBox);
+                }
             }
-            itemMeta.setLore(loreList);
         }
-
-        if (enchantments != null) {
-            enchantments.forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, true));
-        }
-
-        if (itemFlags != null) {
-            itemFlags.forEach((itemFlag) -> itemMeta.addItemFlags(itemFlag));
-        }
-
-        if (customModelData != 0) {
-            itemMeta.setCustomModelData(customModelData);
-        }
-
-        if (repairCost != 0) {
-            itemStack.setRepairCost(repairCost);
-        }
-
-        if (isUnbreakable) {
-            itemMeta.setUnbreakable(true);
-        }
-
-        if (attributes != null) {
-            attributes.forEach(itemMeta::addAttributeModifier);
-        }
-
-        if (potionType != null) {
-            itemStack = new ItemStack(Material.getMaterial(potionType), amount, (short) potionData);
-        }
-
-        if (author != null && title != null && pages != null) {
-            BookMeta bookMeta = (BookMeta) itemMeta;
-            bookMeta.setAuthor(author);
-            bookMeta.setTitle(title);
-            bookMeta.setPages(pages);
-        }
-
-        if (storedEnchantments != null) {
-            EnchantmentStorageMeta enchantmentStorageMeta = (EnchantmentStorageMeta) itemMeta;
-            storedEnchantments.forEach((enchantment, integer) -> enchantmentStorageMeta.addStoredEnchant(enchantment, integer, true));
-        }
-
-        if (owner != null) {
-            SkullMeta skullMeta = (SkullMeta) itemMeta;
-            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
-        }
-
-        if (baseColor != null && patterns != null) {
-            BannerMeta bannerMeta = (BannerMeta) itemMeta;
-            bannerMeta.setBaseColor(baseColor);
-            patterns.forEach(bannerMeta::addPattern);
-        }
-
-        if (fireworkEffect != null) {
-            FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
-            fireworkEffect.forEach(fireworkMeta::addEffect);
-            fireworkMeta.setPower(fireworkPower);
-        }
-
-        if (fireworkEffect1 != null) {
-            FireworkEffectMeta fireworkEffectMeta = (FireworkEffectMeta) itemMeta;
-            fireworkEffectMeta.setEffect(fireworkEffect1);
-        }
-
-        if (bodyColor != null && pattern != null && patternColor != null) {
-            TropicalFishBucketMeta tropicalFishBucketMeta = (TropicalFishBucketMeta) itemMeta;
-            tropicalFishBucketMeta.setBodyColor(bodyColor);
-            tropicalFishBucketMeta.setPattern(pattern);
-            tropicalFishBucketMeta.setPatternColor(patternColor);
-        }
-
-        if (potionEffects != null) {
-            PotionMeta potionMeta = (PotionMeta) itemMeta;
-            potionEffects.forEach(potionEffect -> potionMeta.addCustomEffect(potionEffect, true));
-        }
-
-        if (color != 0) {
-            LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemMeta;
-            leatherArmorMeta.setColor(org.bukkit.Color.fromRGB(color));
-        }
-
-        if (lodestone != null) {
-            CompassMeta compassMeta = (CompassMeta) itemMeta;
-            compassMeta.setLodestone(LocationTranslator.fromString(lodestone));
-        }
-
-        if (chargedProjectiles != null) {
-            CrossbowMeta crossbowMeta = (CrossbowMeta) itemMeta;
-            chargedProjectiles.forEach(crossbowMeta::addChargedProjectile);
-        }
-
         itemStack.setItemMeta(itemMeta);
 
         return itemStack;
