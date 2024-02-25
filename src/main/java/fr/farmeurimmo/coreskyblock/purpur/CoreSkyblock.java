@@ -1,9 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur;
 
 import com.infernalsuite.aswm.api.SlimePlugin;
-import fr.farmeurimmo.coreskyblock.common.DatabaseManager;
-import fr.farmeurimmo.coreskyblock.common.JedisManager;
-import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -36,6 +33,9 @@ import fr.farmeurimmo.coreskyblock.purpur.tpa.TpaCmd;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.*;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsManager;
+import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInvManager;

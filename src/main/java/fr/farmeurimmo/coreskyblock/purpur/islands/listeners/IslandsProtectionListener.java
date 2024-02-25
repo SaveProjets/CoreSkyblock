@@ -1,11 +1,11 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandPerms;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandRanks;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandSettings;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandSettings;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.WorldBorder;

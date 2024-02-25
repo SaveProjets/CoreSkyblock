@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.common;
+package fr.farmeurimmo.coreskyblock.storage;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopType;

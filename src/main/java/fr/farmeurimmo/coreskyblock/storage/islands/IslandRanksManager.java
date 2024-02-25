@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.common.islands;
+package fr.farmeurimmo.coreskyblock.storage.islands;
 
 import java.util.HashMap;
 

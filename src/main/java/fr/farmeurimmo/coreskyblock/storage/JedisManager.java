@@ -1,7 +1,9 @@
-package fr.farmeurimmo.coreskyblock.common;
+package fr.farmeurimmo.coreskyblock.storage;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPubSub;
 
 public class JedisManager {
 
@@ -12,15 +14,13 @@ public class JedisManager {
 
     public JedisManager() {
         INSTANCE = this;
-        String tmpHost = System.getenv("REDIS_HOST");
-        String tmpPass = System.getenv("REDIS_PASSWORD");
+        String tmpHost = CoreSkyblock.INSTANCE.getConfig().getString("redis.host");
+        String tmpPass = CoreSkyblock.INSTANCE.getConfig().getString("redis.password");
         if (tmpHost != null && tmpPass != null) {
             REDIS_HOST = tmpHost;
             REDIS_PASSWORD = tmpPass;
-            pool = new JedisPool(REDIS_HOST, 6379);
-            return;
         }
-        /*pool = new JedisPool(REDIS_HOST, 6379);
+        pool = new JedisPool(REDIS_HOST, 6379);
 
         JedisPubSub jedisPubSub = new JedisPubSub() {
             @Override
@@ -30,11 +30,7 @@ public class JedisManager {
                     String[] args = message.split(":");
                     if (args[0].equalsIgnoreCase("island")) {
                         if (args[1].equalsIgnoreCase("create")) {
-                            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                                UUID owner = UUID.fromString(args[2]);
-                                IslandsManager.INSTANCE.createIsland(owner);
-                                return null;
-                            });
+
                         }
                     }
                 }
@@ -46,7 +42,7 @@ public class JedisManager {
                 jedis.auth(REDIS_PASSWORD);
                 jedis.subscribe(jedisPubSub, "CoreSkyblock");
             }
-        }).start();*/
+        }).start();
 
         //publishToRedis("CoreSkyblock", "test");
         //publishToRedis("CoreSkyblock", "test2");

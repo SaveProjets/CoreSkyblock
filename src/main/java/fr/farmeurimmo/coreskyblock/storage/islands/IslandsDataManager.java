@@ -1,9 +1,9 @@
-package fr.farmeurimmo.coreskyblock.common.islands;
+package fr.farmeurimmo.coreskyblock.storage.islands;
 
-import fr.farmeurimmo.coreskyblock.common.DatabaseManager;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestType;
+import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import it.unimi.dsi.fastutil.Pair;

@@ -1,9 +1,9 @@
 package fr.farmeurimmo.coreskyblock.purpur.chests;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandPerms;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;

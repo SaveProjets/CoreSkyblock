@@ -1,8 +1,5 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.cmds;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandPerms;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
@@ -11,6 +8,9 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandBankInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;

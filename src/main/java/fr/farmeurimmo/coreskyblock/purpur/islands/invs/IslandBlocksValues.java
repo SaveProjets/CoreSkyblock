@@ -1,7 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;

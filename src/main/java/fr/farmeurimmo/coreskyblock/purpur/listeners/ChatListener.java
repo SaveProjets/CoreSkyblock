@@ -1,11 +1,11 @@
 package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;

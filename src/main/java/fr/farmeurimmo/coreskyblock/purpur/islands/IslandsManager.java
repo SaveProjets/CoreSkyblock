@@ -1,10 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands;
 
 import com.infernalsuite.aswm.api.world.SlimeWorld;
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandRanksManager;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandSettings;
-import fr.farmeurimmo.coreskyblock.common.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
@@ -15,6 +11,10 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManag
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandSettings;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;

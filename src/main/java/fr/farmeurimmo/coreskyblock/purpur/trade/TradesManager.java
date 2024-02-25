@@ -1,8 +1,8 @@
 package fr.farmeurimmo.coreskyblock.purpur.trade;
 
-import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUser;
-import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

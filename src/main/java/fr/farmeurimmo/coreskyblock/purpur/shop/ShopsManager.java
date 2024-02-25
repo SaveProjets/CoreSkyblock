@@ -1,9 +1,9 @@
 package fr.farmeurimmo.coreskyblock.purpur.shop;
 
-import fr.farmeurimmo.coreskyblock.common.DatabaseManager;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopItem;
 import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopPage;
+import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

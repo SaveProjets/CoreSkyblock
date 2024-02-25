@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.common.islands;
+package fr.farmeurimmo.coreskyblock.storage.islands;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;

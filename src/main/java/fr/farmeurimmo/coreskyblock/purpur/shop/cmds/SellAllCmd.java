@@ -1,8 +1,8 @@
 package fr.farmeurimmo.coreskyblock.purpur.shop.cmds;
 
-import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUser;
-import fr.farmeurimmo.coreskyblock.common.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

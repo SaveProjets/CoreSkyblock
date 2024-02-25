@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.common.skyblockusers;
+package fr.farmeurimmo.coreskyblock.storage.skyblockusers;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

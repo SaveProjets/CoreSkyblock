@@ -1,7 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.chests;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 

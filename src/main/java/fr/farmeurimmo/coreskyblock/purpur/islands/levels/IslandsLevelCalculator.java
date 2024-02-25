@@ -1,9 +1,9 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.levels;
 
-import fr.farmeurimmo.coreskyblock.common.islands.Island;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.Player;

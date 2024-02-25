@@ -1,7 +1,7 @@
-package fr.farmeurimmo.coreskyblock.common.skyblockusers;
+package fr.farmeurimmo.coreskyblock.storage.skyblockusers;
 
-import fr.farmeurimmo.coreskyblock.common.DatabaseManager;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
