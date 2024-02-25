@@ -3,10 +3,7 @@ package fr.farmeurimmo.coreskyblock.utils;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.ShulkerBox;
@@ -41,7 +38,7 @@ public class InventorySyncUtils {
         INSTANCE = this;
     }
 
-    /*public String inventoryToJson(Inventory inventory) {
+    public String inventoryToJson(Inventory inventory) {
         JsonObject jsonObject = new JsonObject();
         int position = 0;
         for (ItemStack itemStack : inventory.getContents()) {
@@ -52,51 +49,9 @@ public class InventorySyncUtils {
         }
 
         return jsonObject.toString();
-    }*/
-
-    public String inventoryToJson(Inventory inventory) {
-        Map<JsonObject, List<Integer>> itemMap = new HashMap<>();
-        ItemStack[] contents = inventory.getContents();
-
-        for (int i = 0; i < contents.length; i++) {
-            ItemStack itemStack = contents[i];
-            if (itemStack != null) {
-                JsonObject itemJson = itemStackToJson(itemStack);
-                itemMap.computeIfAbsent(itemJson, k -> new ArrayList<>()).add(i);
-            }
-        }
-
-        JsonObject jsonObject = new JsonObject();
-        for (Map.Entry<JsonObject, List<Integer>> entry : itemMap.entrySet()) {
-            JsonObject itemJson = entry.getKey();
-            List<Integer> slots = entry.getValue();
-            itemJson.add("slots", gson.toJsonTree(slots));
-            jsonObject.add(itemJson.get("type").getAsString(), itemJson);
-        }
-
-        return jsonObject.toString();
     }
 
     public ItemStack[] jsonToInventory(String json) {
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-        ItemStack[] itemStacks = new ItemStack[SIZE];
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            JsonObject itemJson = entry.getValue().getAsJsonObject();
-            ItemStack itemStack = jsonToItemStack(itemJson);
-            JsonArray slots = itemJson.get("slots").getAsJsonArray();
-            for (JsonElement slot : slots) {
-                itemStacks[slot.getAsInt()] = itemStack;
-            }
-        }
-        for (int i = 0; i < itemStacks.length; i++) {
-            if (itemStacks[i] == null) {
-                itemStacks[i] = new ItemStack(Material.AIR);
-            }
-        }
-        return itemStacks;
-    }
-
-    /*public ItemStack[] jsonToInventory(String json) {
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
         ItemStack[] itemStacks = new ItemStack[SIZE];
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
@@ -108,7 +63,7 @@ public class InventorySyncUtils {
             }
         }
         return itemStacks;
-    }*/
+    }
 
     public JsonObject itemStackToJson(ItemStack itemStack) {
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -148,7 +103,16 @@ public class InventorySyncUtils {
         }
 
         if (itemMeta instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
-            jsonObject.addProperty("storedEnchantments", gson.toJson(enchantmentStorageMeta.getStoredEnchants()));
+            if (!enchantmentStorageMeta.getStoredEnchants().isEmpty()) {
+                List<JsonObject> result = new ArrayList<>();
+                for (Map.Entry<Enchantment, Integer> entry : enchantmentStorageMeta.getStoredEnchants().entrySet()) {
+                    JsonObject enchantmentJson = new JsonObject();
+                    enchantmentJson.addProperty("enchantment", entry.getKey().getKey().getKey());
+                    enchantmentJson.addProperty("level", entry.getValue());
+                    result.add(enchantmentJson);
+                }
+                jsonObject.addProperty("storedEnchantments", gson.toJson(result));
+            }
         }
 
         if (itemMeta instanceof SkullMeta skullMeta) {
@@ -270,6 +234,7 @@ public class InventorySyncUtils {
         Object[] keys = jsonObject.keySet().toArray();
         for (Object key : keys) {
             String keyStr = (String) key;
+            if (keyStr.equals("slots")) continue; // We don't need to store the slots
             JsonElement value = jsonObject.get(keyStr);
             if (value.getAsString().isEmpty()) continue;
             switch (keyStr) {
@@ -317,8 +282,15 @@ public class InventorySyncUtils {
                 }
                 case "storedEnchantments" -> {
                     EnchantmentStorageMeta enchantmentStorageMeta = (EnchantmentStorageMeta) itemMeta;
-                    Map<Enchantment, Integer> storedEnchantments = gson.fromJson(value.getAsString(), Map.class);
-                    storedEnchantments.forEach((enchantment, integer) -> enchantmentStorageMeta.addStoredEnchant(enchantment, integer, true));
+                    List<JsonObject> storedEnchantments = gson.fromJson(value.getAsString(), new TypeToken<List<JsonObject>>() {
+                    }.getType());
+                    for (JsonObject storedEnchantment : storedEnchantments) {
+                        enchantmentStorageMeta.addStoredEnchant(
+                                Objects.requireNonNull(Enchantment.getByKey(NamespacedKey.minecraft(
+                                        storedEnchantment.get("enchantment").getAsString()))),
+                                storedEnchantment.get("level").getAsInt(), true
+                        );
+                    }
                 }
                 case "owner" -> {
                     SkullMeta skullMeta = (SkullMeta) itemMeta;
@@ -406,6 +378,7 @@ public class InventorySyncUtils {
                 }
             }
         }
+
         itemStack.setItemMeta(itemMeta);
 
         return itemStack;

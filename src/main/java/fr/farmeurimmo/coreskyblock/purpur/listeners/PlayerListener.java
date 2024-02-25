@@ -41,6 +41,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerPickupEvent(PlayerAttemptPickupItemEvent e) {
+        if (SyncUsersManager.INSTANCE.inSync.contains(e.getPlayer().getUniqueId())) e.setCancelled(true);
         if (!TradesManager.INSTANCE.isPlayerInATrade(e.getPlayer())) return;
         e.setCancelled(true);
     }
@@ -79,5 +80,15 @@ public class PlayerListener implements Listener {
         if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
         if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent e) {
+        if (SyncUsersManager.INSTANCE.inSync.contains(e.getPlayer().getUniqueId())) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent e) {
+        if (SyncUsersManager.INSTANCE.inSync.contains(e.getPlayer().getUniqueId())) e.setCancelled(true);
     }
 }

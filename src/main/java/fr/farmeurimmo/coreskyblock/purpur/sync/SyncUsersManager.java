@@ -18,9 +18,9 @@ import java.util.concurrent.CompletableFuture;
 public class SyncUsersManager {
 
     public static SyncUsersManager INSTANCE;
+    public final List<UUID> inSync = new ArrayList<>(); // List of players currently being synced (all of their actions are cancelled)
     private final Map<UUID, SyncUser> users = new HashMap<>();
-    private final List<UUID> inSync = new ArrayList<>(); // List of players currently being synced (all of their actions are cancelled)
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     public SyncUsersManager() {
         INSTANCE = this;
@@ -74,6 +74,9 @@ public class SyncUsersManager {
         p.sendMessage(Component.text("§cSynchronisation de votre inventaire en cours..."));
         long start = System.currentTimeMillis();
 
+        p.setFreezeTicks(20);
+        p.setCanPickupItems(false);
+
         CompletableFuture.runAsync(() -> {
             String data = JedisManager.INSTANCE.getFromRedis("coreskyblock:sync:" + p.getUniqueId());
             if (data != null) {
@@ -106,8 +109,6 @@ public class SyncUsersManager {
         }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             inSync.remove(p.getUniqueId()); // Remove the player from the list of players currently being synced
             p.sendMessage(Component.text("§aSynchronisation terminée en " + (System.currentTimeMillis() - start) + "ms"));
-            p.setFreezeTicks(0);
-            p.setCanPickupItems(true);
             return null;
         })).exceptionally(ex -> {
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
@@ -117,14 +118,13 @@ public class SyncUsersManager {
             ex.printStackTrace();
             return null;
         });
-
-        p.getInventory().clear();
-        p.setFreezeTicks(9999);
-        p.setCanPickupItems(false);
     }
 
     public void callbackAndApplyThings(SyncUser user, Player p) {
         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+            p.getInventory().clear();
+            p.setFreezeTicks(0);
+            p.setCanPickupItems(true);
             p.getInventory().setContents(user.getContentsItemStack());
             p.setHealth(user.getHealth());
             p.setFoodLevel(user.getFood());
