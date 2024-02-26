@@ -38,7 +38,8 @@ public class SyncUsersManager {
         SyncUser user = users.get(p.getUniqueId());
         if (user == null) {
             user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToJson(p.getInventory()),
-                    p.getHealth(), p.getFoodLevel(), p.getExp(), p.getActivePotionEffects().toArray(PotionEffect[]::new));
+                    p.getHealth(), p.getFoodLevel(), p.getExp(), p.getLevel(),
+                    p.getActivePotionEffects().toArray(PotionEffect[]::new));
         } else {
             user.updateInventory(p.getInventory());
         }
@@ -98,7 +99,8 @@ public class SyncUsersManager {
 
             //if the user is not in the database, create a new one
             user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToJson(p.getInventory()),
-                    p.getHealth(), p.getFoodLevel(), p.getExp(), p.getActivePotionEffects().toArray(PotionEffect[]::new));
+                    p.getHealth(), p.getFoodLevel(), p.getExp(), p.getLevel(),
+                    p.getActivePotionEffects().toArray(PotionEffect[]::new));
             users.put(p.getUniqueId(), user);
 
             // async to speed up the process
@@ -130,6 +132,7 @@ public class SyncUsersManager {
             p.setHealth(user.getHealth());
             p.setFoodLevel(user.getFood());
             p.setExp(user.getExp());
+            p.setLevel(user.getLevel());
             for (PotionEffect effect : user.getPotionEffects()) {
                 p.addPotionEffect(effect);
             }

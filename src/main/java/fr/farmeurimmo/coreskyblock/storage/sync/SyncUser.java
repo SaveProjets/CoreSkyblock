@@ -14,14 +14,17 @@ public class SyncUser {
     private double health;
     private int food;
     private float exp;
+    private int level;
     private PotionEffect[] potionEffects;
 
-    public SyncUser(UUID uuid, String inventory, double health, int food, float exp, PotionEffect[] potionEffects) {
+    public SyncUser(UUID uuid, String inventory, double health, int food, float exp, int level,
+                    PotionEffect[] potionEffects) {
         this.uuid = uuid;
         this.inventory = inventory;
         this.health = health;
         this.food = food;
         this.exp = exp;
+        this.level = level;
         this.potionEffects = potionEffects;
     }
 
@@ -32,6 +35,7 @@ public class SyncUser {
         float health = json.get("health").getAsFloat();
         int food = json.get("food").getAsInt();
         float exp = json.get("exp").getAsFloat();
+        int level = json.has("level") ? json.get("level").getAsInt() : 0;
         PotionEffect[] potionEffects = null;
         if (json.has("potionEffects")) {
             potionEffects = InventorySyncUtils.INSTANCE.jsonElementToPotionEffects(json.get("potionEffects"));
@@ -39,7 +43,7 @@ public class SyncUser {
         if (potionEffects == null) {
             potionEffects = new PotionEffect[0];
         }
-        return new SyncUser(uuid, inventory, health, food, exp, potionEffects);
+        return new SyncUser(uuid, inventory, health, food, exp, level, potionEffects);
     }
 
     public ItemStack[] getContentsItemStack() {
@@ -78,6 +82,14 @@ public class SyncUser {
         this.exp = exp;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public PotionEffect[] getPotionEffects() {
         return potionEffects;
     }
@@ -98,6 +110,8 @@ public class SyncUser {
         json.addProperty("health", health);
         json.addProperty("food", food);
         json.addProperty("exp", exp);
+        if (level > 0)
+            json.addProperty("level", level);
         if (potionEffects != null && potionEffects.length > 0) {
             json.add("potionEffects", InventorySyncUtils.INSTANCE.potionEffectsToJson(potionEffects));
         }

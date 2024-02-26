@@ -12,7 +12,7 @@ import java.util.UUID;
 public class SyncUsersDataManager {
 
     private static final String CREATE_INVENTORIES_TABLE = "CREATE TABLE IF NOT EXISTS skyblock_users_inventories " +
-            "(uuid VARCHAR(36) PRIMARY KEY, inventory TEXT, health DOUBLE, food INT, exp FLOAT, potions TEXT, " +
+            "(uuid VARCHAR(36) PRIMARY KEY, inventory TEXT, health DOUBLE, food INT, exp FLOAT, level INT, potions TEXT, " +
             "created_at TIMESTAMP, updated_at TIMESTAMP, foreign key (uuid) references skyblock_users(uuid) " +
             "on delete cascade)";
     public static SyncUsersDataManager INSTANCE;
@@ -50,11 +50,12 @@ public class SyncUsersDataManager {
         try {
             String potions = InventorySyncUtils.INSTANCE.potionEffectsToStringJson(syncUser.getPotionEffects());
             executeUpdate(DatabaseManager.INSTANCE.getConnection(),
-                    "INSERT INTO skyblock_users_inventories (uuid, inventory, health, food, exp, potions) " +
-                            "VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, food = ?, " +
-                            "exp = ?, potions = ?", syncUser.getUuid().toString(), syncUser.getInventory(),
-                    syncUser.getHealth(), syncUser.getFood(), syncUser.getExp(), potions, syncUser.getInventory(),
-                    syncUser.getHealth(), syncUser.getFood(), syncUser.getExp(), potions);
+                    "INSERT INTO skyblock_users_inventories (uuid, inventory, health, food, exp, level, potions) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, " +
+                            "food = ?, exp = ?, level = ?, potions = ?", syncUser.getUuid().toString(),
+                    syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(), syncUser.getExp(),
+                    syncUser.getLevel(), potions, syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(),
+                    syncUser.getExp(), syncUser.getLevel(), potions);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,8 +69,8 @@ public class SyncUsersDataManager {
 
             ResultSet resultSet = statement.getResultSet();
             if (resultSet.next()) {
-                return new SyncUser(uuid, resultSet.getString("inventory"),
-                        resultSet.getDouble("health"), resultSet.getInt("food"), resultSet.getFloat("exp"),
+                return new SyncUser(uuid, resultSet.getString("inventory"), resultSet.getDouble("health"),
+                        resultSet.getInt("food"), resultSet.getFloat("exp"), resultSet.getInt("level"),
                         InventorySyncUtils.INSTANCE.jsonToPotionEffects(resultSet.getString("potions")));
             }
         } catch (SQLException e) {
