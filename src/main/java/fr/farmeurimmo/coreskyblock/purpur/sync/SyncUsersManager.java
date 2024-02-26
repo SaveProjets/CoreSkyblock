@@ -123,6 +123,7 @@ public class SyncUsersManager {
     public void callbackAndApplyThings(SyncUser user, Player p) {
         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             p.getInventory().clear();
+            p.getActivePotionEffects().forEach(effect -> p.removePotionEffect(effect.getType()));
             p.setFreezeTicks(0);
             p.setCanPickupItems(true);
             p.getInventory().setContents(user.getContentsItemStack());

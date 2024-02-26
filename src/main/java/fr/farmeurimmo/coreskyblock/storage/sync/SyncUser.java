@@ -32,9 +32,12 @@ public class SyncUser {
         float health = json.get("health").getAsFloat();
         int food = json.get("food").getAsInt();
         float exp = json.get("exp").getAsFloat();
-        PotionEffect[] potionEffects = new PotionEffect[0];
-        if (json.has("potionEffects") && !json.get("potionEffects").isJsonNull()) {
-            potionEffects = InventorySyncUtils.INSTANCE.jsonToPotionEffects(json.get("potionEffects").getAsString());
+        PotionEffect[] potionEffects = null;
+        if (json.has("potionEffects")) {
+            potionEffects = InventorySyncUtils.INSTANCE.jsonElementToPotionEffects(json.get("potionEffects"));
+        }
+        if (potionEffects == null) {
+            potionEffects = new PotionEffect[0];
         }
         return new SyncUser(uuid, inventory, health, food, exp, potionEffects);
     }

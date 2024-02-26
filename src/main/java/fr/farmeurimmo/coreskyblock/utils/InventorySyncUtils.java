@@ -433,23 +433,31 @@ public class InventorySyncUtils {
 
     public JsonObject potionEffectsToJson(PotionEffect[] potionEffects) {
         JsonObject jsonObject = new JsonObject();
-        for (int i = 0; i < potionEffects.length; i++) {
-            PotionEffect potionEffect = potionEffects[i];
-            JsonObject potionEffectJson = new JsonObject();
-            potionEffectJson.addProperty("type", potionEffect.getType().getName());
-            potionEffectJson.addProperty("duration", potionEffect.getDuration());
-            potionEffectJson.addProperty("amplifier", potionEffect.getAmplifier());
-            potionEffectJson.addProperty("ambient", potionEffect.isAmbient());
-            potionEffectJson.addProperty("particles", potionEffect.hasParticles());
-            potionEffectJson.addProperty("icon", potionEffect.hasIcon());
-            jsonObject.add(String.valueOf(i), potionEffectJson);
+        try {
+            for (int i = 0; i < potionEffects.length; i++) {
+                PotionEffect potionEffect = potionEffects[i];
+                JsonObject potionEffectJson = new JsonObject();
+                potionEffectJson.addProperty("type", potionEffect.getType().getName());
+                potionEffectJson.addProperty("duration", potionEffect.getDuration());
+                potionEffectJson.addProperty("amplifier", potionEffect.getAmplifier());
+                potionEffectJson.addProperty("ambient", potionEffect.isAmbient());
+                potionEffectJson.addProperty("particles", potionEffect.hasParticles());
+                potionEffectJson.addProperty("icon", potionEffect.hasIcon());
+                jsonObject.add(String.valueOf(i), potionEffectJson);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return jsonObject;
     }
 
     public String potionEffectsToStringJson(PotionEffect[] potionEffects) {
         if (potionEffects == null || potionEffects.length == 0) return "";
-        return gson.toJson(potionEffects);
+        return gson.toJson(potionEffectsToJson(potionEffects));
+    }
+
+    public PotionEffect[] jsonElementToPotionEffects(JsonElement jsonElement) {
+        return jsonToPotionEffects(gson.toJson(jsonElement));
     }
 
     public PotionEffect[] jsonToPotionEffects(String json) {
