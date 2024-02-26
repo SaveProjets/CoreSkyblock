@@ -97,9 +97,12 @@ public class InventorySyncUtils {
             jsonObject.addProperty("attributes", gson.toJson(itemStack.getItemMeta().getAttributeModifiers()));
 
         if (itemMeta instanceof BookMeta bookMeta) {
-            jsonObject.addProperty("author", bookMeta.getAuthor());
-            jsonObject.addProperty("title", bookMeta.getTitle());
-            jsonObject.addProperty("pages", gson.toJson(bookMeta.getPages()));
+            if (bookMeta.hasAuthor())
+                jsonObject.addProperty("author", bookMeta.getAuthor());
+            if (bookMeta.hasTitle())
+                jsonObject.addProperty("title", bookMeta.getTitle());
+            if (bookMeta.hasPages())
+                jsonObject.addProperty("pages", gson.toJson(bookMeta.getPages()));
         }
 
         if (itemMeta instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
@@ -116,23 +119,29 @@ public class InventorySyncUtils {
         }
 
         if (itemMeta instanceof SkullMeta skullMeta) {
-            jsonObject.addProperty("owner", skullMeta.getOwningPlayer().getName());
+            if (skullMeta.getOwningPlayer() != null)
+                jsonObject.addProperty("owner", skullMeta.getOwningPlayer().getName());
         }
 
         if (itemMeta instanceof BannerMeta bannerMeta) {
             if (bannerMeta.getBaseColor() != null) {
                 jsonObject.addProperty("baseColor", bannerMeta.getBaseColor().name());
             }
-            jsonObject.addProperty("patterns", gson.toJson(bannerMeta.getPatterns()));
+            if (!bannerMeta.getPatterns().isEmpty()) {
+                jsonObject.addProperty("patterns", gson.toJson(bannerMeta.getPatterns()));
+            }
         }
 
         if (itemMeta instanceof FireworkMeta) {
-            jsonObject.addProperty("fireworkEffect", gson.toJson(((FireworkMeta) itemMeta).getEffects()));
-            jsonObject.addProperty("fireworkPower", ((FireworkMeta) itemMeta).getPower());
+            if (((FireworkMeta) itemMeta).hasEffects()) {
+                jsonObject.addProperty("fireworkEffect", gson.toJson(((FireworkMeta) itemMeta).getEffects()));
+                jsonObject.addProperty("fireworkPower", ((FireworkMeta) itemMeta).getPower());
+            }
         }
 
         if (itemMeta instanceof FireworkEffectMeta fireworkEffectMeta) {
-            jsonObject.addProperty("fireworkEffect", gson.toJson(fireworkEffectMeta.getEffect()));
+            if (fireworkEffectMeta.hasEffect())
+                jsonObject.addProperty("fireworkEffect", gson.toJson(fireworkEffectMeta.getEffect()));
         }
 
         if (itemMeta instanceof TropicalFishBucketMeta tropicalFishBucketMeta) {
@@ -160,11 +169,13 @@ public class InventorySyncUtils {
         }*/
 
         if (itemMeta instanceof CompassMeta compassMeta) {
-            jsonObject.addProperty("lodestone", LocationTranslator.fromLocation(Objects.requireNonNull(compassMeta.getLodestone())));
+            if (compassMeta.getLodestone() != null)
+                jsonObject.addProperty("lodestone", LocationTranslator.fromLocation(Objects.requireNonNull(compassMeta.getLodestone())));
         }
 
         if (itemMeta instanceof CrossbowMeta crossbowMeta) {
-            jsonObject.addProperty("chargedProjectiles", gson.toJson(crossbowMeta.getChargedProjectiles()));
+            if (crossbowMeta.hasChargedProjectiles())
+                jsonObject.addProperty("chargedProjectiles", gson.toJson(crossbowMeta.getChargedProjectiles()));
         }
 
         if (itemMeta instanceof SpawnEggMeta spawnEggMeta) {
