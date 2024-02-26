@@ -1,5 +1,9 @@
 # Plugin CoreSkyblock
 
+Plugin core pour toutes les instances du serveur Skyblock.
+
+-----------------
+
 # Convention utilisation du pubsub
 
 ## Principe
@@ -9,25 +13,60 @@ qu'ils aient besoin de se connaitre.
 
 **Channel = "CoreSkyblock"**
 
-## SkyblockUser
+## Cas général d'utilisation
 
-### Après une mise à jour de celui-ci
+Il sera utilisé pour notifier les autres serveurs lorsqu'une action est effectuée sur un joueur ou une île et que les
+données doivent être mises à jour.
+Chat multi-serveur, gestion des îles, etc.
+Système de cache et de mise à jour des données.
+Autres cas à définir.
 
-    skyblockuser:<from>:update:<uuid>
+-----------------
 
-### Après une création de celui-ci
+# Données SKYBLOCK
 
-    skyblockuser:<from>:create:<uuid>
+## Données de SYNC
 
-## SkyblockIsland
+### Mise en cache redis
 
-### Après une mise à jour de celle-ci
+coreskyblock:sync:{uuid} → {data}
 
-    skyblockisland:<from>:update:<uuid>
+### Fonctionnement
 
-### Après une création de celle-ci
+Mis à jour à chaque fois que le joueur quitte un serveur.
+Cette information est récupérée et utilisée par les autres serveurs pour limiter l'accès à la base de données.
+S'il n'y a pas de données dans la cache, le serveur doit aller chercher les données dans la base de données.
+Le cache est prioritaire sur la base de données et une seule requête est faite, d'abord dans le cache, puis dans la base
+de données.
+Pas de donnée = données de sync vierges.
 
-    skyblockisland:<from>:create:<uuid>
+**Données corrompues = kick du joueur**
 
-En rédaction...
+-----------------
+
+## Données ISLAND
+
+### Mise en cache redis
+
+coreskyblock:island:{uuid} → {data}
+
+### Mise en cache du serveur qui possède l'île chargée (optionnel)
+
+coreskyblock:island:server:{uuid} → {SERVER_NAME}
+
+### Fonctionnement
+
+Mis à jour environ toutes les 3-5 minutes et lors d'actions importantes (création, suppression, etc).
+Hors du serveur, les données sont en lecture seule pour les autres serveurs pour éviter les problèmes de concurrence.
+Le cache est prioritaire sur la base de données et une seule requête est faite, d'abord dans le cache, puis dans la base
+de données.
+Pas de donnée = Pas d'île.
+
+**Données corrompues = Contacter Farmeurimmo**
+
+-----------------
+
+## Données SKYBLOCK_USER (CACHE EN RÉFLEXION)
+
+
 

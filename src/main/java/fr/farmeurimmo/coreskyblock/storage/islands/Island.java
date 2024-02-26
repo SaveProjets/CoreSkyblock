@@ -1,9 +1,12 @@
 package fr.farmeurimmo.coreskyblock.storage.islands;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
+import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,7 +21,7 @@ public class Island {
     private final Map<IslandRanks, ArrayList<IslandPerms>> perms;
     private final Map<UUID, String> membersNames = new HashMap<>();
     private final ArrayList<UUID> bannedPlayers;
-    private final Map<UUID, Long> invites = new HashMap<>();
+    private final Map<UUID, Long> invites = new HashMap<>(); // not saved
     private final List<IslandSettings> settings;
     private final List<Chest> chests;
     private String name;
@@ -30,15 +33,16 @@ public class Island {
     private boolean isPublic;
     private double exp;
     private float level;
-    private boolean loaded = false;
-    private long loadTimeout = -1;
 
-    private boolean isModified = false;
-    private boolean areMembersModified = false;
-    private boolean arePermsModified = false;
-    private boolean areBannedPlayersModified = false;
-    private boolean areSettingsModified = false;
-    private boolean areChestsModified = false;
+    private boolean loaded = false; // not saved
+    private long loadTimeout = -1; // not saved
+
+    private boolean isModified = false; // not saved
+    private boolean areMembersModified = false; // not saved
+    private boolean arePermsModified = false; // not saved
+    private boolean areBannedPlayersModified = false; // not saved
+    private boolean areSettingsModified = false; // not saved
+    private boolean areChestsModified = false; // not saved
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
@@ -97,6 +101,64 @@ public class Island {
             alreadyAdded.addAll(perms);
         }
         return toReturn;
+    }
+
+    public static Island fromJson(JsonObject json) {
+        try {
+            UUID islandUUID = UUID.fromString(json.get("islandUUID").getAsString());
+            String name = json.get("name").getAsString();
+            Location spawn = LocationTranslator.fromString(json.get("spawn").getAsString());
+            int maxSize = json.get("maxSize").getAsInt();
+            int maxMembers = json.get("maxMembers").getAsInt();
+            int generatorLevel = json.get("generatorLevel").getAsInt();
+            double bankMoney = json.get("bankMoney").getAsDouble();
+            boolean isPublic = json.get("isPublic").getAsBoolean();
+            double exp = json.get("exp").getAsDouble();
+            float level = json.get("level").getAsFloat();
+            //members
+            Map<UUID, IslandRanks> members = new HashMap<>();
+            Map<UUID, String> membersNames = new HashMap<>();
+            JsonObject membersJson = json.getAsJsonObject("members");
+            for (Map.Entry<String, JsonElement> entry : membersJson.entrySet()) {
+                JsonObject memberJson = entry.getValue().getAsJsonObject();
+                members.put(UUID.fromString(entry.getKey()), IslandRanks.valueOf(memberJson.get("rank").getAsString()));
+                membersNames.put(UUID.fromString(entry.getKey()), memberJson.get("name").getAsString());
+            }
+            //bannedPlayers
+            ArrayList<UUID> bannedPlayers = new ArrayList<>();
+            JsonObject bannedPlayersJson = json.getAsJsonObject("bannedPlayers");
+            for (Map.Entry<String, JsonElement> entry : bannedPlayersJson.entrySet()) {
+                bannedPlayers.add(UUID.fromString(entry.getKey()));
+            }
+            //settings
+            List<IslandSettings> settings = new ArrayList<>();
+            JsonObject settingsJson = json.getAsJsonObject("settings");
+            for (Map.Entry<String, JsonElement> entry : settingsJson.entrySet()) {
+                settings.add(IslandSettings.valueOf(entry.getKey()));
+            }
+            //chests
+            List<Chest> chests = new ArrayList<>();
+            JsonObject chestsJson = json.getAsJsonObject("chests");
+            for (Map.Entry<String, JsonElement> entry : chestsJson.entrySet()) {
+                chests.add(Chest.fromJson(entry.getValue().getAsJsonObject()));
+            }
+            //perms
+            Map<IslandRanks, ArrayList<IslandPerms>> perms = new HashMap<>();
+            JsonObject permsJson = json.getAsJsonObject("perms");
+            for (Map.Entry<String, JsonElement> entry : permsJson.entrySet()) {
+                IslandRanks rank = IslandRanks.valueOf(entry.getKey());
+                ArrayList<IslandPerms> permsList = new ArrayList<>();
+                JsonObject permsRankJson = (JsonObject) entry.getValue();
+                for (Map.Entry<String, JsonElement> permEntry : permsRankJson.entrySet()) {
+                    permsList.add(IslandPerms.valueOf(permEntry.getKey()));
+                }
+                perms.put(rank, permsList);
+            }
+            return new Island(islandUUID, name, spawn, members, membersNames, perms, maxSize, maxMembers, generatorLevel,
+                    bankMoney, bannedPlayers, isPublic, exp, settings, level, chests);
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     public void setDefaultPerms(boolean update) {
@@ -503,5 +565,57 @@ public class Island {
         this.chests.remove(chest);
 
         CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteChest(chest.getUuid()));
+    }
+
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("islandUUID", islandUUID.toString());
+        json.addProperty("name", name);
+        json.addProperty("spawn", LocationTranslator.fromLocation(spawn));
+        json.addProperty("maxSize", maxSize);
+        json.addProperty("maxMembers", maxMembers);
+        json.addProperty("generatorLevel", generatorLevel);
+        json.addProperty("bankMoney", bankMoney);
+        json.addProperty("isPublic", isPublic);
+        json.addProperty("exp", exp);
+        json.addProperty("level", level);
+        //members
+        JsonObject membersJson = new JsonObject();
+        for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
+            JsonObject memberJson = new JsonObject();
+            memberJson.addProperty("rank", entry.getValue().toString());
+            memberJson.addProperty("name", membersNames.get(entry.getKey()));
+            membersJson.add(entry.getKey().toString(), memberJson);
+        }
+        json.add("members", membersJson);
+        //bannedPlayers
+        JsonObject bannedPlayersJson = new JsonObject();
+        for (UUID uuid : bannedPlayers) {
+            bannedPlayersJson.addProperty(uuid.toString(), true);
+        }
+        json.add("bannedPlayers", bannedPlayersJson);
+        //settings
+        JsonObject settingsJson = new JsonObject();
+        for (IslandSettings setting : settings) {
+            settingsJson.addProperty(setting.toString(), true);
+        }
+        json.add("settings", settingsJson);
+        //chests
+        JsonObject chestsJson = new JsonObject();
+        for (Chest chest : chests) {
+            chestsJson.add(chest.getUuid().toString(), chest.toJson());
+        }
+        json.add("chests", chestsJson);
+        //perms
+        JsonObject permsJson = new JsonObject();
+        for (Map.Entry<IslandRanks, ArrayList<IslandPerms>> entry : getRanksPermsReduced().entrySet()) {
+            JsonObject perms = new JsonObject();
+            for (IslandPerms perm : entry.getValue()) {
+                perms.addProperty(perm.toString(), true);
+            }
+            permsJson.add(entry.getKey().toString(), perms);
+        }
+        json.add("perms", permsJson);
+        return json;
     }
 }

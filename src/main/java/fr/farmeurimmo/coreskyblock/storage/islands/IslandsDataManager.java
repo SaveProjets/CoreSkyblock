@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public class IslandsDataManager {
 
@@ -49,7 +48,8 @@ public class IslandsDataManager {
     public IslandsDataManager() {
         INSTANCE = this;
 
-        CompletableFuture.runAsync(this::loadAllIslands);
+        // We no longer need to load all islands, we will load them when needed
+        //CompletableFuture.runAsync(this::loadAllIslands);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
             for (Island island : cache.values()) {
@@ -94,7 +94,7 @@ public class IslandsDataManager {
         return cache;
     }
 
-    public void loadAllIslands() {
+    /*public void loadAllIslands() {
         List<UUID> islandUUIDs = new ArrayList<>();
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement("SELECT * FROM islands")) {
             ResultSet result = statement.executeQuery();
@@ -111,6 +111,22 @@ public class IslandsDataManager {
                 .toArray(CompletableFuture[]::new);
 
         CompletableFuture.allOf(futures);
+    }*/
+
+    public UUID getIslandByMember(UUID memberUUID) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "SELECT island_uuid FROM island_members WHERE uuid = ?")) {
+            statement.setString(1, memberUUID.toString());
+            statement.executeQuery();
+
+            ResultSet result = statement.getResultSet();
+            if (result.next()) {
+                return UUID.fromString(result.getString("island_uuid"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void loadIsland(UUID uuid) {
