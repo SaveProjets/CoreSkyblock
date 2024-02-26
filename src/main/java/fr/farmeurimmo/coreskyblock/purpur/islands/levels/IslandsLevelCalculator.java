@@ -48,13 +48,18 @@ public class IslandsLevelCalculator {
             }
         }
 
-        System.out.println("Time to get snapshots: " + (System.currentTimeMillis() - start) + "ms");
+        long total = System.currentTimeMillis() - start;
+        if (total > 1000) {
+            CoreSkyblock.INSTANCE.console.sendMessage("§c§lANORMAL §cTime to calculate level --> " + total + "ms");
+        }
 
         int minY = world.getMinHeight();
         Map<Material, Float> values = IslandsBlocksValues.INSTANCE.getBlocksValues();
 
         long finalStart = System.currentTimeMillis();
         CompletableFuture.supplyAsync(() -> {
+            if (chunks.isEmpty()) return 0.0;
+
             float level = 0;
             for (ChunkSnapshot chunk : chunks) {
                 for (int x = 0; x < 16; x++) {
@@ -72,8 +77,11 @@ public class IslandsLevelCalculator {
             }
             return level;
         }).thenAccept(level -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-            island.setLevel(level);
-            System.out.println("Time to calculate level --> " + (System.currentTimeMillis() - finalStart) + "ms");
+            island.setLevel(level.floatValue());
+            long finalTotal = System.currentTimeMillis() - finalStart;
+            if (finalTotal > 1000) {
+                CoreSkyblock.INSTANCE.console.sendMessage("§c§lANORMAL §cTime to calculate level --> " + finalTotal + "ms");
+            }
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
                 p.sendMessage(Component.text("§aNouveau niveau de l'île: §6" +

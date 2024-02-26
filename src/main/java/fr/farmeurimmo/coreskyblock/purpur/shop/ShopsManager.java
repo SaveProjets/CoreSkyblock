@@ -30,14 +30,15 @@ public class ShopsManager {
                 CompletableFuture<ShopPage> future = DatabaseManager.INSTANCE.getShopPage(type);
                 future.thenAccept(page -> {
                     if (page != null) {
-                        System.out.println("Loaded shop page " + type.getName() + "§f in §6" + (System.currentTimeMillis() - start) + "ms");
+                        CoreSkyblock.INSTANCE.console.sendMessage("§7Loaded shop page " + type.getName() + "§7 in §6" +
+                                (System.currentTimeMillis() - start) + "ms");
                     }
                 });
                 futures.add(future);
             }
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
-                System.out.println("Loaded §6" + futures.size() + "§f shop pages");
+                CoreSkyblock.INSTANCE.console.sendMessage("§7Loaded §6" + futures.size() + "§7 shop pages");
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     this.pages.clear();
                     futures.forEach(future -> future.thenAccept(page -> {

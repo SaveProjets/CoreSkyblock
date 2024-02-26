@@ -33,7 +33,7 @@ public class DatabaseManager {
     public void startConnection() throws Exception {
         try {
             connection = getConnection();
-            System.out.println("Successfully connected to the database !");
+            CoreSkyblock.INSTANCE.console.sendMessage("§aSuccessfully connected to the database !");
         } catch (SQLException e) {
             throw new Exception("Unable to connect to the database");
         }
@@ -45,7 +45,7 @@ public class DatabaseManager {
         statement.execute();
         ResultSet resultSet = statement.getResultSet();
         if (!resultSet.next()) {
-            System.out.println("Table " + tableName + " is empty, inserting default values...");
+            CoreSkyblock.INSTANCE.console.sendMessage("Table " + tableName + " is empty, inserting default values...");
             initTableFromConfig().join();
         }
     }
@@ -92,8 +92,8 @@ public class DatabaseManager {
                     }
                 }
 
-                System.out.println("Successfully inserted " + config.getKeys(false).size() + " shops in "
-                        + (System.currentTimeMillis() - startTime) + "ms");
+                CoreSkyblock.INSTANCE.console.sendMessage("Successfully inserted " + config.getKeys(false)
+                        .size() + " shops in " + (System.currentTimeMillis() - startTime) + "ms");
                 future.complete(null);
             } catch (SQLException e) {
                 e.printStackTrace();

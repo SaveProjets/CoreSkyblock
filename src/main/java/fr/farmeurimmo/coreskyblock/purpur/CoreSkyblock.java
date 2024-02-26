@@ -6,7 +6,6 @@ import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsManager;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.BuildSpawnCmd;
-import fr.farmeurimmo.coreskyblock.purpur.cmds.InventorySyncCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.base.*;
 import fr.farmeurimmo.coreskyblock.purpur.eco.MoneyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
@@ -49,6 +48,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -58,8 +58,8 @@ public final class CoreSkyblock extends JavaPlugin {
     public static final boolean SPAWN_IN_READ_ONLY = true;
     public static CoreSkyblock INSTANCE;
     public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
-    public static String SERVER_NAME;
     public static Location ENCHANTING_TABLE_LOCATION;
+    public static String SERVER_NAME;
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
@@ -87,9 +87,6 @@ public final class CoreSkyblock extends JavaPlugin {
         saveResource("config.yml", false);
 
         console.sendMessage("§b[CoreSkyblock] §7Démarrage du plugin CoreSkyblock...");
-
-        SERVER_NAME = System.getenv("SERVER_NAME");
-        if (SERVER_NAME == null) SERVER_NAME = "dev";
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des dépendances...");
         FastInvManager.register(INSTANCE);
@@ -174,7 +171,6 @@ public final class CoreSkyblock extends JavaPlugin {
         getCommand("fix").setExecutor(new FixCmd());
         getCommand("kits").setExecutor(new KitsCmd());
         getCommand("tpa").setExecutor(new TpaCmd());
-        getCommand("inventorysync").setExecutor(new InventorySyncCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
@@ -186,6 +182,10 @@ public final class CoreSkyblock extends JavaPlugin {
         if (world != null) {
             world.setSpawnLocation(SPAWN);
         }
+
+        String[] split = INSTANCE.getDataFolder().getAbsolutePath().split(File.separator);
+        SERVER_NAME = split[split.length - 3];
+        console.sendMessage("§bNom du serveur: §e§l" + SERVER_NAME);
 
         console.sendMessage("§b[CoreSkyblock] §aDémarrage du plugin CoreSkyblock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }

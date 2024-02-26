@@ -63,6 +63,7 @@ public class ScoreboardManager {
         if (number == 0) {
             board.updateTitle("§4»§c» §c§lSKYBLOCK §c«§4«");
             board.updateLines(
+                    "§8" + CoreSkyblock.SERVER_NAME,
                     "",
                     "§6§lProfil",
                     "§8┃ §7Pseudo: §f" + p.getName(),

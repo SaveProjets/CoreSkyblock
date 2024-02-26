@@ -25,7 +25,6 @@ public class JedisManager {
         JedisPubSub jedisPubSub = new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
-                System.out.println("Message received. Channel: " + channel + ", Msg: " + message);
                 if (channel.equalsIgnoreCase("CoreSkyblock")) {
                     String[] args = message.split(":");
                     if (args[0].equalsIgnoreCase("island")) {

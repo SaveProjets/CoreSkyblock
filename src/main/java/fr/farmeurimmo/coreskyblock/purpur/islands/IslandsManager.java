@@ -56,6 +56,7 @@ public class IslandsManager {
                 if (island.isLoadTimeout() && island.isLoaded()) {
                     WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
                     island.setLoaded(false);
+                    //FIXME: jedis
                 }
                 if (island.needUpdate()) {
                     island.update(true);
@@ -94,6 +95,7 @@ public class IslandsManager {
         Island island = getIslandOf(p.getUniqueId());
         if (island != null) {
             if (!island.isLoaded()) {
+                //FIXME: jedis check
                 loadIsland(island);
             }
         }
@@ -169,6 +171,7 @@ public class IslandsManager {
                 ownerPlayer.teleportAsync(w.getSpawnLocation());
                 ownerPlayer.sendMessage(Component.text("§b[CoreSkyblock] §aVotre île a été créée en " +
                         (System.currentTimeMillis() - startTime) + "ms"));
+                //FIXME: jedis
                 return null;
             });
         });
@@ -233,6 +236,7 @@ public class IslandsManager {
                 IslandsSizeManager.INSTANCE.updateWorldBorder(island);
 
                 island.sendMessageToAll("§aVotre île a été chargée.");
+                //FIXME: jedis
                 return null;
             });
         });
@@ -295,5 +299,6 @@ public class IslandsManager {
             island.setLoaded(false);
         }
         CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID()));
+        //FIXME: jedis
     }
 }
