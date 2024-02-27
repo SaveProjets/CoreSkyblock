@@ -187,6 +187,9 @@ public final class CoreSkyblock extends JavaPlugin {
         SERVER_NAME = split[split.length - 3];
         console.sendMessage("§bNom du serveur: §e§l" + SERVER_NAME);
 
+        console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
+        getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
+
         console.sendMessage("§b[CoreSkyblock] §aDémarrage du plugin CoreSkyblock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }
 

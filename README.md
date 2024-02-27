@@ -17,7 +17,7 @@ qu'ils aient besoin de se connaitre.
 
 Il sera utilisé pour notifier les autres serveurs lorsqu'une action est effectuée sur un joueur ou une île et que les
 données doivent être mises à jour.
-Chat multi-serveur, gestion des îles, etc.
+Chat multi-serveur, gestion des îles, serveur switch, /tpa cross server, etc.
 Système de cache et de mise à jour des données.
 Autres cas à définir.
 
@@ -44,15 +44,39 @@ Pas de donnée = données de sync vierges.
 
 -----------------
 
+# Répartition des îles
+
+Plusieurs facteurs sont pris en compte pour la répartition des îles :
+
+- Nombre d'îles chargées pour chaque serveur
+- Quantité théorique de joueurs sur chaque serveur
+- Nombre de joueurs connectés sur chaque serveur
+
+-----------------
+
 ## Données ISLAND
 
 ### Mise en cache redis
 
-coreskyblock:island:{uuid} → {data}
+coreskyblock → island:{island_uuid}:{data}
 
 ### Mise en cache du serveur qui possède l'île chargée (optionnel)
 
-coreskyblock:island:server:{uuid} → {SERVER_NAME}
+coreskyblock → island:server:{island_uuid}:{SERVER_NAME}
+
+### Mise en cache des membres de l'île
+
+coreskyblock → island:members:{uuid}:{island_uuid}
+
+### Pubsub
+
+#### Data change
+
+coreskyblock → island:pubsub:{island_uuid}
+
+#### Remote create
+
+coreskyblock → island:remote_create:{server_name}:{uuid_owner(uuid)}:{uuid_island(uuid)}
 
 ### Fonctionnement
 

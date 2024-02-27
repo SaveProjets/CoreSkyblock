@@ -129,7 +129,7 @@ public class IslandsDataManager {
         return null;
     }
 
-    public void loadIsland(UUID uuid) {
+    public Island getIsland(UUID uuid) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "SELECT * FROM islands WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
@@ -151,7 +151,6 @@ public class IslandsDataManager {
 
                 Map<IslandRanks, ArrayList<IslandPerms>> perms = loadIslandPerms(uuid);
 
-
                 ArrayList<UUID> bannedPlayers = new ArrayList<>(loadIslandBanned(uuid));
 
                 Location spawn = LocationTranslator.fromString(locationString);
@@ -161,16 +160,19 @@ public class IslandsDataManager {
                 List<Chest> chests = loadIslandChests(uuid);
 
                 Island island = new Island(uuid, name, spawn, members.left(), members.right(), perms, upgradeSize,
-                        upgradeMembers, upgradeGenerator, bankMoney, bannedPlayers, isPublic, exp, settings, level, chests);
+                        upgradeMembers, upgradeGenerator, bankMoney, bannedPlayers, isPublic, exp, settings, level,
+                        chests, false);
 
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, island);
                     return null;
                 });
+                return island;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public boolean saveIsland(Island island) {

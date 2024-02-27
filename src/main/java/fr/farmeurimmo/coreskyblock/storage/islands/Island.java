@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -35,6 +36,7 @@ public class Island {
     private float level;
 
     private boolean loaded = false; // not saved
+    private boolean readOnly = false; // not saved
     private long loadTimeout = -1; // not saved
 
     private boolean isModified = false; // not saved
@@ -47,7 +49,7 @@ public class Island {
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
                   int generatorLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic, double exp,
-                  List<IslandSettings> settings, float level, List<Chest> chests) {
+                  List<IslandSettings> settings, float level, List<Chest> chests, boolean readOnly) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
@@ -65,6 +67,7 @@ public class Island {
         this.settings = settings;
         this.level = level;
         this.chests = chests;
+        this.readOnly = readOnly;
     }
 
     //default just the necessary to establish a start island
@@ -154,8 +157,10 @@ public class Island {
                 }
                 perms.put(rank, permsList);
             }
+            //get dereduced perms
+            perms = getRanksPermsFromReduced(perms);
             return new Island(islandUUID, name, spawn, members, membersNames, perms, maxSize, maxMembers, generatorLevel,
-                    bankMoney, bannedPlayers, isPublic, exp, settings, level, chests);
+                    bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, false);
         } catch (Exception ignored) {
         }
         return null;
@@ -291,6 +296,7 @@ public class Island {
         this.bannedPlayers.remove(uuid);
 
         CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteBanned(islandUUID, uuid));
+        areBannedPlayersModified = true;
     }
 
     public boolean isPublic() {
@@ -319,26 +325,40 @@ public class Island {
         this.membersNames.put(uuid, name);
 
         if (needUpdate) areMembersModified = true;
-        else update(true);
+
+        CompletableFuture.runAsync(() -> {
+            if (!needUpdate) update(false);
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:members:" + uuid, islandUUID.toString());
+        });
     }
 
     public void removeMember(UUID uuid) {
         this.members.remove(uuid);
 
-        CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteMember(islandUUID, uuid));
+        CompletableFuture.runAsync(() -> {
+            IslandsDataManager.INSTANCE.deleteMember(islandUUID, uuid);
+            JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + uuid);
+        });
 
         Player player = CoreSkyblock.INSTANCE.getServer().getPlayer(uuid);
         if (player != null) {
             player.teleportAsync(CoreSkyblock.SPAWN);
             player.sendMessage(Component.text("§cVous avez été retiré de l'île."));
         }
+
+        areMembersModified = true;
     }
 
     public void update(boolean async) {
         if (async) CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.update(this, areMembersModified,
-                arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified));
-        else IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
-                areBannedPlayersModified, areSettingsModified, areChestsModified);
+                arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified)).thenRun(() ->
+                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()));
+        else {
+            IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
+                    areBannedPlayersModified, areSettingsModified, areChestsModified);
+            CompletableFuture.runAsync(() ->
+                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()));
+        }
 
         isModified = false;
         areMembersModified = false;
@@ -507,10 +527,15 @@ public class Island {
 
     public void setLoaded(boolean loaded) {
         this.loaded = loaded;
+        if (loaded) {
+            this.loadTimeout = System.currentTimeMillis();
+        } else {
+            this.loadTimeout = -1;
+        }
     }
 
     public boolean isLoadTimeout() {
-        return this.loadTimeout != -1 && System.currentTimeMillis() - this.loadTimeout > 1000 * 60 * 3;
+        return this.loadTimeout != -1 && System.currentTimeMillis() - this.loadTimeout > 1000 * 60 * 10;
     }
 
     public long getLoadTimeout() {
@@ -565,6 +590,8 @@ public class Island {
         this.chests.remove(chest);
 
         CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.deleteChest(chest.getUuid()));
+
+        areChestsModified = true;
     }
 
     public JsonObject toJson() {
@@ -617,5 +644,13 @@ public class Island {
         }
         json.add("perms", permsJson);
         return json;
+    }
+
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 }

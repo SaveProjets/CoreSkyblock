@@ -75,9 +75,6 @@ public class SyncUsersManager {
         p.sendMessage(Component.text("§cSynchronisation de votre inventaire en cours..."));
         long start = System.currentTimeMillis();
 
-        p.setFreezeTicks(20);
-        p.setCanPickupItems(false);
-
         CompletableFuture.runAsync(() -> {
             String data = JedisManager.INSTANCE.getFromRedis("coreskyblock:sync:" + p.getUniqueId());
             if (data != null) {
@@ -126,8 +123,6 @@ public class SyncUsersManager {
         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             p.getInventory().clear();
             p.getActivePotionEffects().forEach(effect -> p.removePotionEffect(effect.getType()));
-            p.setFreezeTicks(0);
-            p.setCanPickupItems(true);
             p.getInventory().setContents(user.getContentsItemStack());
             p.setHealth(user.getHealth());
             p.setFoodLevel(user.getFood());

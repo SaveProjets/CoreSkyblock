@@ -23,20 +23,19 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
 
+        e.joinMessage(null);
+        p.teleportAsync(CoreSkyblock.SPAWN);
+
         SkyblockUsersManager.INSTANCE.loadUser(p.getUniqueId(), p.getName()).exceptionally(ex -> {
             p.kick(Component.text("§cErreur lors de la connexion au serveur, veuillez réessayer plus tard !"));
             return null;
         });
 
-        ScoreboardManager.INSTANCE.addPlayer(p);
-
-        e.joinMessage(null);
-
-        p.teleportAsync(CoreSkyblock.SPAWN);
-
         SyncUsersManager.INSTANCE.startPlayerSync(p);
 
-        IslandsManager.INSTANCE.checkLoadedIsland(p);
+        IslandsManager.INSTANCE.checkForDataIntegrity(null, p.getUniqueId(), false);
+
+        ScoreboardManager.INSTANCE.addPlayer(p);
     }
 
     @EventHandler
@@ -62,8 +61,6 @@ public class PlayerListener implements Listener {
                         return null;
                     }));
         }
-
-        IslandsManager.INSTANCE.checkUnloadIsland(p);
     }
 
     @EventHandler
@@ -89,6 +86,16 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onTeleport(PlayerTeleportEvent e) {
+        if (SyncUsersManager.INSTANCE.inSync.contains(e.getPlayer().getUniqueId())) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerAttemptPickupItem(PlayerAttemptPickupItemEvent e) {
+        if (SyncUsersManager.INSTANCE.inSync.contains(e.getPlayer().getUniqueId())) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent e) {
         if (SyncUsersManager.INSTANCE.inSync.contains(e.getPlayer().getUniqueId())) e.setCancelled(true);
     }
 }
