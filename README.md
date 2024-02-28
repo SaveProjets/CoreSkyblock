@@ -78,6 +78,14 @@ coreskyblock → island:pubsub:{island_uuid}
 
 coreskyblock → island:remote_create:{server_name}:{uuid_owner(uuid)}:{uuid_island(uuid)}
 
+#### Remote load
+
+coreskyblock → island:remote_load:{island_uuid}:{server_name}
+
+#### Teleport
+
+coreskyblock → island:teleport:{uuid}:{island_uuid}
+
 ### Fonctionnement
 
 Mis à jour environ toutes les 3-5 minutes et lors d'actions importantes (création, suppression, etc).

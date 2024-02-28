@@ -48,7 +48,14 @@ public class JedisManager {
                             if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
                                 return;
                             }
-                            IslandsManager.INSTANCE.serversData.put(serverName, args[3] + ":" + args[4] + ":" + args[5]);
+                            try {
+                                int load = Integer.parseInt(args[3]);
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    IslandsManager.INSTANCE.serversData.put(serverName, load);
+                                    return null;
+                                });
+                            } catch (Exception ignored) {
+                            }
                             return;
                         }
                         if (args[1].equalsIgnoreCase("remote_create")) {

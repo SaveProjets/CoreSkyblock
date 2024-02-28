@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IslandsManager {
 
     public static IslandsManager INSTANCE;
-    public final Map<String, String> serversData = new HashMap<>();
+    public final Map<String, Integer> serversData = new HashMap<>();
     public final Map<UUID, String> awaitingResponseFromServer = new HashMap<>();
     public final Map<UUID, Long> awaitingResponseFromServerTime = new HashMap<>(); //for unload
     private final JavaPlugin plugin;
@@ -85,20 +85,13 @@ public class IslandsManager {
         WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
-                JedisManager.INSTANCE.publishToRedis("coreskyblock",
-                        "island:space:" + CoreSkyblock.SERVER_NAME + ":" + getIslandsLoaded() + ":" + getTheoreticalMaxPlayersOnline() + ":" +
-                                getActualPlayersOnline()), 0, 20);
+                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:space:" +
+                        CoreSkyblock.SERVER_NAME + ":" + (getIslandsLoaded() + getTheoreticalMaxPlayersOnline() +
+                        getActualPlayersOnline())), 0, 20);
+        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversData.put(CoreSkyblock.SERVER_NAME,
+                getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline()), 0, 20);
 
         CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
-    }
-
-    private static int getLoadFactor(String[] data) {
-        int islandsLoaded = Integer.parseInt(data[0]); // Assuming the number of islands loaded is the first data point
-        int maxTheoreticalPlayers = Integer.parseInt(data[1]); // Assuming the max theoretical players is the second data point
-        int onlinePlayers = Integer.parseInt(data[2]); // Assuming the online players is the third data point
-
-        // Calculate the load factor. This is a simple sum, but you can replace this with any formula you want
-        return islandsLoaded + maxTheoreticalPlayers + onlinePlayers;
     }
 
     public Island getIslandByLoc(World world) {
@@ -149,9 +142,9 @@ public class IslandsManager {
     public String getServerToLoadIsland() {
         String serverToLoad = null;
         int minLoadFactor = Integer.MAX_VALUE;
-        for (Map.Entry<String, String> entry : serversData.entrySet()) {
-            String[] data = entry.getValue().split(":");
-            int loadFactor = getLoadFactor(data);
+        for (Map.Entry<String, Integer> entry : serversData.entrySet()) {
+            //if (entry.getKey().contains("01")) continue; //FIXME: TEMPORARY
+            int loadFactor = entry.getValue();
 
             if (loadFactor < minLoadFactor) {
                 minLoadFactor = loadFactor;
@@ -244,7 +237,7 @@ public class IslandsManager {
 
     public void onDisable() {
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-            unload(island, false);
+            unload(island, false, false);
             if (island.needUpdate()) {
                 island.update(false);
             }
@@ -333,10 +326,10 @@ public class IslandsManager {
                     Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task -> {
                         Player ownerPlayer = plugin.getServer().getPlayer(owner);
                         if (ownerPlayer != null) {
+                            task.cancel();
                             ownerPlayer.sendMessage(Component.text("§b[CoreSkyblock] §aTéléportation sur votre île..."));
                             ownerPlayer.teleportAsync(w.getSpawnLocation()).thenRun(() ->
                                     ownerPlayer.sendMessage(Component.text("§b[CoreSkyblock] §aVous avez été téléporté sur votre île.")));
-                            task.cancel();
                         }
                         iterations.getAndIncrement();
                         //This method is called 4 times per second, so 40 iterations is 10 seconds of waiting
@@ -442,7 +435,7 @@ public class IslandsManager {
             return;
         }
         String serverWhereIslandIsLoaded = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
-        if (serverWhereIslandIsLoaded != null) {
+        if (serverWhereIslandIsLoaded != null && !serverWhereIslandIsLoaded.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
             p.sendMessage(Component.text("§aTéléportation sur votre île..."));
             JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:teleport:" + p.getUniqueId() + ":"
                     + island.getIslandUUID() + ":" + serverWhereIslandIsLoaded);
@@ -454,7 +447,7 @@ public class IslandsManager {
         } else {
             p.sendMessage(Component.text("§cVotre île est en cours de chargement. Veuillez réessayer dans quelques secondes."));
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () ->
-                    checkIfIslandIsLoaded(island.getIslandUUID()), 40);
+                    checkIfIslandIsLoaded(island.getIslandUUID()), 20);
         }
     }
 
@@ -488,17 +481,8 @@ public class IslandsManager {
                 }
             }
             Bukkit.getScheduler().runTaskLater(plugin, () ->
-                    WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true), 20);
-            island.setLoaded(false);
+                    unload(island, true, true), 5);
         }
-        CompletableFuture.runAsync(() -> {
-            IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID());
-            JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID());
-            for (UUID member : island.getMembers().keySet()) {
-                JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + member);
-            }
-            JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
-        });
     }
 
     public void askOthersServersForMembersOnline(Island island) {
@@ -519,7 +503,7 @@ public class IslandsManager {
                     if (System.currentTimeMillis() - time > 1_000 * 60 * 10) {
                         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                             awaitingResponseFromServerTime.remove(island.getIslandUUID());
-                            unload(island, true);
+                            unload(island, true, false);
                             return null;
                         });
                     }
@@ -528,17 +512,19 @@ public class IslandsManager {
         });
     }
 
-    public void unload(Island island, boolean async) {
+    public void unload(Island island, boolean async, boolean delete) {
         if (island.isLoaded()) {
             WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
             island.setLoaded(false);
             if (async) CompletableFuture.runAsync(() -> {
+                if (delete) IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID());
                 JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
                 for (UUID member : island.getMembers().keySet()) {
                     JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + member);
                 }
             });
             else {
+                if (delete) IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID());
                 JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
                 for (UUID member : island.getMembers().keySet()) {
                     JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + member);
