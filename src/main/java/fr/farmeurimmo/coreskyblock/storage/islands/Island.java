@@ -526,16 +526,17 @@ public class Island {
     }
 
     public void setLoaded(boolean loaded) {
-        this.loaded = loaded;
         if (loaded) {
             this.loadTimeout = System.currentTimeMillis();
         } else {
             this.loadTimeout = -1;
         }
+
+        this.loaded = loaded;
     }
 
     public boolean isLoadTimeout() {
-        return this.loadTimeout != -1 && System.currentTimeMillis() - this.loadTimeout > 1000 * 60 * 10;
+        return getLoadTimeout() != -1 && System.currentTimeMillis() - getLoadTimeout() > 1000 * 60 * 10;
     }
 
     public long getLoadTimeout() {

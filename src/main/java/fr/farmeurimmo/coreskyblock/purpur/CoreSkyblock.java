@@ -86,6 +86,10 @@ public final class CoreSkyblock extends JavaPlugin {
         saveResource("old-shop.yml", true);
         saveResource("config.yml", false);
 
+        String[] split = INSTANCE.getDataFolder().getAbsolutePath().split(File.separator);
+        SERVER_NAME = split[split.length - 3];
+        console.sendMessage("§bNom du serveur: §e§l" + SERVER_NAME);
+
         console.sendMessage("§b[CoreSkyblock] §7Démarrage du plugin CoreSkyblock...");
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des dépendances...");
@@ -182,10 +186,6 @@ public final class CoreSkyblock extends JavaPlugin {
         if (world != null) {
             world.setSpawnLocation(SPAWN);
         }
-
-        String[] split = INSTANCE.getDataFolder().getAbsolutePath().split(File.separator);
-        SERVER_NAME = split[split.length - 3];
-        console.sendMessage("§bNom du serveur: §e§l" + SERVER_NAME);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");

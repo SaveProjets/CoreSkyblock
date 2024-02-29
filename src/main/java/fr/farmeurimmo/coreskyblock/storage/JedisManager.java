@@ -101,6 +101,9 @@ public class JedisManager {
                         if (args[1].equalsIgnoreCase("check_unload")) {
                             try {
                                 UUID islandUUID = UUID.fromString(args[2]);
+                                if (args.length < 4) {
+                                    return;
+                                }
 
                                 //the rest of args are the players to check
                                 for (int i = 3; i < args.length; i++) {
@@ -109,6 +112,7 @@ public class JedisManager {
                                     if (p != null) {
                                         JedisManager.INSTANCE.publishToRedis("coreskyblock",
                                                 "island:check_unload_response:" + islandUUID + ":no");
+                                        return;
                                     }
                                 }
                             } catch (Exception ignored) {
@@ -119,6 +123,10 @@ public class JedisManager {
                                 UUID islandUUID = UUID.fromString(args[2]);
                                 if (args[3].equalsIgnoreCase("no")) {
                                     IslandsManager.INSTANCE.awaitingResponseFromServerTime.remove(islandUUID);
+                                    Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                    if (island != null && island.isLoaded()) {
+                                        island.setLoaded(true);
+                                    }
                                 }
                             } catch (Exception ignored) {
                             }

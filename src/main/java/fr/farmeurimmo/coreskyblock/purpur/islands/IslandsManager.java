@@ -66,21 +66,22 @@ public class IslandsManager {
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-                if (island.isLoaded()) {
-                    askOthersServersForMembersOnline(island);
-                }
                 if (island.needUpdate()) {
                     island.update(true);
                 }
-                // ASWM already saves the world
-                /*if (island.isLoaded() && !gotUpdate) {
-                    World world = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
-                    if (world != null) {
-                        world.save();
-                    }
-                }*/
             }
-        }, 0, 20 * 60 * 5);
+        }, 0, 20 * 60);
+
+        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+            for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                if (island.isLoaded()) {
+                    askOthersServersForMembersOnline(island);
+                }
+                if (island.isLoadTimeout()) {
+                    unload(island, true, false);
+                }
+            }
+        }, 0, 20 * 30);
 
         WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 
@@ -92,6 +93,8 @@ public class IslandsManager {
                 getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline()), 0, 20);
 
         CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
+
+        serversData.put(CoreSkyblock.SERVER_NAME, getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline());
     }
 
     public Island getIslandByLoc(World world) {
@@ -143,7 +146,6 @@ public class IslandsManager {
         String serverToLoad = null;
         int minLoadFactor = Integer.MAX_VALUE;
         for (Map.Entry<String, Integer> entry : serversData.entrySet()) {
-            //if (entry.getKey().contains("01")) continue; //FIXME: TEMPORARY
             int loadFactor = entry.getValue();
 
             if (loadFactor < minLoadFactor) {
@@ -226,11 +228,23 @@ public class IslandsManager {
             if (server == null) {
 
                 server = getServerToLoadIsland();
-                if (server == null || server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
+                if (server == null) {
+                    loadIsland(island);
+                    return;
+                }
+                if (server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
                     loadIsland(island);
                     return;
                 }
                 JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_load:" + islandUUID + ":" + server);
+            } else {
+                World world = Bukkit.getWorld(getIslandWorldName(islandUUID));
+                if (world != null) {
+                    island.setLoaded(true);
+                    island.getSpawn().setWorld(world);
+                    applyTimeAndWeather(world, island);
+                    IslandsSizeManager.INSTANCE.updateWorldBorder(island);
+                }
             }
         }
     }
@@ -302,7 +316,6 @@ public class IslandsManager {
                 IslandsDataManager.INSTANCE.getCache().put(islandUUID, island);
                 World w = Bukkit.getWorld(worldName);
                 if (w == null) return null;
-                island.setLoaded(true);
                 island.getSpawn().setWorld(w);
                 w.setSpawnLocation(island.getSpawn());
                 applyTimeAndWeather(w, island);
@@ -392,7 +405,6 @@ public class IslandsManager {
     public void loadIsland(Island island) {
         if (island.isLoaded()) return;
         WorldsManager.INSTANCE.loadAsync(getIslandWorldName(island.getIslandUUID()), false).thenRun(() -> {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded", CoreSkyblock.SERVER_NAME);
             Bukkit.getScheduler().callSyncMethod(plugin, () -> {
                 island.setLoaded(true);
                 Location spawn = island.getSpawn();
@@ -406,6 +418,10 @@ public class IslandsManager {
                 island.sendMessageToAll("§aVotre île a été chargée.");
                 return null;
             });
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded", CoreSkyblock.SERVER_NAME);
+        }).exceptionally(throwable -> {
+            island.sendMessageToAll("§cUne erreur est survenue lors du chargement de votre île.");
+            return null;
         });
     }
 
@@ -445,9 +461,11 @@ public class IslandsManager {
             out.writeUTF(serverWhereIslandIsLoaded);
             p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
         } else {
-            p.sendMessage(Component.text("§cVotre île est en cours de chargement. Veuillez réessayer dans quelques secondes."));
-            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () ->
-                    checkIfIslandIsLoaded(island.getIslandUUID()), 20);
+            p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un cours instant..."));
+            checkIfIslandIsLoaded(island.getIslandUUID());
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+                teleportToIsland(island, p);
+            }, 12);
         }
     }
 
@@ -497,7 +515,7 @@ public class IslandsManager {
 
             JedisManager.INSTANCE.publishToRedis("coreskyblock", message.toString());
 
-            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task) -> {
                 if (awaitingResponseFromServerTime.containsKey(island.getIslandUUID())) {
                     long time = awaitingResponseFromServerTime.get(island.getIslandUUID());
                     if (System.currentTimeMillis() - time > 1_000 * 60 * 10) {
@@ -508,7 +526,7 @@ public class IslandsManager {
                         });
                     }
                 }
-            }, 0, 5);
+            }, 0, 10);
         });
     }
 
