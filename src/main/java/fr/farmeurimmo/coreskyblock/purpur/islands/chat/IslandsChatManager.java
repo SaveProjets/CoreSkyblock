@@ -1,6 +1,8 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.chat;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
 import net.kyori.adventure.text.Component;
@@ -39,6 +41,10 @@ public class IslandsChatManager {
             return;
         }
         IslandRanks ranks = island.getMembers().get(p.getUniqueId());
-        island.sendMessageToAll("§6§lChat île §8» §e§l" + ranks.getName() + " §f" + p.getName() + " §8» §f" + message);
+        String toSend = "§6§lChat île §8» §e§l" + ranks.getName() + " §f" + p.getName() + " §8» §f" + message;
+        island.sendMessageToAll(toSend);
+
+        JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:chat_message:" + island.getIslandUUID()
+                + ":" + CoreSkyblock.SERVER_NAME + ":" + toSend);
     }
 }

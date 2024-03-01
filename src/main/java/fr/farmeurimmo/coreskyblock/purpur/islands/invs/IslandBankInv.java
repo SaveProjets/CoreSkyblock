@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.mrmicky.fastinv.FastInv;
@@ -20,6 +22,16 @@ public class IslandBankInv extends FastInv {
 
         setItem(13, ItemBuilder.copyOf(new ItemStack(Material.GOLD_NUGGET)).name("§6Argent de l'île")
                 .lore("", "§aClic droit pour déposer de l'argent", "§cClic gauche pour retirer de l'argent").build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
+            long cooldown = IslandsCooldownManager.INSTANCE.getCooldownLeft(island.getIslandUUID(), "island-bank");
+            if (cooldown >= 0) {
+                e.getWhoClicked().sendMessage(Component.text("§cVous devez attendre " + cooldown +
+                        " secondes avant de pouvoir réutiliser la banque de votre île."));
+                return;
+            }
             if (e.isLeftClick()) {
                 e.getWhoClicked().sendMessage(Component.text("§aMerci d'entrer le montant que vous " +
                         "souhaitez §cretirer§a. Tapez §2cancel§a pour annuler."));

@@ -74,6 +74,10 @@ public class IslandInv extends FastInv {
                 name("§6Accessibilité §8| §7(clic gauche)").lore("§7Actuellement: " + (island.isPublic() ? "§aPublique"
                         : "§cPrivée")).build(), e -> {
             Player p = (Player) e.getWhoClicked();
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly(p);
+                return;
+            }
             p.chat("/is " + (island.isPublic() ? "private" : "public"));
             new IslandInv(island).open(p);
         });

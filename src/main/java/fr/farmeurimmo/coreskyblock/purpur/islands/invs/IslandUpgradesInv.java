@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
@@ -33,6 +34,10 @@ public class IslandUpgradesInv extends FastInv {
 
         setItem(10, ItemBuilder.copyOf(new ItemStack(Material.GRASS_BLOCK)).name("§6Taille de l'île")
                 .lore(IslandsSizeManager.INSTANCE.getLore(island.getMaxSize())).build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
             int currentLevelSize = island.getMaxSize();
             if (currentLevelSize < 5) {
                 double price = IslandsSizeManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
@@ -47,6 +52,10 @@ public class IslandUpgradesInv extends FastInv {
 
         setItem(11, ItemBuilder.copyOf(new ItemStack(Material.COBBLESTONE)).name("§6Générateur de l'île")
                 .lore(IslandsGeneratorManager.INSTANCE.getLore(island.getGeneratorLevel())).build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
             int currentLevel = island.getGeneratorLevel();
             if (currentLevel < 5) {
                 double price = IslandsGeneratorManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
@@ -61,6 +70,10 @@ public class IslandUpgradesInv extends FastInv {
 
         setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BEACON)).name("§6Membres de l'île")
                 .lore(IslandsMaxMembersManager.INSTANCE.getLore(island.getMaxMembers())).build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
             int currentLevel = island.getMaxMembers();
             if (currentLevel < 5) {
                 double price = IslandsMaxMembersManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);

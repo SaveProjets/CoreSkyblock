@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -40,6 +41,10 @@ public class JedisManager {
                     String[] args = message.split(":");
                     if (args[0].equalsIgnoreCase("island")) {
                         if (args[1].equalsIgnoreCase("pubsub")) {
+                            String serverName = args[3];
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
                             IslandsManager.INSTANCE.checkForDataIntegrity(args[2], null, true);
                             return;
                         }
@@ -198,6 +203,68 @@ public class JedisManager {
                                 e.printStackTrace();
                             }
                             return;
+                        }
+                        if (args[1].equalsIgnoreCase("chat_message")) {
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+                                String serverName = args[3];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                StringBuilder playerMessage = new StringBuilder();
+                                for (int i = 4; i < args.length; i++) {
+                                    playerMessage.append(args[i]);
+                                }
+                                Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                if (island == null) {
+                                    return;
+                                }
+                                island.sendMessageToAll(playerMessage.toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
+                        if (args[1].equalsIgnoreCase("chat_message_with_perms")) {
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+                                String serverName = args[3];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                int islandPerm = Integer.parseInt(args[4]);
+                                IslandPerms perms = IslandPerms.getById(islandPerm);
+
+                                StringBuilder playerMessage = new StringBuilder();
+                                for (int i = 5; i < args.length; i++) {
+                                    playerMessage.append(args[i]);
+                                }
+                                Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                if (island == null) {
+                                    return;
+                                }
+                                island.sendMessage(playerMessage.toString(), perms);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
+                        if (args[1].equalsIgnoreCase("to_player_chat")) {
+                            UUID playerUUID = UUID.fromString(args[2]);
+                            String serverName = args[3];
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
+
+                            StringBuilder playerMessage = new StringBuilder();
+                            for (int i = 4; i < args.length; i++) {
+                                playerMessage.append(args[i]);
+                            }
+                            Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                            if (p == null) {
+                                return;
+                            }
+                            p.sendMessage(playerMessage.toString());
                         }
                     }
                 }

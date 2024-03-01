@@ -93,6 +93,12 @@ public class IslandCmd implements CommandExecutor {
             }
             return false;
         }
+
+        if (island.isReadOnly()) {
+            p.sendMessage(Component.text("§c§lVeuillez éditer votre île sur le serveur où elle est chargée."));
+            return false;
+        }
+
         if (args[0].equalsIgnoreCase("bank") || args[0].equalsIgnoreCase("banque")) {
             new IslandBankInv(island).open(p);
             return false;

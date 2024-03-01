@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
@@ -61,6 +62,10 @@ public class IslandRankEditInv extends FastInv {
                 }
             }
             setItem(slots[currentSlot], ItemBuilder.copyOf(custom).name(perm.getDescription()).lore(lore).build(), e -> {
+                if (island.isReadOnly()) {
+                    IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                    return;
+                }
                 IslandRanks rank = island.getMembers().get(e.getWhoClicked().getUniqueId());
                 if (rank == null) return;
                 if (!island.hasPerms(rank, IslandPerms.CHANGE_PERMS, e.getWhoClicked().getUniqueId())) {

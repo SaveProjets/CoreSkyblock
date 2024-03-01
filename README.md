@@ -72,7 +72,7 @@ coreskyblock → island:members:{uuid}:{island_uuid}
 
 #### Data change
 
-coreskyblock → island:pubsub:{island_uuid}
+coreskyblock → island:pubsub:{island_uuid}:{server_name}
 
 #### Remote create
 
@@ -85,6 +85,18 @@ coreskyblock → island:remote_load:{island_uuid}:{server_name}
 #### Teleport
 
 coreskyblock → island:teleport:{uuid}:{island_uuid}
+
+#### Island chat to everyone
+
+coreskyblock → island:chat_message:{island_uuid}:{server_name}:{message...}
+
+#### Island chat to certain ranks with permission
+
+coreskyblock → island:chat_message_with_perms:{island_uuid}:{server_name}:{permission}:{message...}
+
+#### Island notify player
+
+coreskyblock → island:to_player_chat:{uuid}:{server_name}:{message...}
 
 ### Fonctionnement
 

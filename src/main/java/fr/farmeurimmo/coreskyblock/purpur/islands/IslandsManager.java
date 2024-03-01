@@ -42,10 +42,10 @@ public class IslandsManager {
     public final Map<String, Integer> serversData = new HashMap<>();
     public final Map<UUID, String> awaitingResponseFromServer = new HashMap<>();
     public final Map<UUID, Long> awaitingResponseFromServerTime = new HashMap<>(); //for unload
+    public final Gson gson = new Gson();
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
     private final ArrayList<UUID> deleteConfirmation = new ArrayList<>();
-    private final Gson gson = new Gson();
 
     public IslandsManager(JavaPlugin plugin) {
         INSTANCE = this;
@@ -169,7 +169,7 @@ public class IslandsManager {
                 try {
                     UUID islandUUID = UUID.fromString(islandUUIDOfPlayerString);
                     loadFromRedis(islandUUID.toString());
-                    checkIfIslandIsLoaded(islandUUID);
+                    Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 2);
                     return;
                 } catch (Exception ignored) {
                 }
@@ -177,7 +177,7 @@ public class IslandsManager {
                 try {
                     UUID islandUUID = UUID.fromString(islandUUIDString);
                     loadFromRedis(islandUUID.toString());
-                    checkIfIslandIsLoaded(islandUUID);
+                    Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 2);
                     return;
                 } catch (Exception ignored) {
                 }
@@ -199,7 +199,8 @@ public class IslandsManager {
 
             if (island != null) {
                 if (forceLoad) return;
-                checkIfIslandIsLoaded(island.getIslandUUID());
+                UUID finalIslandUUID = islandUUID;
+                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(finalIslandUUID), 2);
                 JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID(), gson.toJson(island.toJson()));
                 for (UUID member : island.getMembers().keySet()) {
                     JedisManager.INSTANCE.sendToRedis("coreskyblock:island:members:" + member, island.getIslandUUID().toString());
@@ -210,15 +211,19 @@ public class IslandsManager {
 
     public void loadFromRedis(String uuid) {
         String content = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + uuid);
+        String server = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + uuid + ":loaded");
         if (content == null) return;
         JsonObject json = new Gson().fromJson(content, JsonObject.class);
         Island island = Island.fromJson(json);
         if (island != null) {
-            Island oldIsland = IslandsDataManager.INSTANCE.getCache().get(island.getIslandUUID());
-            if (oldIsland != null) {
-                oldIsland.sendMessageToAll("§cMise à jour des données read only de votre île.");
+            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                IslandsDataManager.INSTANCE.getCache().put(island.getIslandUUID(), island);
+                return null;
+            });
+            if (server != null && !server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
+                island.setReadOnly(true);
+                island.sendMessageToAll("§cMise à jour des données read only de votre île.");
             }
-            IslandsDataManager.INSTANCE.getCache().put(island.getIslandUUID(), island);
         }
     }
 
@@ -239,13 +244,16 @@ public class IslandsManager {
                 }
                 JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_load:" + islandUUID + ":" + server);
             } else {
-                World world = Bukkit.getWorld(getIslandWorldName(islandUUID));
-                if (world != null) {
-                    island.setLoaded(true);
-                    island.getSpawn().setWorld(world);
-                    applyTimeAndWeather(world, island);
-                    IslandsSizeManager.INSTANCE.updateWorldBorder(island);
-                }
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    World world = Bukkit.getWorld(getIslandWorldName(islandUUID));
+                    if (world != null) {
+                        island.setLoaded(true);
+                        island.getSpawn().setWorld(world);
+                        applyTimeAndWeather(world, island);
+                        IslandsSizeManager.INSTANCE.updateWorldBorder(island);
+                    }
+                    return null;
+                });
             }
         }
     }
@@ -550,5 +558,9 @@ public class IslandsManager {
                 }
             }
         }
+    }
+
+    public void sendPlayerIslandReadOnly(Player p) {
+        p.sendMessage(Component.text("§c§lVeuillez éditer votre île sur le serveur où elle est chargée."));
     }
 }

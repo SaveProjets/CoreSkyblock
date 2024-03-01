@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
@@ -22,6 +23,8 @@ public class ChatListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
 
+        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+
         if (IslandsBankManager.INSTANCE.isAwaitingAmount(p.getUniqueId())) {
             e.setCancelled(true);
             if (e.getMessage().equalsIgnoreCase("cancel")) {
@@ -39,6 +42,8 @@ public class ChatListener implements Listener {
                     return;
                 }
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    if (island != null)
+                        IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-bank");
                     IslandsBankManager.INSTANCE.removeAwaitingAmount(p, true, amount);
                     return null;
                 });
@@ -73,7 +78,6 @@ public class ChatListener implements Listener {
 
         e.setCancelled(true);
 
-        Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
         String level = (island != null) ? "§8[§e" + NumberFormat.getInstance().format(island.getLevel()) + "§8] " : "";
         p.getServer().sendMessage(Component.text(level + "§6???? " + p.getName() + " §8» §f").append(component));
     }

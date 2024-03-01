@@ -43,6 +43,10 @@ public class IslandSettingsInv extends FastInv {
             setItem(currentSlot, ItemBuilder.copyOf(custom).name(setting.getDesc()).lore(List.of(activated ? "§aActivé"
                     : "§cDésactivé", "", "§eClic pour " + (next != null ? "passer à " + next.getDesc() : (activated ?
                     "§cdésactiver" : "§aactiver")))).build(), e -> {
+                if (island.isReadOnly()) {
+                    IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                    return;
+                }
                 if (e.getCurrentItem() == null) return;
                 if (e.getCurrentItem().getType() == Material.CLOCK || e.getCurrentItem().getType() == Material.DAYLIGHT_DETECTOR) {
                     island.removeSetting(setting);

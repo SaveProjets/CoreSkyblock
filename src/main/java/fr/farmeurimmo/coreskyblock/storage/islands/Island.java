@@ -350,14 +350,22 @@ public class Island {
     }
 
     public void update(boolean async) {
-        if (async) CompletableFuture.runAsync(() -> IslandsDataManager.INSTANCE.update(this, areMembersModified,
-                arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified)).thenRun(() ->
-                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()));
+        if (async) CompletableFuture.runAsync(() -> {
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+                    .toJson(toJson()));
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()
+                    + ":" + CoreSkyblock.SERVER_NAME);
+            IslandsDataManager.INSTANCE.update(this, areMembersModified,
+                    arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified);
+        });
         else {
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+                    .toJson(toJson()));
             IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
                     areBannedPlayersModified, areSettingsModified, areChestsModified);
             CompletableFuture.runAsync(() ->
-                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()));
+                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" +
+                            islandUUID.toString() + ":" + CoreSkyblock.SERVER_NAME));
         }
 
         isModified = false;
@@ -489,6 +497,9 @@ public class Island {
                 }
             }
         }
+        CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                "island:chat_message_with_perms:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME + ":" +
+                        perm.getId() + ":" + message));
     }
 
     public void sendMessageToAll(String message) {
