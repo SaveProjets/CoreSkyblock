@@ -9,6 +9,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -350,15 +351,24 @@ public class Island {
     }
 
     public void update(boolean async) {
-        if (async) CompletableFuture.runAsync(() -> {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
-                    .toJson(toJson()));
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()
-                    + ":" + CoreSkyblock.SERVER_NAME);
-            IslandsDataManager.INSTANCE.update(this, areMembersModified,
-                    arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified);
-        });
-        else {
+        if (async) {
+            CompletableFuture.runAsync(() -> {
+                JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+                        .toJson(toJson()));
+                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()
+                        + ":" + CoreSkyblock.SERVER_NAME);
+                IslandsDataManager.INSTANCE.update(this, areMembersModified,
+                        arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified);
+            }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                isModified = false;
+                areMembersModified = false;
+                arePermsModified = false;
+                areBannedPlayersModified = false;
+                areSettingsModified = false;
+                areChestsModified = false;
+                return null;
+            }));
+        } else {
             JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
                     .toJson(toJson()));
             IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
@@ -366,14 +376,14 @@ public class Island {
             CompletableFuture.runAsync(() ->
                     JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" +
                             islandUUID.toString() + ":" + CoreSkyblock.SERVER_NAME));
-        }
 
-        isModified = false;
-        areMembersModified = false;
-        arePermsModified = false;
-        areBannedPlayersModified = false;
-        areSettingsModified = false;
-        areChestsModified = false;
+            isModified = false;
+            areMembersModified = false;
+            arePermsModified = false;
+            areBannedPlayersModified = false;
+            areSettingsModified = false;
+            areChestsModified = false;
+        }
     }
 
     public boolean needUpdate() {
@@ -489,6 +499,13 @@ public class Island {
     }
 
     public void sendMessage(String message, IslandPerms perm) {
+        sendMessageToLocals(message, perm);
+        CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                "island:chat_message_with_perms:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME + ":" +
+                        perm.getId() + ":" + message));
+    }
+
+    public void sendMessageToLocals(String message, IslandPerms perm) {
         for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
             if (hasPerms(entry.getValue(), perm, entry.getKey())) {
                 Player player = CoreSkyblock.INSTANCE.getServer().getPlayer(entry.getKey());
@@ -497,12 +514,15 @@ public class Island {
                 }
             }
         }
-        CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
-                "island:chat_message_with_perms:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME + ":" +
-                        perm.getId() + ":" + message));
     }
 
     public void sendMessageToAll(String message) {
+        sendMessageToAllLocals(message);
+        CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                "island:chat_message:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME + ":" + message));
+    }
+
+    public void sendMessageToAllLocals(String message) {
         for (Map.Entry<UUID, IslandRanks> entry : members.entrySet()) {
             Player player = CoreSkyblock.INSTANCE.getServer().getPlayer(entry.getKey());
             if (player != null) {

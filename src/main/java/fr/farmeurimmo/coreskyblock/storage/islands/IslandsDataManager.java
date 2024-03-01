@@ -232,9 +232,10 @@ public class IslandsDataManager {
     public void updateIslandMembers(Connection connection, Island island) {
         for (Map.Entry<UUID, IslandRanks> entry : island.getMembers().entrySet()) {
             String query = "INSERT IGNORE INTO island_members (island_uuid, uuid, username, rank_id, created_at, updated_at) " +
-                    "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                    "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE rank_id = ?, " +
+                    "updated_at = CURRENT_TIMESTAMP";
             executeUpdate(connection, query, island.getIslandUUID().toString(), entry.getKey().toString(),
-                    island.getMemberName(entry.getKey()), entry.getValue().getId());
+                    island.getMemberName(entry.getKey()), entry.getValue().getId(), entry.getValue().getId());
         }
     }
 
@@ -242,8 +243,10 @@ public class IslandsDataManager {
         for (Map.Entry<IslandRanks, ArrayList<IslandPerms>> entry : island.getRanksPermsReduced().entrySet()) {
             for (IslandPerms perm : entry.getValue()) {
                 String query = "INSERT IGNORE INTO island_ranks_permissions (island_uuid, rank_id, permission_id, " +
-                        "created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-                executeUpdate(connection, query, island.getIslandUUID().toString(), entry.getKey().getId(), perm.getId());
+                        "created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) " +
+                        "ON DUPLICATE KEY UPDATE rank_id = ?, permission_id = ?, updated_at = CURRENT_TIMESTAMP";
+                executeUpdate(connection, query, island.getIslandUUID().toString(), entry.getKey().getId(), perm.getId(),
+                        entry.getKey().getId(), perm.getId());
             }
         }
     }
@@ -259,19 +262,24 @@ public class IslandsDataManager {
     public void updateIslandSettings(Connection connection, Island island) {
         for (IslandSettings setting : IslandSettings.values()) {
             String query = "INSERT IGNORE INTO island_settings (island_uuid, setting_id, value, created_at, updated_at)" +
-                    " VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                    " VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE value = ?, " +
+                    "updated_at = CURRENT_TIMESTAMP";
             executeUpdate(connection, query, island.getIslandUUID().toString(), setting.getId(), island.getSettings()
-                    .contains(setting));
+                    .contains(setting), island.getSettings().contains(setting));
         }
     }
 
     public void updateIslandChests(Connection connection, Island island) {
         for (Chest chest : island.getChests()) {
             String query = "INSERT IGNORE INTO island_chests (uuid, island_uuid, type_id, block, item_to_buy_sell, " +
-                    "price, is_sell, " +
-                    "active_sell_or_buy, amount_of_stacked_blocks, created_at, updated_at) VALUES " +
-                    "(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                    "price, is_sell, " + "active_sell_or_buy, amount_of_stacked_blocks, created_at, updated_at) VALUES " +
+                    "(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE " +
+                    "type_id = ?, block = ?, item_to_buy_sell = ?, price = ?, is_sell = ?, active_sell_or_buy = ?, " +
+                    "amount_of_stacked_blocks = ?, updated_at = CURRENT_TIMESTAMP";
             executeUpdate(connection, query, chest.getUuid().toString(), island.getIslandUUID().toString(),
+                    chest.getType().getId(), LocationTranslator.fromLocation(chest.getBlock()),
+                    InventorySyncUtils.INSTANCE.itemStackToBase64(chest.getItemToBuySell()), chest.getPrice(),
+                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getAmountOfStackedBlocks(),
                     chest.getType().getId(), LocationTranslator.fromLocation(chest.getBlock()),
                     InventorySyncUtils.INSTANCE.itemStackToBase64(chest.getItemToBuySell()), chest.getPrice(),
                     chest.isSell(), chest.isActiveSellOrBuy(), chest.getAmountOfStackedBlocks());

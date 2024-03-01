@@ -219,7 +219,7 @@ public class JedisManager {
                                 if (island == null) {
                                     return;
                                 }
-                                island.sendMessageToAll(playerMessage.toString());
+                                island.sendMessageToAllLocals(playerMessage.toString());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -243,7 +243,7 @@ public class JedisManager {
                                 if (island == null) {
                                     return;
                                 }
-                                island.sendMessage(playerMessage.toString(), perms);
+                                island.sendMessageToLocals(playerMessage.toString(), perms);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

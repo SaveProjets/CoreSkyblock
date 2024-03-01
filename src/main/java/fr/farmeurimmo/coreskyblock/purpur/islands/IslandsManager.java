@@ -213,6 +213,9 @@ public class IslandsManager {
         String content = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + uuid);
         String server = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + uuid + ":loaded");
         if (content == null) return;
+        if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(server)) {
+            return;
+        }
         JsonObject json = new Gson().fromJson(content, JsonObject.class);
         Island island = Island.fromJson(json);
         if (island != null) {
@@ -222,7 +225,7 @@ public class IslandsManager {
             });
             if (server != null && !server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
                 island.setReadOnly(true);
-                island.sendMessageToAll("§cMise à jour des données read only de votre île.");
+                island.sendMessageToAllLocals("§cMise à jour des données read only de votre île.");
             }
         }
     }
