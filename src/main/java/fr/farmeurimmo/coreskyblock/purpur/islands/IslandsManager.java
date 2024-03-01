@@ -99,9 +99,10 @@ public class IslandsManager {
 
     public Island getIslandByLoc(World world) {
         if (world == null) return null;
+        String worldName = world.getName();
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-            if (island.getSpawn() != null && island.getSpawn().getWorld() != null &&
-                    island.getSpawn().getWorld().equals(world)) {
+            if (!island.isLoaded()) return null;
+            if (getIslandWorldName(island.getIslandUUID()).equalsIgnoreCase(worldName)) {
                 return island;
             }
         }
