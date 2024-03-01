@@ -26,16 +26,17 @@ public class PlayerListener implements Listener {
         e.joinMessage(null);
         p.teleportAsync(CoreSkyblock.SPAWN);
 
-        SkyblockUsersManager.INSTANCE.loadUser(p.getUniqueId(), p.getName()).exceptionally(ex -> {
-            p.kick(Component.text("§cErreur lors de la connexion au serveur, veuillez réessayer plus tard !"));
-            return null;
-        });
-
-        SyncUsersManager.INSTANCE.startPlayerSync(p);
-
-        IslandsManager.INSTANCE.checkForDataIntegrity(null, p.getUniqueId(), false);
-
         ScoreboardManager.INSTANCE.addPlayer(p);
+
+        CompletableFuture.runAsync(() -> {
+            SyncUsersManager.INSTANCE.startPlayerSync(p);
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.loadUser(p.getUniqueId(), p.getName());
+            if (user == null) {
+                p.kick(Component.text("§cErreur lors de la connexion au serveur, veuillez réessayer plus tard !"));
+                return;
+            }
+            IslandsManager.INSTANCE.checkForDataIntegrity(null, p.getUniqueId(), false);
+        });
     }
 
     @EventHandler
@@ -51,16 +52,17 @@ public class PlayerListener implements Listener {
 
         e.quitMessage(null);
 
-        CompletableFuture.runAsync(() -> SyncUsersManager.INSTANCE.stopPlayerSyncInAsync(p));
-
-        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
-        if (user != null) {
-            CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.updateUserSync(user)).thenRun(() ->
-                    Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                        SkyblockUsersManager.INSTANCE.getCachedUsers().remove(p.getUniqueId());
-                        return null;
-                    }));
-        }
+        CompletableFuture.runAsync(() -> {
+            SyncUsersManager.INSTANCE.stopPlayerSyncInAsync(p);
+            SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
+            if (user != null) {
+                SkyblockUsersManager.INSTANCE.updateUserSync(user);
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    SkyblockUsersManager.INSTANCE.getCachedUsers().remove(p.getUniqueId());
+                    return null;
+                });
+            }
+        });
     }
 
     @EventHandler

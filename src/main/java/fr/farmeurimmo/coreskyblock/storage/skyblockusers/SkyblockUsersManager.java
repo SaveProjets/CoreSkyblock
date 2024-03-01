@@ -41,34 +41,34 @@ public class SkyblockUsersManager {
 
     //FIXME: redis pub/sub
 
-    public CompletableFuture<Void> loadUser(UUID uuid, String name) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (cache.containsKey(uuid)) return null;
-            try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                    "SELECT * FROM skyblock_users WHERE uuid = ?")) {
-                statement.setString(1, uuid.toString());
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return new SkyblockUser(uuid, name, resultSet.getDouble("money"),
-                            resultSet.getDouble("adventure_exp"), resultSet.getDouble("adventure_level"),
-                            resultSet.getInt("fly_time"));
-                } else {
-                    SkyblockUser user = new SkyblockUser(uuid, name, 0, 0, 0, 0);
-                    createUser(user);
-                    return user;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).thenAccept(user -> {
-            if (user != null) {
+    public SkyblockUser loadUser(UUID uuid, String name) {
+        if (cache.containsKey(uuid)) return null;
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
+                "SELECT * FROM skyblock_users WHERE uuid = ?")) {
+            statement.setString(1, uuid.toString());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                SkyblockUser user = new SkyblockUser(uuid, name, resultSet.getDouble("money"),
+                        resultSet.getDouble("adventure_exp"), resultSet.getDouble("adventure_level"),
+                        resultSet.getInt("fly_time"));
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, user);
                     return null;
                 });
+                return user;
+            } else {
+                SkyblockUser user = new SkyblockUser(uuid, name, 0, 0, 0, 0);
+                createUser(user);
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    cache.put(uuid, user);
+                    return null;
+                });
+                return user;
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void updateUserSync(SkyblockUser user) {
