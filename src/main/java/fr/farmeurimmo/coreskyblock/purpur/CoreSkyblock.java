@@ -185,6 +185,17 @@ public final class CoreSkyblock extends JavaPlugin {
         World world = Bukkit.getWorld("spawn");
         if (world != null) {
             world.setSpawnLocation(SPAWN);
+
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks...");
+                long startTime2 = System.currentTimeMillis();
+                for (int x = -9; x <= 9; x++) {
+                    for (int z = -9; z <= 9; z++) {
+                        world.getChunkAt(x, z).setForceLoaded(true);
+                    }
+                }
+                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks terminé en " + (System.currentTimeMillis() - startTime2) + "ms");
+            }, 20L);
         }
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
