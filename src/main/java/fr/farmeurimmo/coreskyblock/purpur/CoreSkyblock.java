@@ -231,10 +231,6 @@ public final class CoreSkyblock extends JavaPlugin {
     public void onDisable() {
         console.sendMessage("§6Arrêt du plugin CoreSkyblock");
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.kick(Component.text("§cArrêt du serveur"));
-        }
-
         WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
         WorldsManager.INSTANCE.unload("island_template_1", false);
 
