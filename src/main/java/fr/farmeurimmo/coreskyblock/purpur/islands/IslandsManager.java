@@ -83,6 +83,17 @@ public class IslandsManager {
             }
         }, 0, 20 * 30);
 
+        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+            for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                if (island.isLoaded()) {
+                    World world = getIslandWorld(island.getIslandUUID());
+                    if (world != null) {
+                        world.save();
+                    }
+                }
+            }
+        }, 0, 20 * 60 * 3);
+
         WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
@@ -328,6 +339,8 @@ public class IslandsManager {
                 IslandsDataManager.INSTANCE.getCache().put(islandUUID, island);
                 World w = Bukkit.getWorld(worldName);
                 if (w == null) return null;
+                w.setAutoSave(false);
+
                 island.getSpawn().setWorld(w);
                 w.setSpawnLocation(island.getSpawn());
                 applyTimeAndWeather(w, island);
@@ -421,6 +434,9 @@ public class IslandsManager {
                 island.setLoaded(true);
                 Location spawn = island.getSpawn();
                 World w = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
+                if (w != null) {
+                    w.setAutoSave(false);
+                }
                 if (spawn != null) {
                     spawn.setWorld(w);
                 }

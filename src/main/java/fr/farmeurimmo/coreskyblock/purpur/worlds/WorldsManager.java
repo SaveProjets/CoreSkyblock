@@ -23,6 +23,9 @@ public class WorldsManager {
         properties.setValue(SlimeProperties.ALLOW_ANIMALS, true);
         properties.setValue(SlimeProperties.ALLOW_MONSTERS, true);
         properties.setValue(SlimeProperties.DEFAULT_BIOME, "plains");
+        properties.setValue(SlimeProperties.SPAWN_X, 0);
+        properties.setValue(SlimeProperties.SPAWN_Y, 80);
+        properties.setValue(SlimeProperties.SPAWN_Z, 0);
 
         loader = CoreSkyblock.INSTANCE.slimePlugin.getLoader("mysql");
     }
