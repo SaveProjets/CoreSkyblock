@@ -328,7 +328,7 @@ public class Island {
         if (needUpdate) areMembersModified = true;
 
         CompletableFuture.runAsync(() -> {
-            if (!needUpdate) update(false);
+            if (needUpdate) update(false);
             JedisManager.INSTANCE.sendToRedis("coreskyblock:island:members:" + uuid, islandUUID.toString());
         });
     }
@@ -339,6 +339,9 @@ public class Island {
         CompletableFuture.runAsync(() -> {
             IslandsDataManager.INSTANCE.deleteMember(islandUUID, uuid);
             JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + uuid);
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+                    .toJson(toJson()));
+            pubSub(false);
         });
 
         Player player = CoreSkyblock.INSTANCE.getServer().getPlayer(uuid);
@@ -350,13 +353,30 @@ public class Island {
         areMembersModified = true;
     }
 
+    public UUID getMemberUUIDFromName(String name) {
+        for (Map.Entry<UUID, String> entry : membersNames.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(name)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public void changeOwner(UUID newOwner) {
+        if (members.containsKey(newOwner)) {
+            members.put(getOwnerUUID(), IslandRanks.COCHEF);
+            members.put(newOwner, IslandRanks.CHEF);
+            areMembersModified = true;
+            update(true);
+        }
+    }
+
     public void update(boolean async) {
         if (async) {
             CompletableFuture.runAsync(() -> {
                 JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
                         .toJson(toJson()));
-                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()
-                        + ":" + CoreSkyblock.SERVER_NAME);
+                pubSub(false);
                 IslandsDataManager.INSTANCE.update(this, areMembersModified,
                         arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified);
             }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
@@ -373,9 +393,7 @@ public class Island {
                     .toJson(toJson()));
             IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
                     areBannedPlayersModified, areSettingsModified, areChestsModified);
-            CompletableFuture.runAsync(() ->
-                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" +
-                            islandUUID.toString() + ":" + CoreSkyblock.SERVER_NAME));
+            pubSub(true);
 
             isModified = false;
             areMembersModified = false;
@@ -383,6 +401,18 @@ public class Island {
             areBannedPlayersModified = false;
             areSettingsModified = false;
             areChestsModified = false;
+        }
+    }
+
+    public void pubSub(boolean async) {
+        if (async) {
+            CompletableFuture.runAsync(() -> {
+                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" + islandUUID.toString()
+                        + ":" + CoreSkyblock.SERVER_NAME);
+            });
+        } else {
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:pubsub:" +
+                    islandUUID.toString() + ":" + CoreSkyblock.SERVER_NAME);
         }
     }
 

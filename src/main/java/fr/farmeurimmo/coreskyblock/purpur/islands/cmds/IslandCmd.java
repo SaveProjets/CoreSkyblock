@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
+import java.util.UUID;
 
 public class IslandCmd implements CommandExecutor {
 
@@ -400,6 +401,45 @@ public class IslandCmd implements CommandExecutor {
             island.sendMessageToAll("§aLe nom de l'île a été changé en §6" + name + "§a.");
             return false;
         }
+        if (args[0].equalsIgnoreCase("leave") || args[0].equalsIgnoreCase("quitter") ||
+                args[0].equalsIgnoreCase("quit") || args[0].equalsIgnoreCase("partir")) {
+            if (island.getOwnerUUID().equals(p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous ne pouvez pas quitter l'île car vous en êtes le propriétaire."));
+                return false;
+            }
+            island.removeMember(p.getUniqueId());
+            p.sendMessage(Component.text("§aVous avez quitté l'île."));
+            island.sendMessageToAll("§a" + p.getName() + " a quitté l'île.");
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("makeleader") || args[0].equalsIgnoreCase("leader")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is makeleader <joueur>"));
+                return false;
+            }
+            if (!island.getOwnerUUID().equals(p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'êtes pas propriétaire de l'île."));
+                return false;
+            }
+            UUID targetUUID = island.getMemberUUIDFromName(args[1]);
+            if (targetUUID == null) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas membre de l'île."));
+                return false;
+            }
+            if (!island.getMembers().containsKey(targetUUID)) {
+                p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
+                return false;
+            }
+            island.changeOwner(targetUUID);
+            p.sendMessage(Component.text("§aLe propriétaire de l'île a été changé."));
+            island.sendMessageToAll("§aLe propriétaire de l'île a été changé pour " + args[1] + ".");
+            Player target = p.getServer().getPlayer(targetUUID);
+            if (target != null) {
+                target.sendMessage(Component.text("§aVous êtes désormais propriétaire de l'île."));
+            }
+            return false;
+        }
+
         return false;
     }
 }
