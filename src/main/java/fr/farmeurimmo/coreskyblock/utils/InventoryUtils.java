@@ -33,7 +33,6 @@ public class InventoryUtils {
     public int hasPlaceWithStackCo(ItemStack item, Inventory inv, Player p) {
 
         int place = 0;
-        ItemStack cloned = item.clone();
         for (ItemStack itemStack : inv.getContents()) {
             if (itemStack == null) {
                 place += item.getMaxStackSize();
@@ -43,9 +42,8 @@ public class InventoryUtils {
                 place += item.getMaxStackSize();
                 continue;
             }
-            cloned.setAmount(itemStack.getAmount());
 
-            if (cloned.isSimilar(itemStack)) {
+            if (item.isSimilar(itemStack)) {
                 place += item.getMaxStackSize() - itemStack.getAmount();
             }
         }

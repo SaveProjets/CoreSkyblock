@@ -29,12 +29,18 @@ public class SyncUsersManager {
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                autoSave(p);
+                autoSave(p, false);
             }
         }, 0, 5 * 60 * 20);
     }
 
-    public void autoSave(Player p) {
+    public void onDisable() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            autoSave(p, false);
+        }
+    }
+
+    public void autoSave(Player p, boolean async) {
         SyncUser user = users.get(p.getUniqueId());
         if (user == null) {
             user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToJson(p.getInventory()),
@@ -48,20 +54,25 @@ public class SyncUsersManager {
         user.setExp(p.getExp());
         user.setPotionEffects(p.getActivePotionEffects().toArray(PotionEffect[]::new));
 
-        final SyncUser finalUser = user;
-        CompletableFuture.runAsync(() -> {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + finalUser.getUuid(),
-                    gson.toJson(finalUser.toJson()));
+        if (async) {
+            final SyncUser finalUser = user;
+            CompletableFuture.runAsync(() -> {
+                JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + finalUser.getUuid(),
+                        gson.toJson(finalUser.toJson()));
 
-            SyncUsersDataManager.INSTANCE.saveInventory(finalUser);
-        });
+                SyncUsersDataManager.INSTANCE.saveInventory(finalUser);
+            });
+        } else {
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + user.getUuid(), gson.toJson(user.toJson()));
+            SyncUsersDataManager.INSTANCE.saveInventory(user);
+        }
     }
 
     // Triggered when a player logs out
     public void stopPlayerSyncInAsync(Player p) {
         if (inSync.contains(p.getUniqueId())) return;
 
-        autoSave(p);
+        autoSave(p, true);
 
         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             users.remove(p.getUniqueId());

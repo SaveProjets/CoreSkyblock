@@ -17,6 +17,10 @@ public class ChestsManager {
     }
 
     public void giveItem(Player p, ChestType type) {
+        p.getInventory().addItem(getItemStack(type));
+    }
+
+    public ItemStack getItemStack(ChestType type) {
         ItemStack item = new ItemStack(type.getMaterial());
 
         ItemMeta meta = item.getItemMeta();
@@ -28,6 +32,6 @@ public class ChestsManager {
         item.setItemMeta(meta);
         item.setUnbreakable(true);
 
-        p.getInventory().addItem(item);
+        return item;
     }
 }

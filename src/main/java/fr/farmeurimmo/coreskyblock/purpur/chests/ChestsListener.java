@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.Player;
@@ -41,7 +42,7 @@ public class ChestsListener implements Listener {
             Player p = e.getPlayer();
 
             if (!IslandsManager.INSTANCE.isAnIsland(p.getWorld())) {
-                p.sendMessage(Component.text("§b§cVous ne pouvez placer ce coffre que sur votre île !"));
+                p.sendMessage(Component.text("§cVous ne pouvez placer ce coffre que sur votre île !"));
                 return;
             }
 
@@ -52,7 +53,7 @@ public class ChestsListener implements Listener {
 
             island.addChest(new Chest(UUID.randomUUID(), island.getIslandUUID(), type, e.getBlock().getLocation(),
                     null, 0, false, false, 0));
-            p.sendMessage(Component.text("§b§aVous avez placé un " + type.getName() + "§a sur votre île !"));
+            p.sendMessage(Component.text("§aVous avez placé un " + type.getName() + "§a sur votre île !"));
 
             e.setCancelled(false);
         }
@@ -71,23 +72,34 @@ public class ChestsListener implements Listener {
         IslandRanks rank = island.getMembers().get(p.getUniqueId());
         if (rank == null) {
             e.setCancelled(true);
-            p.sendMessage(Component.text("§b§cVous n'avez pas la permission de casser ce coffre !"));
+            p.sendMessage(Component.text("§cVous n'avez pas la permission de casser ce coffre !"));
             return;
         }
 
         if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
             e.setCancelled(true);
-            p.sendMessage(Component.text("§b§cVous n'avez pas la permission de casser ce coffre !"));
+            p.sendMessage(Component.text("§cVous n'avez pas la permission de casser ce coffre !"));
             return;
         }
 
+        Chest toRemove = null;
         for (Chest chest : island.getChests()) {
             if (chest.getBlock().equals(b.getLocation())) {
-                e.setCancelled(true);
-                p.sendMessage(Component.text("§b§cVous ne pouvez pas casser ce coffre !"));
-                return;
+                e.setCancelled(false);
+                b.setType(Material.AIR);
+                e.setDropItems(false);
+                ItemStack item = ChestsManager.INSTANCE.getItemStack(chest.getType());
+
+                if (InventoryUtils.INSTANCE.hasPlaceWithStackCo(item,
+                        p.getInventory(), p) <= 0) b.getWorld().dropItemNaturally(b.getLocation(), item);
+                else p.getInventory().addItem(item);
+
+                p.sendMessage(Component.text("§cVous avez cassé un " + chest.getType().getName() + "§c sur votre île !"));
+                toRemove = chest;
+                break;
             }
         }
+        if (toRemove != null) island.removeChest(toRemove);
     }
 
     @EventHandler
