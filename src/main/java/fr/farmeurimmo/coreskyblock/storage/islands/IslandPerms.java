@@ -9,14 +9,14 @@ public enum IslandPerms {
     INVITE("§6Inviter un membre", 2, Material.BOOK), // implemented
     CANCEL_INVITE("§6Annuler les invitations d'un membre", 3, Material.KNOWLEDGE_BOOK), // implemented
     KICK("§6Expulser un membre inférieur à lui", 4, Material.LEATHER_BOOTS), // implemented
-    BAN("§6Bannir un visiteur", 5, Material.ANVIL), // not
-    UNBAN("§6Débannir un visiteur", 6, Material.DAMAGED_ANVIL), // not
+    BAN("§6Bannir un visiteur", 5, Material.ANVIL), // implemented
+    UNBAN("§6Débannir un visiteur", 6, Material.DAMAGED_ANVIL), // implemented
     EXPEL("§6Expulser un visiteur", 7, Material.DIAMOND_HOE),  // implemented
-    SET_ISLAND_NAME("§6Définir le nom de l'île", 8, Material.NAME_TAG), // not
+    SET_ISLAND_NAME("§6Définir le nom de l'île", 8, Material.NAME_TAG), // implemented
     PRIVATE("§6Définir la visibilité de l'île sur privée", 9, Material.RED_BED), // implemented
     PUBLIC("§6Définir la visibilité de l'île sur publique", 10, Material.BLUE_BED), // implemented
     CHANGE_ISLAND_BIOME("§6Changer le biome de l'île", 11, Material.CLAY), // not
-    SET_HOME("§6Définir le home de l'île", 12, Material.GRASS_BLOCK), // not
+    SET_HOME("§6Définir le home de l'île", 12, Material.GRASS_BLOCK), // implemented
     CHANGE_PERMS("§6Définir les permissions depuis son niveau de grade", 13, Material.EMERALD_BLOCK), // implemented
     ALL_PERMS("§6Toutes les permissions (Bypass les autres permissions)", 14, Material.BEDROCK), // implemented
     ADD_COOP("§6Ajouter un membre temporaire", 15, Material.BONE_BLOCK), // not
