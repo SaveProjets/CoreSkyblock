@@ -346,13 +346,10 @@ public class IslandsManager {
                 applyTimeAndWeather(w, island);
                 IslandsSizeManager.INSTANCE.updateWorldBorder(island);
                 CompletableFuture.runAsync(() -> {
+                    setIslandLoadedAt(islandUUID);
+                    island.update(false);
                     JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create_response:" +
                             CoreSkyblock.SERVER_NAME + ":" + owner);
-                    setIslandLoadedAt(islandUUID);
-                    JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, gson.toJson(island.toJson()));
-                    for (UUID member : island.getMembers().keySet()) {
-                        JedisManager.INSTANCE.sendToRedis("coreskyblock:island:members:" + member, islandUUID.toString());
-                    }
                 });
                 if (sameServer) {
                     Player ownerPlayer = plugin.getServer().getPlayer(owner);
@@ -562,20 +559,19 @@ public class IslandsManager {
         if (island.isLoaded()) {
             WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
             island.setLoaded(false);
-            if (async) CompletableFuture.runAsync(() -> {
-                if (delete) IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID());
-                JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
-                for (UUID member : island.getMembers().keySet()) {
-                    JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + member);
-                }
-            });
-            else {
-                if (delete) IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID());
-                JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
-                for (UUID member : island.getMembers().keySet()) {
-                    JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + member);
-                }
-            }
+            if (async) CompletableFuture.runAsync(() -> actForUnload(island, delete));
+            else actForUnload(island, delete);
+        }
+    }
+
+    private void actForUnload(Island island, boolean delete) {
+        if (delete) {
+            IslandsDataManager.INSTANCE.deleteIsland(island.getIslandUUID());
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:delete:" + island.getIslandUUID());
+        }
+        JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
+        for (UUID member : island.getMembers().keySet()) {
+            JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + member);
         }
     }
 

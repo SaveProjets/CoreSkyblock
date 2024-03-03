@@ -56,9 +56,11 @@ public class ScoreboardManager {
             islandLines.add("§8┃ §7Niveau: §3" + NumberFormat.getInstance().format(island.getLevel()));
         } else {
             islandLines.add("§6§lVous n'avez pas d'île");
-            islandLines.add("§8┃ §7/is create pour en créer une");
-            islandLines.add("§8┃ §7/is accept <joueur> pour rejoindre une");
-            islandLines.add("§8┃ §7île avec une invitation");
+            islandLines.add("§8┃ §7/is create");
+            islandLines.add("§8┃ §7Créer une île");
+            islandLines.add("§8┃ §7/is accept <joueur>");
+            islandLines.add("§8┃ §7Accepter une invitation");
+            islandLines.add("§8┃ §7d'un joueur");
         }
         if (number == 0) {
             board.updateTitle("§4»§c» §c§lSKYBLOCK §c«§4«");
@@ -74,8 +76,8 @@ public class ScoreboardManager {
                     islandLines.get(1),
                     islandLines.get(2),
                     islandLines.get(3),
-                    islandLines.stream().skip(4).findFirst().orElse(""),
-                    islandLines.stream().skip(5).findFirst().orElse(""),
+                    islandLines.get(4),
+                    islandLines.get(5),
                     "",
                     "§f» §c§lplay.edmine.net"
             );

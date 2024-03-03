@@ -266,6 +266,19 @@ public class JedisManager {
                             }
                             p.sendMessage(playerMessage.toString());
                         }
+                        if (args[1].equalsIgnoreCase("delete")) {
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+                                Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                if (island == null) {
+                                    return;
+                                }
+                                IslandsDataManager.INSTANCE.getCache().remove(islandUUID);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
                     }
                 }
             }
