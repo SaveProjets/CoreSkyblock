@@ -4,6 +4,10 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestType;
 import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import it.unimi.dsi.fastutil.Pair;
@@ -42,6 +46,10 @@ public class IslandsDataManager {
             "item_to_buy_sell VARCHAR(255), price DOUBLE, is_sell BOOLEAN, active_sell_or_buy BOOLEAN, " +
             "amount_of_stacked_blocks BIGINT, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) " +
             "REFERENCES islands(uuid) ON DELETE CASCADE)";
+    private static final String CREATE_ISLAND_WARPS_TABLE = "CREATE TABLE IF NOT EXISTS island_warps " +
+            "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), name VARCHAR(255), description VARCHAR(1024), " +
+            "categories VARCHAR(255), loc_tp VARCHAR(255), forward BIGINT, is_activated BOOL, created_at TIMESTAMP, " +
+            "updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
     public static IslandsDataManager INSTANCE;
     private final Map<UUID, Island> cache = new HashMap<>();
 
@@ -66,6 +74,7 @@ public class IslandsDataManager {
             createTable(connection, CREATE_ISLAND_BANNEDS_TABLE);
             createTable(connection, CREATE_ISLAND_SETTINGS_TABLE);
             createTable(connection, CREATE_ISLAND_CHESTS_TABLE);
+            createTable(connection, CREATE_ISLAND_WARPS_TABLE);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -190,6 +199,8 @@ public class IslandsDataManager {
 
             saveIslandChests(connection, island.getIslandUUID(), island.getChests());
 
+            // Not needed to save warps because the island just got created
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -272,8 +283,8 @@ public class IslandsDataManager {
     public void updateIslandChests(Connection connection, Island island) {
         for (Chest chest : island.getChests()) {
             String query = "INSERT IGNORE INTO island_chests (uuid, island_uuid, type_id, block, item_to_buy_sell, " +
-                    "price, is_sell, " + "active_sell_or_buy, amount_of_stacked_blocks, created_at, updated_at) VALUES " +
-                    "(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE " +
+                    "price, is_sell, " + "active_sell_or_buy, amount_of_stacked_blocks, created_at, updated_at) VALUES "
+                    + "(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE " +
                     "type_id = ?, block = ?, item_to_buy_sell = ?, price = ?, is_sell = ?, active_sell_or_buy = ?, " +
                     "amount_of_stacked_blocks = ?, updated_at = CURRENT_TIMESTAMP";
             executeUpdate(connection, query, chest.getUuid().toString(), island.getIslandUUID().toString(),
@@ -284,6 +295,19 @@ public class IslandsDataManager {
                     InventorySyncUtils.INSTANCE.itemStackToBase64(chest.getItemToBuySell()), chest.getPrice(),
                     chest.isSell(), chest.isActiveSellOrBuy(), chest.getAmountOfStackedBlocks());
         }
+    }
+
+    public void updateIslandWarp(Connection connection, IslandWarp islandWarp) {
+        String query = "INSERT IGNORE INTO island_warps (uuid, island_uuid, name, description, categories, loc_tp, " +
+                "forward, is_activated, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, " +
+                "CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE name = ?, description = ?, categories = ?, loc_tp = ?, " +
+                "forward = ?, is_activated = ?, updated_at = CURRENT_TIMESTAMP";
+        executeUpdate(connection, query, islandWarp.getUuid().toString(), islandWarp.getIslandUUID().toString(),
+                islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategories().toString(),
+                LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
+                islandWarp.isActivated(), islandWarp.getName(), islandWarp.getDescription(),
+                islandWarp.getCategories().toString(), LocationTranslator.fromLocation(islandWarp.getLocation()),
+                islandWarp.getForwardedWarp(), islandWarp.isActivated());
     }
 
     public Pair<Map<UUID, IslandRanks>, Map<UUID, String>> loadIslandMembers(UUID islandUUID) {
@@ -394,6 +418,33 @@ public class IslandsDataManager {
         return chests;
     }
 
+    public List<IslandWarp> loadIslandsWarps() {
+        List<IslandWarp> warps = new ArrayList<>();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM island_warps")) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    UUID uuid = UUID.fromString(result.getString("uuid"));
+                    UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
+                    String name = result.getString("name");
+                    String description = result.getString("description");
+                    String[] categories = result.getString("categories").split(",");
+                    ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
+                    for (String category : categories) {
+                        islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
+                    }
+                    Location location = LocationTranslator.fromString(result.getString("loc_tp"));
+                    boolean isActivated = result.getBoolean("is_activated");
+                    long forwardedWarp = result.getLong("forward");
+                    warps.add(new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location, isActivated, forwardedWarp));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return warps;
+    }
+
     public void saveIslandData(Connection connection, Island island) {
         String query = "INSERT INTO islands (uuid, name, spawn, upgrade_size, upgrade_members, upgrade_generator, " +
                 "bank_money, is_public, exp, level, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " +
@@ -487,6 +538,15 @@ public class IslandsDataManager {
         String query = "DELETE FROM island_members WHERE island_uuid = ? AND uuid = ?";
         try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
             executeUpdate(connection, query, islandUUID.toString(), memberUUID.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteWarp(UUID warpUUID) {
+        String query = "DELETE FROM island_warps WHERE uuid = ?";
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            executeUpdate(connection, query, warpUUID.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }

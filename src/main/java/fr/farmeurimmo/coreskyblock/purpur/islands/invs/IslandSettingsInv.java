@@ -2,7 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
-import fr.farmeurimmo.coreskyblock.storage.islands.IslandSettings;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;

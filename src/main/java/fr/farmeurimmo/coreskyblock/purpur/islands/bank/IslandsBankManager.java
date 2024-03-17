@@ -2,8 +2,8 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.bank;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
-import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
-import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;

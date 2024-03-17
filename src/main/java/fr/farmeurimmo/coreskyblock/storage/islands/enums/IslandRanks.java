@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.storage.islands;
+package fr.farmeurimmo.coreskyblock.storage.islands.enums;
 
 import java.util.Arrays;
 import java.util.Collections;

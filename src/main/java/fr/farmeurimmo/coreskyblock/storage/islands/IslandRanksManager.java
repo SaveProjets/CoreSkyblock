@@ -1,5 +1,8 @@
 package fr.farmeurimmo.coreskyblock.storage.islands;
 
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
+
 import java.util.HashMap;
 
 public class IslandRanksManager {

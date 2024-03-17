@@ -7,6 +7,9 @@ import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -35,7 +38,6 @@ public class Island {
     private boolean isPublic;
     private double exp;
     private float level;
-
     private boolean loaded = false; // not saved
     private boolean readOnly = false; // not saved
     private long loadTimeout = -1; // not saved
@@ -160,6 +162,7 @@ public class Island {
             }
             //get dereduced perms
             perms = getRanksPermsFromReduced(perms);
+
             return new Island(islandUUID, name, spawn, members, membersNames, perms, maxSize, maxMembers, generatorLevel,
                     bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, false);
         } catch (Exception ignored) {

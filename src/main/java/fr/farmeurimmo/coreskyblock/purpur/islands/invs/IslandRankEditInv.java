@@ -2,9 +2,9 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
-import fr.farmeurimmo.coreskyblock.storage.islands.IslandPerms;
-import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
