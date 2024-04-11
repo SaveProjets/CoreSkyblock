@@ -68,6 +68,14 @@ coreskyblock → island:server:{island_uuid}:{SERVER_NAME}
 
 coreskyblock → island:members:{uuid}:{island_uuid}
 
+### Mise en cache d'un warp d'île
+
+coreskyblock → island:warp:{island_uuid}
+
+### Mise en cache de la liste des warps des îles
+
+coreskyblock → island:warps
+
 ### Pubsub
 
 #### Data change
@@ -97,6 +105,10 @@ coreskyblock → island:chat_message_with_perms:{island_uuid}:{server_name}:{per
 #### Island notify player
 
 coreskyblock → island:to_player_chat:{uuid}:{server_name}:{message...}
+
+#### Island warp update
+
+coreskyblock → island:warp_update:{island_uuid}
 
 ### Fonctionnement
 

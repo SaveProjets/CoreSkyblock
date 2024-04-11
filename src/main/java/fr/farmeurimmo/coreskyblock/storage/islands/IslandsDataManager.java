@@ -297,17 +297,21 @@ public class IslandsDataManager {
         }
     }
 
-    public void updateIslandWarp(Connection connection, IslandWarp islandWarp) {
+    public void updateIslandWarp(IslandWarp islandWarp) {
         String query = "INSERT IGNORE INTO island_warps (uuid, island_uuid, name, description, categories, loc_tp, " +
                 "forward, is_activated, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, " +
                 "CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE name = ?, description = ?, categories = ?, loc_tp = ?, " +
                 "forward = ?, is_activated = ?, updated_at = CURRENT_TIMESTAMP";
-        executeUpdate(connection, query, islandWarp.getUuid().toString(), islandWarp.getIslandUUID().toString(),
-                islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategories().toString(),
-                LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
-                islandWarp.isActivated(), islandWarp.getName(), islandWarp.getDescription(),
-                islandWarp.getCategories().toString(), LocationTranslator.fromLocation(islandWarp.getLocation()),
-                islandWarp.getForwardedWarp(), islandWarp.isActivated());
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            executeUpdate(connection, query, islandWarp.getUuid().toString(), islandWarp.getIslandUUID().toString(),
+                    islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategories().toString(),
+                    LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
+                    islandWarp.isActivated(), islandWarp.getName(), islandWarp.getDescription(),
+                    islandWarp.getCategories().toString(), LocationTranslator.fromLocation(islandWarp.getLocation()),
+                    islandWarp.getForwardedWarp(), islandWarp.isActivated());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Pair<Map<UUID, IslandRanks>, Map<UUID, String>> loadIslandMembers(UUID islandUUID) {
@@ -428,10 +432,19 @@ public class IslandsDataManager {
                     UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
                     String name = result.getString("name");
                     String description = result.getString("description");
-                    String[] categories = result.getString("categories").split(",");
+                    String categoriesString = result.getString("categories");
+                    if (categoriesString != null) {
+                        categoriesString = categoriesString.substring(1, categoriesString.length() - 1).replace(" ", "");
+                    }
                     ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
-                    for (String category : categories) {
-                        islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
+
+                    if (categoriesString != null && !categoriesString.isEmpty()) {
+                        String[] categories = categoriesString.split(",");
+                        for (String category : categories) {
+                            if (!category.isEmpty()) {
+                                islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
+                            }
+                        }
                     }
                     Location location = LocationTranslator.fromString(result.getString("loc_tp"));
                     boolean isActivated = result.getBoolean("is_activated");

@@ -2,12 +2,14 @@ package fr.farmeurimmo.coreskyblock.storage.islands;
 
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class IslandWarp {
 
@@ -30,6 +32,13 @@ public class IslandWarp {
         this.location = location;
         this.isActivated = isActivated;
         this.forwardedWarp = forwardedWarp;
+    }
+
+    public IslandWarp(UUID islandUUID, String creator, Location location, boolean create) {
+        this(UUID.randomUUID(), islandUUID, "Warp de l'île de " + creator,
+                "Aucune description renseignée", new ArrayList<>(), location, false, 0);
+
+        if (create) update();
     }
 
     public static IslandWarp fromJson(JsonObject jsonObject) {
@@ -123,7 +132,13 @@ public class IslandWarp {
     }
 
     public void update() {
-        // Update the warp in the cache dans in the database
+        // Update the warp in the cache and in the database
+        CompletableFuture.runAsync(() -> {
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:warp:" + islandUUID, toJson());
+            JedisManager.INSTANCE.publishToRedis("coreskyblock:island:warp_update:" + islandUUID, toJson());
+
+            IslandsDataManager.INSTANCE.updateIslandWarp(this);
+        });
     }
 
     public String getCategoriesString() {
@@ -144,6 +159,7 @@ public class IslandWarp {
         jsonObject.addProperty("isActivated", isActivated);
         jsonObject.addProperty("categories", getCategoriesString());
         jsonObject.addProperty("forwardedWarp", forwardedWarp);
+
         return IslandsManager.INSTANCE.gson.toJson(jsonObject);
     }
 

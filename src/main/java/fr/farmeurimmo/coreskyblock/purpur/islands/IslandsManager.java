@@ -52,6 +52,7 @@ public class IslandsManager {
         this.plugin = plugin;
 
         new IslandsDataManager();
+        new IslandsWarpManager();
 
         new IslandRanksManager();
         new IslandsGeneratorManager();

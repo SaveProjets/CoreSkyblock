@@ -2,9 +2,13 @@ package fr.farmeurimmo.coreskyblock.storage;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import net.kyori.adventure.text.Component;
@@ -204,6 +208,37 @@ public class JedisManager {
                             }
                             return;
                         }
+                        if (args[1].equalsIgnoreCase("teleport_warp")) {
+                            try {
+                                UUID playerUUID = UUID.fromString(args[2]);
+                                UUID islandUUID = UUID.fromString(args[3]);
+                                String serverName = args[4];
+                                if (!CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                AtomicInteger tries = new AtomicInteger(0);
+                                Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
+                                    if (tries.get() >= 40) {
+                                        task.cancel();
+                                        return;
+                                    }
+                                    Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                                    if (p == null) {
+                                        tries.getAndIncrement();
+                                        return;
+                                    }
+                                    Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                    if (island == null) {
+                                        tries.getAndIncrement();
+                                        return;
+                                    }
+                                    IslandsWarpManager.INSTANCE.teleportPlayerToWarp(playerUUID, islandUUID, p);
+                                    task.cancel();
+                                }, 0, 5);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         if (args[1].equalsIgnoreCase("chat_message")) {
                             try {
                                 UUID islandUUID = UUID.fromString(args[2]);
@@ -278,6 +313,23 @@ public class JedisManager {
                                 e.printStackTrace();
                             }
                             return;
+                        }
+                        if (args[1].equalsIgnoreCase("warp_update")) {
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+
+                                System.out.println(args);
+
+                                String warp = getFromRedis("coreskyblock:island:warp:" + islandUUID);
+                                if (warp == null) {
+                                    return;
+                                }
+                                JsonObject json = new Gson().fromJson(warp, JsonObject.class);
+
+                                IslandsWarpManager.INSTANCE.updateWarpWithId(islandUUID, IslandWarp.fromJson(json));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }

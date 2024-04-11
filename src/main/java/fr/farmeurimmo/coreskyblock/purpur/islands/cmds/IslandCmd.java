@@ -3,9 +3,11 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.cmds;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandBankInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandInv;
+import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandWarpInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -102,6 +104,11 @@ public class IslandCmd implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("bank") || args[0].equalsIgnoreCase("banque")) {
             new IslandBankInv(island).open(p);
+            return false;
+        }
+
+        if (args[0].equalsIgnoreCase("warp")) {
+            new IslandWarpInv(island, IslandsWarpManager.INSTANCE.getByIslandUUID(island.getIslandUUID())).open(p);
             return false;
         }
 

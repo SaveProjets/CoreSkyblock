@@ -2,6 +2,8 @@ package fr.farmeurimmo.coreskyblock.utils;
 
 import org.bukkit.Location;
 
+import java.text.NumberFormat;
+
 public class LocationTranslator {
 
     public static Location fromString(String locationString) {
@@ -12,5 +14,11 @@ public class LocationTranslator {
 
     public static String fromLocation(Location location) {
         return location.getX() + ";" + location.getY() + ";" + location.getZ() + ";" + location.getYaw() + ";" + location.getPitch();
+    }
+
+    public static String readableLocation(Location location) {
+        return "X: " + NumberFormat.getInstance().format(location.getX()) + ", Y: " + NumberFormat.getInstance()
+                .format(location.getY()) + ", Z: " + NumberFormat.getInstance().format(location.getZ()) +
+                ", Yaw: " + location.getYaw() + ", Pitch: " + location.getPitch();
     }
 }

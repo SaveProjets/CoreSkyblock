@@ -81,5 +81,14 @@ public class IslandInv extends FastInv {
             p.chat("/is " + (island.isPublic() ? "private" : "public"));
             new IslandInv(island).open(p);
         });
+
+        setItem(34, ItemBuilder.copyOf(new ItemStack(Material.AMETHYST_BLOCK)).name("§6Warp §8| §7(clic gauche)").build(), e -> {
+            Player p = (Player) e.getWhoClicked();
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly(p);
+                return;
+            }
+            p.chat("/is warp");
+        });
     }
 }
