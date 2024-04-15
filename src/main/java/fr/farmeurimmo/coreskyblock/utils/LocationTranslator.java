@@ -19,6 +19,7 @@ public class LocationTranslator {
     public static String readableLocation(Location location) {
         return "X: " + NumberFormat.getInstance().format(location.getX()) + ", Y: " + NumberFormat.getInstance()
                 .format(location.getY()) + ", Z: " + NumberFormat.getInstance().format(location.getZ()) +
-                ", Yaw: " + location.getYaw() + ", Pitch: " + location.getPitch();
+                ", Yaw: " + NumberFormat.getInstance().format(location.getYaw()) + ", Pitch: " +
+                NumberFormat.getInstance().format(location.getPitch());
     }
 }

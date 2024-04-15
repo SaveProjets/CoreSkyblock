@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -12,14 +13,20 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IslandWarpInv extends FastInv {
 
-    private static final long COOLDOWN = 5_000;
+    private static final long COOLDOWN = 4_000;
     private boolean gotUpdate = false;
-    private long lastAction = System.currentTimeMillis() - 5_000;
+    private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
+    private boolean awaitingMaterial = false;
+    private IslandWarp warp;
 
     public IslandWarpInv(Island island, IslandWarp warp) {
         super(27, "§8Warp de l'île");
@@ -66,12 +73,19 @@ public class IslandWarpInv extends FastInv {
                     return;
                 }
                 lastAction = System.currentTimeMillis();
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement..."));
+                IslandsWarpManager.INSTANCE.addProcessInput((Player) e.getWhoClicked(), "name");
+                e.getWhoClicked().sendMessage(Component.text("\n§6Merci de définir un nom pour le warp.\n§7Tapez 'cancel' pour annuler."));
+                e.getWhoClicked().sendMessage(Component.text("§7Exemple: §fMon warp"));
+                e.getWhoClicked().closeInventory();
             });
 
+            List<String> lore = new ArrayList<>();
+            for (String descLine : warp.getDescription().replace("\\n", "\n").split("\n")) {
+                lore.add("§7" + descLine);
+            }
             setItem(11, ItemBuilder.copyOf(new ItemStack(Material.BOOK))
                     .name("§6Description §8| §7(clic gauche)")
-                    .lore("§7" + warp.getDescription()).build(), e -> {
+                    .lore(lore).build(), e -> {
                 if (!island.isLoaded()) {
                     e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
                     return;
@@ -82,12 +96,22 @@ public class IslandWarpInv extends FastInv {
                     return;
                 }
                 lastAction = System.currentTimeMillis();
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement..."));
+                IslandsWarpManager.INSTANCE.addProcessInput((Player) e.getWhoClicked(), "description");
+                e.getWhoClicked().sendMessage(Component.text("\n§6Merci de définir une description pour le warp (pour changer de ligne, utilisez un \\n.\n§7Tapez 'cancel' pour annuler."));
+                e.getWhoClicked().sendMessage(Component.text("§7Exemple: §fCeci est une description\n§fCeci est une autre ligne."));
+                e.getWhoClicked().closeInventory();
             });
 
+            ArrayList<String> categories = new ArrayList<>();
+            for (IslandWarpCategories category : warp.getCategories()) {
+                categories.add("§7" + category.getName());
+            }
+            if (categories.isEmpty()) {
+                categories.add("§7Aucune catégorie");
+            }
             setItem(12, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
                     .name("§6Catégories §8| §7(clic gauche)")
-                    .lore("§7" + warp.getCategories()).build(), e -> {
+                    .lore(categories).build(), e -> {
                 if (!island.isLoaded()) {
                     e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
                     return;
@@ -98,11 +122,12 @@ public class IslandWarpInv extends FastInv {
                     return;
                 }
                 lastAction = System.currentTimeMillis();
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement..."));
+
+                new IslandWarpCategoriesSelectionInv(island, warp).open((Player) e.getWhoClicked());
             });
 
             setItem(13, ItemBuilder.copyOf(new ItemStack(Material.COMPASS))
-                    .name("§6Location §8| §7(clic gauche pour définir sur vous)")
+                    .name("§6Localisation §8| §7(clic gauche pour définir sur vous)")
                     .lore("§7" + LocationTranslator.readableLocation(warp.getLocation())).build(), e -> {
                 if (e.getWhoClicked().getWorld() != IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID())) {
                     e.getWhoClicked().sendMessage(Component.text("§cVous devez être sur l'île pour définir la localisation."));
@@ -124,7 +149,32 @@ public class IslandWarpInv extends FastInv {
                 update(island, warp);
             });
 
-            setItem(14, ItemBuilder.copyOf(new ItemStack(Material.REDSTONE_TORCH))
+            setItem(14, ItemBuilder.copyOf(new ItemStack(Material.ITEM_FRAME))
+                    .name("§6Changer l'item §8| §7(clic gauche)").build(), e -> {
+                if (!island.isLoaded()) {
+                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
+                    return;
+                }
+
+                if (System.currentTimeMillis() - lastAction < COOLDOWN) {
+                    e.getWhoClicked().sendMessage(Component.text("§cMerci d'attendre un peu avant de changer l'item."));
+                    return;
+                }
+                lastAction = System.currentTimeMillis();
+
+                if (awaitingMaterial) {
+                    awaitingMaterial = false;
+                    this.warp = null;
+                    e.getWhoClicked().sendMessage(Component.text("§cOpération annulée."));
+                    return;
+                }
+                awaitingMaterial = true;
+                this.warp = warp;
+                e.getWhoClicked().sendMessage(Component.text("§6Cliquez sur un item de votre inventaire pour " +
+                        "le définir comme item du warp. Re cliquez sur l'item pour annuler."));
+            });
+
+            setItem(16, ItemBuilder.copyOf(new ItemStack(Material.REDSTONE_TORCH))
                     .name("§6Activation §8| §7(clic gauche)")
                     .lore("§7" + (warp.isActivated() ? "Activé" : "Désactivé")).build(), e -> {
                 if (!island.isLoaded()) {
@@ -158,7 +208,7 @@ public class IslandWarpInv extends FastInv {
                 update(island, warp);
             });
 
-            setItem(16, ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
+            setItem(15, ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
                     "§6Mise en avant §8| §7(clic gauche)").lore("§7" + (warp.getForwardedWarp() > System.currentTimeMillis()
                     ? "Oui" : "Non")).build(), e -> {
                 if (!island.isLoaded()) {
@@ -203,5 +253,22 @@ public class IslandWarpInv extends FastInv {
                 new IslandWarpInv(island, newWarp).open((Player) e.getWhoClicked());
             });
         }
+
+        setItem(18, ItemBuilder.copyOf(new ItemStack(Material.MAP))
+                        .name("§6Voir la liste des warps disponibles §8| §7(clic gauche)").build(),
+                e -> new IslandsWarpBrowserInv().open((Player) e.getWhoClicked()));
+    }
+
+    @Override
+    public void onClick(InventoryClickEvent e) {
+        if (!awaitingMaterial) return;
+        if (e.getRawSlot() < 27) return;
+
+        ItemStack item = e.getCurrentItem();
+        if (item == null || item.getType() == Material.AIR) return;
+
+        if (warp == null) return;
+        warp.setMaterial(item.getType());
+        e.getWhoClicked().sendMessage(Component.text("§aItem défini."));
     }
 }

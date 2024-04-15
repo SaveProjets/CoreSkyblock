@@ -13,6 +13,7 @@ import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.Connection;
@@ -48,8 +49,8 @@ public class IslandsDataManager {
             "REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_WARPS_TABLE = "CREATE TABLE IF NOT EXISTS island_warps " +
             "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), name VARCHAR(255), description VARCHAR(1024), " +
-            "categories VARCHAR(255), loc_tp VARCHAR(255), forward BIGINT, is_activated BOOL, created_at TIMESTAMP, " +
-            "updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
+            "categories VARCHAR(255), loc_tp VARCHAR(255), forward BIGINT, is_activated BOOL, material VARCHAR(96), " +
+            "created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
     public static IslandsDataManager INSTANCE;
     private final Map<UUID, Island> cache = new HashMap<>();
 
@@ -299,16 +300,17 @@ public class IslandsDataManager {
 
     public void updateIslandWarp(IslandWarp islandWarp) {
         String query = "INSERT IGNORE INTO island_warps (uuid, island_uuid, name, description, categories, loc_tp, " +
-                "forward, is_activated, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, " +
-                "CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE name = ?, description = ?, categories = ?, loc_tp = ?, " +
-                "forward = ?, is_activated = ?, updated_at = CURRENT_TIMESTAMP";
+                "forward, is_activated, material, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, " +
+                "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE name = ?, description = ?, categories = ?, " +
+                "loc_tp = ?, forward = ?, is_activated = ?, material = ?, updated_at = CURRENT_TIMESTAMP";
         try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
             executeUpdate(connection, query, islandWarp.getUuid().toString(), islandWarp.getIslandUUID().toString(),
-                    islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategories().toString(),
+                    islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategoriesString(),
                     LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
-                    islandWarp.isActivated(), islandWarp.getName(), islandWarp.getDescription(),
-                    islandWarp.getCategories().toString(), LocationTranslator.fromLocation(islandWarp.getLocation()),
-                    islandWarp.getForwardedWarp(), islandWarp.isActivated());
+                    islandWarp.isActivated(), islandWarp.getMaterial().name(),
+                    islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategoriesString(),
+                    LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
+                    islandWarp.isActivated(), islandWarp.getMaterial().name());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -428,28 +430,25 @@ public class IslandsDataManager {
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM island_warps")) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    UUID uuid = UUID.fromString(result.getString("uuid"));
-                    UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
-                    String name = result.getString("name");
-                    String description = result.getString("description");
-                    String categoriesString = result.getString("categories");
-                    if (categoriesString != null) {
-                        categoriesString = categoriesString.substring(1, categoriesString.length() - 1).replace(" ", "");
-                    }
-                    ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
-
-                    if (categoriesString != null && !categoriesString.isEmpty()) {
-                        String[] categories = categoriesString.split(",");
-                        for (String category : categories) {
-                            if (!category.isEmpty()) {
-                                islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
-                            }
+                    try {
+                        UUID uuid = UUID.fromString(result.getString("uuid"));
+                        UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
+                        String name = result.getString("name");
+                        String description = result.getString("description");
+                        String categoriesString = result.getString("categories");
+                        ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
+                        if (categoriesString != null && !categoriesString.isEmpty()) {
+                            islandWarpCategories = IslandWarp.getCategoriesFromString(categoriesString);
                         }
+                        Location location = LocationTranslator.fromString(result.getString("loc_tp"));
+                        boolean isActivated = result.getBoolean("is_activated");
+                        long forwardedWarp = result.getLong("forward");
+                        Material material = Material.getMaterial(result.getString("material"));
+                        warps.add(new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location,
+                                isActivated, forwardedWarp, material));
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    Location location = LocationTranslator.fromString(result.getString("loc_tp"));
-                    boolean isActivated = result.getBoolean("is_activated");
-                    long forwardedWarp = result.getLong("forward");
-                    warps.add(new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location, isActivated, forwardedWarp));
                 }
             }
         } catch (SQLException e) {

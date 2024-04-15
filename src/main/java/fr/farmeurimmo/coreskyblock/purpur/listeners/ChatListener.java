@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -24,6 +25,39 @@ public class ChatListener implements Listener {
         Player p = e.getPlayer();
 
         Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+
+        if (IslandsWarpManager.INSTANCE.isAwaitingInput(p.getUniqueId())) {
+            e.setCancelled(true);
+            if (e.getMessage().equalsIgnoreCase("cancel")) {
+                p.sendMessage(Component.text("§cOpération annulée."));
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    IslandsWarpManager.INSTANCE.removeAwaitingInput(p.getUniqueId());
+                    return null;
+                });
+                return;
+            }
+            String input = e.getMessage();
+            if (input.length() < 4) {
+                p.sendMessage(Component.text("§cLe nom doit contenir au moins 4 caractères."));
+                return;
+            }
+            if (IslandsWarpManager.INSTANCE.isAwaitingLongString(p.getUniqueId())) {
+                if (input.length() > 300) {
+                    p.sendMessage(Component.text("§cLe nom doit contenir moins de 256 caractères."));
+                    return;
+                }
+            } else {
+                if (input.length() > 32) {
+                    p.sendMessage(Component.text("§cLe nom doit contenir moins de 32 caractères."));
+                    return;
+                }
+            }
+            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                IslandsWarpManager.INSTANCE.processInput(p, input);
+                return null;
+            });
+            return;
+        }
 
         if (IslandsBankManager.INSTANCE.isAwaitingAmount(p.getUniqueId())) {
             e.setCancelled(true);

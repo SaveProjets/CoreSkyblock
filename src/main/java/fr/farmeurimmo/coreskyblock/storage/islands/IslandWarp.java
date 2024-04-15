@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import org.bukkit.Location;
+import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -21,9 +22,10 @@ public class IslandWarp {
     private Location location;
     private boolean isActivated;
     private long forwardedWarp;
+    private Material material;
 
     public IslandWarp(UUID uuid, UUID islandUUID, String name, String description, ArrayList<IslandWarpCategories> categories,
-                      Location location, boolean isActivated, long forwardedWarp) {
+                      Location location, boolean isActivated, long forwardedWarp, Material material) {
         this.uuid = uuid;
         this.islandUUID = islandUUID;
         this.name = name;
@@ -32,11 +34,12 @@ public class IslandWarp {
         this.location = location;
         this.isActivated = isActivated;
         this.forwardedWarp = forwardedWarp;
+        this.material = material;
     }
 
     public IslandWarp(UUID islandUUID, String creator, Location location, boolean create) {
-        this(UUID.randomUUID(), islandUUID, "Warp de l'île de " + creator,
-                "Aucune description renseignée", new ArrayList<>(), location, false, 0);
+        this(UUID.randomUUID(), islandUUID, "Warp de l'île de " + creator, "Aucune description renseignée",
+                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK);
 
         if (create) update();
     }
@@ -48,13 +51,15 @@ public class IslandWarp {
         String description = jsonObject.get("description").getAsString();
         Location location = LocationTranslator.fromString(jsonObject.get("location").getAsString());
         boolean isActivated = jsonObject.get("isActivated").getAsBoolean();
-        String[] categories = jsonObject.get("categories").getAsString().split(",");
+        String categories = jsonObject.get("categories").getAsString();
         ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
-        for (String category : categories) {
-            islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
+        if (categories != null && !categories.isEmpty()) {
+            islandWarpCategories = getCategoriesFromString(categories);
         }
         long forwardedWarp = jsonObject.get("forwardedWarp").getAsLong();
-        return new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location, isActivated, forwardedWarp);
+        Material material = Material.getMaterial(jsonObject.get("material").getAsString());
+        return new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location, isActivated,
+                forwardedWarp, material);
     }
 
     public UUID getUuid() {
@@ -131,6 +136,14 @@ public class IslandWarp {
         update();
     }
 
+    public static ArrayList<IslandWarpCategories> getCategoriesFromString(String categories) {
+        ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
+        for (String category : categories.split(";")) {
+            islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
+        }
+        return islandWarpCategories;
+    }
+
     public void update() {
         // Update the warp in the cache and in the database
         CompletableFuture.runAsync(() -> {
@@ -138,15 +151,10 @@ public class IslandWarp {
             JedisManager.INSTANCE.publishToRedis("coreskyblock:island:warp_update:" + islandUUID, toJson());
 
             IslandsDataManager.INSTANCE.updateIslandWarp(this);
+        }).exceptionally(e -> {
+            e.printStackTrace();
+            return null;
         });
-    }
-
-    public String getCategoriesString() {
-        StringBuilder categories = new StringBuilder();
-        for (IslandWarpCategories category : this.categories) {
-            categories.append(category.getName()).append(", ");
-        }
-        return categories.toString();
     }
 
     public String toJson() {
@@ -159,8 +167,27 @@ public class IslandWarp {
         jsonObject.addProperty("isActivated", isActivated);
         jsonObject.addProperty("categories", getCategoriesString());
         jsonObject.addProperty("forwardedWarp", forwardedWarp);
+        jsonObject.addProperty("material", material.name());
 
         return IslandsManager.INSTANCE.gson.toJson(jsonObject);
+    }
+
+    public String getCategoriesString() {
+        StringBuilder categories = new StringBuilder();
+        for (IslandWarpCategories category : this.categories) {
+            categories.append(category.getId()).append(";");
+        }
+        return (categories.isEmpty() ? categories.toString() : categories.substring(0, categories.length() - 1));
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+
+        update();
     }
 
 }

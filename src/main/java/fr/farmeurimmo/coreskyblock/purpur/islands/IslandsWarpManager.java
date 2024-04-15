@@ -9,10 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class IslandsWarpManager {
@@ -20,6 +17,7 @@ public class IslandsWarpManager {
     public static IslandsWarpManager INSTANCE;
 
     private final Map<IslandWarp, Long> warps = new HashMap<>(); // warp -> last fetch
+    private final Map<UUID, String> userInputAwaiting = new HashMap<>(); // player -> input
 
     public IslandsWarpManager() {
         INSTANCE = this;
@@ -66,6 +64,43 @@ public class IslandsWarpManager {
         return null;
     }
 
+    public boolean isAwaitingInput(UUID uuid) {
+        return userInputAwaiting.containsKey(uuid);
+    }
+
+    public void removeAwaitingInput(UUID uuid) {
+        userInputAwaiting.remove(uuid);
+    }
+
+    public boolean isAwaitingLongString(UUID uuid) {
+        return userInputAwaiting.containsKey(uuid) && userInputAwaiting.get(uuid).equals("description");
+    }
+
+    public void processInput(Player p, String input) {
+        if (!isAwaitingInput(p.getUniqueId())) {
+            return;
+        }
+        if (userInputAwaiting.get(p.getUniqueId()).equals("name")) {
+            IslandWarp warp = getByIslandUUID(IslandsManager.INSTANCE.getIslandOf(p.getUniqueId()).getIslandUUID());
+            if (warp == null) {
+                return;
+            }
+            warp.setName(input);
+            p.sendMessage(Component.text("§aNom du warp modifié."));
+        } else if (userInputAwaiting.get(p.getUniqueId()).equals("description")) {
+            IslandWarp warp = getByIslandUUID(IslandsManager.INSTANCE.getIslandOf(p.getUniqueId()).getIslandUUID());
+            if (warp == null) {
+                return;
+            }
+            warp.setDescription(input);
+            p.sendMessage(Component.text("§aDescription du warp modifiée."));
+        }
+    }
+
+    public void addProcessInput(Player p, String input) {
+        userInputAwaiting.put(p.getUniqueId(), input);
+    }
+
     public void teleportPlayerToWarp(UUID uuid, UUID islandUUID, Player p) {
         IslandWarp warp = getByIslandUUID(islandUUID);
         if (warp == null) {
@@ -99,6 +134,15 @@ public class IslandsWarpManager {
 
             JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:teleport_warp:" + p.getUniqueId() + ":" + islandUUID);
         });
+    }
 
+    public ArrayList<IslandWarp> getActiveWarps() {
+        ArrayList<IslandWarp> activeWarps = new ArrayList<>();
+        for (IslandWarp warp : warps.keySet()) {
+            if (warp.isActivated()) {
+                activeWarps.add(warp);
+            }
+        }
+        return activeWarps;
     }
 }
