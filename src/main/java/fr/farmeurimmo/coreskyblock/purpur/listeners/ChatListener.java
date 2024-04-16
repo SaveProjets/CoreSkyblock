@@ -52,6 +52,10 @@ public class ChatListener implements Listener {
                     return;
                 }
             }
+            if (input.replace("\\n", "\n").split("\n").length > 12) {
+                p.sendMessage(Component.text("§cMaximum 12 lignes."));
+                return;
+            }
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 IslandsWarpManager.INSTANCE.processInput(p, input);
                 return null;

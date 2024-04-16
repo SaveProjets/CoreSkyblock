@@ -130,6 +130,10 @@ public class IslandWarp {
         return forwardedWarp;
     }
 
+    public boolean isStillForwarded() {
+        return forwardedWarp > System.currentTimeMillis();
+    }
+
     public void setForwardedWarp(long forwardedWarp) {
         this.forwardedWarp = forwardedWarp;
 

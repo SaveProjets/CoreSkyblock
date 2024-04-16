@@ -17,7 +17,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class IslandWarpInv extends FastInv {
 
@@ -79,13 +78,9 @@ public class IslandWarpInv extends FastInv {
                 e.getWhoClicked().closeInventory();
             });
 
-            List<String> lore = new ArrayList<>();
-            for (String descLine : warp.getDescription().replace("\\n", "\n").split("\n")) {
-                lore.add("§7" + descLine);
-            }
             setItem(11, ItemBuilder.copyOf(new ItemStack(Material.BOOK))
                     .name("§6Description §8| §7(clic gauche)")
-                    .lore(lore).build(), e -> {
+                    .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
                 if (!island.isLoaded()) {
                     e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
                     return;

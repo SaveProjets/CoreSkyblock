@@ -145,4 +145,12 @@ public class IslandsWarpManager {
         }
         return activeWarps;
     }
+
+    public ArrayList<String> getLore(IslandWarp islandWarp) {
+        ArrayList<String> lore = new ArrayList<>();
+        for (String descLine : islandWarp.getDescription().replace("\\n", "\n").split("\n")) {
+            lore.add("§7" + descLine);
+        }
+        return lore;
+    }
 }
