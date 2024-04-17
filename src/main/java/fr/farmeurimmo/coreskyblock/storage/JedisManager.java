@@ -49,7 +49,12 @@ public class JedisManager {
                             if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
                                 return;
                             }
-                            IslandsManager.INSTANCE.checkForDataIntegrity(args[2], null, true);
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+                                IslandsManager.INSTANCE.checkForDataIntegrity(islandUUID.toString(), null, true);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             return;
                         }
                         if (args[1].equalsIgnoreCase("space")) {
@@ -232,7 +237,13 @@ public class JedisManager {
                                         tries.getAndIncrement();
                                         return;
                                     }
-                                    IslandsWarpManager.INSTANCE.teleportPlayerToWarp(playerUUID, islandUUID, p);
+                                    IslandWarp warp = IslandsWarpManager.INSTANCE.getByIslandUUID(islandUUID);
+                                    if (warp == null) {
+                                        p.sendMessage(Component.text("§cCe warp n'existe pas."));
+                                        task.cancel();
+                                        return;
+                                    }
+                                    IslandsWarpManager.INSTANCE.teleportToWarp(p, warp);
                                     task.cancel();
                                 }, 0, 5);
                             } catch (Exception e) {
@@ -316,9 +327,11 @@ public class JedisManager {
                         }
                         if (args[1].equalsIgnoreCase("warp_update")) {
                             try {
-                                UUID islandUUID = UUID.fromString(args[2]);
+                                if (args[3].equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
+                                    return;
+                                }
 
-                                System.out.println(args);
+                                UUID islandUUID = UUID.fromString(args[2]);
 
                                 String warp = getFromRedis("coreskyblock:island:warp:" + islandUUID);
                                 if (warp == null) {

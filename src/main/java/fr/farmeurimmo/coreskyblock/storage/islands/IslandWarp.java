@@ -1,12 +1,14 @@
 package fr.farmeurimmo.coreskyblock.storage.islands;
 
 import com.google.gson.JsonObject;
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -103,6 +105,11 @@ public class IslandWarp {
     }
 
     public Location getLocation() {
+        if (location.getWorld() == null) {
+            World world = IslandsManager.INSTANCE.getIslandWorld(islandUUID);
+            if (world == null) return null;
+            location.setWorld(world);
+        }
         return location;
     }
 
@@ -156,7 +163,7 @@ public class IslandWarp {
         // Update the warp in the cache and in the database
         CompletableFuture.runAsync(() -> {
             JedisManager.INSTANCE.sendToRedis("coreskyblock:island:warp:" + islandUUID, toJson());
-            JedisManager.INSTANCE.publishToRedis("coreskyblock:island:warp_update:" + islandUUID, toJson());
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:warp_update:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME);
 
             IslandsDataManager.INSTANCE.updateIslandWarp(this);
         }).exceptionally(e -> {

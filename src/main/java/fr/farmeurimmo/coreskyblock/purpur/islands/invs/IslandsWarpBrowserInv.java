@@ -8,6 +8,7 @@ import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
@@ -15,8 +16,10 @@ import java.util.ArrayList;
 public class IslandsWarpBrowserInv extends FastInv {
 
     private static final int[] promotedSlots = new int[]{1, 3, 5, 7};
+    private static final long COOLDOWN = 6_000;
     private static int PAGE = 0;
     private boolean gotUpdate = false;
+    private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
 
     public IslandsWarpBrowserInv() {
@@ -66,10 +69,7 @@ public class IslandsWarpBrowserInv extends FastInv {
             if (!warp.isActivated()) continue;
             if (!warp.isStillForwarded()) continue;
             slotsTook.add(slot);
-            setItem(slot, new ItemBuilder(warp.getMaterial()).name("§6" + warp.getName())
-                    .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
-                e.getWhoClicked().closeInventory();
-            });
+            setItemForWarp(slot, warp);
             forwardedWarps.remove(0);
         }
         for (int slot : promotedSlots) {
@@ -85,10 +85,7 @@ public class IslandsWarpBrowserInv extends FastInv {
         for (int j = PAGE * 27; j < warps.size(); j++) {
             if (i >= 27) break;
             IslandWarp warp = warps.get(j);
-            setItem(i, new ItemBuilder(warp.getMaterial()).name("§6" + warp.getName())
-                    .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
-                e.getWhoClicked().closeInventory();
-            });
+            setItemForWarp(i, warp);
             i++;
         }
 
@@ -107,5 +104,18 @@ public class IslandsWarpBrowserInv extends FastInv {
         }
 
         setItem(49, new ItemBuilder(Material.IRON_DOOR).name("§6Fermer").build(), e -> e.getWhoClicked().closeInventory());
+    }
+
+    private void setItemForWarp(int i, IslandWarp warp) {
+        setItem(i, new ItemBuilder(warp.getMaterial()).name("§6" + warp.getName())
+                .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
+            if (System.currentTimeMillis() - lastAction < COOLDOWN) {
+                e.getWhoClicked().sendMessage("§cVeuillez attendre avant de refaire une action.");
+                return;
+            }
+            lastAction = System.currentTimeMillis();
+
+            IslandsWarpManager.INSTANCE.teleportToWarp((Player) e.getWhoClicked(), warp);
+        });
     }
 }

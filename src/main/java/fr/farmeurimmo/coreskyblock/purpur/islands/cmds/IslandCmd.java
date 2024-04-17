@@ -8,6 +8,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandBankInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandWarpInv;
+import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandsWarpBrowserInv;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -94,6 +95,11 @@ public class IslandCmd implements CommandExecutor {
                 IslandsChatManager.INSTANCE.addInIslandChat(p.getUniqueId());
                 p.sendMessage(Component.text("§aVos messages seront désormais envoyés dans le §6chat de l'île§a."));
             }
+            return false;
+        }
+
+        if (args[0].equalsIgnoreCase("warpbrowser")) {
+            new IslandsWarpBrowserInv().open(p);
             return false;
         }
 

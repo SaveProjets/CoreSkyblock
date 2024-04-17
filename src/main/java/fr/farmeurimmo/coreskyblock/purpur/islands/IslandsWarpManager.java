@@ -2,9 +2,11 @@ package fr.farmeurimmo.coreskyblock.purpur.islands;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
@@ -101,41 +103,6 @@ public class IslandsWarpManager {
         userInputAwaiting.put(p.getUniqueId(), input);
     }
 
-    public void teleportPlayerToWarp(UUID uuid, UUID islandUUID, Player p) {
-        IslandWarp warp = getByIslandUUID(islandUUID);
-        if (warp == null) {
-            return;
-        }
-        // teleport player to warp, before that check if island is loaded
-        CompletableFuture.runAsync(() -> {
-            String server = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:server:" + islandUUID + ":loaded");
-            if (server == null) {
-                return;
-            }
-
-            if (server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
-                p.sendMessage(Component.text("§eTéléportation..."));
-                p.teleportAsync(warp.getLocation()).thenAccept(result ->
-                        p.sendMessage(Component.text("§aVous avez été téléporté au warp de l'île.")));
-                return;
-            }
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
-
-            try {
-                dataOutputStream.writeUTF("Connect");
-                dataOutputStream.writeUTF(server);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", byteArrayOutputStream.toByteArray());
-
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:teleport_warp:" + p.getUniqueId() + ":" + islandUUID);
-        });
-    }
-
     public ArrayList<IslandWarp> getActiveWarps() {
         ArrayList<IslandWarp> activeWarps = new ArrayList<>();
         for (IslandWarp warp : warps.keySet()) {
@@ -162,7 +129,51 @@ public class IslandsWarpManager {
         return new ArrayList<>(getAllWarps().stream().filter(IslandWarp::isStillForwarded).toList());
     }
 
-    public ArrayList<IslandWarp> getAllForwardedActiveWarps() {
-        return new ArrayList<>(getActiveWarps().stream().filter(IslandWarp::isStillForwarded).toList());
+    public void teleportToWarp(Player p, IslandWarp islandWarp) {
+        if (islandWarp == null) {
+            p.sendMessage(Component.text("§cCe warp n'existe pas."));
+            return;
+        }
+        p.sendMessage(Component.text("§7Téléportation en cours..."));
+
+        IslandsManager.INSTANCE.checkForDataIntegrity(islandWarp.getIslandUUID().toString(), null, false);
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
+            Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+            if (island == null) {
+                return;
+            }
+            if (island.isLoaded()) {
+                p.teleportAsync(islandWarp.getLocation()).thenAccept(result ->
+                        p.sendMessage(Component.text("§aVous avez été téléporté au warp de l'île.")));
+                task.cancel();
+                return;
+            }
+            String serverWhereIslandIsLoaded = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
+            if (serverWhereIslandIsLoaded == null) {
+                return;
+            }
+            if (serverWhereIslandIsLoaded.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
+                p.teleportAsync(islandWarp.getLocation()).thenAccept(result ->
+                        p.sendMessage(Component.text("§aVous avez été téléporté au warp de l'île.")));
+                task.cancel();
+                return;
+            }
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:teleport_warp:" + p.getUniqueId() + ":"
+                    + island.getIslandUUID() + ":" + serverWhereIslandIsLoaded);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+
+            try {
+                dataOutputStream.writeUTF("Connect");
+                dataOutputStream.writeUTF(serverWhereIslandIsLoaded);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", byteArrayOutputStream.toByteArray());
+            task.cancel();
+        }, 0, 10);
     }
 }
