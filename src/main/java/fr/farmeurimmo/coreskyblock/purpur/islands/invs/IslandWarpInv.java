@@ -214,7 +214,7 @@ public class IslandWarpInv extends FastInv {
                     : "§7Pas de mise en avant"));
             ItemStack forwardItem = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
                     "§6Mise en avant §8| §7(clic gauche)").lore("§7" + (warp.getForwardedWarp() > System.currentTimeMillis()
-                    ? "§aOui" : "§cNon"), expiry).flags(ItemFlag.HIDE_ENCHANTS).build();
+                    ? "§aOui" : "§cNon"), expiry, "", "§7Coût: §e25 000$").flags(ItemFlag.HIDE_ENCHANTS).build();
             if (warp.isStillForwarded()) forwardItem.addEnchant(Enchantment.CHANNELING, 1, true);
             setItem(15, forwardItem, e -> {
                 if (!island.isLoaded()) {
