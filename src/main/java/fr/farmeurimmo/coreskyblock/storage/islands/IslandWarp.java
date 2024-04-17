@@ -62,6 +62,14 @@ public class IslandWarp {
                 forwardedWarp, material);
     }
 
+    public static ArrayList<IslandWarpCategories> getCategoriesFromString(String categories) {
+        ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
+        for (String category : categories.split(";")) {
+            islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
+        }
+        return islandWarpCategories;
+    }
+
     public UUID getUuid() {
         return uuid;
     }
@@ -130,22 +138,18 @@ public class IslandWarp {
         return forwardedWarp;
     }
 
-    public boolean isStillForwarded() {
-        return forwardedWarp > System.currentTimeMillis();
-    }
-
     public void setForwardedWarp(long forwardedWarp) {
         this.forwardedWarp = forwardedWarp;
 
         update();
     }
 
-    public static ArrayList<IslandWarpCategories> getCategoriesFromString(String categories) {
-        ArrayList<IslandWarpCategories> islandWarpCategories = new ArrayList<>();
-        for (String category : categories.split(";")) {
-            islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
-        }
-        return islandWarpCategories;
+    public boolean isStillForwarded() {
+        return forwardedWarp > System.currentTimeMillis();
+    }
+
+    public boolean isInCooldownForForward() { // Cooldown of 1 day
+        return forwardedWarp + 86_400_000 > System.currentTimeMillis();
     }
 
     public void update() {

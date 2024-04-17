@@ -146,11 +146,23 @@ public class IslandsWarpManager {
         return activeWarps;
     }
 
+    private ArrayList<IslandWarp> getAllWarps() {
+        return new ArrayList<>(warps.keySet());
+    }
+
     public ArrayList<String> getLore(IslandWarp islandWarp) {
         ArrayList<String> lore = new ArrayList<>();
         for (String descLine : islandWarp.getDescription().replace("\\n", "\n").split("\n")) {
             lore.add("§7" + descLine);
         }
         return lore;
+    }
+
+    public ArrayList<IslandWarp> getForwardedWarps() {
+        return new ArrayList<>(getAllWarps().stream().filter(IslandWarp::isStillForwarded).toList());
+    }
+
+    public ArrayList<IslandWarp> getAllForwardedActiveWarps() {
+        return new ArrayList<>(getActiveWarps().stream().filter(IslandWarp::isStillForwarded).toList());
     }
 }

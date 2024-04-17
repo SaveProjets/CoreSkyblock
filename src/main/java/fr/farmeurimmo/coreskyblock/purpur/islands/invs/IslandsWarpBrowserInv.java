@@ -7,6 +7,8 @@ import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
 
@@ -46,26 +48,36 @@ public class IslandsWarpBrowserInv extends FastInv {
 
         ArrayList<IslandWarp> warps = IslandsWarpManager.INSTANCE.getActiveWarps();
 
+        ArrayList<IslandWarp> forwardedWarps = IslandsWarpManager.INSTANCE.getForwardedWarps();
+
         ArrayList<Integer> slotsTook = new ArrayList<>();
         for (int slot : promotedSlots) {
-            if (warps.size() > slot) {
-                IslandWarp warp = warps.get(slot);
-                if (warp == null) continue;
-                if (!warp.isActivated()) continue;
-                if (!warp.isStillForwarded()) continue;
+            if (forwardedWarps.isEmpty()) continue;
+            IslandWarp warp = forwardedWarps.get(0);
+            if (warp == null) continue;
+            if (!warp.isActivated() && warp.isStillForwarded()) {
+                setItem(slot, new ItemBuilder(Material.BARRIER).enchant(Enchantment.CHANNELING)
+                        .flags(ItemFlag.HIDE_ENCHANTS).name("§c§lPlace de mise en avant occupée")
+                        .lore("§7La place est prise mais le warp", "§7n'est pas encore actif.").build());
                 slotsTook.add(slot);
-                setItem(slot, new ItemBuilder(warp.getMaterial()).name("§6" + warp.getName())
-                        .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
-                    e.getWhoClicked().closeInventory();
-                });
+                forwardedWarps.remove(0);
+                continue;
             }
+            if (!warp.isActivated()) continue;
+            if (!warp.isStillForwarded()) continue;
+            slotsTook.add(slot);
+            setItem(slot, new ItemBuilder(warp.getMaterial()).name("§6" + warp.getName())
+                    .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
+                e.getWhoClicked().closeInventory();
+            });
+            forwardedWarps.remove(0);
         }
         for (int slot : promotedSlots) {
             if (!slotsTook.contains(slot)) {
-                setItem(slot, new ItemBuilder(Material.BARRIER).name("§6§lPlace de mise en avant est disponible")
+                setItem(slot, new ItemBuilder(Material.BARRIER).name("§6§lPlace de mise en avant disponible")
                         .lore("§7Si le warp de votre île n'est pas", "§7en cooldown de mise en avant,",
-                                "§7contre de l'argent votre warp peut occuper", "§7cette place pendant 24H.", "",
-                                "§7Plus d'information dans le menu de votre", "§7warp d'île.").build());
+                                "§7contre de l'argent votre warp peut", "§7occuper cette place pendant 24H.", "",
+                                "§7Plus d'information dans le menu de", "§7votre warp d'île.").build());
             }
         }
 

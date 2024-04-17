@@ -6,16 +6,20 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
+import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class IslandWarpInv extends FastInv {
@@ -203,11 +207,33 @@ public class IslandWarpInv extends FastInv {
                 update(island, warp);
             });
 
-            setItem(15, ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
+            String expiry = (warp.isStillForwarded() ? (("§7Expire dans " + DateUtils.getFormattedTimeLeft(
+                    (int) ((warp.getForwardedWarp() - System.currentTimeMillis()) / 1000)) + " puis 24H de cooldown"))
+                    : (warp.isInCooldownForForward() ? "§cFin du cooldown dans " + DateUtils.getFormattedTimeLeft(
+                    (int) ((warp.getForwardedWarp() - System.currentTimeMillis()) / 1000)) + " avant de pouvoir remettre en avant"
+                    : "§7Pas de mise en avant"));
+            ItemStack forwardItem = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
                     "§6Mise en avant §8| §7(clic gauche)").lore("§7" + (warp.getForwardedWarp() > System.currentTimeMillis()
-                    ? "Oui" : "Non")).build(), e -> {
+                    ? "§aOui" : "§cNon"), expiry).flags(ItemFlag.HIDE_ENCHANTS).build();
+            if (warp.isStillForwarded()) forwardItem.addEnchant(Enchantment.CHANNELING, 1, true);
+            setItem(15, forwardItem, e -> {
                 if (!island.isLoaded()) {
                     e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
+                    return;
+                }
+                if (warp.isStillForwarded()) {
+                    e.getWhoClicked().sendMessage(Component.text("§aWarp déja mis en avant."));
+                    return;
+                }
+                if (warp.isInCooldownForForward()) {
+                    e.getWhoClicked().sendMessage(Component.text("§cLe warp est en cooldown pour la mise en avant."));
+                    return;
+                }
+
+                if (island.getBankMoney() < 25_000) {
+                    e.getWhoClicked().sendMessage(Component.text("§cLa banque de l'île n'a pas assez d'argent " +
+                            "pour mettre en avant le warp. (Il manque " +
+                            NumberFormat.getInstance().format(25_000 - island.getBankMoney()) + ")"));
                     return;
                 }
 
@@ -217,7 +243,15 @@ public class IslandWarpInv extends FastInv {
                 }
                 lastAction = System.currentTimeMillis();
 
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement..."));
+                if (IslandsWarpManager.INSTANCE.getForwardedWarps().size() >= 4) {
+                    e.getWhoClicked().sendMessage(Component.text("§cIl n'y a plus de place pour mettre en avant un warp."));
+                    return;
+                }
+
+                island.setBankMoney(island.getBankMoney() - 25_000);
+                warp.setForwardedWarp(System.currentTimeMillis() + 86_400_000);
+                e.getWhoClicked().sendMessage(Component.text("§aWarp mis en avant."));
+                island.sendMessageToAll("§eLe warp de l'île a été mis en avant.");
             });
         } else {
             setItem(13, ItemBuilder.copyOf(new ItemStack(Material.COMPASS))
