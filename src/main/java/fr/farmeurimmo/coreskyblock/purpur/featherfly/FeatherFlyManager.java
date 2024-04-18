@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.featherfly;
 
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
@@ -25,7 +26,8 @@ public class FeatherFlyManager {
     public FeatherFlyManager() {
         INSTANCE = this;
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::clock, 0, 20);
+        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME)
+            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::clock, 0, 20);
     }
 
     public void clock() {
@@ -98,6 +100,7 @@ public class FeatherFlyManager {
     public boolean enableFly(Player p, int time) {
         SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) return false;
+        if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return false;
         int flyLeft = user.getFlyTime();
         if (flyLeft + time > 86400) {
             p.sendMessage("§cErreur, vous ne pouvez pas avoir plus de 24h de fly actif !");

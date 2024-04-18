@@ -6,7 +6,6 @@ import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -94,10 +93,6 @@ public class IslandInv extends FastInv {
 
         setItem(25, ItemBuilder.copyOf(new ItemStack(Material.AMETHYST_CLUSTER)).name("§6Navigateur de warps §8| §7(clic gauche)").build(), e -> {
             Player p = (Player) e.getWhoClicked();
-            if (island.isReadOnly()) {
-                IslandsManager.INSTANCE.sendPlayerIslandReadOnly(p);
-                return;
-            }
             p.chat("/is warpbrowser");
         });
     }

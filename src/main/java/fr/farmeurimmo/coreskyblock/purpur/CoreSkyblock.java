@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur;
 
 import com.infernalsuite.aswm.api.SlimePlugin;
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -54,8 +55,9 @@ import java.util.UUID;
 
 public final class CoreSkyblock extends JavaPlugin {
 
-    public static final String SPAWN_WORLD_NAME = "spawn";
     public static final boolean SPAWN_IN_READ_ONLY = true;
+    public static String SPAWN_WORLD_NAME = "spawn";
+    public static ServerType SERVER_TYPE;
     public static CoreSkyblock INSTANCE;
     public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
     public static Location ENCHANTING_TABLE_LOCATION;
@@ -90,6 +92,14 @@ public final class CoreSkyblock extends JavaPlugin {
         SERVER_NAME = split[split.length - 3];
         console.sendMessage("§bNom du serveur: §e§l" + SERVER_NAME);
 
+        SERVER_TYPE = ServerType.getByName(SERVER_NAME);
+        if (SERVER_TYPE == null) {
+            console.sendMessage("§c§lErreur: Impossible de déterminer le type de serveur.");
+            Bukkit.shutdown();
+            return;
+        }
+        console.sendMessage("§bType de serveur: §e§l" + SERVER_TYPE.getName());
+
         console.sendMessage("§b[CoreSkyblock] §7Démarrage du plugin CoreSkyblock...");
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des dépendances...");
@@ -97,6 +107,11 @@ public final class CoreSkyblock extends JavaPlugin {
         new InventorySyncUtils();
         new InventoryUtils();
 
+        if (SERVER_TYPE == ServerType.PVP) {
+            SPAWN_WORLD_NAME = "pvp-spawn";
+        } else if (SERVER_TYPE == ServerType.PVE) {
+            SPAWN_WORLD_NAME = "pve-spawn";
+        }
         SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
         World spawnWorld = Bukkit.getWorld(SPAWN_WORLD_NAME);
         if (spawnWorld != null) {
@@ -179,15 +194,17 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
         clockForBuildMode();
-        setupEnchantingTable();
+        if (SERVER_TYPE == ServerType.GAME) {
+            setupEnchantingTable();
+        }
         optimizeSpawn();
 
-        World world = Bukkit.getWorld("spawn");
+        World world = Bukkit.getWorld(SPAWN_WORLD_NAME);
         if (world != null) {
             world.setSpawnLocation(SPAWN);
 
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
-                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks...");
+                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks du spawn...");
                 long startTime2 = System.currentTimeMillis();
                 for (int x = -9; x <= 9; x++) {
                     for (int z = -9; z <= 9; z++) {
@@ -208,35 +225,21 @@ public final class CoreSkyblock extends JavaPlugin {
         World w = Bukkit.getWorld(SPAWN_WORLD_NAME);
         if (w == null) return;
         ENCHANTING_TABLE_LOCATION = new Location(w, 0, 318, 0);
-        /*Location loc = SPAWN.clone();
-        loc.setY(loc.getWorld().getMaxHeight() - 2);
-        Block block = loc.getBlock();
-        block.setType(Material.ENCHANTING_TABLE);
-        ENCHANTING_TABLE_LOCATION = block.getLocation();
-        for (int x = -2; x <= 2; x++) {
-            //if (x == 0 || x == 1 || x == -1) continue;
-            for (int z = -2; z <= 2; z++) {
-                if (z == 0 || z == 1 || z == -1) continue;
-                for (int y = 0; y <= 2; y++) {
-                    Block b = block.getRelative(x, y, z);
-                    if (b.getType().isAir()) {
-                        b.setType(Material.BOOKSHELF);
-                    }
-                }
-            }
-        }*/
     }
 
     @Override
     public void onDisable() {
         console.sendMessage("§6Arrêt du plugin CoreSkyblock");
 
-        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
-        WorldsManager.INSTANCE.unload("island_template_1", false);
-
         SyncUsersManager.INSTANCE.onDisable();
 
-        IslandsManager.INSTANCE.onDisable();
+        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
+
+        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
+            IslandsManager.INSTANCE.onDisable();
+
+            WorldsManager.INSTANCE.unload("island_template_1", false);
+        }
 
         DatabaseManager.INSTANCE.closeConnection();
 

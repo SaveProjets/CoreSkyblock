@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.featherfly;
 
+import fr.farmeurimmo.coreskyblock.ServerType;
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -37,7 +39,10 @@ public class FeatherFlyListener implements Listener {
                         int timeInt = Integer.parseInt(time);
                         if (timeInt <= 0) return;
                         if (!FeatherFlyManager.INSTANCE.enableFly(p, timeInt)) {
-                            p.sendMessage(Component.text("§aErreur lors de l'activation du fly ! Code PLUMEFLY-0"));
+                            p.sendMessage(Component.text("§aErreur lors de l'activation du fly ! Code PLUMEFLY-0 "
+                                    + (CoreSkyblock.SERVER_TYPE == ServerType.GAME ?
+                                    "§cVeuillez patienter quelques secondes avant de réessayer." :
+                                    "§cVeuillez réessayer sur votre île.")));
                             return;
                         }
                     } catch (NumberFormatException ignored) {
@@ -54,6 +59,7 @@ public class FeatherFlyListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+        if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return;
         Player p = e.getPlayer();
         if (IslandsManager.INSTANCE.isAnIsland(p.getWorld())) {
             SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());

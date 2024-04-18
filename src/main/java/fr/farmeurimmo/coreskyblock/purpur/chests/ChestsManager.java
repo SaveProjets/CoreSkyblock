@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.chests;
 
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -21,7 +22,8 @@ public class ChestsManager {
     public ChestsManager() {
         INSTANCE = this;
 
-        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, this::autoSellForSellChests, 0, 20 * 60);
+        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME)
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, this::autoSellForSellChests, 0, 20 * 60);
     }
 
     public void giveItem(Player p, ChestType type) {

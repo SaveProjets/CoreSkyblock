@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
@@ -65,48 +66,51 @@ public class IslandsManager {
         new IslandsLevelCalculator();
         new IslandsCooldownManager();
 
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-                if (island.needUpdate()) {
-                    island.update(true);
-                }
-            }
-        }, 0, 20 * 60);
+        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
 
-        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
-            for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-                if (island.isLoaded()) {
-                    askOthersServersForMembersOnline(island);
-                }
-                if (island.isLoadTimeout()) {
-                    unload(island, true, false);
-                }
-            }
-        }, 0, 20 * 30);
-
-        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
-            for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
-                if (island.isLoaded()) {
-                    World world = getIslandWorld(island.getIslandUUID());
-                    if (world != null) {
-                        world.save();
+            Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                    if (island.needUpdate()) {
+                        island.update(true);
                     }
                 }
-            }
-        }, 0, 20 * 60 * 3);
+            }, 0, 20 * 60);
 
-        WorldsManager.INSTANCE.loadAsync("island_template_1", true);
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+                for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                    if (island.isLoaded()) {
+                        askOthersServersForMembersOnline(island);
+                    }
+                    if (island.isLoadTimeout()) {
+                        unload(island, true, false);
+                    }
+                }
+            }, 0, 20 * 30);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
-                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:space:" +
-                        CoreSkyblock.SERVER_NAME + ":" + (getIslandsLoaded() + getTheoreticalMaxPlayersOnline() +
-                        getActualPlayersOnline())), 0, 20);
-        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversData.put(CoreSkyblock.SERVER_NAME,
-                getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline()), 0, 20);
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+                for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                    if (island.isLoaded()) {
+                        World world = getIslandWorld(island.getIslandUUID());
+                        if (world != null) {
+                            world.save();
+                        }
+                    }
+                }
+            }, 0, 20 * 60 * 3);
 
-        CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
+            WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 
-        serversData.put(CoreSkyblock.SERVER_NAME, getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline());
+            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
+                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:space:" +
+                            CoreSkyblock.SERVER_NAME + ":" + (getIslandsLoaded() + getTheoreticalMaxPlayersOnline() +
+                            getActualPlayersOnline())), 0, 20);
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversData.put(CoreSkyblock.SERVER_NAME,
+                    getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline()), 0, 20);
+
+            CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
+
+            serversData.put(CoreSkyblock.SERVER_NAME, getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline());
+        }
     }
 
     public Island getIslandByLoc(World world) {
@@ -160,6 +164,10 @@ public class IslandsManager {
         int minLoadFactor = Integer.MAX_VALUE;
         for (Map.Entry<String, Integer> entry : serversData.entrySet()) {
             int loadFactor = entry.getValue();
+
+            ServerType serverType = ServerType.getByName(entry.getKey());
+            if (serverType == null) continue;
+            if (serverType != ServerType.GAME) continue;
 
             if (loadFactor < minLoadFactor) {
                 minLoadFactor = loadFactor;
@@ -249,8 +257,12 @@ public class IslandsManager {
             if (server == null) {
 
                 server = getServerToLoadIsland();
-                if (server == null) {
+                if (server == null && CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
                     loadIsland(island);
+                    return;
+                }
+                if (server == null) {
+                    island.sendMessageToAll("\n§cAucun serveur disponible pour charger votre île.\n");
                     return;
                 }
                 if (server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
