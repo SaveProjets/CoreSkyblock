@@ -85,7 +85,7 @@ public class IslandsLevelCalculator {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
                 p.sendMessage(Component.text("§aNouveau niveau de l'île: §6" +
-                        NumberFormat.getInstance().format(level) + "."));
+                        NumberFormat.getInstance().format(level) + ". §a(" + finalTotal + "ms)"));
             }
             return null;
         }));
