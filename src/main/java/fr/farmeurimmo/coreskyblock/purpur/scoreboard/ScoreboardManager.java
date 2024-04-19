@@ -2,10 +2,12 @@ package fr.farmeurimmo.coreskyblock.purpur.scoreboard;
 
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,6 +23,9 @@ public class ScoreboardManager {
     public static ScoreboardManager INSTANCE;
     private final Map<UUID, FastBoard> boards = new HashMap<>();
     private final Map<UUID, Integer> boardNumber = new HashMap<>();
+    private String timeUntilNextWeek = "00:00:00";
+    private String cycleWithWeek = "Cycle 1, Semaine 1";
+    private String crop = "...";
 
     public ScoreboardManager() {
         INSTANCE = this;
@@ -53,34 +58,28 @@ public class ScoreboardManager {
             ArrayList<String> islandLines = new ArrayList<>();
             if (island != null) {
                 islandLines.add("§6§l" + island.getName().replace("&", "§"));
-                islandLines.add("§8┃ §7Rang: §4" + island.getMembers().get(p.getUniqueId()).getName());
-                islandLines.add("§8┃ §7Membres: §e" + island.getMembers().size());
                 islandLines.add("§8┃ §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));
-                islandLines.add("§8┃ §7Expérience: §b" + NumberFormat.getInstance().format(island.getExp()));
                 islandLines.add("§8┃ §7Niveau: §3" + NumberFormat.getInstance().format(island.getLevel()));
             } else {
                 islandLines.add("§6§lVous n'avez pas d'île");
-                islandLines.add("§8┃ §7/is create");
-                islandLines.add("§8┃ §7Créer une île");
-                islandLines.add("§8┃ §7/is accept <joueur>");
-                islandLines.add("§8┃ §7Accepter une invitation");
-                islandLines.add("§8┃ §7d'un joueur");
+                islandLines.add("§8┃ §7/is create -> Créer une île");
+                islandLines.add("§8┃ §7/is accept <joueur> -> Accepter une invitation");
             }
             if (number == 0) {
                 board.updateLines(
                         "§8" + CoreSkyblock.SERVER_NAME,
                         "",
                         "§6§lProfil",
-                        "§8┃ §7Pseudo: §f" + p.getName(),
-                        "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
                         "§8┃ §7Grade: §c????",
+                        "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
                         "",
                         islandLines.get(0),
                         islandLines.get(1),
                         islandLines.get(2),
-                        islandLines.get(3),
-                        islandLines.get(4),
-                        islandLines.get(5),
+                        "",
+                        "§6§lAgriculture",
+                        "§8┃ §c" + cycleWithWeek + ": §c" + timeUntilNextWeek,
+                        "§8┃ §7Culture: §c" + crop,
                         "",
                         "§f» §c§lplay.edmine.net"
                 );
@@ -98,6 +97,18 @@ public class ScoreboardManager {
     }
 
     public void updateClock() {
+        try {
+            timeUntilNextWeek = DateUtils.getFormattedTimeLeft((int) (AgricultureCycleManager.INSTANCE.getCurrentSeason()
+                    .getTimeUntilNextWeek() / 1000));
+            cycleWithWeek = AgricultureCycleManager.INSTANCE.getCurrentSeason().getCycleWithWeek();
+            if (AgricultureCycleManager.INSTANCE.getCurrentSeason().getCrop() != null)
+                crop = AgricultureCycleManager.INSTANCE.getCurrentSeason().getCrop().getName();
+            else crop = "Aucune";
+        } catch (Exception e) {
+            timeUntilNextWeek = "Chargement...";
+            cycleWithWeek = "Chargement...";
+            crop = "Chargement...";
+        }
         ArrayList<UUID> toRemove = new ArrayList<>();
         for (UUID uuid : boards.keySet()) {
             if (Bukkit.getPlayer(uuid) == null) {

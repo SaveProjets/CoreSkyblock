@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur;
 
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
+import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -149,6 +150,8 @@ public final class CoreSkyblock extends JavaPlugin {
 
         new ShopsManager();
         new SilosManager();
+
+        new AgricultureCycleManager();
 
         new ChatDisplayManager();
 

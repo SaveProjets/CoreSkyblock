@@ -21,22 +21,25 @@ public class SyncUsersDataManager {
         INSTANCE = this;
 
         try {
-            createTable(DatabaseManager.INSTANCE.getConnection(), CREATE_INVENTORIES_TABLE);
+            createTable(DatabaseManager.INSTANCE.getConnection());
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void createTable(Connection connection, String createTableQuery) {
-        try (PreparedStatement statement = connection.prepareStatement(createTableQuery)) {
+    private void createTable(Connection connection) {
+        try (PreparedStatement statement = connection.prepareStatement(SyncUsersDataManager.CREATE_INVENTORIES_TABLE)) {
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void executeUpdate(Connection connection, String query, Object... parameters) {
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+    private void executeUpdate(Connection connection, Object... parameters) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO skyblock_users_inventories " +
+                "(uuid, inventory, health, food, exp, level, potions, created_at, updated_at) VALUES (?, ?, ?, ?, ?, " +
+                "?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, food = ?, exp = ?, level = ?, " +
+                "potions = ?, updated_at = NOW()")) {
             for (int i = 0; i < parameters.length; i++) {
                 statement.setObject(i + 1, parameters[i]);
             }
@@ -50,9 +53,6 @@ public class SyncUsersDataManager {
         try {
             String potions = InventorySyncUtils.INSTANCE.potionEffectsToStringJson(syncUser.getPotionEffects());
             executeUpdate(DatabaseManager.INSTANCE.getConnection(),
-                    "INSERT INTO skyblock_users_inventories (uuid, inventory, health, food, exp, level, potions, "
-                            + "created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE "
-                            + "inventory = ?, health = ?, food = ?, exp = ?, level = ?, potions = ?, updated_at = NOW()",
                     syncUser.getUuid().toString(), syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(),
                     syncUser.getExp(), syncUser.getLevel(), potions, syncUser.getInventory(), syncUser.getHealth(),
                     syncUser.getFood(), syncUser.getExp(), syncUser.getLevel(), potions);
