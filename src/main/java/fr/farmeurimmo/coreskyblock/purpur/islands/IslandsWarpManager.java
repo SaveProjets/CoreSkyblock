@@ -85,6 +85,8 @@ public class IslandsWarpManager {
         if (userInputAwaiting.get(p.getUniqueId()).equals("name")) {
             IslandWarp warp = getByIslandUUID(IslandsManager.INSTANCE.getIslandOf(p.getUniqueId()).getIslandUUID());
             if (warp == null) {
+                p.sendMessage(Component.text("§cErreur interne, annulation."));
+                userInputAwaiting.remove(p.getUniqueId());
                 return;
             }
             warp.setName(input);
@@ -92,11 +94,14 @@ public class IslandsWarpManager {
         } else if (userInputAwaiting.get(p.getUniqueId()).equals("description")) {
             IslandWarp warp = getByIslandUUID(IslandsManager.INSTANCE.getIslandOf(p.getUniqueId()).getIslandUUID());
             if (warp == null) {
+                p.sendMessage(Component.text("§cErreur interne, annulation."));
+                userInputAwaiting.remove(p.getUniqueId());
                 return;
             }
             warp.setDescription(input);
             p.sendMessage(Component.text("§aDescription du warp modifiée."));
         }
+        userInputAwaiting.remove(p.getUniqueId());
     }
 
     public void addProcessInput(Player p, String input) {

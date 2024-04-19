@@ -59,7 +59,7 @@ public class IslandsWarpBrowserInv extends FastInv {
             IslandWarp warp = forwardedWarps.get(0);
             if (warp == null) continue;
             if (!warp.isActivated() && warp.isStillForwarded()) {
-                setItem(slot, new ItemBuilder(Material.BARRIER).enchant(Enchantment.CHANNELING)
+                setItem(slot, new ItemBuilder(Material.BEDROCK).enchant(Enchantment.CHANNELING)
                         .flags(ItemFlag.HIDE_ENCHANTS).name("§c§lPlace de mise en avant occupée")
                         .lore("§7La place est prise mais le warp", "§7n'est pas encore actif.").build());
                 slotsTook.add(slot);
