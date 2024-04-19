@@ -50,12 +50,12 @@ public class SyncUsersDataManager {
         try {
             String potions = InventorySyncUtils.INSTANCE.potionEffectsToStringJson(syncUser.getPotionEffects());
             executeUpdate(DatabaseManager.INSTANCE.getConnection(),
-                    "INSERT INTO skyblock_users_inventories (uuid, inventory, health, food, exp, level, potions) "
-                            + "VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, " +
-                            "food = ?, exp = ?, level = ?, potions = ?", syncUser.getUuid().toString(),
-                    syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(), syncUser.getExp(),
-                    syncUser.getLevel(), potions, syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(),
-                    syncUser.getExp(), syncUser.getLevel(), potions);
+                    "INSERT INTO skyblock_users_inventories (uuid, inventory, health, food, exp, level, potions, "
+                            + "created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE "
+                            + "inventory = ?, health = ?, food = ?, exp = ?, level = ?, potions = ?, updated_at = NOW()",
+                    syncUser.getUuid().toString(), syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(),
+                    syncUser.getExp(), syncUser.getLevel(), potions, syncUser.getInventory(), syncUser.getHealth(),
+                    syncUser.getFood(), syncUser.getExp(), syncUser.getLevel(), potions);
         } catch (SQLException e) {
             e.printStackTrace();
         }
