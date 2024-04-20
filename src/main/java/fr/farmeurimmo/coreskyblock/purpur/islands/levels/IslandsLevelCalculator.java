@@ -78,6 +78,7 @@ public class IslandsLevelCalculator {
             return level;
         }).thenAccept(level -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             island.setLevel(level.floatValue());
+
             long finalTotal = System.currentTimeMillis() - finalStart;
             if (finalTotal > 1000) {
                 CoreSkyblock.INSTANCE.console.sendMessage("§c§lANORMAL §cTime to calculate level --> " + finalTotal + "ms");

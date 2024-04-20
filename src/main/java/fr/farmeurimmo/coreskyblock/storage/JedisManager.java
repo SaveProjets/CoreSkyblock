@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -340,6 +341,29 @@ public class JedisManager {
                                 JsonObject json = new Gson().fromJson(warp, JsonObject.class);
 
                                 IslandsWarpManager.INSTANCE.updateWarpWithId(islandUUID, IslandWarp.fromJson(json));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (args[1].equalsIgnoreCase("coop_check")) {
+                            try {
+                                UUID playerUUID = UUID.fromString(args[2]);
+                                Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                                if (p == null) {
+                                    return;
+                                }
+                                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:coop_check_response:" + playerUUID);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (args[1].equalsIgnoreCase("coop_check_response")) {
+                            try {
+                                UUID playerUUID = UUID.fromString(args[2]);
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    IslandsCoopsManager.INSTANCE.gotResponse(playerUUID);
+                                    return null;
+                                });
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

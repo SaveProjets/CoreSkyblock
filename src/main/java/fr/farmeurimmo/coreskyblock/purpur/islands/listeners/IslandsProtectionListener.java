@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -17,10 +18,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -230,5 +228,14 @@ public class IslandsProtectionListener implements Listener {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de casser."));
             }
         }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent e) {
+        if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return;
+        if (!(e.getEntity() instanceof Player)) return;
+        if (e.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getEntity().getWorld())) return;
+        e.setCancelled(true);
     }
 }

@@ -47,7 +47,7 @@ public class IslandInv extends FastInv {
 
         setItem(19, ItemBuilder.copyOf(new ItemStack(Material.WOODEN_HOE))
                 .name("§6Coops §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+                new IslandCoopInv(island).open((Player) e.getWhoClicked()));
 
         setItem(20, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
                 .name("§6Challenges §8| §7(clic gauche)").build(), e ->

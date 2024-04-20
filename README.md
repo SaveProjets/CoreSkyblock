@@ -110,6 +110,14 @@ coreskyblock → island:to_player_chat:{uuid}:{server_name}:{message...}
 
 coreskyblock → island:warp_update:{island_uuid}
 
+#### Island coop check
+
+coreskyblock → island:coop_check:{uuid}:{server_name}
+
+#### Island coop check response
+
+coreskyblock → island:coop_check_response:{uuid}:{server_name}
+
 ### Fonctionnement
 
 Mis à jour environ toutes les 3-5 minutes et lors d'actions importantes (création, suppression, etc).

@@ -56,6 +56,7 @@ public class IslandsManager {
         new IslandsWarpManager();
 
         new IslandRanksManager();
+        new IslandsCoopsManager();
         new IslandsGeneratorManager();
         new IslandsSizeManager();
         new IslandsMaxMembersManager();
@@ -592,5 +593,27 @@ public class IslandsManager {
 
     public void sendPlayerIslandReadOnly(Player p) {
         p.sendMessage(Component.text("§c§lVeuillez éditer votre île sur le serveur où elle est chargée."));
+    }
+
+    public void coopNoResponse(UUID uuid) {
+        for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+            if (island.getCoops().containsKey(uuid)) {
+                island.removeCoop(uuid);
+                island.sendMessageToAll("§6" + Bukkit.getOfflinePlayer(uuid).getName() + " §7a été retiré des coops car il s'est déconnecté.");
+            }
+            if (island.getCoops().containsValue(uuid)) {
+                ArrayList<UUID> toRemove = new ArrayList<>();
+                for (Map.Entry<UUID, UUID> entry : island.getCoops().entrySet()) {
+                    if (entry.getValue().equals(uuid)) {
+                        toRemove.add(entry.getKey());
+                    }
+                }
+                for (UUID coop : toRemove) {
+                    island.removeCoop(coop);
+                    island.sendMessageToAll("§6" + Bukkit.getOfflinePlayer(coop).getName() + " §7a été retiré des coops car " +
+                            Bukkit.getOfflinePlayer(uuid).getName() + " s'est déconnecté.");
+                }
+            }
+        }
     }
 }

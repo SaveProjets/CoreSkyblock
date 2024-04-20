@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
@@ -41,6 +42,7 @@ public class Island {
     private boolean loaded = false; // not saved
     private boolean readOnly = false; // not saved
     private long loadTimeout = -1; // not saved
+    private Map<UUID, UUID> coops = new HashMap<>(); // not saved
 
     private boolean isModified = false; // not saved
     private boolean areMembersModified = false; // not saved
@@ -638,7 +640,7 @@ public class Island {
     public void setLevel(float level) {
         this.level = level;
 
-        isModified = true;
+        update(true);
     }
 
     public List<Chest> getChests() {
@@ -717,5 +719,21 @@ public class Island {
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+    }
+
+    public final Map<UUID, UUID> getCoops() {
+        return this.coops;
+    }
+
+    public void addCoop(UUID uuid, UUID adderUUID) {
+        this.coops.put(uuid, adderUUID);
+
+        IslandsCoopsManager.INSTANCE.addCoop(uuid, adderUUID);
+    }
+
+    public void removeCoop(UUID uuid) {
+        this.coops.remove(uuid);
+
+        IslandsCoopsManager.INSTANCE.removeCoop(uuid);
     }
 }

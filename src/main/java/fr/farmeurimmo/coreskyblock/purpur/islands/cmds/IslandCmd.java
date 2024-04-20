@@ -65,6 +65,7 @@ public class IslandCmd implements CommandExecutor {
                     p.sendMessage(Component.text("§cL'île est pleine."));
                     return false;
                 }
+                targetIsland.removeCoop(p.getUniqueId());
                 targetIsland.removeInvite(p.getUniqueId());
                 targetIsland.addMember(p.getUniqueId(), p.getName(), IslandRanks.MEMBRE);
                 p.sendMessage(Component.text("§aVous avez rejoint l'île de " + args[1] + "."));
@@ -455,6 +456,61 @@ public class IslandCmd implements CommandExecutor {
             if (target != null) {
                 target.sendMessage(Component.text("§aVous êtes désormais propriétaire de l'île."));
             }
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("coop")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is coop <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.ADD_COOP, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de coopérer des joueurs."));
+                return false;
+            }
+            Player target = p.getServer().getPlayer(args[1]);
+            if (target == null) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas en ligne sur ce serveur."));
+                return false;
+            }
+            if (island.getMembers().containsKey(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
+                return false;
+            }
+            if (island.getCoops().containsKey(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur est déjà coopérateur de l'île."));
+                return false;
+            }
+            island.addCoop(target.getUniqueId(), p.getUniqueId());
+            island.sendMessageToAll("§a" + target.getName() + " est désormais coopérateur de l'île sous la " +
+                    "coopération de " + p.getName() + ". La coopération sera automatiquement enlevée si " +
+                    "le coopérateur se déconnecte ou que " + p.getName() + " se déconnecte.");
+            target.sendMessage(Component.text("§aVous êtes désormais coopérateur de l'île " + island.getName() +
+                    "§a."));
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("uncoop")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is uncoop <joueur>"));
+                return false;
+            }
+            if (!island.hasPerms(rank, IslandPerms.REMOVE_COOP, p.getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission de retirer des coopérations."));
+                return false;
+            }
+            Player target = p.getServer().getPlayer(args[1]);
+            if (target == null) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas en ligne sur ce serveur."));
+                return false;
+            }
+            if (!island.getCoops().containsKey(target.getUniqueId())) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas coopérateur de l'île."));
+                return false;
+            }
+            island.removeCoop(target.getUniqueId());
+            p.sendMessage(Component.text("§aLe joueur a été retiré de la coopération."));
+            island.sendMessageToAll("§a" + target.getName() + " a été retiré de la coopération de l'île.");
+            target.sendMessage(Component.text("§aVous avez été retiré de la coopération de l'île " + island.getName() +
+                    "§a."));
             return false;
         }
 
