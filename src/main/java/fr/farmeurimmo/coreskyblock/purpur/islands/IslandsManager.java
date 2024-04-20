@@ -22,10 +22,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -479,6 +476,10 @@ public class IslandsManager {
         if (island.isLoaded()) {
             long startTime = System.currentTimeMillis();
             p.sendMessage(Component.text("§aTéléportation en cours..."));
+            Location spawn = island.getSpawn();
+            while (spawn.getBlock().getType() != Material.AIR) {
+                spawn.add(0, 1, 0);
+            }
             p.teleportAsync(island.getSpawn()).thenAccept(result -> {
                 if (result) {
                     p.sendMessage(Component.text("§aVous avez été téléporté sur votre île. ("

@@ -42,7 +42,7 @@ public class Island {
     private boolean loaded = false; // not saved
     private boolean readOnly = false; // not saved
     private long loadTimeout = -1; // not saved
-    private Map<UUID, UUID> coops = new HashMap<>(); // not saved
+    private final Map<UUID, UUID> coops = new HashMap<>(); // not saved
 
     private boolean isModified = false; // not saved
     private boolean areMembersModified = false; // not saved

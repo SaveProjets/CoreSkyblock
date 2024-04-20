@@ -25,7 +25,7 @@ public enum SilosType {
     private final boolean isHigh;
     private final Material alternativeMaterial;
 
-    private SilosType(int id, String name, Material material, boolean isHigh, Material alternativeMaterial) {
+    SilosType(int id, String name, Material material, boolean isHigh, Material alternativeMaterial) {
         this.id = id;
         this.name = name;
         this.material = material;

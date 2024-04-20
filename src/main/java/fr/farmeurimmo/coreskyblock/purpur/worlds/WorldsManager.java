@@ -19,7 +19,7 @@ public class WorldsManager {
     public WorldsManager() {
         INSTANCE = this;
 
-        properties.setValue(SlimeProperties.PVP, true);
+        properties.setValue(SlimeProperties.PVP, false);
         properties.setValue(SlimeProperties.ALLOW_ANIMALS, true);
         properties.setValue(SlimeProperties.ALLOW_MONSTERS, true);
         properties.setValue(SlimeProperties.DEFAULT_BIOME, "plains");

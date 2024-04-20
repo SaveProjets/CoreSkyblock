@@ -52,6 +52,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class CoreSkyblock extends JavaPlugin {
@@ -169,30 +170,30 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SilosListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
-        getCommand("featherfly").setExecutor(new FeatherFlyCmd());
-        getCommand("money").setExecutor(new MoneyCmd());
-        getCommand("is").setExecutor(new IslandCmd());
-        getCommand("chests").setExecutor(new ChestsCmd());
-        getCommand("minions").setExecutor(new MinionsCmd());
-        getCommand("trade").setExecutor(new TradeCmd());
-        getCommand("tradeaccept").setExecutor(new TradeAcceptCmd());
-        getCommand("tradedeny").setExecutor(new TradeDenyCmd());
-        getCommand("tradecancel").setExecutor(new TradeCancelCmd());
-        getCommand("buildspawn").setExecutor(new BuildSpawnCmd());
-        getCommand("spawn").setExecutor(new SpawnCmd());
-        getCommand("shop").setExecutor(new ShopCmd());
-        getCommand("sellall").setExecutor(new SellAllCmd());
-        getCommand("trash").setExecutor(new TrashCmd());
-        getCommand("craft").setExecutor(new CraftCmd());
-        getCommand("enchantement").setExecutor(new EnchantementCmd());
-        getCommand("anvil").setExecutor(new AnvilCmd());
-        getCommand("furnace").setExecutor(new FurnaceCmd());
-        getCommand("silo").setExecutor(new SiloCmd());
-        getCommand("feed").setExecutor(new FeedCmd());
-        getCommand("near").setExecutor(new NearCmd());
-        getCommand("fix").setExecutor(new FixCmd());
-        getCommand("kits").setExecutor(new KitsCmd());
-        getCommand("tpa").setExecutor(new TpaCmd());
+        Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
+        Objects.requireNonNull(getCommand("money")).setExecutor(new MoneyCmd());
+        Objects.requireNonNull(getCommand("is")).setExecutor(new IslandCmd());
+        Objects.requireNonNull(getCommand("chests")).setExecutor(new ChestsCmd());
+        Objects.requireNonNull(getCommand("minions")).setExecutor(new MinionsCmd());
+        Objects.requireNonNull(getCommand("trade")).setExecutor(new TradeCmd());
+        Objects.requireNonNull(getCommand("tradeaccept")).setExecutor(new TradeAcceptCmd());
+        Objects.requireNonNull(getCommand("tradedeny")).setExecutor(new TradeDenyCmd());
+        Objects.requireNonNull(getCommand("tradecancel")).setExecutor(new TradeCancelCmd());
+        Objects.requireNonNull(getCommand("buildspawn")).setExecutor(new BuildSpawnCmd());
+        Objects.requireNonNull(getCommand("spawn")).setExecutor(new SpawnCmd());
+        Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCmd());
+        Objects.requireNonNull(getCommand("sellall")).setExecutor(new SellAllCmd());
+        Objects.requireNonNull(getCommand("trash")).setExecutor(new TrashCmd());
+        Objects.requireNonNull(getCommand("craft")).setExecutor(new CraftCmd());
+        Objects.requireNonNull(getCommand("enchantement")).setExecutor(new EnchantementCmd());
+        Objects.requireNonNull(getCommand("anvil")).setExecutor(new AnvilCmd());
+        Objects.requireNonNull(getCommand("furnace")).setExecutor(new FurnaceCmd());
+        Objects.requireNonNull(getCommand("silo")).setExecutor(new SiloCmd());
+        Objects.requireNonNull(getCommand("feed")).setExecutor(new FeedCmd());
+        Objects.requireNonNull(getCommand("near")).setExecutor(new NearCmd());
+        Objects.requireNonNull(getCommand("fix")).setExecutor(new FixCmd());
+        Objects.requireNonNull(getCommand("kits")).setExecutor(new KitsCmd());
+        Objects.requireNonNull(getCommand("tpa")).setExecutor(new TpaCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);

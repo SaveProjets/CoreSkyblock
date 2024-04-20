@@ -54,8 +54,7 @@ public class ChestsManager {
                 if (chest.getType() != ChestType.SELL_CHEST) continue;
 
                 Block block = chest.getBlock().getBlock();
-                if (block.getState() instanceof org.bukkit.block.Chest) {
-                    org.bukkit.block.Chest c = (org.bukkit.block.Chest) block.getState();
+                if (block.getState() instanceof org.bukkit.block.Chest c) {
                     double moneyMade = 0;
                     for (ItemStack itemStack : c.getInventory().getContents()) {
                         if (itemStack == null) continue;

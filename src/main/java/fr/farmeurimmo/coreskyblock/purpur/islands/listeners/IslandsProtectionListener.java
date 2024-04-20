@@ -8,7 +8,9 @@ import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import net.kyori.adventure.text.Component;
+import org.bukkit.GameRule;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -24,6 +26,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 public class IslandsProtectionListener implements Listener {
@@ -39,7 +42,14 @@ public class IslandsProtectionListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
+        if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return;
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        if (e.getTo().getY() < -64) {
+            e.setCancelled(true);
+            e.getPlayer().teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
+                    e.getPlayer().sendMessage(Component.text("§cVous avez été téléporté au spawn car vous êtes tombé dans le vide.")));
+            return;
+        }
         WorldBorder border = e.getPlayer().getWorld().getWorldBorder();
         if (e.getTo().getX() > border.getSize() / 2 + 0.2 || e.getTo().getZ() > border.getSize() / 2 + 0.2) {
             e.setCancelled(true);
@@ -237,5 +247,13 @@ public class IslandsProtectionListener implements Listener {
         if (e.getCause() != EntityDamageEvent.DamageCause.FALL) return;
         if (!IslandsManager.INSTANCE.isAnIsland(e.getEntity().getWorld())) return;
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent e) {
+        World w = e.getWorld();
+        if (!IslandsManager.INSTANCE.isAnIsland(w)) return;
+
+        w.setGameRule(GameRule.KEEP_INVENTORY, true);
     }
 }
