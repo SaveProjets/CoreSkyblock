@@ -18,7 +18,7 @@ public class AgricultureCycleManager {
         new AgricultureCycleDataManager();
 
         CompletableFuture.supplyAsync(() -> AgricultureCycleDataManager.INSTANCE.getCurrentSeason()).thenAccept(season -> {
-            if (currentSeason == null) throw new NullPointerException();
+            if (season == null) throw new NullPointerException();
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 currentSeason = season;
                 return null;

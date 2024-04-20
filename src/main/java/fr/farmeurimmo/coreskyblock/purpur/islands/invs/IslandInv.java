@@ -42,7 +42,7 @@ public class IslandInv extends FastInv {
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.BEACON))
                 .name("§6Classement §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+                new IslandsTopInv().open((Player) e.getWhoClicked()));
 
 
         setItem(19, ItemBuilder.copyOf(new ItemStack(Material.WOODEN_HOE))

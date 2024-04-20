@@ -5,10 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
-import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandBankInv;
-import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandInv;
-import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandWarpInv;
-import fr.farmeurimmo.coreskyblock.purpur.islands.invs.IslandsWarpBrowserInv;
+import fr.farmeurimmo.coreskyblock.purpur.islands.invs.*;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -74,6 +71,10 @@ public class IslandCmd implements CommandExecutor {
                 targetIsland.sendMessageToAll("§a" + p.getName() + " a rejoint l'île.");
                 return false;
             }
+            if (args[0].equalsIgnoreCase("top")) {
+                new IslandsTopInv().open(p);
+                return false;
+            }
             p.sendMessage(USAGE_NO_IS);
             return false;
         }
@@ -81,6 +82,10 @@ public class IslandCmd implements CommandExecutor {
 
         if (args.length == 0) {
             new IslandInv(island).open(p);
+            return false;
+        }
+        if (args[0].equalsIgnoreCase("top")) {
+            new IslandsTopInv().open(p);
             return false;
         }
         if (args[0].equalsIgnoreCase("go")) {

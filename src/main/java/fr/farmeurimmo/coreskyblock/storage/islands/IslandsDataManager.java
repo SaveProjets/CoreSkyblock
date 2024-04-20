@@ -563,4 +563,22 @@ public class IslandsDataManager {
             e.printStackTrace();
         }
     }
+
+    public LinkedHashMap<Pair<UUID, String>, Double> getIslandTop() {
+        LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, level FROM islands ORDER BY level DESC LIMIT 16")) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    UUID islandUUID = UUID.fromString(result.getString("uuid"));
+                    String islandName = result.getString("name");
+                    double islandLevel = result.getDouble("level");
+                    topIslands.put(Pair.of(islandUUID, islandName), islandLevel);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topIslands;
+    }
 }

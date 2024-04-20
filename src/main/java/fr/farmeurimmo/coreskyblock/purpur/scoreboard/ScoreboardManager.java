@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsTopManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -57,7 +58,9 @@ public class ScoreboardManager {
             Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
             ArrayList<String> islandLines = new ArrayList<>();
             if (island != null) {
-                islandLines.add("§6§l" + island.getName().replace("&", "§"));
+                int position = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID());
+                islandLines.add("§6§l" + island.getName().replace("&", "§") + " " + (position > 0 ?
+                        "§8(§6#" + position + "§8)" : "§8(§7#?§8)"));
                 islandLines.add("§8┃ §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));
                 islandLines.add("§8┃ §7Niveau: §3" + NumberFormat.getInstance().format(island.getLevel()));
             } else {

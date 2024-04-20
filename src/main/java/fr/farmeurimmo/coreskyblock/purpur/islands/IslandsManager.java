@@ -66,6 +66,8 @@ public class IslandsManager {
         new IslandsLevelCalculator();
         new IslandsCooldownManager();
 
+        new IslandsTopManager();
+
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
 
             Bukkit.getScheduler().runTaskTimer(plugin, () -> {
