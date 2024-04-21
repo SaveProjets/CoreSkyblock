@@ -30,6 +30,7 @@ public class Island {
     private final Map<UUID, Long> invites = new HashMap<>(); // not saved
     private final List<IslandSettings> settings;
     private final List<Chest> chests;
+    private final Map<UUID, UUID> coops = new HashMap<>(); // not saved
     private String name;
     private Location spawn;
     private int maxSize;
@@ -42,8 +43,6 @@ public class Island {
     private boolean loaded = false; // not saved
     private boolean readOnly = false; // not saved
     private long loadTimeout = -1; // not saved
-    private final Map<UUID, UUID> coops = new HashMap<>(); // not saved
-
     private boolean isModified = false; // not saved
     private boolean areMembersModified = false; // not saved
     private boolean arePermsModified = false; // not saved

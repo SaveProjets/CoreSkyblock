@@ -25,9 +25,10 @@ public class IslandWarp {
     private boolean isActivated;
     private long forwardedWarp;
     private Material material;
+    private double rate;
 
     public IslandWarp(UUID uuid, UUID islandUUID, String name, String description, ArrayList<IslandWarpCategories> categories,
-                      Location location, boolean isActivated, long forwardedWarp, Material material) {
+                      Location location, boolean isActivated, long forwardedWarp, Material material, double rate) {
         this.uuid = uuid;
         this.islandUUID = islandUUID;
         this.name = name;
@@ -37,11 +38,12 @@ public class IslandWarp {
         this.isActivated = isActivated;
         this.forwardedWarp = forwardedWarp;
         this.material = material;
+        this.rate = rate;
     }
 
     public IslandWarp(UUID islandUUID, String creator, Location location, boolean create) {
         this(UUID.randomUUID(), islandUUID, "Warp de l'île de " + creator, "Aucune description renseignée",
-                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK);
+                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK, -1);
 
         if (create) update();
     }
@@ -60,8 +62,9 @@ public class IslandWarp {
         }
         long forwardedWarp = jsonObject.get("forwardedWarp").getAsLong();
         Material material = Material.getMaterial(jsonObject.get("material").getAsString());
+        double rate = jsonObject.get("rate").getAsDouble();
         return new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location, isActivated,
-                forwardedWarp, material);
+                forwardedWarp, material, rate);
     }
 
     public static ArrayList<IslandWarpCategories> getCategoriesFromString(String categories) {
@@ -183,6 +186,7 @@ public class IslandWarp {
         jsonObject.addProperty("categories", getCategoriesString());
         jsonObject.addProperty("forwardedWarp", forwardedWarp);
         jsonObject.addProperty("material", material.name());
+        jsonObject.addProperty("rate", rate);
 
         return IslandsManager.INSTANCE.gson.toJson(jsonObject);
     }
@@ -201,6 +205,17 @@ public class IslandWarp {
 
     public void setMaterial(Material material) {
         this.material = material;
+
+        update();
+    }
+
+    public double getRate() {
+        return rate;
+    }
+
+    public void applyRate(double rate) {
+        if (this.rate == -1) this.rate = rate;
+        else this.rate = (this.rate + rate) / 2;
 
         update();
     }

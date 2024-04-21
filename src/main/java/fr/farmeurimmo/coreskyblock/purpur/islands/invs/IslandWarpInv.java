@@ -253,6 +253,10 @@ public class IslandWarpInv extends FastInv {
                 e.getWhoClicked().sendMessage(Component.text("§aWarp mis en avant."));
                 island.sendMessageToAll("§eLe warp de l'île a été mis en avant.");
             });
+
+            setItem(22, ItemBuilder.copyOf(new ItemStack(Material.ENDER_PEARL)).name("§6Évaluation du warp")
+                    .lore("§7" + (warp.getRate() >= 0 ? "§6" + NumberFormat.getInstance().format(warp.getRate()) :
+                            "§cNon évalué")).build());
         } else {
             setItem(13, ItemBuilder.copyOf(new ItemStack(Material.COMPASS))
                     .name("§6Créer un warp §8| §7(clic gauche pour définir sur vous)")

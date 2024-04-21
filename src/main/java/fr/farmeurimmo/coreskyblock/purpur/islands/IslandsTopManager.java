@@ -14,6 +14,8 @@ public class IslandsTopManager {
 
     public static IslandsTopManager INSTANCE;
     private final LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
+    private final LinkedHashMap<Pair<UUID, String>, Double> topBankMoney = new LinkedHashMap<>();
+    private final LinkedHashMap<Pair<UUID, String>, Double> topWarpRate = new LinkedHashMap<>();
     private final long time_between_updates = 5 * 60 * 1000;
     private long lastUpdate = System.currentTimeMillis();
     private long nextUpdate = -1;
@@ -21,23 +23,44 @@ public class IslandsTopManager {
     public IslandsTopManager() {
         INSTANCE = this;
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::updateTopIslands, 0, 20 * 60 * 5);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::updateTops, 0, 20 * 60 * 5 - 20);
     }
 
-    public LinkedHashMap<Pair<UUID, String>, Double> getTopIslands() {
-        return topIslands;
+    public LinkedHashMap<Pair<UUID, String>, Double> getTopIslands(int type) {
+        return switch (type) {
+            case 0 -> topIslands;
+            case 1 -> topBankMoney;
+            case 2 -> topWarpRate;
+            default -> null;
+        };
     }
 
-    private void updateTopIslands() {
+    private void updateTops() {
         topIslands.clear();
+        topBankMoney.clear();
+        topWarpRate.clear();
 
         CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTop()).thenAccept(islands -> {
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 topIslands.putAll(islands);
-
-                lastUpdate = System.currentTimeMillis();
-                nextUpdate = System.currentTimeMillis() + time_between_updates;
                 return null;
+            });
+        }).thenRunAsync(() -> {
+            CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTopBankMoney()).thenAccept(bankMoney -> {
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    topBankMoney.putAll(bankMoney);
+                    return null;
+                });
+            }).thenRunAsync(() -> {
+                CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTopWarpRate()).thenAccept(warpRate -> {
+                    Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                        topWarpRate.putAll(warpRate);
+
+                        lastUpdate = System.currentTimeMillis();
+                        nextUpdate = lastUpdate + time_between_updates;
+                        return null;
+                    });
+                });
             });
         });
     }
@@ -54,13 +77,15 @@ public class IslandsTopManager {
         return DateUtils.getFormattedTimeLeft((int) ((System.currentTimeMillis() - lastUpdate) / 1000));
     }
 
-    public int getPosition(UUID islandUUID) {
+    public int getPosition(UUID islandUUID, int topType) {
         int pos = 1;
-        for (Pair<UUID, String> pair : topIslands.keySet()) {
-            if (pair.left().equals(islandUUID)) {
-                return pos;
+        if (topType == 0) {
+            for (Pair<UUID, String> pair : topIslands.keySet()) {
+                if (pair.left().equals(islandUUID)) {
+                    return pos;
+                }
+                pos++;
             }
-            pos++;
         }
         return -1;
     }

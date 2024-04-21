@@ -58,7 +58,7 @@ public class ScoreboardManager {
             Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
             ArrayList<String> islandLines = new ArrayList<>();
             if (island != null) {
-                int position = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID());
+                int position = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0);
                 islandLines.add("§6§l" + island.getName().replace("&", "§") + " " + (position > 0 ?
                         "§8(§6#" + position + "§8)" : "§8(§7#?§8)"));
                 islandLines.add("§8┃ §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));

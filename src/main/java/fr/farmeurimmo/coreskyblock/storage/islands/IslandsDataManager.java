@@ -50,7 +50,8 @@ public class IslandsDataManager {
     private static final String CREATE_ISLAND_WARPS_TABLE = "CREATE TABLE IF NOT EXISTS island_warps " +
             "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), name VARCHAR(255), description VARCHAR(1024), " +
             "categories VARCHAR(255), loc_tp VARCHAR(255), forward BIGINT, is_activated BOOL, material VARCHAR(96), " +
-            "created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
+            "rate DOUBLE, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES " +
+            "islands(uuid) ON DELETE CASCADE)";
     public static IslandsDataManager INSTANCE;
     private final Map<UUID, Island> cache = new HashMap<>();
 
@@ -300,17 +301,17 @@ public class IslandsDataManager {
 
     public void updateIslandWarp(IslandWarp islandWarp) {
         String query = "INSERT IGNORE INTO island_warps (uuid, island_uuid, name, description, categories, loc_tp, " +
-                "forward, is_activated, material, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, " +
+                "forward, is_activated, material, rate, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " +
                 "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE name = ?, description = ?, categories = ?, " +
-                "loc_tp = ?, forward = ?, is_activated = ?, material = ?, updated_at = CURRENT_TIMESTAMP";
+                "loc_tp = ?, forward = ?, is_activated = ?, material = ?, rate = ?, updated_at = CURRENT_TIMESTAMP";
         try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
             executeUpdate(connection, query, islandWarp.getUuid().toString(), islandWarp.getIslandUUID().toString(),
                     islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategoriesString(),
                     LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
-                    islandWarp.isActivated(), islandWarp.getMaterial().name(),
-                    islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategoriesString(),
+                    islandWarp.isActivated(), islandWarp.getMaterial().name(), islandWarp.getRate(), islandWarp.getName(),
+                    islandWarp.getDescription(), islandWarp.getCategoriesString(),
                     LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
-                    islandWarp.isActivated(), islandWarp.getMaterial().name());
+                    islandWarp.isActivated(), islandWarp.getMaterial().name(), islandWarp.getRate());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -444,8 +445,9 @@ public class IslandsDataManager {
                         boolean isActivated = result.getBoolean("is_activated");
                         long forwardedWarp = result.getLong("forward");
                         Material material = Material.getMaterial(result.getString("material"));
+                        double rate = result.getDouble("rate");
                         warps.add(new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location,
-                                isActivated, forwardedWarp, material));
+                                isActivated, forwardedWarp, material, rate));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -567,13 +569,52 @@ public class IslandsDataManager {
     public LinkedHashMap<Pair<UUID, String>, Double> getIslandTop() {
         LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, level FROM islands ORDER BY level DESC LIMIT 16")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, level FROM islands WHERE" +
+                     " level > 0 ORDER BY level DESC LIMIT 16")) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
                     UUID islandUUID = UUID.fromString(result.getString("uuid"));
                     String islandName = result.getString("name");
                     double islandLevel = result.getDouble("level");
                     topIslands.put(Pair.of(islandUUID, islandName), islandLevel);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topIslands;
+    }
+
+    public LinkedHashMap<Pair<UUID, String>, Double> getIslandTopBankMoney() {
+        LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, bank_money FROM islands" +
+                     " WHERE bank_money > 0 ORDER BY bank_money DESC LIMIT 16")) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    UUID islandUUID = UUID.fromString(result.getString("uuid"));
+                    String islandName = result.getString("name");
+                    double islandBankMoney = result.getDouble("bank_money");
+                    topIslands.put(Pair.of(islandUUID, islandName), islandBankMoney);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topIslands;
+    }
+
+    public LinkedHashMap<Pair<UUID, String>, Double> getIslandTopWarpRate() {
+        LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT island_uuid, name, rate FROM " +
+                     "island_warps WHERE rate != -1 ORDER BY rate DESC LIMIT 16")) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
+                    String islandName = result.getString("name");
+                    double islandRate = result.getDouble("rate");
+                    topIslands.put(Pair.of(islandUUID, islandName), islandRate);
                 }
             }
         } catch (SQLException e) {
