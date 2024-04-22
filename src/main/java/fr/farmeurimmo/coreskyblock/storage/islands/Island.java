@@ -183,17 +183,17 @@ public class Island {
 
         ArrayList<IslandPerms> permsMembre = new ArrayList<>();
         permsMembre.addAll(perms);
-        permsMembre.addAll(Arrays.asList(IslandPerms.MINIONS_ADD, IslandPerms.MINIONS_INTERACT));
+        permsMembre.addAll(Arrays.asList(IslandPerms.EDIT_MINIONS));
         this.perms.put(IslandRanks.MEMBRE, permsMembre);
 
         ArrayList<IslandPerms> permsMod = new ArrayList<>();
         permsMod.addAll(permsMembre);
-        permsMod.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.PROMOTE, IslandPerms.DEMOTE));
+        permsMod.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.CHANGE_RANK));
         this.perms.put(IslandRanks.MODERATEUR, permsMod);
 
         ArrayList<IslandPerms> permsCoChef = new ArrayList<>();
         permsCoChef.addAll(permsMod);
-        permsCoChef.addAll(Arrays.asList(IslandPerms.INVITE, IslandPerms.BAN));
+        permsCoChef.addAll(Arrays.asList(IslandPerms.INVITES, IslandPerms.EDIT_BANS));
         this.perms.put(IslandRanks.COCHEF, permsCoChef);
 
         ArrayList<IslandPerms> permsChef = new ArrayList<>();
@@ -442,6 +442,18 @@ public class Island {
             if (getPerms().get(rank).contains(IslandPerms.ALL_PERMS)) return true;
             if (perm == null) return false;
             return getPerms().get(rank).contains(perm);
+        }
+        return false;
+    }
+
+    public boolean hasPerms(Island island, IslandPerms perms, UUID uuid) {
+        if (island.getPlayerRank(uuid) == IslandRanks.CHEF) {
+            return true;
+        }
+        if (island.getPerms().get(island.getPlayerRank(uuid)) != null) {
+            if (IslandsManager.INSTANCE.isBypassing(uuid)) return true;
+            if (island.getPerms().get(island.getPlayerRank(uuid)).contains(IslandPerms.ALL_PERMS)) return true;
+            return island.getPerms().get(island.getPlayerRank(uuid)).contains(perms);
         }
         return false;
     }
@@ -734,5 +746,15 @@ public class Island {
         this.coops.remove(uuid);
 
         IslandsCoopsManager.INSTANCE.removeCoop(uuid);
+    }
+
+    public IslandRanks getPlayerRank(UUID uuid) {
+        if (members.containsKey(uuid)) {
+            return members.get(uuid);
+        }
+        if (coops.containsKey(uuid)) {
+            return IslandRanks.COOP;
+        }
+        return IslandRanks.VISITEUR;
     }
 }

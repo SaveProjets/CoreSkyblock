@@ -36,7 +36,7 @@ public class IslandsBankManager {
         SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (island != null && user != null) {
             if (completed) {
-                IslandRanks rank = island.getMembers().get(p.getUniqueId());
+                IslandRanks rank = island.getPlayerRank(p.getUniqueId());
                 if (rank == null) {
                     p.sendMessage(Component.text("§cUne erreur est survenue veuillez recommencer."));
                     return;

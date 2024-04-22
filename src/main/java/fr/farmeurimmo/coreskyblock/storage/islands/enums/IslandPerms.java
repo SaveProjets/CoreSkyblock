@@ -2,36 +2,49 @@ package fr.farmeurimmo.coreskyblock.storage.islands.enums;
 
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+
 public enum IslandPerms {
 
-    PROMOTE("§6Promouvoir un membre inférieur à lui", 0, Material.NETHERITE_SWORD), // implemented
-    DEMOTE("§6Rétrograder un membre inférieur à lui", 1, Material.DIAMOND_SWORD), // implemented
-    INVITE("§6Inviter un membre", 2, Material.BOOK), // implemented
-    CANCEL_INVITE("§6Annuler les invitations d'un membre", 3, Material.KNOWLEDGE_BOOK), // implemented
-    KICK("§6Expulser un membre inférieur à lui", 4, Material.LEATHER_BOOTS), // implemented
-    BAN("§6Bannir un visiteur", 5, Material.ANVIL), // implemented
-    UNBAN("§6Débannir un visiteur", 6, Material.DAMAGED_ANVIL), // implemented
-    EXPEL("§6Expulser un visiteur", 7, Material.DIAMOND_HOE),  // implemented
-    SET_ISLAND_NAME("§6Définir le nom de l'île", 8, Material.NAME_TAG), // implemented
-    PRIVATE("§6Définir la visibilité de l'île sur privée", 9, Material.RED_BED), // implemented
-    PUBLIC("§6Définir la visibilité de l'île sur publique", 10, Material.BLUE_BED), // implemented
-    CHANGE_ISLAND_BIOME("§6Changer le biome de l'île", 11, Material.CLAY), // not
-    SET_HOME("§6Définir le home de l'île", 12, Material.GRASS_BLOCK), // implemented
-    CHANGE_PERMS("§6Définir les permissions depuis son niveau de grade", 13, Material.EMERALD_BLOCK), // implemented
-    ALL_PERMS("§6Toutes les permissions (Bypass les autres permissions)", 14, Material.BEDROCK), // implemented
-    ADD_COOP("§6Ajouter un membre temporaire", 15, Material.BONE_BLOCK), // not
-    REMOVE_COOP("§6Retirer un membre temporaire", 16, Material.BONE_MEAL), // not
-    BANK_ADD("§6Ajouter de l'argent/crystaux/exp à la banque", 17, Material.GOLD_BLOCK), // implemented
-    BANK_REMOVE("§6Retirer de l'argent/crystaux/exp à la banque", 18, Material.GOLD_NUGGET), // implemented
-    BUILD("§fConstruire", 19, Material.DIAMOND_PICKAXE), // implemented
-    BREAK("§fCasser", 20, Material.DIAMOND_AXE), // implemented
-    INTERACT("§fIntéragir avec les blocs", 21, Material.IRON_HOE), // implemented
-    CONTAINER("§fOuvrir les conteneurs", 22, Material.CHEST), // implemented
-    MINIONS_ADD("§6Ajouter un minion", 23, Material.DRAGON_BREATH), // not
-    MINIONS_REMOVE("§6Retirer un minion", 24, Material.DRAGON_EGG), // not
-    MINIONS_INTERACT("§6Intéragir avec un minion", 25, Material.DRAGON_HEAD), // not
-    SECURED_CHEST("§6Utiliser un coffre sécurisé", 26, Material.IRON_CHESTPLATE), // implemented
-    CALCULATE_ISLAND_LEVEL("§6Calculer le niveau de l'île", 27, Material.CALCITE); // implemented
+    CHANGE_RANK("§6Modifier le rang d'un membre inférieur à lui", 0, Material.NETHERITE_SWORD), // implemented
+    INVITES("§6Gérer les invitations", 1, Material.BOOK), // implemented
+    KICK("§6Expulser un membre inférieur à lui", 2, Material.LEATHER_BOOTS), // implemented
+    EDIT_BANS("§6Gérer les bannissements de l'île", 3, Material.ANVIL), // implemented
+    EXPEL("§6Expulser un visiteur", 4, Material.DIAMOND_HOE),  // implemented
+    SET_ISLAND_NAME("§6Définir le nom de l'île", 5, Material.NAME_TAG), // implemented
+    EDIT_PUBLIC("§6Ouvrir et Fermer l'île aux visiteurs", 6, Material.RED_BED), // implemented
+    CHANGE_ISLAND_BIOME("§6Changer le biome de l'île", 7, Material.CLAY), // not
+    SET_HOME("§6Définir le home de l'île", 8, Material.GRASS_BLOCK), // implemented
+    CHANGE_PERMS("§6Pouvoir changer les permissions d'un rang", 9, Material.EMERALD_BLOCK), // implemented
+    ALL_PERMS("§6Permissions admin (Attention ne pas mettre sur un coup de tête)", 10, Material.BEDROCK), // implemented
+    EDIT_COOP("§6Gérer les coops", 11, Material.BONE_BLOCK), // implemented
+    BANK_ADD("§6Ajouter de l'argent/crystaux/exp à la banque", 12, Material.GOLD_BLOCK), // implemented
+    BANK_REMOVE("§6Retirer de l'argent/crystaux/exp à la banque", 13, Material.GOLD_NUGGET), // implemented
+    BUILD("§fPoser des blocs", 14, Material.DIAMOND_PICKAXE), // implemented
+    BREAK("§fCasser des blocs", 15, Material.DIAMOND_AXE), // implemented
+    INTERACT("§fIntéragir avec les blocs", 16, Material.IRON_HOE), // implemented
+    CONTAINER("§fOuvrir les conteneurs", 17, Material.CHEST), // implemented
+    EDIT_MINIONS("§6Gérer les minions", 18, Material.DRAGON_BREATH), // not
+    SECURED_CHEST("§6Utiliser un coffre sécurisé", 19, Material.IRON_CHESTPLATE), // implemented
+    CALCULATE_ISLAND_LEVEL("§6Calculer le niveau de l'île", 20, Material.CALCITE), // implemented
+    FEED_ANIMALS("§fNourrir les animaux", 21, Material.COOKED_BEEF), // not
+    KILL_ANIMALS("§fTuer les animaux", 22, Material.COOKED_CHICKEN), // implemented
+    KILL_MOBS("§fTuer les monstres", 23, Material.ROTTEN_FLESH), // implemented
+    EDIT_ISLAND_WARP("§6Gérer le warp de l'île", 24, Material.ENDER_PEARL), // implemented
+    EDIT_ISLAND_CHARACTERISTICS("§6Gérer les caractéristiques de l'île", 25, Material.BOOK), // not
+    DROP_ITEMS("§fJeter des items", 26, Material.DIRT), // implemented
+    FISH("§fPêcher", 27, Material.FISHING_ROD), // not
+    FLY("§fVoler sur l'île", 28, Material.ELYTRA), // not
+    INTERACT_WITH_MOUNTS("§fIntéragir avec les montures", 29, Material.SADDLE), // implemented
+    USE_SPAWN_EGG("§fUtiliser des spawn eggs", 30, Material.PIG_SPAWN_EGG), // not
+    PICKUP_ITEMS("§fRamasser des items", 31, Material.IRON_SHOVEL), // implemented
+    UPGRADE_ISLAND("§6Améliorer l'île", 32, Material.DIAMOND_BLOCK), // implemented
+    EDIT_SETTINGS("§6Modifier les paramètres de l'île", 33, Material.COMPARATOR), // implemented
+    BREAK_SPAWNERS("§6Casser les spawners", 34, Material.SPAWNER), // not
+    BREAK_ISLAND_LEVEL_BLOCKS("§6Casser les blocs du niveau de l'île", 35, Material.CALCITE), // not
+    INTERACT_WITH_VILLAGERS("§fIntéragir avec les villageois", 36, Material.VILLAGER_SPAWN_EGG), // implemented
+    INTERACT_WITH_ITEM_FRAMES("§fIntéragir avec les cadres d'items", 37, Material.ITEM_FRAME); // implemented
+
 
     private final String description;
     private final int id;
@@ -59,6 +72,19 @@ public enum IslandPerms {
             }
         }
         return null;
+    }
+
+    public static ArrayList<IslandPerms> getPerms(int startingAt, int maxAmount) {
+        if (startingAt >= values().length) return new ArrayList<>();
+        ArrayList<IslandPerms> perms = new ArrayList<>();
+        int i = 0;
+        for (IslandPerms perm : values()) {
+            if (i >= startingAt && i < startingAt + maxAmount) {
+                perms.add(perm);
+            }
+            i++;
+        }
+        return perms;
     }
 
     public String getDescription() {

@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
@@ -66,10 +67,7 @@ public class IslandWarpInv extends FastInv {
             setItem(10, ItemBuilder.copyOf(new ItemStack(Material.NAME_TAG))
                     .name("§6Nom §8| §7(clic gauche)")
                     .lore("§7" + warp.getName()).build(), e -> {
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
 
                 if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                     e.getWhoClicked().sendMessage(Component.text("§cMerci d'attendre un peu avant de modifier le nom."));
@@ -85,10 +83,7 @@ public class IslandWarpInv extends FastInv {
             setItem(11, ItemBuilder.copyOf(new ItemStack(Material.BOOK))
                     .name("§6Description §8| §7(clic gauche)")
                     .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
 
                 if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                     e.getWhoClicked().sendMessage(Component.text("§cMerci d'attendre un peu avant de modifier la description."));
@@ -111,10 +106,7 @@ public class IslandWarpInv extends FastInv {
             setItem(12, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
                     .name("§6Catégories §8| §7(clic gauche)")
                     .lore(categories).build(), e -> {
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
 
                 if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                     e.getWhoClicked().sendMessage(Component.text("§cEn développement..."));
@@ -132,10 +124,7 @@ public class IslandWarpInv extends FastInv {
                     e.getWhoClicked().sendMessage(Component.text("§cVous devez être sur l'île pour définir la localisation."));
                     return;
                 }
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
 
                 if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                     e.getWhoClicked().sendMessage(Component.text("§cVeuillez attendre un peu avant de définir la localisation."));
@@ -150,10 +139,7 @@ public class IslandWarpInv extends FastInv {
 
             setItem(14, ItemBuilder.copyOf(new ItemStack(Material.ITEM_FRAME))
                     .name("§6Changer l'item §8| §7(clic gauche)").build(), e -> {
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
 
                 if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                     e.getWhoClicked().sendMessage(Component.text("§cMerci d'attendre un peu avant de changer l'item."));
@@ -176,10 +162,7 @@ public class IslandWarpInv extends FastInv {
             setItem(16, ItemBuilder.copyOf(new ItemStack(Material.REDSTONE_TORCH))
                     .name("§6Activation §8| §7(clic gauche)")
                     .lore("§7" + (warp.isActivated() ? "Activé" : "Désactivé")).build(), e -> {
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
 
                 if (warp.getLocation() == null) {
                     e.getWhoClicked().sendMessage(Component.text("§cVous devez définir une localisation avant d'activer le warp."));
@@ -216,10 +199,7 @@ public class IslandWarpInv extends FastInv {
                     ? "§aOui" : "§cNon"), expiry, "", "§7Coût: §e25 000$").flags(ItemFlag.HIDE_ENCHANTS).build();
             if (warp.isStillForwarded()) forwardItem.addEnchant(Enchantment.CHANNELING, 1, true);
             setItem(15, forwardItem, e -> {
-                if (!island.isLoaded()) {
-                    e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
-                    return;
-                }
+                if (checkForPermsAndIfLoaded(island, e)) return;
                 if (warp.isStillForwarded()) {
                     e.getWhoClicked().sendMessage(Component.text("§aWarp déja mis en avant."));
                     return;
@@ -289,6 +269,18 @@ public class IslandWarpInv extends FastInv {
         setItem(18, ItemBuilder.copyOf(new ItemStack(Material.MAP))
                         .name("§6Voir la liste des warps disponibles §8| §7(clic gauche)").build(),
                 e -> new IslandsWarpBrowserInv().open((Player) e.getWhoClicked()));
+    }
+
+    private boolean checkForPermsAndIfLoaded(Island island, InventoryClickEvent e) {
+        if (!island.isLoaded()) {
+            e.getWhoClicked().sendMessage(Component.text("§cL'île n'est pas chargée ici."));
+            return true;
+        }
+        if (!island.hasPerms(island, IslandPerms.EDIT_ISLAND_WARP, e.getWhoClicked().getUniqueId())) {
+            e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas la permission de modifier le warp."));
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManag
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -38,6 +39,10 @@ public class IslandUpgradesInv extends FastInv {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
                 return;
             }
+            if (!island.hasPerms(island, IslandPerms.UPGRADE_ISLAND, e.getWhoClicked().getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'améliorer l'île !"));
+                return;
+            }
             int currentLevelSize = island.getMaxSize();
             if (currentLevelSize < 5) {
                 double price = IslandsSizeManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
@@ -56,6 +61,10 @@ public class IslandUpgradesInv extends FastInv {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
                 return;
             }
+            if (!island.hasPerms(island, IslandPerms.UPGRADE_ISLAND, e.getWhoClicked().getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'améliorer l'île !"));
+                return;
+            }
             int currentLevel = island.getGeneratorLevel();
             if (currentLevel < 5) {
                 double price = IslandsGeneratorManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
@@ -72,6 +81,10 @@ public class IslandUpgradesInv extends FastInv {
                 .lore(IslandsMaxMembersManager.INSTANCE.getLore(island.getMaxMembers())).build(), e -> {
             if (island.isReadOnly()) {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
+            if (!island.hasPerms(island, IslandPerms.UPGRADE_ISLAND, e.getWhoClicked().getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'améliorer l'île !"));
                 return;
             }
             int currentLevel = island.getMaxMembers();

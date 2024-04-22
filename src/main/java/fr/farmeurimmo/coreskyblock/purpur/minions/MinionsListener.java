@@ -17,6 +17,7 @@ public class MinionsListener implements Listener {
 
     @EventHandler
     public void pistonExtend(BlockPistonExtendEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) return;
         for (Block b : e.getBlocks()) {
             for (Entity entity : b.getWorld().getNearbyEntities(b.getLocation(), 1, 1, 1)) {
                 if (entity.hasMetadata("minion")) {
@@ -29,6 +30,7 @@ public class MinionsListener implements Listener {
 
     @EventHandler
     public void pistonRetract(BlockPistonExtendEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) return;
         for (Block b : e.getBlocks()) {
             for (Entity entity : b.getWorld().getNearbyEntities(b.getLocation(), 1, 1, 1)) {
                 if (entity.hasMetadata("minion")) {
@@ -41,6 +43,7 @@ public class MinionsListener implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getEntity().getWorld())) return;
         if (!e.getEntity().hasMetadata("minion")) return;
 
         e.setCancelled(true);
@@ -48,6 +51,7 @@ public class MinionsListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getRightClicked().getWorld())) return;
         if (!e.getRightClicked().hasMetadata("minion")) return;
 
         e.setCancelled(true);
@@ -65,6 +69,7 @@ public class MinionsListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
         if (e.getItem() == null) return;
         if (!e.getItem().hasItemMeta()) return;
         if (!e.getItem().getItemMeta().hasDisplayName()) return;

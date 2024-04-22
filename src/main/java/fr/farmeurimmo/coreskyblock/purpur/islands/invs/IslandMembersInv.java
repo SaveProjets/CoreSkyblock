@@ -77,7 +77,7 @@ public class IslandMembersInv extends FastInv {
                         IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
                         return;
                     }
-                    IslandRanks rank = island.getMembers().get(e.getWhoClicked().getUniqueId());
+                    IslandRanks rank = island.getPlayerRank(e.getWhoClicked().getUniqueId());
                     if (rank.getId() >= playerEntry.getValue().getId()) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier les " +
                                 "grades de joueurs ayant un grade supérieur ou égal au vôtre."));
@@ -95,7 +95,7 @@ public class IslandMembersInv extends FastInv {
                         return;
                     }
                     if (e.isLeftClick()) {
-                        if (!island.hasPerms(rank, IslandPerms.PROMOTE, e.getWhoClicked().getUniqueId())) {
+                        if (!island.hasPerms(rank, IslandPerms.CHANGE_RANK, e.getWhoClicked().getUniqueId())) {
                             e.getWhoClicked().sendMessage(Component.text(
                                     "§cVous n'avez pas la permission de promouvoir un membre."));
                             return;
@@ -108,13 +108,13 @@ public class IslandMembersInv extends FastInv {
                         if (island.promote(playerEntry.getKey())) {
                             e.getWhoClicked().sendMessage(Component.text("§aVous avez promu " +
                                     island.getMemberName(playerEntry.getKey()) + " au grade " +
-                                    island.getMembers().get(playerEntry.getKey()).getName()));
+                                    island.getPlayerRank(playerEntry.getKey()).getName()));
                         } else {
                             e.getWhoClicked().sendMessage(Component.text("§cImpossible de promouvoir " +
                                     island.getMemberName(playerEntry.getKey()) + "."));
                         }
                     } else if (e.isRightClick()) {
-                        if (!island.hasPerms(rank, IslandPerms.DEMOTE, e.getWhoClicked().getUniqueId())) {
+                        if (!island.hasPerms(rank, IslandPerms.CHANGE_RANK, e.getWhoClicked().getUniqueId())) {
                             e.getWhoClicked().sendMessage(Component.text(
                                     "§cVous n'avez pas la permission de rétrograder un membre."));
                             return;
@@ -127,7 +127,7 @@ public class IslandMembersInv extends FastInv {
                         if (island.demote(playerEntry.getKey())) {
                             e.getWhoClicked().sendMessage(Component.text("§aVous avez rétrogradé " +
                                     island.getMemberName(playerEntry.getKey()) + " au grade " +
-                                    island.getMembers().get(playerEntry.getKey()).getName()));
+                                    island.getPlayerRank(playerEntry.getKey()).getName()));
                         } else {
                             e.getWhoClicked().sendMessage(Component.text("§cImpossible de rétrograder " +
                                     island.getMemberName(playerEntry.getKey()) + "."));

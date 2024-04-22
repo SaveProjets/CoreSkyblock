@@ -124,7 +124,7 @@ public class IslandCmd implements CommandExecutor {
             return false;
         }
 
-        IslandRanks rank = island.getMembers().get(p.getUniqueId());
+        IslandRanks rank = island.getPlayerRank(p.getUniqueId());
         if (rank == null) {
             p.sendMessage(Component.text("§cVous n'êtes pas membre de cette île."));
             return false;
@@ -135,7 +135,7 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is invite <joueur>"));
                 return false;
             }
-            if (!island.hasPerms(rank, IslandPerms.INVITE, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.INVITES, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission d'inviter des joueurs."));
                 return false;
             }
@@ -167,7 +167,7 @@ public class IslandCmd implements CommandExecutor {
                     .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/is accept " + p.getName()))
                     .hoverEvent(Component.text("§aAccepter l'invitation")));
             p.sendMessage(Component.text("§aLe joueur a été invité."));
-            island.sendMessage("§a" + target.getName() + " a été invité à rejoindre l'île.", IslandPerms.INVITE);
+            island.sendMessage("§a" + target.getName() + " a été invité à rejoindre l'île.", IslandPerms.INVITES);
             return false;
         }
         if (args[0].equalsIgnoreCase("cancelinvite") || args[0].equalsIgnoreCase("annulerinvite")) {
@@ -175,7 +175,7 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is cancelinvite <joueur>"));
                 return false;
             }
-            if (!island.hasPerms(rank, IslandPerms.CANCEL_INVITE, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.INVITES, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission d'annuler des invitations."));
                 return false;
             }
@@ -185,8 +185,7 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             island.removeInvite(target.getUniqueId());
-            p.sendMessage(Component.text("§aL'invitation a été annulée."));
-            island.sendMessage("§aL'invitation de " + target.getName() + " a été annulée.", IslandPerms.CANCEL_INVITE);
+            island.sendMessage("§aL'invitation de " + target.getName() + " a été annulée.", IslandPerms.INVITES);
             return false;
         }
         if (args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("expulser")) {
@@ -203,12 +202,11 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cLe joueur n'est pas membre de l'île."));
                 return false;
             }
-            if (rank.getId() >= island.getMembers().get(target.getUniqueId()).getId()) {
+            if (rank.getId() >= island.getPlayerRank(target.getUniqueId()).getId()) {
                 p.sendMessage(Component.text("§cVous ne pouvez pas expulser un joueur de ce grade ou supérieur."));
                 return false;
             }
             island.removeMember(target.getUniqueId());
-            p.sendMessage(Component.text("§aLe joueur a été expulsé."));
             island.sendMessage("§a" + target.getName() + " a été expulsé de l'île.", IslandPerms.KICK);
             return false;
         }
@@ -236,7 +234,6 @@ public class IslandCmd implements CommandExecutor {
             }
             target.teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
                     target.sendMessage(Component.text("§cVous avez été expulsé du mode visiteur de l'île.")));
-            p.sendMessage(Component.text("§aLe visiteur a été expulsé."));
             island.sendMessage("§a" + target.getName() + " a été expulsé de l'île.", IslandPerms.EXPEL);
             return false;
         }
@@ -245,7 +242,7 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is ban <joueur>"));
                 return false;
             }
-            if (!island.hasPerms(rank, IslandPerms.BAN, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.EDIT_BANS, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de bannir des joueurs."));
                 return false;
             }
@@ -259,8 +256,7 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             island.addBannedPlayer(target.getUniqueId());
-            p.sendMessage(Component.text("§aLe visiteur a été banni."));
-            island.sendMessage("§a" + target.getName() + " a été banni de l'île.", IslandPerms.BAN);
+            island.sendMessage("§a" + target.getName() + " a été banni de l'île.", IslandPerms.EDIT_BANS);
 
             if (target.getPlayer() != null) target.getPlayer().teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
                     target.getPlayer().sendMessage(Component.text("§cVous avez été banni du mode visiteur de l'île.")));
@@ -271,7 +267,7 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is unban <joueur>"));
                 return false;
             }
-            if (!island.hasPerms(rank, IslandPerms.UNBAN, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.EDIT_BANS, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de débannir des joueurs."));
                 return false;
             }
@@ -281,14 +277,13 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             island.removeBannedPlayer(target.getUniqueId());
-            p.sendMessage(Component.text("§aLe joueur a été débanni."));
-            island.sendMessage("§a" + target.getName() + " a été débanni de l'île.", IslandPerms.UNBAN);
+            island.sendMessage("§a" + target.getName() + " a été débanni de l'île.", IslandPerms.EDIT_BANS);
             if (target.getPlayer() != null) target.getPlayer().sendMessage(Component.text(
                     "§aVous avez été débanni du mode visiteur de l'île " + island.getName() + "."));
             return false;
         }
         if (args[0].equalsIgnoreCase("private") || args[0].equalsIgnoreCase("privée")) {
-            if (!island.hasPerms(rank, IslandPerms.PRIVATE, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.EDIT_PUBLIC, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de changer la visibilité de l'île."));
                 return false;
             }
@@ -304,12 +299,11 @@ public class IslandCmd implements CommandExecutor {
             }
             IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-accessibility");
             island.setPublic(false);
-            p.sendMessage(Component.text("§aVotre île est désormais §cprivée§a."));
             island.sendMessageToAll("§aL'île est désormais §cprivée§a.");
             return false;
         }
         if (args[0].equalsIgnoreCase("public") || args[0].equalsIgnoreCase("publique")) {
-            if (!island.hasPerms(rank, IslandPerms.PUBLIC, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.EDIT_PUBLIC, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de changer la visibilité de l'île."));
                 return false;
             }
@@ -325,7 +319,6 @@ public class IslandCmd implements CommandExecutor {
             }
             IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-accessibility");
             island.setPublic(true);
-            p.sendMessage(Component.text("§aVotre île est désormais §2publique§a."));
             island.sendMessageToAll("§aL'île est désormais §2publique§a.");
             return false;
         }
@@ -386,7 +379,6 @@ public class IslandCmd implements CommandExecutor {
             }
             IslandsCooldownManager.INSTANCE.addCooldown(island.getIslandUUID(), "island-set-home");
             island.setSpawn(p.getLocation());
-            p.sendMessage(Component.text("§aLe point de spawn de l'île a été redéfini."));
             island.sendMessageToAll("§aLe point de spawn de l'île a été redéfini.");
             return false;
         }
@@ -416,7 +408,6 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             island.setName(name);
-            p.sendMessage(Component.text("§aLe nom de l'île a été changé."));
             island.sendMessageToAll("§aLe nom de l'île a été changé en §6" + name + "§a.");
             return false;
         }
@@ -450,7 +441,6 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             island.changeOwner(targetUUID);
-            p.sendMessage(Component.text("§aLe propriétaire de l'île a été changé."));
             island.sendMessageToAll("§aLe propriétaire de l'île a été changé pour " + args[1] + ".");
             Player target = p.getServer().getPlayer(targetUUID);
             if (target != null) {
@@ -463,7 +453,7 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is coop <joueur>"));
                 return false;
             }
-            if (!island.hasPerms(rank, IslandPerms.ADD_COOP, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.EDIT_COOP, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de coopérer des joueurs."));
                 return false;
             }
@@ -493,7 +483,7 @@ public class IslandCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cUtilisation: /is uncoop <joueur>"));
                 return false;
             }
-            if (!island.hasPerms(rank, IslandPerms.REMOVE_COOP, p.getUniqueId())) {
+            if (!island.hasPerms(rank, IslandPerms.EDIT_COOP, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission de retirer des coopérations."));
                 return false;
             }

@@ -52,5 +52,9 @@ public enum IslandRanks {
     public int getId() {
         return id;
     }
+
+    public boolean isExternal() {
+        return this == COOP || this == VISITEUR;
+    }
 }
 

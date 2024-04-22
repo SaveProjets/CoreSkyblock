@@ -2,9 +2,11 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -45,6 +47,10 @@ public class IslandSettingsInv extends FastInv {
                     "§cdésactiver" : "§aactiver")))).build(), e -> {
                 if (island.isReadOnly()) {
                     IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                    return;
+                }
+                if (!island.hasPerms(island, IslandPerms.EDIT_SETTINGS, e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous n'avez pas la permission de modifier les paramètres de l'île."));
                     return;
                 }
                 if (e.getCurrentItem() == null) return;

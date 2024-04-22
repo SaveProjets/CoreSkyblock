@@ -195,6 +195,9 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("kits")).setExecutor(new KitsCmd());
         Objects.requireNonNull(getCommand("tpa")).setExecutor(new TpaCmd());
 
+        console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
+        getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
+
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
         clockForBuildMode();
@@ -207,20 +210,15 @@ public final class CoreSkyblock extends JavaPlugin {
         if (world != null) {
             world.setSpawnLocation(SPAWN);
 
-            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
-                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks du spawn...");
-                long startTime2 = System.currentTimeMillis();
-                for (int x = -9; x <= 9; x++) {
-                    for (int z = -9; z <= 9; z++) {
-                        world.getChunkAt(x, z).setForceLoaded(true);
-                    }
+            console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks du spawn...");
+            long startTime2 = System.currentTimeMillis();
+            for (int x = -9; x <= 9; x++) {
+                for (int z = -9; z <= 9; z++) {
+                    world.getChunkAt(x, z).setForceLoaded(true);
                 }
-                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks terminé en " + (System.currentTimeMillis() - startTime2) + "ms");
-            }, 20L);
+            }
+            console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks terminé en " + (System.currentTimeMillis() - startTime2) + "ms");
         }
-
-        console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
-        getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
 
         console.sendMessage("§b[CoreSkyblock] §aDémarrage du plugin CoreSkyblock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }

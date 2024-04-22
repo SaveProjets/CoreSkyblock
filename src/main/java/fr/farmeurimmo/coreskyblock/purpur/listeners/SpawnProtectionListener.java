@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -8,6 +9,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SpawnProtectionListener implements Listener {
 
@@ -42,5 +44,16 @@ public class SpawnProtectionListener implements Listener {
         if (!CoreSkyblock.INSTANCE.isASpawn(e.getBlock().getWorld())) return;
         if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent e) {
+        if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
+        if (e.getTo().getY() < -64) {
+            e.setCancelled(true);
+            e.getPlayer().teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
+                    e.getPlayer().sendMessage(Component.text("§cVous avez été téléporté au spawn car vous êtes tombé dans le vide.")));
+            return;
+        }
     }
 }

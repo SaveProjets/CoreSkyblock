@@ -149,6 +149,7 @@ public class IslandsWarpManager {
                 return;
             }
             if (island.isLoaded()) {
+                if (islandWarp.getLocation() == null) return;
                 p.teleportAsync(islandWarp.getLocation()).thenAccept(result ->
                         p.sendMessage(Component.text("§aVous avez été téléporté au warp de l'île.")));
                 task.cancel();

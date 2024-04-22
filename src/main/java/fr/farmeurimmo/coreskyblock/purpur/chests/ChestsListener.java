@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -30,8 +31,10 @@ public class ChestsListener implements Listener {
         Player p = e.getPlayer();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockPlace(BlockPlaceEvent e) {
+        if (e.isCancelled()) return;
+
         ItemStack item = e.getItemInHand();
         if (item.getItemMeta() == null) return;
         if (!item.hasDisplayName()) return;
@@ -59,32 +62,27 @@ public class ChestsListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockDestroy(BlockBreakEvent e) {
         Block b = e.getBlock();
 
+        if (e.isCancelled()) return;
+        if (!ChestType.getMaterials().contains(b.getType())) return;
         if (!IslandsManager.INSTANCE.isAnIsland(b.getWorld())) return;
 
         Island island = IslandsManager.INSTANCE.getIslandByLoc(b.getWorld());
         if (island == null) return;
 
         Player p = e.getPlayer();
-        IslandRanks rank = island.getMembers().get(p.getUniqueId());
-        if (rank == null) {
-            e.setCancelled(true);
-            p.sendMessage(Component.text("§cVous n'avez pas la permission de casser ce coffre !"));
-            return;
-        }
-
-        if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
-            e.setCancelled(true);
-            p.sendMessage(Component.text("§cVous n'avez pas la permission de casser ce coffre !"));
-            return;
-        }
+        IslandRanks rank = island.getPlayerRank(p.getUniqueId());
 
         Chest toRemove = null;
         for (Chest chest : island.getChests()) {
             if (chest.getBlock().equals(b.getLocation())) {
+                if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
+                    e.setCancelled(true);
+                    return;
+                }
                 e.setCancelled(false);
                 b.setType(Material.AIR);
                 e.setDropItems(false);
@@ -104,6 +102,7 @@ public class ChestsListener implements Listener {
 
     @EventHandler
     public void onPistonPush(BlockPistonExtendEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) return;
         for (Block b : e.getBlocks()) {
             if (ChestType.getMaterials().contains(b.getType())) {
                 e.setCancelled(true);
@@ -114,6 +113,7 @@ public class ChestsListener implements Listener {
 
     @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) return;
         for (Block b : e.getBlocks()) {
             if (ChestType.getMaterials().contains(b.getType())) {
                 e.setCancelled(true);

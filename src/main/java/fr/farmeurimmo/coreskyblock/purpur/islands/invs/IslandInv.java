@@ -15,7 +15,7 @@ public class IslandInv extends FastInv {
     public IslandInv(Island island) {
         super(45, "§8Menu de l'île");
 
-        setItem(10, ItemBuilder.copyOf(new ItemStack(Material.ENDER_EYE))
+        setItem(40, ItemBuilder.copyOf(new ItemStack(Material.ENDER_EYE))
                 .name("§6Téléportation §8| §7(clic gauche)").build(), e ->
                 IslandsManager.INSTANCE.teleportToIsland(island, (Player) e.getWhoClicked()));
 
@@ -25,52 +25,50 @@ public class IslandInv extends FastInv {
         meta.setOwner("Farmeurimmo");
         member.setItemMeta(meta);
 
-        setItem(11, member, e -> new IslandMembersInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
+        setItem(10, member, e -> new IslandMembersInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
-        setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BLAST_FURNACE))
+        setItem(11, ItemBuilder.copyOf(new ItemStack(Material.BLAST_FURNACE))
                 .name("§6Améliorations §8| §7(clic gauche)").build(), e ->
                 new IslandUpgradesInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
-        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.BOOKSHELF))
+        setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BOOKSHELF))
                 .name("§6Permissions §8| §7(clic gauche)").build(), e ->
                 new IslandRankEditInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
-        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.EMERALD_BLOCK))
+        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.EMERALD_BLOCK))
                 .name("§6Valeur des blocs §8| §7(clic gauche)").build(), e ->
                 new IslandBlocksValues(island).open((Player) e.getWhoClicked()));
 
+        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.WOODEN_HOE))
+                .name("§6Coops §8| §7(clic gauche)").build(), e ->
+                new IslandCoopInv(island).open((Player) e.getWhoClicked()));
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.BEACON))
                 .name("§6Classement §8| §7(clic gauche)").build(), e ->
                 new IslandsTopInv().open((Player) e.getWhoClicked()));
 
-
-        setItem(19, ItemBuilder.copyOf(new ItemStack(Material.WOODEN_HOE))
-                .name("§6Coops §8| §7(clic gauche)").build(), e ->
-                new IslandCoopInv(island).open((Player) e.getWhoClicked()));
-
-        setItem(20, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
+        setItem(19, ItemBuilder.copyOf(new ItemStack(Material.PAPER))
                 .name("§6Challenges §8| §7(clic gauche)").build(), e ->
                 e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
 
-        setItem(21, ItemBuilder.copyOf(new ItemStack(Material.GOLD_BLOCK))
+        setItem(20, ItemBuilder.copyOf(new ItemStack(Material.GOLD_BLOCK))
                 .name("§6Banque §8| §7(clic gauche)").build(), e ->
                 new IslandBankInv(island).open((Player) e.getWhoClicked()));
 
-        setItem(22, ItemBuilder.copyOf(new ItemStack(Material.BEDROCK))
-                .name("§c???").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+        setItem(21, ItemBuilder.copyOf(new ItemStack(Material.AMETHYST_BLOCK)).name("§6Warp §8| §7(clic gauche)").build(), e -> {
+            Player p = (Player) e.getWhoClicked();
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly(p);
+                return;
+            }
+            p.chat("/is warp");
+        });
 
-        setItem(23, ItemBuilder.copyOf(new ItemStack(Material.COMPARATOR))
+        setItem(22, ItemBuilder.copyOf(new ItemStack(Material.COMPARATOR))
                 .name("§6Paramètres d'îles §8| §7(clic gauche)").build(), e ->
                 new IslandSettingsInv(island).open((Player) e.getWhoClicked()));
 
-
-        setItem(28, ItemBuilder.copyOf(new ItemStack(Material.SPRUCE_SAPLING))
-                .name("§6Biome §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
-
-        setItem(29, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).
+        setItem(23, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).
                 name("§6Accessibilité §8| §7(clic gauche)").lore("§7Actuellement: " + (island.isPublic() ? "§aPublique"
                         : "§cPrivée")).build(), e -> {
             Player p = (Player) e.getWhoClicked();
@@ -82,14 +80,13 @@ public class IslandInv extends FastInv {
             new IslandInv(island).open(p);
         });
 
-        setItem(30, ItemBuilder.copyOf(new ItemStack(Material.AMETHYST_BLOCK)).name("§6Warp §8| §7(clic gauche)").build(), e -> {
-            Player p = (Player) e.getWhoClicked();
-            if (island.isReadOnly()) {
-                IslandsManager.INSTANCE.sendPlayerIslandReadOnly(p);
-                return;
-            }
-            p.chat("/is warp");
-        });
+        setItem(28, ItemBuilder.copyOf(new ItemStack(Material.SPRUCE_SAPLING))
+                .name("§6Biome §8| §7(clic gauche)").build(), e ->
+                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
+
+        setItem(29, ItemBuilder.copyOf(new ItemStack(Material.BEDROCK))
+                .name("§c???").build(), e ->
+                e.getWhoClicked().sendMessage(Component.text("§cEn développement...")));
 
         setItem(25, ItemBuilder.copyOf(new ItemStack(Material.AMETHYST_CLUSTER)).name("§6Navigateur de warps §8| §7(clic gauche)").build(), e -> {
             Player p = (Player) e.getWhoClicked();

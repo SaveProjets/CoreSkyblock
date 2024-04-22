@@ -38,7 +38,7 @@ public class IslandsChatManager {
             p.chat(message);
             return;
         }
-        IslandRanks ranks = island.getMembers().get(p.getUniqueId());
+        IslandRanks ranks = island.getPlayerRank(p.getUniqueId());
         String toSend = "§6§lChat île §8» §e§l" + ranks.getName() + " §f" + p.getName() + " §8» §f" + message;
         island.sendMessageToAll(toSend);
     }
