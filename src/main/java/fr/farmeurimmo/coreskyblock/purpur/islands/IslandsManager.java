@@ -564,10 +564,11 @@ public class IslandsManager {
                         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                             awaitingResponseFromServerTime.remove(island.getIslandUUID());
                             unload(island, true, false);
+                            task.cancel();
                             return null;
                         });
                     }
-                }
+                } else task.cancel();
             }, 0, 10);
         });
     }

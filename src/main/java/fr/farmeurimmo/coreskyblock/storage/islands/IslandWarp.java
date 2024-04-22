@@ -1,16 +1,20 @@
 package fr.farmeurimmo.coreskyblock.storage.islands;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,6 +23,7 @@ public class IslandWarp {
     private final UUID uuid;
     private final UUID islandUUID;
     private final ArrayList<IslandWarpCategories> categories;
+    private final Map<UUID, Pair<Integer, Long>> raters = new HashMap<>();
     private String name;
     private String description;
     private Location location;
@@ -28,7 +33,8 @@ public class IslandWarp {
     private double rate;
 
     public IslandWarp(UUID uuid, UUID islandUUID, String name, String description, ArrayList<IslandWarpCategories> categories,
-                      Location location, boolean isActivated, long forwardedWarp, Material material, double rate) {
+                      Location location, boolean isActivated, long forwardedWarp, Material material, double rate,
+                      Map<UUID, Pair<Integer, Long>> raters) {
         this.uuid = uuid;
         this.islandUUID = islandUUID;
         this.name = name;
@@ -39,11 +45,13 @@ public class IslandWarp {
         this.forwardedWarp = forwardedWarp;
         this.material = material;
         this.rate = rate;
+        this.raters.putAll(raters);
     }
 
     public IslandWarp(UUID islandUUID, String creator, Location location, boolean create) {
         this(UUID.randomUUID(), islandUUID, "Warp de l'île de " + creator, "Aucune description renseignée",
-                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK, -1);
+                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK, -1,
+                new HashMap<>());
 
         if (create) update();
     }
@@ -63,8 +71,9 @@ public class IslandWarp {
         long forwardedWarp = jsonObject.get("forwardedWarp").getAsLong();
         Material material = Material.getMaterial(jsonObject.get("material").getAsString());
         double rate = jsonObject.get("rate").getAsDouble();
+        Map<UUID, Pair<Integer, Long>> raters = getRatersFromJson(jsonObject.get("raters"));
         return new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location, isActivated,
-                forwardedWarp, material, rate);
+                forwardedWarp, material, rate, raters);
     }
 
     public static ArrayList<IslandWarpCategories> getCategoriesFromString(String categories) {
@@ -73,6 +82,19 @@ public class IslandWarp {
             islandWarpCategories.add(IslandWarpCategories.getById(Integer.parseInt(category)));
         }
         return islandWarpCategories;
+    }
+
+    public static Map<UUID, Pair<Integer, Long>> getRatersFromJson(JsonElement jsonElement) {
+        Map<UUID, Pair<Integer, Long>> raters = new HashMap<>();
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            UUID uuid = UUID.fromString(entry.getKey());
+            JsonObject object = entry.getValue().getAsJsonObject();
+            int rate = object.get("rate").getAsInt();
+            long time = object.get("time").getAsLong();
+            raters.put(uuid, Pair.of(rate, time));
+        }
+        return raters;
     }
 
     public UUID getUuid() {
@@ -187,6 +209,7 @@ public class IslandWarp {
         jsonObject.addProperty("forwardedWarp", forwardedWarp);
         jsonObject.addProperty("material", material.name());
         jsonObject.addProperty("rate", rate);
+        jsonObject.add("raters", getRatersJSON());
 
         return IslandsManager.INSTANCE.gson.toJson(jsonObject);
     }
@@ -214,10 +237,35 @@ public class IslandWarp {
     }
 
     public void applyRate(double rate) {
-        if (this.rate == -1) this.rate = rate;
-        else this.rate = (this.rate + rate) / 2;
+        if (rate < 3) {
+            this.rate -= rate;
+        } else if (rate > 3) {
+            this.rate += rate;
+        }
 
         update();
+    }
+
+    public JsonElement getRatersJSON() {
+        return IslandsManager.INSTANCE.gson.toJsonTree(raters);
+    }
+
+    public void addRater(UUID uuid, int rate) {
+        if (!raters.containsKey(uuid)) {
+            raters.put(uuid, Pair.of(rate, System.currentTimeMillis()));
+        } else {
+            raters.computeIfPresent(uuid, (k, pair) -> Pair.of((pair.left() + rate), System.currentTimeMillis()));
+        }
+
+        update();
+    }
+
+    public boolean canRate(UUID uuid) { // 7 days cooldown
+        return !raters.containsKey(uuid) || raters.get(uuid).right() + 86_400_000 * 7 < System.currentTimeMillis();
+    }
+
+    public final Map<UUID, Pair<Integer, Long>> getRaters() {
+        return raters;
     }
 
 }

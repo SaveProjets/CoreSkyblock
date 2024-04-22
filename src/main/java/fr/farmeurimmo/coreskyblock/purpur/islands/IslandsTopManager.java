@@ -65,10 +65,6 @@ public class IslandsTopManager {
         });
     }
 
-    public long getLastUpdate() {
-        return lastUpdate;
-    }
-
     public String getTimeUntilRefresh() {
         return DateUtils.getFormattedTimeLeft((int) ((nextUpdate - System.currentTimeMillis()) / 1000));
     }

@@ -181,7 +181,6 @@ public class IslandWarpInv extends FastInv {
                     return;
                 }
 
-                //check if it can be activated
                 if (warp.getLocation() == null) {
                     e.getWhoClicked().sendMessage(Component.text("§cVous devez définir une localisation avant d'activer le warp."));
                     return;

@@ -52,14 +52,15 @@ public class IslandsDataManager {
             "categories VARCHAR(255), loc_tp VARCHAR(255), forward BIGINT, is_activated BOOL, material VARCHAR(96), " +
             "rate DOUBLE, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES " +
             "islands(uuid) ON DELETE CASCADE)";
+    private static final String CREATE_ISLAND_WARPS_ALREADY_RATED_TABLE = "CREATE TABLE IF NOT EXISTS " +
+            "island_warps_already_rated (island_uuid VARCHAR(36), player_uuid VARCHAR(36), last_rate LONG, " +
+            "rates INT, PRIMARY KEY(island_uuid, player_uuid), FOREIGN KEY(island_uuid) REFERENCES islands(uuid) " +
+            "ON DELETE CASCADE)";
     public static IslandsDataManager INSTANCE;
     private final Map<UUID, Island> cache = new HashMap<>();
 
     public IslandsDataManager() {
         INSTANCE = this;
-
-        // We no longer need to load all islands, we will load them when needed
-        //CompletableFuture.runAsync(this::loadAllIslands);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
             for (Island island : cache.values()) {
@@ -77,6 +78,7 @@ public class IslandsDataManager {
             createTable(connection, CREATE_ISLAND_SETTINGS_TABLE);
             createTable(connection, CREATE_ISLAND_CHESTS_TABLE);
             createTable(connection, CREATE_ISLAND_WARPS_TABLE);
+            createTable(connection, CREATE_ISLAND_WARPS_ALREADY_RATED_TABLE);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -104,25 +106,6 @@ public class IslandsDataManager {
     public Map<UUID, Island> getCache() {
         return cache;
     }
-
-    /*public void loadAllIslands() {
-        List<UUID> islandUUIDs = new ArrayList<>();
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement("SELECT * FROM islands")) {
-            ResultSet result = statement.executeQuery();
-            while (result.next()) {
-                UUID islandUUID = UUID.fromString(result.getString("uuid"));
-                islandUUIDs.add(islandUUID);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        CompletableFuture<?>[] futures = islandUUIDs.stream()
-                .map(uuid -> CompletableFuture.runAsync(() -> loadIsland(uuid)))
-                .toArray(CompletableFuture[]::new);
-
-        CompletableFuture.allOf(futures);
-    }*/
 
     public UUID getIslandByMember(UUID memberUUID) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
@@ -315,6 +298,20 @@ public class IslandsDataManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        updateIslandWarpRaters(islandWarp);
+    }
+
+    public void updateIslandWarpRaters(IslandWarp islandWarp) {
+        String query = "INSERT IGNORE INTO island_warps_already_rated (island_uuid, player_uuid, last_rate, rates) " +
+                "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE last_rate = ?, rates = ?";
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            for (Map.Entry<UUID, Pair<Integer, Long>> entry : islandWarp.getRaters().entrySet()) {
+                executeUpdate(connection, query, islandWarp.getIslandUUID().toString(), entry.getKey().toString(),
+                        entry.getValue().right(), entry.getValue().left(), entry.getValue().right(), entry.getValue().left());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Pair<Map<UUID, IslandRanks>, Map<UUID, String>> loadIslandMembers(UUID islandUUID) {
@@ -425,6 +422,25 @@ public class IslandsDataManager {
         return chests;
     }
 
+    public Map<UUID, Pair<Integer, Long>> loadRaters(UUID islandUUID) {
+        Map<UUID, Pair<Integer, Long>> raters = new HashMap<>();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM island_warps_already_rated WHERE island_uuid = ?")) {
+            statement.setString(1, islandUUID.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    UUID playerUUID = UUID.fromString(result.getString("player_uuid"));
+                    int rates = result.getInt("rates");
+                    long lastRate = result.getLong("last_rate");
+                    raters.put(playerUUID, Pair.of(rates, lastRate));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return raters;
+    }
+
     public List<IslandWarp> loadIslandsWarps() {
         List<IslandWarp> warps = new ArrayList<>();
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
@@ -446,8 +462,9 @@ public class IslandsDataManager {
                         long forwardedWarp = result.getLong("forward");
                         Material material = Material.getMaterial(result.getString("material"));
                         double rate = result.getDouble("rate");
+
                         warps.add(new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location,
-                                isActivated, forwardedWarp, material, rate));
+                                isActivated, forwardedWarp, material, rate, loadRaters(islandUUID)));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -488,14 +505,6 @@ public class IslandsDataManager {
             }
         }
     }
-
-    /*public void saveIslandBanned(Connection connection, UUID islandUUID, List<UUID> bannedPlayers) {
-        for (UUID banned : bannedPlayers) {
-            String query = "INSERT INTO island_banneds (island_uuid, uuid, created_at, updated_at) VALUES (?, ?, " +
-                    "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-            executeUpdate(connection, query, islandUUID.toString(), banned.toString());
-        }
-    }*/
 
     public void saveIslandSettings(Connection connection, UUID islandUuid, List<IslandSettings> settings) {
         for (IslandSettings setting : IslandSettings.values()) {
