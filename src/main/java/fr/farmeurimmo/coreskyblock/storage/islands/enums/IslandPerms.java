@@ -27,21 +27,21 @@ public enum IslandPerms {
     EDIT_MINIONS("§6Gérer les minions", 18, Material.DRAGON_BREATH), // not
     SECURED_CHEST("§6Utiliser un coffre sécurisé", 19, Material.IRON_CHESTPLATE), // implemented
     CALCULATE_ISLAND_LEVEL("§6Calculer le niveau de l'île", 20, Material.CALCITE), // implemented
-    FEED_ANIMALS("§fNourrir les animaux", 21, Material.COOKED_BEEF), // not
+    FEED_ANIMALS("§fNourrir les animaux", 21, Material.COOKED_BEEF), // implemented
     KILL_ANIMALS("§fTuer les animaux", 22, Material.COOKED_CHICKEN), // implemented
     KILL_MOBS("§fTuer les monstres", 23, Material.ROTTEN_FLESH), // implemented
     EDIT_ISLAND_WARP("§6Gérer le warp de l'île", 24, Material.ENDER_PEARL), // implemented
     EDIT_ISLAND_CHARACTERISTICS("§6Gérer les caractéristiques de l'île", 25, Material.BOOK), // not
     DROP_ITEMS("§fJeter des items", 26, Material.DIRT), // implemented
-    FISH("§fPêcher", 27, Material.FISHING_ROD), // not
-    FLY("§fVoler sur l'île", 28, Material.ELYTRA), // not
+    FISH("§fPêcher", 27, Material.FISHING_ROD), // implemented
+    FLY("§fVoler sur l'île", 28, Material.ELYTRA), // implemented
     INTERACT_WITH_MOUNTS("§fIntéragir avec les montures", 29, Material.SADDLE), // implemented
-    USE_SPAWN_EGG("§fUtiliser des spawn eggs", 30, Material.PIG_SPAWN_EGG), // not
+    USE_SPAWN_EGG("§fUtiliser des spawn eggs", 30, Material.PIG_SPAWN_EGG), // implemented
     PICKUP_ITEMS("§fRamasser des items", 31, Material.IRON_SHOVEL), // implemented
     UPGRADE_ISLAND("§6Améliorer l'île", 32, Material.DIAMOND_BLOCK), // implemented
     EDIT_SETTINGS("§6Modifier les paramètres de l'île", 33, Material.COMPARATOR), // implemented
-    BREAK_SPAWNERS("§6Casser les spawners", 34, Material.SPAWNER), // not
-    BREAK_ISLAND_LEVEL_BLOCKS("§6Casser les blocs du niveau de l'île", 35, Material.CALCITE), // not
+    BREAK_SPAWNERS("§6Casser les spawners", 34, Material.SPAWNER), // implemented
+    BREAK_ISLAND_LEVEL_BLOCKS("§6Casser les blocs du niveau de l'île", 35, Material.CALCITE), // implemented
     INTERACT_WITH_VILLAGERS("§fIntéragir avec les villageois", 36, Material.VILLAGER_SPAWN_EGG), // implemented
     INTERACT_WITH_ITEM_FRAMES("§fIntéragir avec les cadres d'items", 37, Material.ITEM_FRAME); // implemented
 

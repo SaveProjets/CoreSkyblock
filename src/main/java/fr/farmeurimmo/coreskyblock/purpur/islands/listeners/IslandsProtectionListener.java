@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
@@ -23,6 +24,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.meta.SpawnEggMeta;
 
 public class IslandsProtectionListener implements Listener {
 
@@ -169,13 +171,33 @@ public class IslandsProtectionListener implements Listener {
                     e.setYield(0);
                     e.blockList().clear();
                 }
+                preventExplosionOfValuesBlocks(e);
                 return;
             }
             if (!island.hasSettingActivated(IslandSettings.MOB_GRIEFING)) {
                 e.blockList().clear();
                 e.setYield(0);
+                return;
             }
+            preventExplosionOfValuesBlocks(e);
         }
+    }
+
+    private void preventExplosionOfValuesBlocks(EntityExplodeEvent e) {
+        IslandsBlocksValues.INSTANCE.getBlocksValues().forEach((block, value) -> {
+            boolean shouldClear = false;
+            for (Block b : e.blockList()) {
+                if (b.getType() == block) {
+                    shouldClear = true;
+                    break;
+                }
+            }
+            if (shouldClear) {
+                e.blockList().clear();
+                e.setYield(0);
+                e.setCancelled(true);
+            }
+        });
     }
 
     @EventHandler
@@ -190,23 +212,31 @@ public class IslandsProtectionListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        e.setUseItemInHand(PlayerInteractEvent.Result.ALLOW);
-        System.out.println("PlayerInteractEvent called");
-        System.out.println(e.getInteractionPoint().getBlock().getType().name());
-        if (e.getClickedBlock() == null) return;
-        Block block = e.getClickedBlock();
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        if (e.getClickedBlock() == null) return;
+
+        e.setUseItemInHand(PlayerInteractEvent.Result.ALLOW);
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         if (island == null) return;
+
         Player p = e.getPlayer();
         IslandRanks rank = island.getPlayerRank(p.getUniqueId());
+        Block block = e.getClickedBlock();
+        if (e.getItem() != null) {
+            if (e.getItem().getItemMeta() instanceof SpawnEggMeta) {
+                if (!island.hasPerms(rank, IslandPerms.USE_SPAWN_EGG, p.getUniqueId())) {
+                    e.setUseItemInHand(PlayerInteractEvent.Result.DENY);
+                    e.setCancelled(true);
+                    return;
+                }
+            }
+        }
         if (block.getType() == Material.TRAPPED_CHEST) {
             if (!island.hasPerms(rank, IslandPerms.SECURED_CHEST, p.getUniqueId())) {
                 e.setUseInteractedBlock(Event.Result.DENY);
                 e.setCancelled(true);
                 return;
             }
-            return;
         }
         if (block.getState() instanceof InventoryHolder) {
             if (!island.hasPerms(rank, IslandPerms.CONTAINER, p.getUniqueId())) {
@@ -214,7 +244,6 @@ public class IslandsProtectionListener implements Listener {
                 e.setCancelled(true);
                 return;
             }
-            return;
         }
         if (!island.hasPerms(rank, IslandPerms.INTERACT, p.getUniqueId())) {
             e.setUseInteractedBlock(Event.Result.DENY);
@@ -244,6 +273,16 @@ public class IslandsProtectionListener implements Listener {
             IslandRanks rank = island.getPlayerRank(p.getUniqueId());
             if (!island.hasPerms(rank, IslandPerms.BREAK, p.getUniqueId())) {
                 e.setCancelled(true);
+            }
+            if (!island.hasPerms(rank, IslandPerms.BREAK_ISLAND_LEVEL_BLOCKS, p.getUniqueId())) {
+                if (IslandsBlocksValues.INSTANCE.getBlocksValues().containsKey(e.getBlock().getType())) {
+                    e.setCancelled(true);
+                }
+            }
+            if (e.getBlock().getType() == Material.SPAWNER) {
+                if (!island.hasPerms(rank, IslandPerms.BREAK_SPAWNERS, p.getUniqueId())) {
+                    e.setCancelled(true);
+                }
             }
         }
     }
@@ -318,7 +357,7 @@ public class IslandsProtectionListener implements Listener {
     }
 
     @EventHandler
-    public void interactAtEntity(PlayerInteractAtEntityEvent e) {
+    public void interactAtEntity(PlayerInteractEntityEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         if (island != null) {
@@ -336,10 +375,57 @@ public class IslandsProtectionListener implements Listener {
                 }
                 return;
             }
-            if (e.getRightClicked().getType().name().contains("FRAME")) {
+            if (e.getRightClicked() instanceof ItemFrame) {
                 if (!island.hasPerms(rank, IslandPerms.INTERACT_WITH_ITEM_FRAMES, p.getUniqueId())) {
                     e.setCancelled(true);
                 }
+                return;
+            }
+            if (e.getRightClicked() instanceof Animals) {
+                if (e.getPlayer().getInventory().getItemInMainHand().getType().isEdible()) {
+                    if (!island.hasPerms(rank, IslandPerms.FEED_ANIMALS, p.getUniqueId())) {
+                        e.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onStartFishing(PlayerFishEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
+        if (island != null) {
+            Player p = e.getPlayer();
+            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
+            if (!island.hasPerms(rank, IslandPerms.FISH, p.getUniqueId())) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onThrow(PlayerEggThrowEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
+        if (island != null) {
+            Player p = e.getPlayer();
+            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
+            if (!island.hasPerms(rank, IslandPerms.USE_SPAWN_EGG, p.getUniqueId())) {
+                e.setHatching(false);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerFlightToggle(PlayerToggleFlightEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
+        if (island != null) {
+            Player p = e.getPlayer();
+            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
+            if (!island.hasPerms(rank, IslandPerms.FLY, p.getUniqueId())) {
+                e.setCancelled(true);
             }
         }
     }
