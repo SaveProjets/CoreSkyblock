@@ -72,10 +72,7 @@ public class IslandCmd implements CommandExecutor {
                 targetIsland.sendMessageToAll("§a" + p.getName() + " a rejoint l'île.");
                 return false;
             }
-            if (args[0].equalsIgnoreCase("top")) {
-                new IslandsTopInv().open(p);
-                return false;
-            }
+            if (addCommonCommands(args, p)) return false;
             p.sendMessage(USAGE_NO_IS);
             return false;
         }
@@ -85,10 +82,7 @@ public class IslandCmd implements CommandExecutor {
             new IslandInv(island).open(p);
             return false;
         }
-        if (args[0].equalsIgnoreCase("top")) {
-            new IslandsTopInv().open(p);
-            return false;
-        }
+        if (addCommonCommands(args, p)) return false;
         if (args[0].equalsIgnoreCase("go")) {
             IslandsManager.INSTANCE.teleportToIsland(island, p);
             return false;
@@ -504,6 +498,22 @@ public class IslandCmd implements CommandExecutor {
             return false;
         }
 
+        return false;
+    }
+
+    private boolean addCommonCommands(@NotNull String[] args, Player p) {
+        if (args[0].equalsIgnoreCase("top")) {
+            new IslandsTopInv().open(p);
+            return true;
+        }
+        if (args[0].equalsIgnoreCase("rate")) {
+            if (!IslandsManager.INSTANCE.isAnIsland(p.getWorld())) {
+                p.sendMessage(Component.text("§cVous devez être sur une île pour pouvoir noter un warp."));
+                return true;
+            }
+            new IslandWarpRateInv().open(p);
+            return true;
+        }
         return false;
     }
 }

@@ -5,12 +5,15 @@ import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
+import fr.farmeurimmo.coreskyblock.utils.DateUtils;
+import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -124,6 +127,9 @@ public class IslandsWarpManager {
 
     public ArrayList<String> getLore(IslandWarp islandWarp) {
         ArrayList<String> lore = new ArrayList<>();
+        String rate = "§7Note: §e" + NumberFormat.getInstance().format(islandWarp.getRate());
+        lore.add(rate);
+        lore.add("");
         for (String descLine : islandWarp.getDescription().replace("\\n", "\n").split("\n")) {
             lore.add("§7" + descLine);
         }
@@ -181,5 +187,14 @@ public class IslandsWarpManager {
             p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", byteArrayOutputStream.toByteArray());
             task.cancel();
         }, 0, 10);
+    }
+
+    public List<String> getLastRates(IslandWarp islandWarp) {
+        List<String> rates = new ArrayList<>();
+        for (Map.Entry<UUID, Pair<Integer, Long>> entry : islandWarp.getRaters().entrySet()) {
+            rates.add("§e" + Bukkit.getOfflinePlayer(entry.getKey()).getName() + " §7note §6" + entry.getValue().left() +
+                    " §7le §6" + DateUtils.getFormattedDate(entry.getValue().right()));
+        }
+        return rates;
     }
 }

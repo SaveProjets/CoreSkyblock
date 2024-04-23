@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class IslandWarp {
 
     public IslandWarp(UUID islandUUID, String creator, Location location, boolean create) {
         this(UUID.randomUUID(), islandUUID, "Warp de l'île de " + creator, "Aucune description renseignée",
-                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK, -1,
+                new ArrayList<>(), location, false, 0, Material.GRASS_BLOCK, 100,
                 new HashMap<>());
 
         if (create) update();
@@ -236,12 +237,9 @@ public class IslandWarp {
         return rate;
     }
 
-    public void applyRate(double rate) {
-        if (rate < 3) {
-            this.rate -= rate;
-        } else if (rate > 3) {
-            this.rate += rate;
-        }
+    public void applyRate(@NotNull UUID uniqueId, double rate) {
+        this.rate += rate;
+        addRater(uniqueId, (int) rate);
 
         update();
     }
@@ -260,8 +258,13 @@ public class IslandWarp {
         update();
     }
 
+    public long timeBeforeNextRate(UUID uuid) {
+        if (!raters.containsKey(uuid)) return -1;
+        return (raters.get(uuid).right() + 86_400_000 * 7) - System.currentTimeMillis();
+    }
+
     public boolean canRate(UUID uuid) { // 7 days cooldown
-        return !raters.containsKey(uuid) || raters.get(uuid).right() + 86_400_000 * 7 < System.currentTimeMillis();
+        return (timeBeforeNextRate(uuid) <= 0);
     }
 
     public final Map<UUID, Pair<Integer, Long>> getRaters() {

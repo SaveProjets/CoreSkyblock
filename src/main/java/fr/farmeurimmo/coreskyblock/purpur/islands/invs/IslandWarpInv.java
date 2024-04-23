@@ -33,9 +33,9 @@ public class IslandWarpInv extends FastInv {
     private IslandWarp warp;
 
     public IslandWarpInv(Island island, IslandWarp warp) {
-        super(27, "§8Warp de l'île");
+        super(36, "§8Warp de l'île");
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
                 .name("§6Retour §8| §7(clic gauche)").build(), e -> {
             new IslandInv(island).open((Player) e.getWhoClicked());
             gotUpdate = true;
@@ -233,9 +233,11 @@ public class IslandWarpInv extends FastInv {
                 island.sendMessageToAll("§eLe warp de l'île a été mis en avant.");
             });
 
-            setItem(22, ItemBuilder.copyOf(new ItemStack(Material.ENDER_PEARL)).name("§6Évaluation du warp")
-                    .lore("§7" + (warp.getRate() >= 0 ? "§6" + NumberFormat.getInstance().format(warp.getRate()) :
-                            "§cNon évalué")).build());
+            setItem(19, ItemBuilder.copyOf(new ItemStack(Material.ENDER_PEARL)).name("§6Évaluation du warp")
+                    .lore("§7" + NumberFormat.getInstance().format(warp.getRate())).build());
+
+            setItem(20, ItemBuilder.copyOf(new ItemStack(Material.BOOKSHELF)).name("§6Dernières évaluations")
+                    .lore(IslandsWarpManager.INSTANCE.getLastRates(warp)).build());
         } else {
             setItem(13, ItemBuilder.copyOf(new ItemStack(Material.COMPASS))
                     .name("§6Créer un warp §8| §7(clic gauche pour définir sur vous)")
@@ -266,7 +268,7 @@ public class IslandWarpInv extends FastInv {
             });
         }
 
-        setItem(18, ItemBuilder.copyOf(new ItemStack(Material.MAP))
+        setItem(27, ItemBuilder.copyOf(new ItemStack(Material.MAP))
                         .name("§6Voir la liste des warps disponibles §8| §7(clic gauche)").build(),
                 e -> new IslandsWarpBrowserInv().open((Player) e.getWhoClicked()));
     }
