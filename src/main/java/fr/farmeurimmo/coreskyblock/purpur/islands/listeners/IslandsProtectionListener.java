@@ -8,10 +8,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import net.kyori.adventure.text.Component;
-import org.bukkit.GameRule;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
@@ -420,6 +417,7 @@ public class IslandsProtectionListener implements Listener {
     @EventHandler
     public void onPlayerFlightToggle(PlayerToggleFlightEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
+        if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         if (island != null) {
             Player p = e.getPlayer();

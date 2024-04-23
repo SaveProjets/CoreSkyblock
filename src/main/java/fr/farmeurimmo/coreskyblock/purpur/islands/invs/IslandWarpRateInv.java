@@ -19,8 +19,8 @@ public class IslandWarpRateInv extends FastInv {
         int slot = 10;
         for (int i = -2; i < 3; i++) {
             int finalI = i;
-            setItem(slot, new ItemBuilder(new ItemStack(getMaterialFromRate(i)))
-                    .name("§6Note: " + getRateName(i))
+            setItem(slot, new ItemBuilder(new ItemStack(IslandsWarpManager.INSTANCE.getMaterialFromRate(i)))
+                    .name("§6Note: " + IslandsWarpManager.INSTANCE.getRateName(i))
                     .lore("§7Cliquez pour attribuer cette note")
                     .build(), e -> {
                 e.getWhoClicked().closeInventory();
@@ -29,6 +29,11 @@ public class IslandWarpRateInv extends FastInv {
                 if (island == null) {
                     e.getWhoClicked().sendMessage(Component.text("§cErreur: Vous n'êtes pas sur une île."));
                     return;
+                }
+                if (island.getMembers().containsKey(e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text("§cErreur: Vous ne pouvez pas noter votre propre warp."));
+                    return;
+
                 }
                 IslandWarp warp = IslandsWarpManager.INSTANCE.getByIslandUUID(island.getIslandUUID());
                 if (warp == null) {
@@ -45,8 +50,8 @@ public class IslandWarpRateInv extends FastInv {
                             (warp.timeBeforeNextRate(e.getWhoClicked().getUniqueId()) / 1000L)) + "."));
                     return;
                 }
-                warp.applyRate(e.getWhoClicked().getUniqueId(), finalI);
                 e.getWhoClicked().sendMessage(Component.text("§aNote attribuée avec succès."));
+                warp.applyRate(e.getWhoClicked().getUniqueId(), finalI);
             });
 
             slot++;
@@ -57,23 +62,4 @@ public class IslandWarpRateInv extends FastInv {
         setItem(22, new ItemBuilder(Material.IRON_DOOR).name("§6Fermer").build(),
                 e -> e.getWhoClicked().closeInventory());
     }
-
-    private Material getMaterialFromRate(int rate) {
-        if (rate == -2) return Material.RED_WOOL;
-        if (rate == -1) return Material.ORANGE_WOOL;
-        if (rate == 0) return Material.YELLOW_WOOL;
-        if (rate == 1) return Material.LIME_WOOL;
-        if (rate == 2) return Material.GREEN_WOOL;
-        return Material.GRAY_WOOL;
-    }
-
-    private String getRateName(int rate) {
-        if (rate == -2) return "§4Très mauvais";
-        if (rate == -1) return "§cMauvais";
-        if (rate == 0) return "§eMoyen";
-        if (rate == 1) return "§aBon";
-        if (rate == 2) return "§2Très bon";
-        return "§4§lErreur";
-    }
-
 }

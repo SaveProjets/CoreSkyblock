@@ -9,6 +9,7 @@ import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
@@ -156,6 +157,14 @@ public class IslandsWarpManager {
             }
             if (island.isLoaded()) {
                 if (islandWarp.getLocation() == null) return;
+                if (islandWarp.getLocation().getBlock().getType() != Material.AIR) {
+                    p.sendMessage(Component.text("§cErreur téléportation impossible: Le warp n'est pas " +
+                            "sécurisé."));
+                    island.sendMessageToAll("§cAttention: §e" + p.getName() + " §ca tenté de se téléporter " +
+                            "au warp de l'île mais le warp n'est pas sécurisé.");
+                    task.cancel();
+                    return;
+                }
                 p.teleportAsync(islandWarp.getLocation()).thenAccept(result ->
                         p.sendMessage(Component.text("§aVous avez été téléporté au warp de l'île.")));
                 task.cancel();
@@ -192,9 +201,27 @@ public class IslandsWarpManager {
     public List<String> getLastRates(IslandWarp islandWarp) {
         List<String> rates = new ArrayList<>();
         for (Map.Entry<UUID, Pair<Integer, Long>> entry : islandWarp.getRaters().entrySet()) {
-            rates.add("§e" + Bukkit.getOfflinePlayer(entry.getKey()).getName() + " §7note §6" + entry.getValue().left() +
-                    " §7le §6" + DateUtils.getFormattedDate(entry.getValue().right()));
+            rates.add("§e" + Bukkit.getOfflinePlayer(entry.getKey()).getName() + " §7note §6" +
+                    getRateName(entry.getValue().left()) + " §7le §6" + DateUtils.getFormattedDate(entry.getValue().right()));
         }
         return rates;
+    }
+
+    public Material getMaterialFromRate(int rate) {
+        if (rate == -2) return Material.RED_WOOL;
+        if (rate == -1) return Material.ORANGE_WOOL;
+        if (rate == 0) return Material.YELLOW_WOOL;
+        if (rate == 1) return Material.LIME_WOOL;
+        if (rate == 2) return Material.GREEN_WOOL;
+        return Material.GRAY_WOOL;
+    }
+
+    public String getRateName(int rate) {
+        if (rate == -2) return "§4Très mauvais";
+        if (rate == -1) return "§cMauvais";
+        if (rate == 0) return "§eMoyen";
+        if (rate == 1) return "§aBon";
+        if (rate == 2) return "§2Très bon";
+        return "§4§lErreur";
     }
 }

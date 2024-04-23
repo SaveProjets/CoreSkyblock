@@ -4,10 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import it.unimi.dsi.fastutil.Pair;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -240,6 +242,12 @@ public class IslandWarp {
     public void applyRate(@NotNull UUID uniqueId, double rate) {
         this.rate += rate;
         addRater(uniqueId, (int) rate);
+
+        Island island = IslandsManager.INSTANCE.getIslandByUUID(islandUUID);
+        if (island != null) {
+            island.sendMessageToAll("§e" + Bukkit.getOfflinePlayer(uniqueId).getName() + " §7a noté le warp comme " +
+                    IslandsWarpManager.INSTANCE.getRateName((int) rate) + " §7(Nouvelle note: " + this.rate + ")");
+        }
 
         update();
     }
