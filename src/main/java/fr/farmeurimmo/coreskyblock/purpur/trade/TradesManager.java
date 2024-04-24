@@ -97,15 +97,15 @@ public class TradesManager {
             for (ItemStack item : trade.getEmitterItems()) {
                 emitter.getInventory().addItem(item);
             }
-            SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getEmitter());
-            emitter_user.setMoney(emitter_user.getMoney() + trade.getEmitterMoney());
+            /*SkyblockUser emitter_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getEmitter());
+            emitter_user.setMoney(emitter_user.getMoney() + trade.getEmitterMoney());*/
         }
         if (receiver != null) {
             for (ItemStack item : trade.getReceiverItems()) {
                 receiver.getInventory().addItem(item);
             }
-            SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getReceiver());
-            receiver_user.setMoney(receiver_user.getMoney() + trade.getReceiverMoney());
+            /*SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getReceiver());
+            receiver_user.setMoney(receiver_user.getMoney() + trade.getReceiverMoney());*/
         }
 
         trades.remove(trade);
@@ -138,12 +138,14 @@ public class TradesManager {
         for (ItemStack item : trade.getReceiverItems()) {
             emitter.getInventory().addItem(item);
         }
+        emitter.setExp(emitter.getExp() - trade.getEmitterExp() + trade.getReceiverExp());
         emitter.closeInventory();
         emitter.sendMessage(Component.text("§6§lTrade §8» §aL'échange avec §f" + receiver.getName() + " §aa été " +
                 "effectué."));
         for (ItemStack item : trade.getEmitterItems()) {
             receiver.getInventory().addItem(item);
         }
+        receiver.setExp(receiver.getExp() - trade.getReceiverExp() + trade.getEmitterExp());
         receiver.closeInventory();
         receiver.sendMessage(Component.text("§6§lTrade §8» §aL'échange avec §f" + emitter.getName() + " §aa été " +
                 "effectué."));

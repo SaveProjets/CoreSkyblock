@@ -13,6 +13,8 @@ public class Trade {
     private final ArrayList<ItemStack> receiverItems;
     private double emitterMoney;
     private double receiverMoney;
+    private float emitterExp;
+    private float receiverExp;
     private boolean emitterReady;
     private boolean receiverReady;
     private long emitterReadyTime;
@@ -23,6 +25,8 @@ public class Trade {
         this.receiver = receiver;
         this.emitterMoney = 0;
         this.receiverMoney = 0;
+        this.emitterExp = 0;
+        this.receiverExp = 0;
         this.emitterReady = false;
         this.receiverReady = false;
         this.emitterItems = new ArrayList<>();
@@ -53,6 +57,22 @@ public class Trade {
 
     public void setReceiverMoney(double receiverMoney) {
         this.receiverMoney = receiverMoney;
+    }
+
+    public float getEmitterExp() {
+        return emitterExp;
+    }
+
+    public void setEmitterExp(float emitterExp) {
+        this.emitterExp = emitterExp;
+    }
+
+    public float getReceiverExp() {
+        return receiverExp;
+    }
+
+    public void setReceiverExp(float receiverExp) {
+        this.receiverExp = receiverExp;
     }
 
     public boolean isEmitterReady() {
