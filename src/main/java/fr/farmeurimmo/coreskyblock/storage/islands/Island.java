@@ -563,9 +563,13 @@ public class Island {
     }
 
     public void sendMessageToAll(String message) {
+        CompletableFuture.runAsync(() -> sendMessageToAllSync(message));
+    }
+
+    public void sendMessageToAllSync(String message) {
         sendMessageToAllLocals(message);
-        CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
-                "island:chat_message:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME + ":" + message));
+        JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                "island:chat_message:" + islandUUID + ":" + CoreSkyblock.SERVER_NAME + ":" + message);
     }
 
     public void sendMessageToAllLocals(String message) {

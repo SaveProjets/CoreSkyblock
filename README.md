@@ -72,9 +72,13 @@ coreskyblock → island:members:{uuid}:{island_uuid}
 
 coreskyblock → island:warp:{island_uuid}
 
-### Mise en cache de la liste des warps des îles
+### Mise en cache du BYPASS d'un joueur sur les îles
 
-coreskyblock → island:warps
+coreskyblock → island:bypass:{uuid}
+
+### Mise en cache du SPY d'un joueur sur les îles
+
+coreskyblock → island:spy:{uuid}
 
 ### Pubsub
 

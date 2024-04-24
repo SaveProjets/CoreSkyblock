@@ -272,6 +272,22 @@ public class JedisManager {
                             }
                             return;
                         }
+                        if (args[1].equalsIgnoreCase("chat_message_spy")) {
+                            try {
+                                StringBuilder playerMessage = new StringBuilder();
+                                for (int i = 2; i < args.length; i++) {
+                                    playerMessage.append(args[i]);
+                                }
+
+                                for (Player p : Bukkit.getOnlinePlayers()) {
+                                    if (IslandsManager.INSTANCE.isSpying(p.getUniqueId())) {
+                                        p.sendMessage(Component.text("§c§lSPY §8» " + playerMessage));
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         if (args[1].equalsIgnoreCase("chat_message_with_perms")) {
                             try {
                                 UUID islandUUID = UUID.fromString(args[2]);

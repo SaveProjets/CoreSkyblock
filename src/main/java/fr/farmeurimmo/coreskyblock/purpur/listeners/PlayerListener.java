@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.TradesManager;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
@@ -36,6 +37,18 @@ public class PlayerListener implements Listener {
                 return;
             }
             IslandsManager.INSTANCE.checkForDataIntegrity(null, p.getUniqueId(), false);
+            if (p.hasPermission("coreskyblock.mod")) {
+                String bypass = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:bypass:" + p.getUniqueId());
+                String spying = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:spy:" + p.getUniqueId());
+                if (bypass != null) {
+                    p.sendMessage(Component.text("§4§l[/!\\] BYPASS ÎLE Actif"));
+                    IslandsManager.INSTANCE.setBypass(p.getUniqueId(), true);
+                }
+                if (spying != null) {
+                    p.sendMessage(Component.text("§4§l[/!\\] SPY ÎLE Actif"));
+                    IslandsManager.INSTANCE.setSpying(p.getUniqueId(), true);
+                }
+            }
         });
     }
 

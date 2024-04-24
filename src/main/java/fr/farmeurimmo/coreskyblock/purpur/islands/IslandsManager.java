@@ -43,6 +43,7 @@ public class IslandsManager {
     public final Gson gson = new Gson();
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
+    private final ArrayList<UUID> isSpying = new ArrayList<>();
     private final ArrayList<UUID> deleteConfirmation = new ArrayList<>();
 
     public IslandsManager(JavaPlugin plugin) {
@@ -195,6 +196,7 @@ public class IslandsManager {
                 }
             } else {
                 try {
+                    assert islandUUIDString != null;
                     UUID islandUUID = UUID.fromString(islandUUIDString);
                     loadFromRedis(islandUUID.toString());
                     Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 2);
@@ -301,8 +303,26 @@ public class IslandsManager {
     public void setBypass(UUID uuid, boolean bypass) {
         if (bypass) {
             isBypass.add(uuid);
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.sendToRedis("coreskyblock:island:bypass:" + uuid,
+                    CoreSkyblock.SERVER_NAME));
         } else {
             isBypass.remove(uuid);
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:bypass:" + uuid));
+        }
+    }
+
+    public boolean isSpying(UUID uuid) {
+        return isSpying.contains(uuid);
+    }
+
+    public void setSpying(UUID uuid, boolean spy) {
+        if (spy) {
+            isSpying.add(uuid);
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.sendToRedis("coreskyblock:island:spy:" + uuid,
+                    CoreSkyblock.SERVER_NAME));
+        } else {
+            isSpying.remove(uuid);
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:spy:" + uuid));
         }
     }
 

@@ -35,6 +35,32 @@ public class IslandCmd implements CommandExecutor {
             sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
             return false;
         }
+
+        if (p.hasPermission("coreskyblock.mod")) {
+            if (args.length == 1) {
+                if (args[0].equalsIgnoreCase("bypass")) {
+                    if (IslandsManager.INSTANCE.isBypassing(p.getUniqueId())) {
+                        IslandsManager.INSTANCE.setBypass(p.getUniqueId(), false);
+                        p.sendMessage(Component.text("§aVous n'êtes plus en mode bypass."));
+                    } else {
+                        IslandsManager.INSTANCE.setBypass(p.getUniqueId(), true);
+                        p.sendMessage(Component.text("§aVous êtes désormais en mode bypass."));
+                    }
+                    return false;
+                }
+                if (args[0].equalsIgnoreCase("spy")) {
+                    if (IslandsManager.INSTANCE.isSpying(p.getUniqueId())) {
+                        IslandsManager.INSTANCE.setSpying(p.getUniqueId(), false);
+                        p.sendMessage(Component.text("§aVous n'êtes plus en mode espion des tchats d'îles."));
+                    } else {
+                        IslandsManager.INSTANCE.setSpying(p.getUniqueId(), true);
+                        p.sendMessage(Component.text("§aVous êtes désormais en mode espion des tchats d'îles."));
+
+                    }
+                }
+            }
+        }
+
         Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
         if (island == null) {
             if (args.length == 0) {
