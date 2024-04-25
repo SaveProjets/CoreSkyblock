@@ -47,7 +47,7 @@ public class IslandsBankManager {
                         return;
                     }
                     if (user.getMoney() >= amount) {
-                        user.setMoney(user.getMoney() - amount);
+                        user.removeMoney(amount);
                         island.setBankMoney(island.getBankMoney() + amount);
                         p.sendMessage(Component.text("§aVous avez déposé §e" +
                                 NumberFormat.getInstance().format(amount) + "§a$ dans la banque de votre île."));
@@ -62,7 +62,7 @@ public class IslandsBankManager {
                 }
                 if (island.getBankMoney() >= amount) {
                     island.setBankMoney(island.getBankMoney() - amount);
-                    user.setMoney(user.getMoney() + amount);
+                    user.addMoney(amount);
                     p.sendMessage(Component.text("§aVous avez retiré §e" +
                             NumberFormat.getInstance().format(amount) + "§a$ de la banque de votre île."));
                     return;

@@ -64,13 +64,13 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
 
             switch (action) {
                 case "give":
-                    skyblockUser.setMoney(skyblockUser.getMoney() + amount);
+                    skyblockUser.addMoney(amount);
                     sender.sendMessage(Component.text("§aVous avez donné §e" + NumberFormat.getInstance()
                             .format(amount) + " §7$ à §e" + playerName));
                     //FIXME
                     break;
                 case "take":
-                    skyblockUser.setMoney(skyblockUser.getMoney() - amount);
+                    skyblockUser.removeMoney(amount);
                     sender.sendMessage(Component.text("§aVous avez retiré §e" + NumberFormat.getInstance()
                             .format(amount) + " §7$ à §e" + playerName));
                     //FIXME

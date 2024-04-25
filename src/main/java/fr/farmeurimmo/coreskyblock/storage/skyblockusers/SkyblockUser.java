@@ -46,6 +46,7 @@ public class SkyblockUser {
 
     public void setMoney(double money) {
         this.money = money;
+
         update();
     }
 
@@ -55,6 +56,7 @@ public class SkyblockUser {
 
     public void setAdventureExp(double adventureExp) {
         this.adventureExp = adventureExp;
+
         setModified(true);
     }
 
@@ -64,6 +66,7 @@ public class SkyblockUser {
 
     public void setAdventureLevel(double adventureLevel) {
         this.adventureLevel = adventureLevel;
+
         setModified(true);
     }
 
@@ -73,16 +76,25 @@ public class SkyblockUser {
 
     public void setFlyTime(int flyTime) {
         this.flyTime = flyTime;
+
         setModified(true);
     }
 
     public void addMoney(double money) {
         this.money += money;
+
+        update();
+    }
+
+    public void removeMoney(double money) {
+        this.money -= money;
+
         update();
     }
 
     public void update() {
-        CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.updateUserSync(this));
+        CompletableFuture.runAsync(() -> SkyblockUsersManager.INSTANCE.upsertUser(this));
+
         setModified(false);
     }
 

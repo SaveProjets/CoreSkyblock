@@ -127,12 +127,12 @@ public class TradesManager {
         SkyblockUser receiver_user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(trade.getReceiver());
 
         if (emitter_user.getMoney() > 0) {
-            emitter_user.setMoney(emitter_user.getMoney() - trade.getEmitterMoney());
-            receiver_user.setMoney(receiver_user.getMoney() + trade.getEmitterMoney());
+            emitter_user.removeMoney(trade.getEmitterMoney());
+            receiver_user.addMoney(trade.getEmitterMoney());
         }
         if (receiver_user.getMoney() > 0) {
-            receiver_user.setMoney(receiver_user.getMoney() - trade.getReceiverMoney());
-            emitter_user.setMoney(emitter_user.getMoney() + trade.getReceiverMoney());
+            receiver_user.removeMoney(trade.getReceiverMoney());
+            emitter_user.addMoney(trade.getReceiverMoney());
         }
 
 

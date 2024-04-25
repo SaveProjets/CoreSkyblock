@@ -87,7 +87,7 @@ public class ShopAmountInv extends FastInv {
                 if (ShopsManager.INSTANCE.getSpaceAvailableFor((Player) e.getWhoClicked(), item.getPureItemStack()) >=
                         amount) {
                     if (user.getMoney() >= item.price() * amount) {
-                        user.setMoney(user.getMoney() - item.price() * amount);
+                        user.removeMoney(item.price() * amount);
                         e.getWhoClicked().getInventory().addItem(new ItemStack(item.material(), amount));
                         e.getWhoClicked().sendMessage(Component.text("§aVous avez acheté §ex" + amount + " " +
                                 item.material() + "§a pour §e" +
@@ -115,7 +115,7 @@ public class ShopAmountInv extends FastInv {
                     amountInInventory += itemStack.getAmount();
                 }
                 if (amountInInventory >= amount) {
-                    user.setMoney(user.getMoney() + item.sellPrice() * amount);
+                    user.addMoney(item.sellPrice() * amount);
                     e.getWhoClicked().getInventory().removeItem(new ItemStack(item.material(), amount));
                     e.getWhoClicked().sendMessage(Component.text("§aVous avez vendu §ex" + amount + " " +
                             item.material() + "§a pour §e" + item.sellPrice() * amount + "$"));

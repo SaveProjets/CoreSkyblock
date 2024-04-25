@@ -8,10 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 
 public class SkyblockUsersManager {
 
@@ -24,12 +21,19 @@ public class SkyblockUsersManager {
     public SkyblockUsersManager() {
         INSTANCE = this;
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> getCachedUsers().forEach((uuid, user) -> {
-            if (user.isModified()) {
-                updateUserSync(user);
-                user.setModified(false);
-            }
-        }), 0, 20 * 60 * 5);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
+            List<UUID> toRemoveModified = new ArrayList<>();
+            getCachedUsers().forEach((uuid, user) -> {
+                if (user.isModified()) {
+                    upsertUser(user);
+                    toRemoveModified.add(uuid);
+                }
+            });
+            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                toRemoveModified.forEach(uuid -> cache.get(uuid).setModified(false));
+                return null;
+            });
+        }, 0, 20 * 60 * 5);
 
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement statement = connection.prepareStatement(CREATE_SKYBLOCK_USERS_TABLE)) {
@@ -42,7 +46,6 @@ public class SkyblockUsersManager {
     //FIXME: redis pub/sub
 
     public SkyblockUser loadUser(UUID uuid, String name) {
-        if (cache.containsKey(uuid)) return null;
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "SELECT * FROM skyblock_users WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
@@ -58,7 +61,7 @@ public class SkyblockUsersManager {
                 return user;
             } else {
                 SkyblockUser user = new SkyblockUser(uuid, name, 0, 0, 0, 0);
-                createUser(user);
+                upsertUser(user);
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, user);
                     return null;
@@ -71,25 +74,12 @@ public class SkyblockUsersManager {
         return null;
     }
 
-    public void updateUserSync(SkyblockUser user) {
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "UPDATE skyblock_users SET money = ?, adventure_exp = ?, adventure_level = ?, fly_time = ?, " +
-                        "updated_at = CURRENT_TIMESTAMP WHERE uuid = ?")) {
-            statement.setDouble(1, user.getMoney());
-            statement.setDouble(2, user.getAdventureExp());
-            statement.setDouble(3, user.getAdventureLevel());
-            statement.setInt(4, user.getFlyTime());
-            statement.setString(5, user.getUuid().toString());
-            statement.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void createUser(SkyblockUser user) {
+    public void upsertUser(SkyblockUser user) {
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "INSERT INTO skyblock_users (uuid, name, money, adventure_exp, adventure_level, fly_time, created_at, updated_at) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                        "VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) " +
+                        "ON DUPLICATE KEY UPDATE money = VALUES(money), adventure_exp = VALUES(adventure_exp), " +
+                        "adventure_level = VALUES(adventure_level), fly_time = VALUES(fly_time), updated_at = CURRENT_TIMESTAMP")) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
             statement.setDouble(3, user.getMoney());
@@ -98,36 +88,9 @@ public class SkyblockUsersManager {
             statement.setInt(6, user.getFlyTime());
 
             statement.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    public CompletableFuture<SkyblockUser> updateUserFromDatabase(SkyblockUser user) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                    "SELECT * FROM skyblock_users WHERE uuid = ?")) {
-                statement.setString(1, user.getUuid().toString());
-                statement.execute();
-
-                ResultSet resultSet = statement.getResultSet();
-                if (resultSet.next()) {
-                    user.setMoney(resultSet.getDouble("money"));
-                    user.setAdventureExp(resultSet.getDouble("adventure_exp"));
-                    user.setAdventureLevel(resultSet.getDouble("adventure_level"));
-                    user.setFlyTime(resultSet.getInt("fly_time"));
-                } else {
-                    createUser(user);
-                }
-                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                    cache.put(user.getUuid(), user);
-                    return null;
-                });
-
-                return user;
-            } catch (Exception ignored) {
-            }
-            return null;
-        });
     }
 
     public Map<UUID, SkyblockUser> getCachedUsers() {

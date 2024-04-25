@@ -47,7 +47,7 @@ public class ShopStacksInv extends FastInv {
                                 "acheter " + finalCurrentStacks + " stacks de " + item.getName() + "."));
                         return;
                     }
-                    user.setMoney(user.getMoney() - (finalCurrentStacks * item.price()));
+                    user.removeMoney(finalCurrentStacks * item.price());
                     ItemStack itemStack = item.getPureItemStack();
                     itemStack.setAmount(itemStack.getMaxStackSize());
                     for (int i = 0; i < finalCurrentStacks; i++) {

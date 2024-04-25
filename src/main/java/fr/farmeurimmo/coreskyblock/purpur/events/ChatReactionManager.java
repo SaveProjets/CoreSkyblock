@@ -72,7 +72,7 @@ public class ChatReactionManager {
                 if (user == null) {
                     return null;
                 }
-                user.setMoney(user.getMoney() + 5_000);
+                user.addMoney(5_000);
                 p.sendMessage(Component.text("§6§lChatReaction §8» §fVous avez gagné §e" +
                         NumberFormat.getInstance().format(5_000) + " §f$ !"));
                 return null;

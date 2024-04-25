@@ -70,7 +70,7 @@ public class PlayerListener implements Listener {
             SyncUsersManager.INSTANCE.stopPlayerSyncInAsync(p);
             SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
             if (user != null) {
-                SkyblockUsersManager.INSTANCE.updateUserSync(user);
+                SkyblockUsersManager.INSTANCE.upsertUser(user);
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     SkyblockUsersManager.INSTANCE.getCachedUsers().remove(p.getUniqueId());
                     return null;
