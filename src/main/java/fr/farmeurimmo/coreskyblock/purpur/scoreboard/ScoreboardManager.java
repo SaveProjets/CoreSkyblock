@@ -65,8 +65,8 @@ public class ScoreboardManager {
                 islandLines.add("§8┃ §7Niveau: §3" + NumberFormat.getInstance().format(island.getLevel()));
             } else {
                 islandLines.add("§6§lVous n'avez pas d'île");
-                islandLines.add("§8┃ §7/is create -> Créer une île");
-                islandLines.add("§8┃ §7/is accept <joueur> -> Accepter une invitation");
+                islandLines.add("§8┃ §7/is create");
+                islandLines.add("§8┃ §7/is accept <joueur>");
             }
             if (number == 0) {
                 board.updateLines(

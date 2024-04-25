@@ -11,6 +11,7 @@ import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -91,7 +92,11 @@ public class PlayerListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
         if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
-        e.setCancelled(true);
+        e.setUseItemInHand(Event.Result.ALLOW);
+        e.setUseInteractedBlock(Event.Result.ALLOW);
+        if (e.getItem() != null) {
+            if (!e.getItem().getType().isEdible()) e.setCancelled(true);
+        }
     }
 
     @EventHandler

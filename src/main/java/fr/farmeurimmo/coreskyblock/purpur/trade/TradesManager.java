@@ -3,6 +3,7 @@ package fr.farmeurimmo.coreskyblock.purpur.trade;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.ExperienceUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -138,14 +139,14 @@ public class TradesManager {
         for (ItemStack item : trade.getReceiverItems()) {
             emitter.getInventory().addItem(item);
         }
-        emitter.setExp(emitter.getExp() - trade.getEmitterExp() + trade.getReceiverExp());
+        ExperienceUtils.changeExp(emitter, (int) (-trade.getEmitterExp() + trade.getReceiverExp()));
         emitter.closeInventory();
         emitter.sendMessage(Component.text("§6§lTrade §8» §aL'échange avec §f" + receiver.getName() + " §aa été " +
                 "effectué."));
         for (ItemStack item : trade.getEmitterItems()) {
             receiver.getInventory().addItem(item);
         }
-        receiver.setExp(receiver.getExp() - trade.getReceiverExp() + trade.getEmitterExp());
+        ExperienceUtils.changeExp(receiver, (int) (-trade.getReceiverExp() + trade.getEmitterExp()));
         receiver.closeInventory();
         receiver.sendMessage(Component.text("§6§lTrade §8» §aL'échange avec §f" + emitter.getName() + " §aa été " +
                 "effectué."));

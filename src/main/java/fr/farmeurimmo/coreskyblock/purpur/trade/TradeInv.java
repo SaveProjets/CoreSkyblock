@@ -3,6 +3,7 @@ package fr.farmeurimmo.coreskyblock.purpur.trade;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.ExperienceUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -18,10 +19,10 @@ import java.util.UUID;
 
 public class TradeInv extends FastInv {
 
-    private final static int MAX_PER_TRADE = 20;
     private static final int[] PANE_SLOTS = new int[]{4, 13, 22, 31, 40, 49};
-    private final int[] leftSlots = new int[]{/*9, 10, 11, 12, */18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47, 48};
-    private final int[] rightSlots = new int[]{/*14, 15, 16, 17, 23, */24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44, 50, 51, 52, 53};
+    private final static int MAX_PER_TRADE = 15;
+    private final int[] leftSlots = new int[]{18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47, 48};
+    private final int[] rightSlots = new int[]{24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44, 50, 51, 52, 53};
     private final UUID emitter;
     private final UUID receiver;
 
@@ -125,12 +126,12 @@ public class TradeInv extends FastInv {
         Player emitterPlayer = Bukkit.getPlayer(emitter);
         double exp = 0;
         if (emitterPlayer != null) {
-            exp = emitterPlayer.getExp();
+            exp = ExperienceUtils.getExp(emitterPlayer);
         }
         Player receiverPlayer = Bukkit.getPlayer(receiver);
         double exp2 = 0;
         if (receiverPlayer != null) {
-            exp2 = receiverPlayer.getExp();
+            exp2 = ExperienceUtils.getExp(receiverPlayer);
         }
         ItemStack playerLeftHead = getPlayerHeads(emitter, exp);
         ItemStack playerRightHead = getPlayerHeads(receiver, exp2);
@@ -246,7 +247,7 @@ public class TradeInv extends FastInv {
                 }
                 if (e.isLeftClick()) {
                     Player whoClicked = (Player) e.getWhoClicked();
-                    if (trade.getEmitterExp() + 10 > whoClicked.getExp()) {
+                    if (trade.getEmitterExp() + 10 > ExperienceUtils.getExp(whoClicked)) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de votre expérience."));
                         return;
                     }
@@ -267,7 +268,7 @@ public class TradeInv extends FastInv {
                 }
                 if (e.isLeftClick()) {
                     Player whoClicked = (Player) e.getWhoClicked();
-                    if (trade.getEmitterExp() + 250 > whoClicked.getExp()) {
+                    if (trade.getEmitterExp() + 250 > ExperienceUtils.getExp(whoClicked)) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de votre expérience."));
                         return;
                     }
@@ -288,7 +289,7 @@ public class TradeInv extends FastInv {
                 }
                 if (e.isLeftClick()) {
                     Player whoClicked = (Player) e.getWhoClicked();
-                    if (trade.getEmitterExp() + 1_000 > whoClicked.getExp()) {
+                    if (trade.getEmitterExp() + 1_000 > ExperienceUtils.getExp(whoClicked)) {
                         e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de votre expérience."));
                         return;
                     }
@@ -384,6 +385,69 @@ public class TradeInv extends FastInv {
             });
             setItem(9, playerRightHead);
             setItem(14, playerLeftHead);
+            setItem(10, lowExp_left, e -> {
+                if (trade.isReceiverReady()) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier votre mise car vous êtes prêt."));
+                    return;
+                }
+                if (e.isLeftClick()) {
+                    Player whoClicked = (Player) e.getWhoClicked();
+                    if (trade.getReceiverExp() + 10 > ExperienceUtils.getExp(whoClicked)) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de votre expérience."));
+                        return;
+                    }
+                    trade.setReceiverExp(trade.getReceiverExp() + 10);
+                } else {
+                    if (trade.getReceiverExp() - 10 < 0) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre moins de 0 point d'expérience."));
+                        return;
+                    }
+                    trade.setReceiverExp(trade.getReceiverExp() - 10);
+                }
+                update(p, emitter, receiver);
+            });
+            setItem(11, mediumExp_left, e -> {
+                if (trade.isReceiverReady()) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier votre mise car vous êtes prêt."));
+                    return;
+                }
+                if (e.isLeftClick()) {
+                    Player whoClicked = (Player) e.getWhoClicked();
+                    if (trade.getReceiverExp() + 250 > ExperienceUtils.getExp(whoClicked)) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de votre expérience."));
+                        return;
+                    }
+                    trade.setReceiverExp(trade.getReceiverExp() + 250);
+                } else {
+                    if (trade.getReceiverExp() - 250 < 0) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre moins de 0 point d'expérience."));
+                        return;
+                    }
+                    trade.setReceiverExp(trade.getReceiverExp() - 250);
+                }
+                update(p, emitter, receiver);
+            });
+            setItem(12, highExp_left, e -> {
+                if (trade.isReceiverReady()) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier votre mise car vous êtes prêt."));
+                    return;
+                }
+                if (e.isLeftClick()) {
+                    Player whoClicked = (Player) e.getWhoClicked();
+                    if (trade.getReceiverExp() + 1_000 > ExperienceUtils.getExp(whoClicked)) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre plus de votre expérience."));
+                        return;
+                    }
+                    trade.setReceiverExp(trade.getReceiverExp() + 1_000);
+                } else {
+                    if (trade.getReceiverExp() - 1_000 < 0) {
+                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas mettre moins de 0 point d'expérience."));
+                        return;
+                    }
+                    trade.setReceiverExp(trade.getReceiverExp() - 1_000);
+                }
+                update(p, emitter, receiver);
+            });
         }
         setItem(8, ready_right);
         setItem(7, nugget_right);
