@@ -172,28 +172,37 @@ public class Island {
     }
 
     public void setDefaultPerms(boolean update) {
-        ArrayList<IslandPerms> permsVisit = new ArrayList<>();
-        permsVisit.add(IslandPerms.INTERACT);
+        ArrayList<IslandPerms> permsVisit = new ArrayList<>(Arrays.asList(IslandPerms.KILL_ANIMALS,
+                IslandPerms.KILL_MOBS, IslandPerms.DROP_ITEMS, IslandPerms.FISH, IslandPerms.FLY,
+                IslandPerms.PICKUP_ITEMS, IslandPerms.INTERACT_WITH_VILLAGERS));
         perms.put(IslandRanks.VISITEUR, permsVisit);
 
         ArrayList<IslandPerms> perms = new ArrayList<>();
         perms.addAll(permsVisit);
-        perms.addAll(Arrays.asList(IslandPerms.BUILD, IslandPerms.BREAK));
+        perms.addAll(Arrays.asList(IslandPerms.BUILD, IslandPerms.BREAK, IslandPerms.INTERACT, IslandPerms.CONTAINER,
+                IslandPerms.FEED_ANIMALS, IslandPerms.INTERACT_WITH_MOUNTS, IslandPerms.USE_SPAWN_EGG,
+                IslandPerms.INTERACT_WITH_ITEM_FRAMES));
         this.perms.put(IslandRanks.COOP, perms);
 
         ArrayList<IslandPerms> permsMembre = new ArrayList<>();
         permsMembre.addAll(perms);
-        permsMembre.addAll(Arrays.asList(IslandPerms.EDIT_MINIONS));
+        permsMembre.addAll(Arrays.asList(IslandPerms.EDIT_MINIONS, IslandPerms.BANK_ADD,
+                IslandPerms.CALCULATE_ISLAND_LEVEL));
         this.perms.put(IslandRanks.MEMBRE, permsMembre);
 
         ArrayList<IslandPerms> permsMod = new ArrayList<>();
         permsMod.addAll(permsMembre);
-        permsMod.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.CHANGE_RANK));
+        permsMod.addAll(Arrays.asList(IslandPerms.KICK, IslandPerms.EDIT_BANS, IslandPerms.EXPEL,
+                IslandPerms.BREAK_SPAWNERS));
         this.perms.put(IslandRanks.MODERATEUR, permsMod);
 
         ArrayList<IslandPerms> permsCoChef = new ArrayList<>();
         permsCoChef.addAll(permsMod);
-        permsCoChef.addAll(Arrays.asList(IslandPerms.INVITES, IslandPerms.EDIT_BANS));
+        permsCoChef.addAll(Arrays.asList(IslandPerms.INVITES, IslandPerms.EDIT_BANS, IslandPerms.CHANGE_RANK,
+                IslandPerms.EDIT_PUBLIC, IslandPerms.SET_HOME, IslandPerms.CHANGE_PERMS, IslandPerms.EDIT_COOP,
+                IslandPerms.BANK_REMOVE, IslandPerms.SECURED_CHEST, IslandPerms.EDIT_ISLAND_WARP,
+                IslandPerms.EDIT_ISLAND_CHARACTERISTICS, IslandPerms.UPGRADE_ISLAND, IslandPerms.EDIT_SETTINGS,
+                IslandPerms.BREAK_ISLAND_LEVEL_BLOCKS, IslandPerms.CHANGE_ISLAND_BIOME, IslandPerms.EDIT_MINIONS));
         this.perms.put(IslandRanks.COCHEF, permsCoChef);
 
         ArrayList<IslandPerms> permsChef = new ArrayList<>();
