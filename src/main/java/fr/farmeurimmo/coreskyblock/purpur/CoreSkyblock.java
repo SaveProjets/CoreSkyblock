@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur;
 
+import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
@@ -64,6 +65,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
     public static Location ENCHANTING_TABLE_LOCATION;
     public static String SERVER_NAME;
+    public final Gson gson = new Gson();
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();

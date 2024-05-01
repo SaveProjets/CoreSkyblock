@@ -352,7 +352,7 @@ public class Island {
         CompletableFuture.runAsync(() -> {
             IslandsDataManager.INSTANCE.deleteMember(islandUUID, uuid);
             JedisManager.INSTANCE.removeFromRedis("coreskyblock:island:members:" + uuid);
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, CoreSkyblock.INSTANCE.gson
                     .toJson(toJson()));
             pubSub(false);
         });
@@ -387,7 +387,7 @@ public class Island {
     public void update(boolean async) {
         if (async) {
             CompletableFuture.runAsync(() -> {
-                JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+                JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, CoreSkyblock.INSTANCE.gson
                         .toJson(toJson()));
                 pubSub(false);
                 IslandsDataManager.INSTANCE.update(this, areMembersModified,
@@ -402,7 +402,7 @@ public class Island {
                 return null;
             }));
         } else {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, IslandsManager.INSTANCE.gson
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, CoreSkyblock.INSTANCE.gson
                     .toJson(toJson()));
             IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
                     areBannedPlayersModified, areSettingsModified, areChestsModified);

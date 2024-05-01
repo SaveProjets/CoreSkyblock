@@ -1,7 +1,9 @@
 package fr.farmeurimmo.coreskyblock.storage.skyblockusers;
 
+import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
@@ -13,8 +15,11 @@ import java.util.*;
 public class SkyblockUsersManager {
 
     private static final String CREATE_SKYBLOCK_USERS_TABLE = "CREATE TABLE IF NOT EXISTS skyblock_users " +
-            "(uuid VARCHAR(36) PRIMARY KEY, name VARCHAR(255), money DOUBLE, adventure_exp DOUBLE, adventure_level " +
-            "DOUBLE, fly_time INT, created_at TIMESTAMP, updated_at TIMESTAMP)";
+            "(uuid VARCHAR(36) PRIMARY KEY, name VARCHAR(255), money DOUBLE DEFAULT 0, adventure_exp DOUBLE DEFAULT 0,"
+            + " adventure_level DOUBLE DEFAULT 0, fly_time INT DEFAULT 0, current_prestige_level INT DEFAULT 0, " +
+            "last_prestige_level_claimed INT DEFAULT 0, current_premium_prestige_level INT DEFAULT 0, " +
+            "last_premium_prestige_level_claimed INT DEFAULT 0, own_premium_prestige BOOLEAN DEFAULT FALSE, " +
+            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
     public static SkyblockUsersManager INSTANCE;
     private final Map<UUID, SkyblockUser> cache = new HashMap<>();
 
@@ -43,9 +48,20 @@ public class SkyblockUsersManager {
         }
     }
 
-    //FIXME: redis pub/sub
-
     public SkyblockUser loadUser(UUID uuid, String name) {
+        String redisData = JedisManager.INSTANCE.getFromRedis("coreskyblock:user:" + uuid);
+        if (redisData != null) {
+            JsonObject jsonObject = CoreSkyblock.INSTANCE.gson.fromJson(redisData, JsonObject.class);
+            SkyblockUser user = SkyblockUser.fromJson(jsonObject);
+            if (user != null) {
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    cache.put(uuid, user);
+                    return null;
+                });
+                return user;
+            }
+        }
+
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
                 "SELECT * FROM skyblock_users WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
@@ -53,19 +69,21 @@ public class SkyblockUsersManager {
             if (resultSet.next()) {
                 SkyblockUser user = new SkyblockUser(uuid, name, resultSet.getDouble("money"),
                         resultSet.getDouble("adventure_exp"), resultSet.getDouble("adventure_level"),
-                        resultSet.getInt("fly_time"));
+                        resultSet.getInt("fly_time"), resultSet.getInt("current_prestige_level"),
+                        resultSet.getInt("last_prestige_level_claimed"), resultSet.getInt("current_premium_prestige_level"),
+                        resultSet.getInt("last_premium_prestige_level_claimed"), resultSet.getBoolean("own_premium_prestige"));
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, user);
                     return null;
                 });
                 return user;
             } else {
-                SkyblockUser user = new SkyblockUser(uuid, name, 0, 0, 0, 0);
-                upsertUser(user);
+                SkyblockUser user = new SkyblockUser(uuid, name);
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, user);
                     return null;
                 });
+                upsertUser(user);
                 return user;
             }
         } catch (Exception e) {
@@ -75,17 +93,27 @@ public class SkyblockUsersManager {
     }
 
     public void upsertUser(SkyblockUser user) {
+        JedisManager.INSTANCE.sendToRedis("coreskyblock:user:" + user.getUuid(),
+                CoreSkyblock.INSTANCE.gson.toJson(user.toJson()));
+
         try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "INSERT INTO skyblock_users (uuid, name, money, adventure_exp, adventure_level, fly_time, created_at, updated_at) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) " +
-                        "ON DUPLICATE KEY UPDATE money = VALUES(money), adventure_exp = VALUES(adventure_exp), " +
-                        "adventure_level = VALUES(adventure_level), fly_time = VALUES(fly_time), updated_at = CURRENT_TIMESTAMP")) {
+                "INSERT INTO skyblock_users (uuid, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = ?, money = ?, " +
+                        "adventure_exp = ?, adventure_level = ?, fly_time = ?, current_prestige_level = ?, " +
+                        "last_prestige_level_claimed = ?, current_premium_prestige_level = ?, " +
+                        "last_premium_prestige_level_claimed = ?, own_premium_prestige = ?, updated_at = CURRENT_TIMESTAMP")) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
-            statement.setDouble(3, user.getMoney());
-            statement.setDouble(4, user.getAdventureExp());
-            statement.setDouble(5, user.getAdventureLevel());
-            statement.setInt(6, user.getFlyTime());
+
+            statement.setString(3, user.getName());
+            statement.setDouble(4, user.getMoney());
+            statement.setDouble(5, user.getAdventureExp());
+            statement.setDouble(6, user.getAdventureLevel());
+            statement.setInt(7, user.getFlyTime());
+            statement.setInt(8, user.getCurrentPrestigeLevel());
+            statement.setInt(9, user.getLastPrestigeLevelClaimed());
+            statement.setInt(10, user.getCurrentPremiumPrestigeLevel());
+            statement.setInt(11, user.getLastPremiumPrestigeLevelClaimed());
+            statement.setBoolean(12, user.ownPremiumPrestige());
 
             statement.executeUpdate();
         } catch (Exception e) {

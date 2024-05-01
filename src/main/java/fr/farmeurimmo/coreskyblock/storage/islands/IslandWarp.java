@@ -214,7 +214,7 @@ public class IslandWarp {
         jsonObject.addProperty("rate", rate);
         jsonObject.add("raters", getRatersJSON());
 
-        return IslandsManager.INSTANCE.gson.toJson(jsonObject);
+        return CoreSkyblock.INSTANCE.gson.toJson(jsonObject);
     }
 
     public String getCategoriesString() {
@@ -253,7 +253,7 @@ public class IslandWarp {
     }
 
     public JsonElement getRatersJSON() {
-        return IslandsManager.INSTANCE.gson.toJsonTree(raters);
+        return CoreSkyblock.INSTANCE.gson.toJsonTree(raters);
     }
 
     public void addRater(UUID uuid, int rate) {

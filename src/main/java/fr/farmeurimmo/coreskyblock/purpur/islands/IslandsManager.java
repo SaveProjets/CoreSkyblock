@@ -40,7 +40,6 @@ public class IslandsManager {
     public final Map<String, Integer> serversData = new HashMap<>();
     public final Map<UUID, String> awaitingResponseFromServer = new HashMap<>();
     public final Map<UUID, Long> awaitingResponseFromServerTime = new HashMap<>(); //for unload
-    public final Gson gson = new Gson();
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
     private final ArrayList<UUID> isSpying = new ArrayList<>();
@@ -223,7 +222,8 @@ public class IslandsManager {
                 if (forceLoad) return;
                 UUID finalIslandUUID = islandUUID;
                 Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(finalIslandUUID), 2);
-                JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID(), gson.toJson(island.toJson()));
+                JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID(),
+                        CoreSkyblock.INSTANCE.gson.toJson(island.toJson()));
                 for (UUID member : island.getMembers().keySet()) {
                     JedisManager.INSTANCE.sendToRedis("coreskyblock:island:members:" + member, island.getIslandUUID().toString());
                 }

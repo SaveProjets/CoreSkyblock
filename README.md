@@ -27,9 +27,13 @@ Autres cas à définir.
 
 ## Données de SYNC
 
-### Mise en cache redis
+### Mise en cache données de sync
 
 coreskyblock:sync:{uuid} → {data}
+
+### Mise en cache données utilisateurs
+
+coreskyblock:user:{uuid} → {data}
 
 ### Fonctionnement
 

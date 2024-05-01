@@ -26,9 +26,9 @@ public class PlayerListener implements Listener {
         Player p = e.getPlayer();
 
         e.joinMessage(null);
-        p.teleportAsync(CoreSkyblock.SPAWN);
-
         ScoreboardManager.INSTANCE.addPlayer(p);
+
+        p.teleportAsync(CoreSkyblock.SPAWN);
 
         CompletableFuture.runAsync(() -> {
             SyncUsersManager.INSTANCE.startPlayerSync(p);
