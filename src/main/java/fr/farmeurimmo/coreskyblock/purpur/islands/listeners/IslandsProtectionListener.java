@@ -7,6 +7,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
+import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -425,6 +426,15 @@ public class IslandsProtectionListener implements Listener {
             if (!island.hasPerms(rank, IslandPerms.FLY, p.getUniqueId())) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onEntityMove(EntityMoveEvent e) {
+        if (!IslandsManager.INSTANCE.isAnIsland(e.getEntity().getWorld())) return;
+        if (e.getEntity() instanceof Player) return;
+        if (e.getEntity().getLocation().getY() < -64) {
+            e.getEntity().damage(50);
         }
     }
 }
