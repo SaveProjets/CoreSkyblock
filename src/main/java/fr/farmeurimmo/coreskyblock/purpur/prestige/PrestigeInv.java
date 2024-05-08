@@ -175,6 +175,6 @@ public class PrestigeInv extends FastInv {
     }
 
     public boolean isInCooldown() {
-        return System.currentTimeMillis() - lastAction < 750;
+        return System.currentTimeMillis() - lastAction < 10;
     }
 }

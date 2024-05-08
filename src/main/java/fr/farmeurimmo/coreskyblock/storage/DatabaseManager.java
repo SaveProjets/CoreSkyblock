@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.storage;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopType;
 import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopItem;
@@ -8,13 +10,18 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
 
     public static DatabaseManager INSTANCE;
+    private static HikariConfig config = new HikariConfig();
+    private static HikariDataSource ds;
     private final String host;
     private final String user;
     private final String password;
@@ -26,6 +33,16 @@ public class DatabaseManager {
         this.host = host;
         this.user = user;
         this.password = password;
+
+        config.setJdbcUrl(this.host);
+        config.setUsername(this.user);
+        config.setPassword(this.password);
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setMaximumPoolSize(10);
+        config.setConnectionTimeout(60_000);
+        ds = new HikariDataSource(config);
 
         startConnection();
     }
@@ -59,7 +76,10 @@ public class DatabaseManager {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(host, user, password);
+        if (connection == null || !connection.isValid(2)) {
+            connection = ds.getConnection();
+        }
+        return connection;
     }
 
     public CompletableFuture<Void> initTableFromConfig() {

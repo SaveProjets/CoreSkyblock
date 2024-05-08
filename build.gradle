@@ -21,10 +21,10 @@ repositories {
 dependencies {
     implementation 'fr.mrmicky:FastInv:3.0.4'
     implementation 'fr.mrmicky:fastboard:2.0.2'
-    implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'redis.clients:jedis:5.1.0'
     compileOnly 'org.purpurmc.purpur:purpur-api:1.20.4-R0.1-SNAPSHOT'
     compileOnly 'com.infernalsuite.aswm:api:1.20.4-R0.1-SNAPSHOT'
+    implementation('com.zaxxer:HikariCP:4.0.3')
 }
 
 shadowJar {

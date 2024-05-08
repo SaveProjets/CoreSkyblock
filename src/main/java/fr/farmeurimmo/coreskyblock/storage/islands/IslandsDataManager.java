@@ -443,6 +443,27 @@ public class IslandsDataManager {
 
     public List<IslandWarp> loadIslandsWarps() {
         List<IslandWarp> warps = new ArrayList<>();
+        Map<UUID, Map<UUID, Pair<Integer, Long>>> allRaters = new HashMap<>();
+
+        // Load all raters first
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM island_warps_already_rated")) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
+                    UUID playerUUID = UUID.fromString(result.getString("player_uuid"));
+                    int rates = result.getInt("rates");
+                    long lastRate = result.getLong("last_rate");
+
+                    Map<UUID, Pair<Integer, Long>> islandRaters = allRaters.getOrDefault(islandUUID, new HashMap<>());
+                    islandRaters.put(playerUUID, Pair.of(rates, lastRate));
+                    allRaters.put(islandUUID, islandRaters);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM island_warps")) {
             try (ResultSet result = statement.executeQuery()) {
@@ -463,8 +484,9 @@ public class IslandsDataManager {
                         Material material = Material.getMaterial(result.getString("material"));
                         double rate = result.getDouble("rate");
 
+                        Map<UUID, Pair<Integer, Long>> raters = allRaters.getOrDefault(islandUUID, new HashMap<>());
                         warps.add(new IslandWarp(uuid, islandUUID, name, description, islandWarpCategories, location,
-                                isActivated, forwardedWarp, material, rate, loadRaters(islandUUID)));
+                                isActivated, forwardedWarp, material, rate, raters));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
