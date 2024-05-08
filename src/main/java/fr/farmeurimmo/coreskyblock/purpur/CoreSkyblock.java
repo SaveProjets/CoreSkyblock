@@ -24,6 +24,8 @@ import fr.farmeurimmo.coreskyblock.purpur.listeners.SpawnProtectionListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsManager;
+import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeCmd;
+import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeRewardsManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.SellAllCmd;
@@ -157,6 +159,7 @@ public final class CoreSkyblock extends JavaPlugin {
         new AgricultureCycleManager();
 
         new ChatDisplayManager();
+        new PrestigeRewardsManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
@@ -197,6 +200,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("kits")).setExecutor(new KitsCmd());
         Objects.requireNonNull(getCommand("tpa")).setExecutor(new TpaCmd());
         Objects.requireNonNull(getCommand("xp")).setExecutor(new XpCmd());
+        Objects.requireNonNull(getCommand("prestige")).setExecutor(new PrestigeCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");

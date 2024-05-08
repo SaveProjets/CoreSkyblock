@@ -170,6 +170,7 @@ public class SkyblockUser {
 
     public void incrementCurrentPrestigeLevel() {
         currentPrestigeLevel++;
+        currentPremiumPrestigeLevel++;
 
         update();
     }
@@ -186,12 +187,6 @@ public class SkyblockUser {
 
     public int getCurrentPremiumPrestigeLevel() {
         return currentPremiumPrestigeLevel;
-    }
-
-    public void incrementCurrentPremiumPrestigeLevel() {
-        currentPremiumPrestigeLevel++;
-
-        update();
     }
 
     public int getLastPremiumPrestigeLevelClaimed() {

@@ -7,7 +7,10 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
+import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeRewardsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;
@@ -116,7 +119,15 @@ public class ChatListener implements Listener {
 
         e.setCancelled(true);
 
+        SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
+        if (user == null) {
+            p.sendMessage(Component.text("§cUne erreur est survenue. Veuillez réessayer."));
+            return;
+        }
+
         String level = (island != null) ? "§8[§e" + NumberFormat.getInstance().format(island.getLevel()) + "§8] " : "";
-        p.getServer().sendMessage(Component.text(level + "§6???? " + p.getName() + " §8» §f").append(component));
+        String prestigeLevel = (user.getCurrentPrestigeLevel() > 0) ? PrestigeRewardsManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
+                NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + "§l✨ " : "";
+        p.getServer().sendMessage(Component.text(prestigeLevel + level + "§6???? " + p.getName() + " §8» §f").append(component));
     }
 }
