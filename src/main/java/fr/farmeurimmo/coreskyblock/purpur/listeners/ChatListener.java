@@ -4,10 +4,11 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsTopManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
-import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeRewardsManager;
+import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -104,7 +105,7 @@ public class ChatListener implements Listener {
         boolean item = message.contains("[item]");
         boolean money = message.contains("[money]");
 
-        Component component = Component.text(e.getMessage());
+        Component component = Component.text((p.hasPermission("coreskyblock.chat.color") ? e.getMessage().replace("&", "§") : e.getMessage()));
 
         if (item) {
             component = component.replaceText(config -> config.matchLiteral("[item]")
@@ -125,8 +126,9 @@ public class ChatListener implements Listener {
             return;
         }
 
-        String level = (island != null) ? "§8[§e" + NumberFormat.getInstance().format(island.getLevel()) + "§8] " : "";
-        String prestigeLevel = (user.getCurrentPrestigeLevel() > 0) ? PrestigeRewardsManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
+        int islandRanking = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0);
+        String level = (islandRanking > 0) ? "§8[§e#" + NumberFormat.getInstance().format(IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0)) + "§8] " : "";
+        String prestigeLevel = (user.getCurrentPrestigeLevel() > 0) ? PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
                 NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + "§l✨ " : "";
         p.getServer().sendMessage(Component.text(prestigeLevel + level + "§6???? " + p.getName() + " §8» §f").append(component));
     }

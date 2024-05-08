@@ -25,7 +25,7 @@ import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsManager;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeCmd;
-import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeRewardsManager;
+import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.SellAllCmd;
@@ -159,7 +159,7 @@ public final class CoreSkyblock extends JavaPlugin {
         new AgricultureCycleManager();
 
         new ChatDisplayManager();
-        new PrestigeRewardsManager();
+        new PrestigesManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();

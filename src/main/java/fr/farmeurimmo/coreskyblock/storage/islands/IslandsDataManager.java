@@ -579,7 +579,7 @@ public class IslandsDataManager {
         LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, level FROM islands WHERE" +
-                     " level > 0 ORDER BY level DESC LIMIT 16")) {
+                     " level > 0 ORDER BY level DESC LIMIT 500")) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
                     UUID islandUUID = UUID.fromString(result.getString("uuid"));

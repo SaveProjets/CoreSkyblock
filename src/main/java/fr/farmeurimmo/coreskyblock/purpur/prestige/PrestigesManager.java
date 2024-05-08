@@ -5,11 +5,11 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class PrestigeRewardsManager {
+public class PrestigesManager {
 
-    public static PrestigeRewardsManager INSTANCE;
+    public static PrestigesManager INSTANCE;
 
-    public PrestigeRewardsManager() {
+    public PrestigesManager() {
         INSTANCE = this;
     }
 

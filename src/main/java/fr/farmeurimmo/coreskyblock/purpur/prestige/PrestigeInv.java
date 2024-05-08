@@ -75,10 +75,10 @@ public class PrestigeInv extends FastInv {
         }
 
         for (int i = prestigeLevelDisplayed; i < prestigeLevelDisplayed + 7; i++) {
-            boolean isMajorReward = PrestigeRewardsManager.INSTANCE.isMajorReward(i);
+            boolean isMajorReward = PrestigesManager.INSTANCE.isMajorReward(i);
             ItemStack prestigeItem = ItemBuilder.copyOf(new ItemStack(isMajorReward ? Material.DIAMOND_BLOCK : Material.DIAMOND))
                     .name("§6Prestige §f" + i)
-                    .lore((PrestigeRewardsManager.INSTANCE.isUltraMajorReward(i) ? PrestigeRewardsManager.INSTANCE.getMajorRewardName(i) : ""),
+                    .lore((PrestigesManager.INSTANCE.isUltraMajorReward(i) ? PrestigesManager.INSTANCE.getMajorRewardName(i) : ""),
                             "",
                             (user.getLastPrestigeLevelClaimed() >= i ? "§aDéjà réclamé" : (user.getCurrentPrestigeLevel() >= i ? "§cNon réclamé" : "§cNon atteint")))
                     .flags(ItemFlag.HIDE_ENCHANTS)
@@ -105,7 +105,7 @@ public class PrestigeInv extends FastInv {
                 int numberOfPrestigeToRedeem = Math.max(1, finalI - user.getLastPrestigeLevelClaimed());
                 user.setLastPrestigeLevelClaimed(finalI);
                 for (int j = 0; j < numberOfPrestigeToRedeem; j++) {
-                    PrestigeRewardsManager.INSTANCE.giveRewards(user, finalI - j);
+                    PrestigesManager.INSTANCE.giveRewards(user, finalI - j);
                 }
                 update(user);
             });

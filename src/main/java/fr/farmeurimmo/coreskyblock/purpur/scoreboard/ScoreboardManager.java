@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsTopManager;
+import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -24,9 +25,9 @@ public class ScoreboardManager {
     public static ScoreboardManager INSTANCE;
     private final Map<UUID, FastBoard> boards = new HashMap<>();
     private final Map<UUID, Integer> boardNumber = new HashMap<>();
-    private String timeUntilNextWeek = "00:00:00";
+    /*private String timeUntilNextWeek = "00:00:00";
     private String cycleWithWeek = "Cycle 1, Semaine 1";
-    private String crop = "...";
+    private String crop = "...";*/
 
     public ScoreboardManager() {
         INSTANCE = this;
@@ -75,14 +76,12 @@ public class ScoreboardManager {
                         "§6§lProfil",
                         "§8┃ §7Grade: §c????",
                         "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
+                        "§8┃ §7Prestige: §b" + PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
+                                NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()),
                         "",
                         islandLines.get(0),
                         islandLines.get(1),
                         islandLines.get(2),
-                        "",
-                        "§6§lAgriculture",
-                        "§8┃ §c" + cycleWithWeek + ": §c" + timeUntilNextWeek,
-                        "§8┃ §7Culture: §c" + crop,
                         "",
                         "§f» §c§lplay.edmine.net"
                 );
@@ -100,7 +99,7 @@ public class ScoreboardManager {
     }
 
     public void updateClock() {
-        try {
+        /*try {
             timeUntilNextWeek = DateUtils.getFormattedTimeLeft((int) (AgricultureCycleManager.INSTANCE.getCurrentSeason()
                     .getTimeUntilNextWeek() / 1000));
             cycleWithWeek = AgricultureCycleManager.INSTANCE.getCurrentSeason().getCycleWithWeek();
@@ -111,7 +110,7 @@ public class ScoreboardManager {
             timeUntilNextWeek = "Chargement...";
             cycleWithWeek = "Chargement...";
             crop = "Chargement...";
-        }
+        }*/
         ArrayList<UUID> toRemove = new ArrayList<>();
         for (UUID uuid : boards.keySet()) {
             if (Bukkit.getPlayer(uuid) == null) {
