@@ -1,16 +1,47 @@
 package fr.farmeurimmo.coreskyblock.purpur.prestige;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.ExperienceUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class PrestigesManager {
 
     public static PrestigesManager INSTANCE;
+    private final Map<UUID, String> progressBar = new HashMap<>();
 
     public PrestigesManager() {
         INSTANCE = this;
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
+            for (SkyblockUser skyblockUser : SkyblockUsersManager.INSTANCE.getCachedUsers().values()) {
+                Player p = Bukkit.getPlayer(skyblockUser.getUuid());
+                if (p == null) {
+                    continue;
+                }
+                int currentExp = ExperienceUtils.getExp(p);
+                if (currentExp >= 200_000) {
+                    progressBar.put(p.getUniqueId(), "§a§l⬆");
+                    continue;
+                }
+                StringBuilder sb = new StringBuilder();
+                int bars = (int) Math.ceil((double) currentExp / 20_000);
+                sb.append("§a§l|".repeat(Math.max(0, bars)));
+                sb.append("§c§l|".repeat(Math.max(0, 10 - bars)));
+                progressBar.put(p.getUniqueId(), sb.toString());
+            }
+        }, 0, 20);
+    }
+
+    public String getProgressBar(UUID uuid) {
+        return progressBar.getOrDefault(uuid, "§c§l|".repeat(10));
     }
 
     public boolean isMajorReward(int prestigeLevel) {

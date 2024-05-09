@@ -75,7 +75,8 @@ public class ScoreboardManager {
                         "§8┃ §7Grade: §c????",
                         "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
                         "§8┃ §7Prestige: §b" + PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
-                                NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()),
+                                NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + " " +
+                                PrestigesManager.INSTANCE.getProgressBar(p.getUniqueId()),
                         "",
                         islandLines.get(0),
                         islandLines.get(1),
