@@ -9,13 +9,13 @@ import java.util.List;
 
 public enum ChestType {
 
-    CROP_HOPPER(0, "§6§lCropHopper", Material.HOPPER, List.of("§7Une fois placé, il va automatiquement",
+    CROP_HOPPER(0, "§6§lCyber Hopper", Material.HOPPER, List.of("§7Une fois placé, il va automatiquement",
             "§7récupérer les items qui tombent dans son chunk", "§7et les téléporter dans son inventaire.")),
-    SELL_CHEST(1, "§6§lSellChest", Material.CHEST, List.of("§7Une fois placé, il va de temps en temps",
+    SELL_CHEST(1, "§6§lSell Chest", Material.CHEST, List.of("§7Une fois placé, il va de temps en temps",
             "§7vendre les items qui entrent dans son", "§7inventaire et vous donner l'argent.")),
-    PLAYER_SHOP(2, "§6§lPlayerShop", Material.CHEST, List.of("§7Une fois placé, il vous permettra de",
+    PLAYER_SHOP(2, "§6§lPlayer Shop", Material.CHEST, List.of("§7Une fois placé, il vous permettra de",
             "§7vendre/acheter des items à d'autres joueurs.")),
-    BLOCK_STOCKER(3, "§6§lBlockStocker", null, List.of("§7Une fois placé, vous pourrez stocker",
+    BLOCK_STOCKER(3, "§6§lBlock Stocker", null, List.of("§7Une fois placé, vous pourrez stocker",
             "§7un type de bloc possédant une valeur d'île", "§7Il permet de limiter le nombre de blocs",
             "§7sur l'île pour un même is level."));
 
@@ -44,6 +44,15 @@ public enum ChestType {
         for (ChestType type : values()) {
             if (name.contains(type.getNameWithoutColor())) {
                 return type;
+            }
+        }
+        return null;
+    }
+
+    public static ChestType getByType(String type) {
+        for (ChestType chestType : values()) {
+            if (chestType.name().equalsIgnoreCase(type)) {
+                return chestType;
             }
         }
         return null;

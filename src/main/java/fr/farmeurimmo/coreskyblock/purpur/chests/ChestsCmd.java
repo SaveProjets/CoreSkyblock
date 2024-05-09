@@ -27,7 +27,7 @@ public class ChestsCmd implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("§cErreur, joueur inconnu"));
             return false;
         }
-        ChestType type = ChestType.getByName(args[1]);
+        ChestType type = ChestType.getByType(args[1]);
         if (type == null) {
             sender.sendMessage(Component.text("§cErreur, coffre/hoppeur inconnu"));
             return false;
@@ -43,7 +43,7 @@ public class ChestsCmd implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             return Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).filter(name -> name.startsWith(args[0])).toList();
         } else if (args.length == 2) {
-            return Arrays.stream(ChestType.values()).map(ChestType::getNameWithoutColor)
+            return Arrays.stream(ChestType.values()).map(ChestType::name)
                     .filter(name -> name.startsWith(args[1])).toList();
         }
         return null;

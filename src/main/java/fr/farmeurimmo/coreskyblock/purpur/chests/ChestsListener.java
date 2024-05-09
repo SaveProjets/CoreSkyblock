@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Hopper;
@@ -134,8 +135,10 @@ public class ChestsListener implements Listener {
             if (b.getType() != ChestType.CROP_HOPPER.getMaterial()) continue;
             Hopper hopper = (Hopper) b.getState();
             if (hopper.customName() == null) continue;
-            if (Objects.requireNonNull(hopper.customName()).contains(Component.text(ChestType.CROP_HOPPER.getNameWithoutColor())))
+            if (Objects.requireNonNull(hopper.customName()).contains(Component.text(ChestType.CROP_HOPPER.getNameWithoutColor()))) {
+                Bukkit.broadcast(Component.text("§aItem spawn event" + e.getEntity().getItemStack().getAmount()), "coreskyblock.debug");
                 continue;
+            }
             int amount = InventoryUtils.INSTANCE.getAmountToFillInInv(e.getEntity().getItemStack(), hopper.getInventory());
             if (amount == 0) continue;
             if (amount >= e.getEntity().getItemStack().getAmount()) {
