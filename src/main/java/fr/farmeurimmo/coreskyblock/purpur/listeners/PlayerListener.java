@@ -10,6 +10,9 @@ import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Beacon;
+import org.bukkit.block.Container;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -93,6 +96,18 @@ public class PlayerListener implements Listener {
         if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
         if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
         e.setUseItemInHand(Event.Result.ALLOW);
+        if (e.getClickedBlock() != null) {
+            if (e.getClickedBlock().getState() instanceof Sign) {
+                e.setUseInteractedBlock(Event.Result.DENY);
+            }
+            if (e.getClickedBlock().getState() instanceof Container) {
+                e.setUseInteractedBlock(Event.Result.DENY);
+            }
+            if (e.getClickedBlock().getState() instanceof Beacon) {
+                e.setUseInteractedBlock(Event.Result.DENY);
+            }
+            return;
+        }
         e.setUseInteractedBlock(Event.Result.ALLOW);
         if (e.getItem() != null) {
             if (!e.getItem().getType().isEdible()) e.setCancelled(true);
