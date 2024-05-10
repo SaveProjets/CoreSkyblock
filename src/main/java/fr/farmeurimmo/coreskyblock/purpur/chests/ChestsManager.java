@@ -34,7 +34,7 @@ public class ChestsManager {
         ItemStack item = new ItemStack(type.getMaterial());
 
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(type.getName()));
+        meta.displayName(Component.text((type == ChestType.SELL_CHEST ? getNameFromTier(tier) : type.getName())));
         ArrayList<Component> lore = new ArrayList<>();
         type.getLore().forEach(s -> lore.add(Component.text(s)));
         meta.lore(lore);
@@ -45,6 +45,19 @@ public class ChestsManager {
         return item;
     }
 
+    public String getNameFromTier(int tier) {
+        return SellChestTiers.values()[tier].getNormalName() + " Sell Chest";
+    }
+
+    public int getTierFromName(String name) {
+        for (SellChestTiers tier : SellChestTiers.values()) {
+            if (name.contains(tier.getNormalName())) {
+                return tier.ordinal();
+            }
+        }
+        return 0;
+    }
+
     public void autoSellForSellChests() {
         for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
             if (!island.isLoaded()) continue;
@@ -52,6 +65,8 @@ public class ChestsManager {
 
             for (Chest chest : island.getChests()) {
                 if (chest.getType() != ChestType.SELL_CHEST) continue;
+                SellChestTiers tier = SellChestTiers.values()[chest.getTier()];
+                double sellMultiplier = tier.getSellMultiplier();
 
                 Block block = chest.getBlock().getBlock();
                 if (block.getState() instanceof org.bukkit.block.Chest c) {
@@ -63,7 +78,8 @@ public class ChestsManager {
                         moneyMade += ShopsManager.INSTANCE.getSellPrice(itemStack) * itemStack.getAmount();
                         c.getInventory().remove(itemStack);
                     }
-                    //island.setBankMoney(island.getBankMoney() + moneyMade);
+                    moneyMade *= sellMultiplier;
+                    island.setBankMoney(island.getBankMoney() + moneyMade);
                 }
             }
         }

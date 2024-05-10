@@ -6,7 +6,6 @@ import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Hopper;
@@ -54,10 +53,15 @@ public class ChestsListener implements Listener {
 
             ChestType type = ChestType.getByName(item.getItemMeta().getDisplayName());
             if (type == null) return;
+            int tier = 0;
+            if (type == ChestType.SELL_CHEST) {
+                tier = ChestsManager.INSTANCE.getTierFromName(item.getItemMeta().getDisplayName());
+            }
 
             island.addChest(new Chest(UUID.randomUUID(), island.getIslandUUID(), type, e.getBlock().getLocation(),
-                    null, 0, false, false, 0));
-            p.sendMessage(Component.text("§aVous avez placé un " + type.getName() + "§a sur votre île !"));
+                    null, 0, false, false, tier));
+            p.sendMessage(Component.text("§aVous avez placé un " + (type == ChestType.SELL_CHEST ?
+                    ChestsManager.INSTANCE.getNameFromTier(tier) : type.getName()) + "§a sur votre île !"));
 
             e.setCancelled(false);
         }
@@ -87,8 +91,7 @@ public class ChestsListener implements Listener {
                 e.setCancelled(false);
                 b.setType(Material.AIR);
                 e.setDropItems(false);
-                //FIXME
-                ItemStack item = ChestsManager.INSTANCE.getItemStack(chest.getType(), 0);
+                ItemStack item = ChestsManager.INSTANCE.getItemStack(chest.getType(), chest.getTier());
 
                 if (InventoryUtils.INSTANCE.hasPlaceWithStackCo(item,
                         p.getInventory(), p) <= 0) b.getWorld().dropItemNaturally(b.getLocation(), item);
@@ -130,16 +133,14 @@ public class ChestsListener implements Listener {
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getLocation().getWorld());
         if (island == null) return;
         for (Chest chest : island.getChests()) {
-            if (chest.getType() != ChestType.CROP_HOPPER) continue;
+            if (chest.getType() != ChestType.CYBER_HOPPER) continue;
             if (chest.getBlock().getChunk().getChunkKey() != e.getLocation().getChunk().getChunkKey()) continue;
             Block b = chest.getBlock().getBlock();
-            if (b.getType() != ChestType.CROP_HOPPER.getMaterial()) continue;
+            if (b.getType() != ChestType.CYBER_HOPPER.getMaterial()) continue;
             Hopper hopper = (Hopper) b.getState();
             if (hopper.customName() == null) continue;
-            if (Objects.requireNonNull(hopper.customName()).contains(Component.text(ChestType.CROP_HOPPER.getNameWithoutColor()))) {
-                Bukkit.broadcast(Component.text("§aItem spawn event" + e.getEntity().getItemStack().getAmount()), "coreskyblock.debug");
+            if (Objects.requireNonNull(hopper.customName()).contains(Component.text(ChestType.CYBER_HOPPER.getNameWithoutColor())))
                 continue;
-            }
             int amount = InventoryUtils.INSTANCE.getAmountToFillInInv(e.getEntity().getItemStack(), hopper.getInventory());
             if (amount == 0) continue;
             if (amount >= e.getEntity().getItemStack().getAmount()) {

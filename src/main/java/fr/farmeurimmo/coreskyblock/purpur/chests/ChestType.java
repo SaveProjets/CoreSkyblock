@@ -9,9 +9,9 @@ import java.util.List;
 
 public enum ChestType {
 
-    CROP_HOPPER(0, "§6§lCyber Hopper", Material.HOPPER, List.of("§7Une fois placé, il va automatiquement",
+    CYBER_HOPPER(0, "§6§lCyber Hopper", Material.HOPPER, List.of("§7Une fois placé, il va automatiquement",
             "§7récupérer les items qui tombent dans son chunk", "§7et les téléporter dans son inventaire.")),
-    SELL_CHEST(1, "§6§lSell Chest", Material.CHEST, List.of("§7Une fois placé, il va de temps en temps",
+    SELL_CHEST(1, "Sell Chest", Material.CHEST, List.of("§7Une fois placé, il va de temps en temps",
             "§7vendre les items qui entrent dans son", "§7inventaire et vous donner l'argent.")),
     PLAYER_SHOP(2, "§6§lPlayer Shop", Material.CHEST, List.of("§7Une fois placé, il vous permettra de",
             "§7vendre/acheter des items à d'autres joueurs."));
