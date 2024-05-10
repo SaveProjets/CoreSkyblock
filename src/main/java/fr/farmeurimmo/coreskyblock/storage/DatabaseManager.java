@@ -25,7 +25,6 @@ public class DatabaseManager {
     private final String host;
     private final String user;
     private final String password;
-    private Connection connection;
 
     public DatabaseManager(String host, String user, String password) throws Exception {
         INSTANCE = this;
@@ -48,46 +47,35 @@ public class DatabaseManager {
     }
 
     public void startConnection() throws Exception {
-        try {
-            connection = getConnection();
-            CoreSkyblock.INSTANCE.console.sendMessage("§aSuccessfully connected to the database !");
+        try (Connection connection = getConnection()) {
+            String tableName = "shops";
+            connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tableName + " (uuid VARCHAR(36) PRIMARY KEY, " +
+                    "shopType VARCHAR(20),itemName VARCHAR(255), material VARCHAR(30), buyPrice FLOAT,  sellPrice FLOAT)").executeUpdate();
+
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tableName);
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            if (!resultSet.next()) {
+                CoreSkyblock.INSTANCE.console.sendMessage("Table " + tableName + " is empty, inserting default values...");
+                initTableFromConfig().join();
+            }
         } catch (SQLException e) {
             throw new Exception("Unable to connect to the database");
-        }
-        String tableName = "shops";
-        connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tableName + " (uuid VARCHAR(36) PRIMARY KEY, " +
-                "shopType VARCHAR(20),itemName VARCHAR(255), material VARCHAR(30), buyPrice FLOAT,  sellPrice FLOAT)").executeUpdate();
-
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tableName);
-        statement.execute();
-        ResultSet resultSet = statement.getResultSet();
-        if (!resultSet.next()) {
-            CoreSkyblock.INSTANCE.console.sendMessage("Table " + tableName + " is empty, inserting default values...");
-            initTableFromConfig().join();
         }
     }
 
     public void closeConnection() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        ds.close();
     }
 
     public Connection getConnection() throws SQLException {
-        if (connection == null || !connection.isValid(2)) {
-            connection = ds.getConnection();
-        }
-        return connection;
+        return ds.getConnection();
     }
 
     public CompletableFuture<Void> initTableFromConfig() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        CompletableFuture.runAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             long startTime = System.currentTimeMillis();
-            try {
+            try (Connection connection = getConnection()) {
                 File file = new File(CoreSkyblock.INSTANCE.getDataFolder(), "old-shop.yml");
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
@@ -114,19 +102,15 @@ public class DatabaseManager {
 
                 CoreSkyblock.INSTANCE.console.sendMessage("Successfully inserted " + config.getKeys(false)
                         .size() + " shops in " + (System.currentTimeMillis() - startTime) + "ms");
-                future.complete(null);
             } catch (SQLException e) {
                 e.printStackTrace();
-                future.completeExceptionally(e);
             }
         });
-
-        return future;
     }
 
     public CompletableFuture<ShopPage> getShopPage(ShopType shopType) {
         return CompletableFuture.supplyAsync(() -> {
-            try {
+            try (Connection connection = getConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM shops WHERE shopType = ?");
                 statement.setString(1, shopType.name());
                 statement.execute();

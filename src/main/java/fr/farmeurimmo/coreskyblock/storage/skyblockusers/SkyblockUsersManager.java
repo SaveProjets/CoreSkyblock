@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class SkyblockUsersManager {
 
@@ -22,11 +23,14 @@ public class SkyblockUsersManager {
             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
     public static SkyblockUsersManager INSTANCE;
     private final Map<UUID, SkyblockUser> cache = new HashMap<>();
+    private final LinkedHashMap<String, Double> baltop = new LinkedHashMap<>();
 
     public SkyblockUsersManager() {
         INSTANCE = this;
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
+            LinkedHashMap<String, Double> baltop = getBaltop();
+
             List<UUID> toRemoveModified = new ArrayList<>();
             getCachedUsers().forEach((uuid, user) -> {
                 if (user.isModified()) {
@@ -36,9 +40,19 @@ public class SkyblockUsersManager {
             });
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 toRemoveModified.forEach(uuid -> cache.get(uuid).setModified(false));
+                baltop.clear();
+                this.baltop.putAll(baltop);
                 return null;
             });
-        }, 0, 20 * 60 * 5);
+        }, 0, 20 * 60 * 5 - 20);
+
+        CompletableFuture.runAsync(() -> {
+            LinkedHashMap<String, Double> baltop = getBaltop();
+            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                this.baltop.putAll(baltop);
+                return null;
+            });
+        });
 
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement statement = connection.prepareStatement(CREATE_SKYBLOCK_USERS_TABLE)) {
@@ -123,5 +137,24 @@ public class SkyblockUsersManager {
 
     public Map<UUID, SkyblockUser> getCachedUsers() {
         return cache;
+    }
+
+    private LinkedHashMap<String, Double> getBaltop() {
+        LinkedHashMap<String, Double> baltop = new LinkedHashMap<>();
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT name, money FROM skyblock_users WHERE money > 0 ORDER BY money DESC LIMIT 100");
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                baltop.put(resultSet.getString("name"), resultSet.getDouble("money"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baltop;
+    }
+
+    public final LinkedHashMap<String, Double> getMoneyTop() {
+        return baltop;
     }
 }

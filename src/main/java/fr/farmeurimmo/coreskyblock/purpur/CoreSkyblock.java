@@ -201,6 +201,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("tpa")).setExecutor(new TpaCmd());
         Objects.requireNonNull(getCommand("xp")).setExecutor(new XpCmd());
         Objects.requireNonNull(getCommand("prestige")).setExecutor(new PrestigeCmd());
+        Objects.requireNonNull(getCommand("baltop")).setExecutor(new BaltopCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");

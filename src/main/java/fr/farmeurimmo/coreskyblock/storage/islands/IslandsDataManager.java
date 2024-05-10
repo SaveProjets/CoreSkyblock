@@ -600,15 +600,13 @@ public class IslandsDataManager {
     public LinkedHashMap<Pair<UUID, String>, Double> getIslandTop() {
         LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, level FROM islands WHERE" +
-                     " level > 0 ORDER BY level DESC LIMIT 500")) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    UUID islandUUID = UUID.fromString(result.getString("uuid"));
-                    String islandName = result.getString("name");
-                    double islandLevel = result.getDouble("level");
-                    topIslands.put(Pair.of(islandUUID, islandName), islandLevel);
-                }
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, level FROM islands WHERE level > 0 ORDER BY level DESC LIMIT 500");
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                UUID islandUUID = UUID.fromString(result.getString("uuid"));
+                String islandName = result.getString("name");
+                double islandLevel = result.getDouble("level");
+                topIslands.put(Pair.of(islandUUID, islandName), islandLevel);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -619,15 +617,13 @@ public class IslandsDataManager {
     public LinkedHashMap<Pair<UUID, String>, Double> getIslandTopBankMoney() {
         LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, bank_money FROM islands" +
-                     " WHERE bank_money > 0 ORDER BY bank_money DESC LIMIT 16")) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    UUID islandUUID = UUID.fromString(result.getString("uuid"));
-                    String islandName = result.getString("name");
-                    double islandBankMoney = result.getDouble("bank_money");
-                    topIslands.put(Pair.of(islandUUID, islandName), islandBankMoney);
-                }
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, name, bank_money FROM islands WHERE bank_money > 0 ORDER BY bank_money DESC LIMIT 16");
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                UUID islandUUID = UUID.fromString(result.getString("uuid"));
+                String islandName = result.getString("name");
+                double islandBankMoney = result.getDouble("bank_money");
+                topIslands.put(Pair.of(islandUUID, islandName), islandBankMoney);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -638,15 +634,14 @@ public class IslandsDataManager {
     public LinkedHashMap<Pair<UUID, String>, Double> getIslandTopWarpRate() {
         LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT island_uuid, name, rate FROM " +
-                     "island_warps WHERE rate != -1 ORDER BY rate DESC LIMIT 16")) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
-                    String islandName = result.getString("name");
-                    double islandRate = result.getDouble("rate");
-                    topIslands.put(Pair.of(islandUUID, islandName), islandRate);
-                }
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT island_uuid, name, rate FROM island_warps WHERE rate != -1 ORDER BY rate DESC LIMIT 16");
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                UUID islandUUID = UUID.fromString(result.getString("island_uuid"));
+                String islandName = result.getString("name");
+                double islandRate = result.getDouble("rate");
+                topIslands.put(Pair.of(islandUUID, islandName), islandRate);
             }
         } catch (SQLException e) {
             e.printStackTrace();
