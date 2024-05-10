@@ -52,8 +52,13 @@ commands:
     permission: coreskyblock.fix
   kits:
   tpa:
+  tpahere:
   tpayes:
-  tpadeny:
+    aliases:
+      - tpaccept
+  tpano:
+    aliases:
+      - tpdeny
   xp:
   prestige:
   baltop:
