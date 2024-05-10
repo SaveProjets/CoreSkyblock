@@ -7,10 +7,12 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -24,6 +26,8 @@ public class ChestsManager {
 
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME)
             Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, this::autoSellForSellChests, 0, 20 * 60);
+
+        registerRecipes();
     }
 
     public void giveItem(Player p, ChestType type, int tier) {
@@ -46,7 +50,7 @@ public class ChestsManager {
     }
 
     public String getNameFromTier(int tier) {
-        return SellChestTiers.values()[tier].getNormalName() + " Sell Chest";
+        return ChestType.SELL_CHEST.getName() + " " + SellChestTiers.values()[tier].getNormalName();
     }
 
     public int getTierFromName(String name) {
@@ -56,6 +60,41 @@ public class ChestsManager {
             }
         }
         return 0;
+    }
+
+    public void registerRecipes() {
+        NamespacedKey keyUncommon = new NamespacedKey(CoreSkyblock.INSTANCE, "sell_chest_uncommon");
+        NamespacedKey keyRare = new NamespacedKey(CoreSkyblock.INSTANCE, "sell_chest_rare");
+        NamespacedKey keyEpic = new NamespacedKey(CoreSkyblock.INSTANCE, "sell_chest_epic");
+        NamespacedKey keyLegendary = new NamespacedKey(CoreSkyblock.INSTANCE, "sell_chest_legendary");
+        NamespacedKey keyMythic = new NamespacedKey(CoreSkyblock.INSTANCE, "sell_chest_mythic");
+
+        ShapedRecipe recipeUncommon = new ShapedRecipe(keyUncommon, getItemStack(ChestType.SELL_CHEST, 1));
+        ShapedRecipe recipeRare = new ShapedRecipe(keyRare, getItemStack(ChestType.SELL_CHEST, 2));
+        ShapedRecipe recipeEpic = new ShapedRecipe(keyEpic, getItemStack(ChestType.SELL_CHEST, 3));
+        ShapedRecipe recipeLegendary = new ShapedRecipe(keyLegendary, getItemStack(ChestType.SELL_CHEST, 4));
+        ShapedRecipe recipeMythic = new ShapedRecipe(keyMythic, getItemStack(ChestType.SELL_CHEST, 5));
+
+        recipeUncommon.shape("CC");
+        recipeUncommon.setIngredient('C', ChestsManager.INSTANCE.getItemStack(ChestType.SELL_CHEST, 0));
+
+        recipeRare.shape("CC");
+        recipeRare.setIngredient('C', ChestsManager.INSTANCE.getItemStack(ChestType.SELL_CHEST, 1));
+
+        recipeEpic.shape("CC");
+        recipeEpic.setIngredient('C', ChestsManager.INSTANCE.getItemStack(ChestType.SELL_CHEST, 2));
+
+        recipeLegendary.shape("CC");
+        recipeLegendary.setIngredient('C', ChestsManager.INSTANCE.getItemStack(ChestType.SELL_CHEST, 3));
+
+        recipeMythic.shape("CC");
+        recipeMythic.setIngredient('C', ChestsManager.INSTANCE.getItemStack(ChestType.SELL_CHEST, 4));
+
+        Bukkit.addRecipe(recipeUncommon);
+        Bukkit.addRecipe(recipeRare);
+        Bukkit.addRecipe(recipeEpic);
+        Bukkit.addRecipe(recipeLegendary);
+        Bukkit.addRecipe(recipeMythic);
     }
 
     public void autoSellForSellChests() {

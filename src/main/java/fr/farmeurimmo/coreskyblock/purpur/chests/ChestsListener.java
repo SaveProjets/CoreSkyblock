@@ -36,6 +36,24 @@ public class ChestsListener implements Listener {
         if (e.isCancelled()) return;
 
         ItemStack item = e.getItemInHand();
+
+        //search if there is a sell chest just next to the block the player is trying to place and prevent him from placing it
+        if (ChestType.getMaterials().contains(e.getBlock().getType())) {
+            if (IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) {
+                Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getBlock().getWorld());
+                for (Chest chest : island.getChests()) {
+                    if (chest.getType() == ChestType.SELL_CHEST) {
+                        if (chest.getBlock().distance(e.getBlock().getLocation()) <= 1) {
+                            if (e.getBlockPlaced().getFace(e.getBlockAgainst()) != chest.getBlock().getBlock().getFace(chest.getBlock().getBlock())) {
+                                e.setCancelled(true);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         if (item.getItemMeta() == null) return;
         if (!item.hasDisplayName()) return;
         if (!item.isUnbreakable()) return;
