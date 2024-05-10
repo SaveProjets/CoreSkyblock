@@ -76,8 +76,9 @@ public class SkyblockUsersManager {
             }
         }
 
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "SELECT * FROM skyblock_users WHERE uuid = ?")) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT * FROM skyblock_users WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -110,11 +111,12 @@ public class SkyblockUsersManager {
         JedisManager.INSTANCE.sendToRedis("coreskyblock:user:" + user.getUuid(),
                 CoreSkyblock.INSTANCE.gson.toJson(user.toJson()));
 
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "INSERT INTO skyblock_users (uuid, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = ?, money = ?, " +
-                        "adventure_exp = ?, adventure_level = ?, fly_time = ?, current_prestige_level = ?, " +
-                        "last_prestige_level_claimed = ?, current_premium_prestige_level = ?, " +
-                        "last_premium_prestige_level_claimed = ?, own_premium_prestige = ?, updated_at = CURRENT_TIMESTAMP")) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "INSERT INTO skyblock_users (uuid, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = ?, money = ?, " +
+                             "adventure_exp = ?, adventure_level = ?, fly_time = ?, current_prestige_level = ?, " +
+                             "last_prestige_level_claimed = ?, current_premium_prestige_level = ?, " +
+                             "last_premium_prestige_level_claimed = ?, own_premium_prestige = ?, updated_at = CURRENT_TIMESTAMP")) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
 

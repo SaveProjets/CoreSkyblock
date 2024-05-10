@@ -22,22 +22,23 @@ public class AgricultureCycleDataManager {
         INSTANCE = this;
 
         try {
-            createTable(DatabaseManager.INSTANCE.getConnection());
+            createTable();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void createTable(Connection connection) {
-        try {
-            connection.prepareStatement(AgricultureCycleDataManager.CREATE_AGRICULTURE_CYCLES_TABLE).executeUpdate();
-        } catch (Exception e) {
+    public void createTable() {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement(CREATE_AGRICULTURE_CYCLES_TABLE)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void executeUpdate(Connection connection, Object... parameters) {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO agriculture_cycles " +
+    public void executeUpdate(Object... parameters) {
+        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement("INSERT INTO agriculture_cycles " +
                 "(id, start_time, end_time, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW()) " +
                 "ON DUPLICATE KEY UPDATE start_time = ?, end_time = ?, updated_at = NOW()")) {
             for (int i = 0; i < parameters.length; i++) {
@@ -50,17 +51,12 @@ public class AgricultureCycleDataManager {
     }
 
     public void updateSeason(AgricultureCycleSeason season) {
-        try {
-            executeUpdate(DatabaseManager.INSTANCE.getConnection(), season.id(), season.startTime(), season.endTime(),
-                    season.startTime(), season.endTime());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        executeUpdate(season.id(), season.startTime(), season.endTime(), season.startTime(), season.endTime());
     }
 
     public AgricultureCycleSeason getCurrentSeason() {
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement("SELECT * " +
-                "FROM agriculture_cycles ORDER BY id DESC LIMIT 1")) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM agriculture_cycles ORDER BY id DESC LIMIT 1")) {
             var resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return new AgricultureCycleSeason(resultSet.getInt("id"), resultSet.getLong("start_time"), resultSet.getLong("end_time"));

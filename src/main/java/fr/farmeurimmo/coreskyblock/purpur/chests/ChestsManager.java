@@ -26,11 +26,11 @@ public class ChestsManager {
             Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, this::autoSellForSellChests, 0, 20 * 60);
     }
 
-    public void giveItem(Player p, ChestType type) {
-        p.getInventory().addItem(getItemStack(type));
+    public void giveItem(Player p, ChestType type, int tier) {
+        p.getInventory().addItem(getItemStack(type, tier));
     }
 
-    public ItemStack getItemStack(ChestType type) {
+    public ItemStack getItemStack(ChestType type, int tier) {
         ItemStack item = new ItemStack(type.getMaterial());
 
         ItemMeta meta = item.getItemMeta();

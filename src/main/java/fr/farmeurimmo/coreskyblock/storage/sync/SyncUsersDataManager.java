@@ -20,26 +20,24 @@ public class SyncUsersDataManager {
     public SyncUsersDataManager() {
         INSTANCE = this;
 
-        try {
-            createTable(DatabaseManager.INSTANCE.getConnection());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        createTable();
     }
 
-    private void createTable(Connection connection) {
-        try (PreparedStatement statement = connection.prepareStatement(SyncUsersDataManager.CREATE_INVENTORIES_TABLE)) {
+    private void createTable() {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement(SyncUsersDataManager.CREATE_INVENTORIES_TABLE)) {
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void executeUpdate(Connection connection, Object... parameters) {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO skyblock_users_inventories " +
-                "(uuid, inventory, health, food, exp, level, potions, created_at, updated_at) VALUES (?, ?, ?, ?, ?, " +
-                "?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, food = ?, exp = ?, level = ?, " +
-                "potions = ?, updated_at = NOW()")) {
+    private void executeUpdate(Object... parameters) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("INSERT INTO skyblock_users_inventories " +
+                     "(uuid, inventory, health, food, exp, level, potions, created_at, updated_at) VALUES (?, ?, ?, ?, ?, " +
+                     "?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE inventory = ?, health = ?, food = ?, exp = ?, level = ?, " +
+                     "potions = ?, updated_at = NOW()")) {
             for (int i = 0; i < parameters.length; i++) {
                 statement.setObject(i + 1, parameters[i]);
             }
@@ -50,20 +48,16 @@ public class SyncUsersDataManager {
     }
 
     public void saveInventory(SyncUser syncUser) {
-        try {
-            String potions = InventorySyncUtils.INSTANCE.potionEffectsToStringJson(syncUser.getPotionEffects());
-            executeUpdate(DatabaseManager.INSTANCE.getConnection(),
-                    syncUser.getUuid().toString(), syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(),
-                    syncUser.getExp(), syncUser.getLevel(), potions, syncUser.getInventory(), syncUser.getHealth(),
-                    syncUser.getFood(), syncUser.getExp(), syncUser.getLevel(), potions);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String potions = InventorySyncUtils.INSTANCE.potionEffectsToStringJson(syncUser.getPotionEffects());
+        executeUpdate(syncUser.getUuid().toString(), syncUser.getInventory(), syncUser.getHealth(), syncUser.getFood(),
+                syncUser.getExp(), syncUser.getLevel(), potions, syncUser.getInventory(), syncUser.getHealth(),
+                syncUser.getFood(), syncUser.getExp(), syncUser.getLevel(), potions);
     }
 
     public SyncUser getInventory(UUID uuid) {
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "SELECT * FROM skyblock_users_inventories WHERE uuid = ?")) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT * FROM skyblock_users_inventories WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
             statement.execute();
 

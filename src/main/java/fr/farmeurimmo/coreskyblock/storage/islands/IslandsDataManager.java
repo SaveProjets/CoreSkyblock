@@ -45,7 +45,7 @@ public class IslandsDataManager {
     private static final String CREATE_ISLAND_CHESTS_TABLE = "CREATE TABLE IF NOT EXISTS island_chests " +
             "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), type_id INT, block VARCHAR(255), " +
             "item_to_buy_sell VARCHAR(255), price DOUBLE, is_sell BOOLEAN, active_sell_or_buy BOOLEAN, " +
-            "amount_of_stacked_blocks BIGINT, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) " +
+            "tier TINYINT, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) " +
             "REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_WARPS_TABLE = "CREATE TABLE IF NOT EXISTS island_warps " +
             "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), name VARCHAR(255), description VARCHAR(1024), " +
@@ -108,8 +108,8 @@ public class IslandsDataManager {
     }
 
     public UUID getIslandByMember(UUID memberUUID) {
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "SELECT island_uuid FROM island_members WHERE uuid = ?")) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM island_members WHERE uuid = ?")) {
             statement.setString(1, memberUUID.toString());
             statement.executeQuery();
 
@@ -124,8 +124,8 @@ public class IslandsDataManager {
     }
 
     public Island getIsland(UUID uuid) {
-        try (PreparedStatement statement = DatabaseManager.INSTANCE.getConnection().prepareStatement(
-                "SELECT * FROM islands WHERE uuid = ?")) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM islands WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
             statement.executeQuery();
 
@@ -268,17 +268,17 @@ public class IslandsDataManager {
     public void updateIslandChests(Connection connection, Island island) {
         for (Chest chest : island.getChests()) {
             String query = "INSERT IGNORE INTO island_chests (uuid, island_uuid, type_id, block, item_to_buy_sell, " +
-                    "price, is_sell, " + "active_sell_or_buy, amount_of_stacked_blocks, created_at, updated_at) VALUES "
+                    "price, is_sell, " + "active_sell_or_buy, tier, created_at, updated_at) VALUES "
                     + "(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE " +
                     "type_id = ?, block = ?, item_to_buy_sell = ?, price = ?, is_sell = ?, active_sell_or_buy = ?, " +
-                    "amount_of_stacked_blocks = ?, updated_at = CURRENT_TIMESTAMP";
+                    "tier = ?, updated_at = CURRENT_TIMESTAMP";
             executeUpdate(connection, query, chest.getUuid().toString(), island.getIslandUUID().toString(),
                     chest.getType().getId(), LocationTranslator.fromLocation(chest.getBlock()),
                     InventorySyncUtils.INSTANCE.itemStackToBase64(chest.getItemToBuySell()), chest.getPrice(),
-                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getAmountOfStackedBlocks(),
+                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getTier(),
                     chest.getType().getId(), LocationTranslator.fromLocation(chest.getBlock()),
                     InventorySyncUtils.INSTANCE.itemStackToBase64(chest.getItemToBuySell()), chest.getPrice(),
-                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getAmountOfStackedBlocks());
+                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getTier());
         }
     }
 
@@ -410,10 +410,9 @@ public class IslandsDataManager {
                     double price = result.getDouble("price");
                     boolean isSell = result.getBoolean("is_sell");
                     boolean activeSellOrBuy = result.getBoolean("active_sell_or_buy");
-                    long amountOfStackedBlocks = result.getLong("amount_of_stacked_blocks");
+                    int tier = result.getInt("tier");
                     chests.add(new Chest(chestUUID, islandUUID, ChestType.getById(typeId),
-                            LocationTranslator.fromString(block), itemToBuySell, price, isSell, activeSellOrBuy,
-                            amountOfStackedBlocks));
+                            LocationTranslator.fromString(block), itemToBuySell, price, isSell, activeSellOrBuy, tier));
                 }
             }
         } catch (Exception e) {
@@ -539,12 +538,12 @@ public class IslandsDataManager {
     public void saveIslandChests(Connection connection, UUID islandUUID, List<Chest> chests) {
         for (Chest chest : chests) {
             String query = "INSERT INTO island_chests (uuid, island_uuid, type_id, block, item_to_buy_sell, price, " +
-                    "is_sell, active_sell_or_buy, amount_of_stacked_blocks, created_at, updated_at) VALUES " +
+                    "is_sell, active_sell_or_buy, tier, created_at, updated_at) VALUES " +
                     "(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
             executeUpdate(connection, query, chest.getUuid().toString(), islandUUID.toString(), chest.getType().getId(),
                     LocationTranslator.fromLocation(chest.getBlock()),
                     InventorySyncUtils.INSTANCE.itemStackToBase64(chest.getItemToBuySell()), chest.getPrice(),
-                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getAmountOfStackedBlocks());
+                    chest.isSell(), chest.isActiveSellOrBuy(), chest.getTier());
         }
     }
 

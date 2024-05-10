@@ -16,14 +16,14 @@ public class Chest {
     private final UUID islandId;
     private final ChestType type;
     private final Location block;
+    private final int tier;
     private ItemStack itemToBuySell;
     private double price;
     private boolean isSell;
     private boolean activeSellOrBuy;
-    private long amountOfStackedBlocks;
 
     public Chest(UUID uuid, UUID islandId, ChestType type, Location block, ItemStack itemToBuySell, double price,
-                 boolean isSell, boolean activeSellOrBuy, long amountOfStackedBlocks) {
+                 boolean isSell, boolean activeSellOrBuy, int tier) {
         this.uuid = uuid;
         this.islandId = islandId;
         this.type = type;
@@ -32,7 +32,7 @@ public class Chest {
         this.price = price;
         this.isSell = isSell;
         this.activeSellOrBuy = activeSellOrBuy;
-        this.amountOfStackedBlocks = amountOfStackedBlocks;
+        this.tier = tier;
     }
 
     public static Chest fromJson(JsonObject json) {
@@ -50,8 +50,8 @@ public class Chest {
             price = json.get("price").getAsDouble();
         boolean isSell = json.get("isSell").getAsBoolean();
         boolean activeSellOrBuy = json.get("activeSellOrBuy").getAsBoolean();
-        long amountOfStackedBlocks = json.get("amountOfStackedBlocks").getAsLong();
-        return new Chest(uuid, islandId, type, block, itemToBuySell, price, isSell, activeSellOrBuy, amountOfStackedBlocks);
+        int tier = json.get("tier").getAsInt();
+        return new Chest(uuid, islandId, type, block, itemToBuySell, price, isSell, activeSellOrBuy, tier);
     }
 
     public UUID getUuid() {
@@ -120,12 +120,8 @@ public class Chest {
         return activeSellOrBuy ? "§a" : "§c";
     }
 
-    public long getAmountOfStackedBlocks() {
-        return amountOfStackedBlocks;
-    }
-
-    public void setAmountOfStackedBlocks(long amountOfStackedBlocks) {
-        this.amountOfStackedBlocks = amountOfStackedBlocks;
+    public int getTier() {
+        return tier;
     }
 
     public JsonObject toJson() {
@@ -139,7 +135,7 @@ public class Chest {
         if (price != 0) json.addProperty("price", price);
         json.addProperty("isSell", isSell);
         json.addProperty("activeSellOrBuy", activeSellOrBuy);
-        json.addProperty("amountOfStackedBlocks", amountOfStackedBlocks);
+        json.addProperty("tier", tier);
         return json;
     }
 }

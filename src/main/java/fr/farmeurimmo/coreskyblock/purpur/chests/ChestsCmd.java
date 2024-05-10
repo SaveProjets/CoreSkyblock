@@ -18,8 +18,8 @@ public class ChestsCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (args.length != 2) {
-            sender.sendMessage(Component.text("§cErreur, utilisation /chests <joueur> <type>"));
+        if (args.length != 2 && args.length != 3) {
+            sender.sendMessage(Component.text("§cErreur, utilisation /chests <joueur> <type> [tier]"));
             return false;
         }
         Player target = sender.getServer().getPlayer(args[0]);
@@ -32,7 +32,16 @@ public class ChestsCmd implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("§cErreur, coffre/hoppeur inconnu"));
             return false;
         }
-        ChestsManager.INSTANCE.giveItem(target, type);
+        int tier = 0;
+        if (args.length == 3) {
+            try {
+                tier = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(Component.text("§cErreur, tier invalide"));
+                return false;
+            }
+        }
+        ChestsManager.INSTANCE.giveItem(target, type, tier);
         sender.sendMessage(Component.text("§aVous avez donné un " + type.getName() + "§a à §e" + target.getName() + "§a."));
         target.sendMessage(Component.text("§aVous avez reçu un " + type.getName() + "§a de la part de §e" + sender.getName() + "§a."));
         return false;

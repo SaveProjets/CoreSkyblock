@@ -87,7 +87,8 @@ public class ChestsListener implements Listener {
                 e.setCancelled(false);
                 b.setType(Material.AIR);
                 e.setDropItems(false);
-                ItemStack item = ChestsManager.INSTANCE.getItemStack(chest.getType());
+                //FIXME
+                ItemStack item = ChestsManager.INSTANCE.getItemStack(chest.getType(), 0);
 
                 if (InventoryUtils.INSTANCE.hasPlaceWithStackCo(item,
                         p.getInventory(), p) <= 0) b.getWorld().dropItemNaturally(b.getLocation(), item);
