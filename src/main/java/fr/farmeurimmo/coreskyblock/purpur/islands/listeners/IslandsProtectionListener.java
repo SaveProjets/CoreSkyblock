@@ -80,6 +80,10 @@ public class IslandsProtectionListener implements Listener {
                 if (island.getCoops().containsKey(e.getPlayer().getUniqueId())) {
                     return;
                 }
+                if (IslandsManager.INSTANCE.isBypassing(e.getPlayer().getUniqueId())) {
+                    e.getPlayer().sendMessage(Component.text("§cL'île est privée, mais vous avez bypassé la protection."));
+                    return;
+                }
                 if (!island.getMembers().containsKey(e.getPlayer().getUniqueId())) {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Component.text("§cCette île est privée, vous ne pouvez pas y accéder."));
@@ -435,6 +439,13 @@ public class IslandsProtectionListener implements Listener {
         if (e.getEntity() instanceof Player) return;
         if (e.getEntity().getLocation().getY() < -64) {
             e.getEntity().damage(50);
+        }
+    }
+
+    @EventHandler
+    public void onBlockFromTo(BlockFromToEvent e) {
+        if (e.getBlock().getType() == Material.DRAGON_EGG) {
+            e.setCancelled(true);
         }
     }
 }
