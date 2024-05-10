@@ -41,6 +41,7 @@ public class ChestsListener implements Listener {
         if (ChestType.getMaterials().contains(e.getBlock().getType())) {
             if (IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) {
                 Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getBlock().getWorld());
+                if (island == null) return;
                 for (Chest chest : island.getChests()) {
                     if (chest.getType() == ChestType.SELL_CHEST) {
                         if (chest.getBlock().distance(e.getBlock().getLocation()) <= 1) {
