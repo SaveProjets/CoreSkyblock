@@ -58,7 +58,7 @@ commands:
       - tpaccept
   tpano:
     aliases:
-      - tpdeny
+      - tpadeny
   xp:
   prestige:
   baltop:

@@ -23,6 +23,29 @@ Autres cas à définir.
 
 -----------------
 
+# Cross server JOUEUR
+
+## Pubsub
+
+### Liste des joueurs connectés (toutes les 15s)
+
+coreskyblock → player_list{server_name}:{PlayerUUID1;PlayerName1,PlayerUUID2;PlayerName2,...}
+
+### Tpa request
+
+coreskyblock → tpa_request:{sender_uuid}:{sender_name}:{receiver_uuid}:{receiver_name}:{timestamp}:{is_tpa_here}:
+{server_name}
+
+### Tpa accept/yes (retour du serveur où le joueur qui a reçu la demande est connecté)
+
+coreskyblock → tpa_accept:{tpa_type}:{sender_uuid}:{receiver_uuid}:{server_name}
+
+### Tpa deny/no (retour du serveur où le joueur qui a reçu la demande est connecté)
+
+coreskyblock → tpa_deny:{tpa_type}:{sender_uuid}:{receiver_uuid}:{server_name}
+
+-----------------
+
 # Données SKYBLOCK
 
 ## Données de SYNC
@@ -138,7 +161,11 @@ Pas de donnée = Pas d'île.
 
 -----------------
 
-## Données SKYBLOCK_USER (CACHE EN RÉFLEXION)
+## Données SKYBLOCK_USERS
+
+### Mise en cache redis
+
+coreskyblock:user:{uuid}:{data}
 
 
 

@@ -8,10 +8,13 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
+import fr.farmeurimmo.coreskyblock.purpur.tpa.TpaRequest;
+import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,6 +22,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -383,6 +387,125 @@ public class JedisManager {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
+                        }
+                        return;
+                    }
+                    if (args[0].equalsIgnoreCase("player_list")) {
+                        String serverName = args[1];
+                        if (args.length < 3) {
+                            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                CoreSkyblock.INSTANCE.skyblockPlayers.put(serverName, new ArrayList<>());
+                                return null;
+                            });
+                            return;
+                        }
+
+                        String players = args[2];
+                        if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                            return;
+                        }
+                        ArrayList<Pair<UUID, String>> playersList = new ArrayList<>();
+                        String[] split = players.split(",");
+                        for (String player : split) {
+                            String[] playerSplit = player.split(";");
+                            playersList.add(Pair.of(UUID.fromString(playerSplit[0]), playerSplit[1]));
+                        }
+                        Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                            CoreSkyblock.INSTANCE.skyblockPlayers.put(serverName, playersList);
+                            return null;
+                        });
+                    }
+                    if (args[0].equalsIgnoreCase("tpa_request")) {
+                        try {
+                            UUID sender = UUID.fromString(args[1]);
+                            String senderName = args[2];
+                            UUID receiver = UUID.fromString(args[3]);
+                            String receiverName = args[4];
+                            long timestamp = Long.parseLong(args[5]);
+                            boolean isTpaHere = Boolean.parseBoolean(args[6]);
+                            String serverName = args[7];
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
+                            TpasManager.INSTANCE.addTpaRequest(new TpaRequest(sender, senderName, receiver, receiverName, timestamp, isTpaHere));
+                            Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(receiver);
+                            if (p != null) {
+                                if (isTpaHere) {
+                                    p.sendMessage(TpasManager.INSTANCE.getTpaHereComponent(senderName));
+                                } else {
+                                    p.sendMessage(TpasManager.INSTANCE.getTpaComponent(senderName));
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return;
+                    }
+                    if (args[0].equalsIgnoreCase("tpahere")) {
+                        return;
+                    }
+                    if (args[0].equalsIgnoreCase("tpa_accept")) {
+                        try {
+                            String type = args[1];
+                            UUID sender = UUID.fromString(args[2]);
+                            UUID receiver = UUID.fromString(args[3]);
+                            String serverName = args[4];
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
+
+                            if (type.equalsIgnoreCase("tpa")) {
+                                if (!TpasManager.INSTANCE.alreadyHasTpaRequest(sender, receiver)) {
+                                    return;
+                                }
+                                Player senderP = CoreSkyblock.INSTANCE.getServer().getPlayer(sender);
+                                if (senderP == null) {
+                                    return;
+                                }
+                                senderP.sendMessage(Component.text("§aVotre demande de téléportation a été acceptée. Envoi en cours..."));
+                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                                out.writeUTF("Connect");
+                                out.writeUTF(serverName);
+                                senderP.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
+                                return;
+                            }
+                            if (type.equalsIgnoreCase("tpahere")) {
+                                if (!TpasManager.INSTANCE.alreadyHasTpaHereRequest(sender, receiver)) {
+                                    return;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (args[0].equalsIgnoreCase("tpa_deny")) {
+                        try {
+                            String type = args[1];
+                            UUID sender = UUID.fromString(args[2]);
+                            UUID receiver = UUID.fromString(args[3]);
+                            String serverName = args[4];
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
+
+                            if (type.equalsIgnoreCase("tpa")) {
+                                if (!TpasManager.INSTANCE.alreadyHasTpaRequest(sender, receiver)) {
+                                    return;
+                                }
+                                TpasManager.INSTANCE.removeTpaRequest(sender, receiver, false);
+                                Player senderP = CoreSkyblock.INSTANCE.getServer().getPlayer(sender);
+                                if (senderP != null) {
+                                    senderP.sendMessage(Component.text("§cVotre demande de téléportation a été refusée."));
+                                }
+                                return;
+                            }
+                            if (type.equalsIgnoreCase("tpahere")) {
+                                if (!TpasManager.INSTANCE.alreadyHasTpaHereRequest(sender, receiver)) {
+                                    return;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 }

@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
+import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.TradesManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
@@ -31,7 +32,9 @@ public class PlayerListener implements Listener {
         e.joinMessage(null);
         ScoreboardManager.INSTANCE.addPlayer(p);
 
-        p.teleportAsync(CoreSkyblock.SPAWN);
+        if (!TpasManager.INSTANCE.onJoin(p)) {
+            p.teleportAsync(CoreSkyblock.SPAWN);
+        }
 
         CompletableFuture.runAsync(() -> {
             SyncUsersManager.INSTANCE.startPlayerSync(p);

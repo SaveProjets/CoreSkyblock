@@ -47,6 +47,7 @@ import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInvManager;
+import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -57,9 +58,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public final class CoreSkyblock extends JavaPlugin {
 
@@ -71,6 +70,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public static Location ENCHANTING_TABLE_LOCATION;
     public static String SERVER_NAME;
     public final Gson gson = new Gson();
+    public final Map<String, ArrayList<Pair<UUID, String>>> skyblockPlayers = new HashMap<>();
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
@@ -213,7 +213,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 3);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 15);
         clockForBuildMode();
         if (SERVER_TYPE == ServerType.GAME) {
             setupEnchantingTable();
@@ -297,12 +297,14 @@ public final class CoreSkyblock extends JavaPlugin {
     public void clockSendPlayerConnectedToRedis() {
         ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         StringBuilder sb = new StringBuilder();
+        ArrayList<Pair<UUID, String>> playerList = new ArrayList<>();
         for (Player player : players) {
-            sb.append(player.getUniqueId()).append(":").append(player.getName()).append(",");
+            sb.append(player.getUniqueId()).append(";").append(player.getName()).append(",");
+            playerList.add(Pair.of(player.getUniqueId(), player.getName()));
         }
         if (!sb.isEmpty()) sb.deleteCharAt(sb.length() - 1);
-        //FIXME: redis
-        //JedisManager.INSTANCE.sendToRedis("CoreSkyblock:players:" + SERVER_NAME, sb.toString());
+        skyblockPlayers.put(SERVER_NAME, playerList);
+        JedisManager.INSTANCE.publishToRedis("coreskyblock", "player_list:" + SERVER_NAME + ":" + sb);
     }
 
     public boolean isASpawn(World world) {
@@ -322,5 +324,40 @@ public final class CoreSkyblock extends JavaPlugin {
             }
             buildModePlayers.removeAll(toRemove);
         }, 0, 20);
+    }
+
+    public ArrayList<String> getPlayersConnected() {
+        ArrayList<String> players = new ArrayList<>();
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            for (Pair<UUID, String> pair : entry.getValue()) {
+                players.add(pair.right());
+            }
+        }
+        return players;
+    }
+
+    public ArrayList<String> getSuggestions(String name, String sender) {
+        ArrayList<String> suggestions = new ArrayList<>();
+        for (String player : getPlayersConnected()) {
+            if (player.toLowerCase().startsWith(name.toLowerCase()) && !player.equalsIgnoreCase(sender)) {
+                suggestions.add(player);
+            }
+        }
+        return suggestions;
+    }
+
+    public boolean isPlayerConnected(String name) {
+        return getPlayersConnected().contains(name);
+    }
+
+    public Pair<UUID, String> getPlayerFromName(String name) {
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            for (Pair<UUID, String> pair : entry.getValue()) {
+                if (pair.right().equalsIgnoreCase(name)) {
+                    return pair;
+                }
+            }
+        }
+        return null;
     }
 }
