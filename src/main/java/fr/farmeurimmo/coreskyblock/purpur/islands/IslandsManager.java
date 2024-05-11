@@ -74,7 +74,7 @@ public class IslandsManager {
                         island.update(true);
                     }
                 }
-            }, 0, 20 * 60);
+            }, 0, 20 * 30);
 
             Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
                 for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
@@ -566,6 +566,12 @@ public class IslandsManager {
     }
 
     public void askOthersServersForMembersOnline(Island island) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (island.getMembers().containsKey(p.getUniqueId())) {
+                return;
+            }
+        }
+
         awaitingResponseFromServerTime.put(island.getIslandUUID(), System.currentTimeMillis());
 
         CompletableFuture.runAsync(() -> {
@@ -580,7 +586,7 @@ public class IslandsManager {
             Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task) -> {
                 if (awaitingResponseFromServerTime.containsKey(island.getIslandUUID())) {
                     long time = awaitingResponseFromServerTime.get(island.getIslandUUID());
-                    if (System.currentTimeMillis() - time > 1_000 * 60 * 10) {
+                    if (System.currentTimeMillis() - time > 1_000 * 60 * 5) {
                         Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                             awaitingResponseFromServerTime.remove(island.getIslandUUID());
                             unload(island, true, false);

@@ -118,7 +118,7 @@ public class ChestsManager {
                         c.getInventory().remove(itemStack);
                     }
                     moneyMade *= sellMultiplier;
-                    island.setBankMoney(island.getBankMoney() + moneyMade);
+                    if (moneyMade > 0) island.setBankMoney(island.getBankMoney() + moneyMade);
                 }
             }
         }

@@ -49,6 +49,7 @@ public class Island {
     private boolean areBannedPlayersModified = false; // not saved
     private boolean areSettingsModified = false; // not saved
     private boolean areChestsModified = false; // not saved
+    private boolean isBankModified = false; // not saved
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
@@ -294,7 +295,8 @@ public class Island {
 
     public void setBankMoney(double bankMoney) {
         this.bankMoney = bankMoney;
-        update(true);
+
+        isBankModified = true;
     }
 
     public ArrayList<UUID> getBannedPlayers() {
@@ -387,34 +389,47 @@ public class Island {
     public void update(boolean async) {
         if (async) {
             CompletableFuture.runAsync(() -> {
+                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    setUpdates(false);
+                    return null;
+                });
+
+                try {
+                    JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, CoreSkyblock.INSTANCE.gson
+                            .toJson(toJson()));
+                    pubSub(false);
+                    IslandsDataManager.INSTANCE.update(this, areMembersModified,
+                            arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified);
+                } catch (Exception e) {
+                    setUpdates(true);
+                    e.printStackTrace();
+                }
+
+            });
+        } else {
+            try {
+                setUpdates(false);
+
                 JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, CoreSkyblock.INSTANCE.gson
                         .toJson(toJson()));
-                pubSub(false);
-                IslandsDataManager.INSTANCE.update(this, areMembersModified,
-                        arePermsModified, areBannedPlayersModified, areSettingsModified, areChestsModified);
-            }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                isModified = false;
-                areMembersModified = false;
-                arePermsModified = false;
-                areBannedPlayersModified = false;
-                areSettingsModified = false;
-                areChestsModified = false;
-                return null;
-            }));
-        } else {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + islandUUID, CoreSkyblock.INSTANCE.gson
-                    .toJson(toJson()));
-            IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
-                    areBannedPlayersModified, areSettingsModified, areChestsModified);
-            pubSub(true);
-
-            isModified = false;
-            areMembersModified = false;
-            arePermsModified = false;
-            areBannedPlayersModified = false;
-            areSettingsModified = false;
-            areChestsModified = false;
+                IslandsDataManager.INSTANCE.update(this, areMembersModified, arePermsModified,
+                        areBannedPlayersModified, areSettingsModified, areChestsModified);
+                pubSub(true);
+            } catch (Exception e) {
+                setUpdates(true);
+                e.printStackTrace();
+            }
         }
+    }
+
+    private void setUpdates(boolean state) {
+        isModified = state;
+        areMembersModified = state;
+        arePermsModified = state;
+        areBannedPlayersModified = state;
+        areSettingsModified = state;
+        areChestsModified = state;
+        isBankModified = state;
     }
 
     public void pubSub(boolean async) {
@@ -435,6 +450,7 @@ public class Island {
         if (arePermsModified) return true;
         if (areSettingsModified) return true;
         if (areChestsModified) return true;
+        if (isBankModified) return true;
         return areBannedPlayersModified;
     }
 
@@ -626,7 +642,7 @@ public class Island {
     }
 
     public boolean isLoadTimeout() {
-        return getLoadTimeout() != -1 && System.currentTimeMillis() - getLoadTimeout() > 1000 * 60 * 10;
+        return getLoadTimeout() != -1 && System.currentTimeMillis() - getLoadTimeout() > 1000 * 60 * 5;
     }
 
     public long getLoadTimeout() {
