@@ -45,7 +45,7 @@ public class TpaCmd implements CommandExecutor, TabCompleter {
         }
         if (TpasManager.INSTANCE.alreadyHasTpaRequest(p.getUniqueId(), player.left())) {
             p.sendMessage(Component.text("§cVous avez déjà envoyé une demande de téléportation à ce joueur. Elle expirera dans " +
-                    DateUtils.getFormattedTimeLeft((int) (TpasManager.INSTANCE.getTpaRequestExpireTime(p.getUniqueId(), player.left()) / 1000)) + " secondes."));
+                    DateUtils.getFormattedTimeLeft2(TpasManager.INSTANCE.getTpaRequestExpireTime(p.getUniqueId(), player.left()) / 1000) + "."));
             return false;
         }
         TpasManager.INSTANCE.createTpaRequest(p.getUniqueId(), p.getName(), player.left(), player.right(), false);

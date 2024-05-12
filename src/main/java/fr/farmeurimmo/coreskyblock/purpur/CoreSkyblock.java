@@ -59,6 +59,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public final class CoreSkyblock extends JavaPlugin {
 
@@ -213,7 +214,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::clockSendPlayerConnectedToRedis, 0, 20 * 15);
+        CompletableFuture.runAsync(this::clockSendPlayerConnectedToRedis);
         clockForBuildMode();
         if (SERVER_TYPE == ServerType.GAME) {
             setupEnchantingTable();
@@ -355,6 +356,17 @@ public final class CoreSkyblock extends JavaPlugin {
             for (Pair<UUID, String> pair : entry.getValue()) {
                 if (pair.right().equalsIgnoreCase(name)) {
                     return pair;
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getServerNameWherePlayerIsConnected(UUID uuid) {
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            for (Pair<UUID, String> pair : entry.getValue()) {
+                if (pair.left().equals(uuid)) {
+                    return entry.getKey();
                 }
             }
         }

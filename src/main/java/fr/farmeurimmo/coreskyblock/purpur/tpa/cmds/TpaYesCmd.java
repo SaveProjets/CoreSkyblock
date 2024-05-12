@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.tpa.cmds;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
@@ -13,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class TpaYesCmd implements CommandExecutor {
 
@@ -56,7 +59,29 @@ public class TpaYesCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVous n'avez pas de demande de téléportation de la part de ce joueur."));
                 return false;
             }
+            TpasManager.INSTANCE.removeTpaRequest(player.left(), p.getUniqueId(), true);
+            Player senderPlayer = Bukkit.getPlayer(player.left());
+            if (senderPlayer != null) {
+                senderPlayer.sendMessage(Component.text("§e" + p.getName() + " §7a accepté votre demande de téléportation."));
+                p.teleport(senderPlayer);
+                p.sendMessage(Component.text("§7Vous avez accepté la demande de téléportation de §e" + targetName + "§7."));
+                return false;
+            }
+            String to = CoreSkyblock.INSTANCE.getServerNameWherePlayerIsConnected(player.left());
+            if (to == null) {
+                p.sendMessage(Component.text("§cUne erreur est survenue lors de la récupération du serveur du joueur."));
+                return false;
+            }
 
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                    "tpa_accept:tpahere:" + player.left() + ":" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME));
+
+            p.sendMessage(Component.text("§7Vous avez accepté la demande de téléportation de §e" + targetName + "§7. Envoi à l'autre serveur..."));
+
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(to);
+            p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
             return false;
         }
         p.sendMessage(Component.text("§cUtilisation: /tpaccept <tpa/tpahere> <joueur>"));

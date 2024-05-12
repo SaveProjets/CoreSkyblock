@@ -17,6 +17,7 @@ public class TpasManager {
     public static final long TPA_REQUEST_EXPIRE_TIME = 30_000L;
     public static TpasManager INSTANCE;
     public final Map<UUID, UUID> incomingPlayersTpa = new HashMap<>();
+    public final Map<UUID, UUID> incomingPlayersTpaHere = new HashMap<>();
     private final ArrayList<TpaRequest> tpaRequests = new ArrayList<>();
 
     public TpasManager() {
@@ -75,7 +76,11 @@ public class TpasManager {
     }
 
     public long getTpaRequestExpireTime(UUID sender, UUID receiver) {
-        return System.currentTimeMillis() - tpaRequests.stream().filter(request -> request.sender().equals(sender) && request.receiver().equals(receiver)).findFirst().map(TpaRequest::timestamp).orElse(-1L);
+        return (tpaRequests.stream().filter(request -> request.sender().equals(sender) && request.receiver().equals(receiver)).findFirst().map(TpaRequest::timestamp).orElse(-1L) + 30_000 - System.currentTimeMillis()) * 1_000;
+    }
+
+    public long getTpaHereRequestExpireTime(UUID sender, UUID receiver) {
+        return (tpaRequests.stream().filter(request -> request.sender().equals(sender) && request.receiver().equals(receiver) && request.isTpaHere()).findFirst().map(TpaRequest::timestamp).orElse(-1L) + 30_000 - System.currentTimeMillis()) * 1_000;
     }
 
     public boolean onJoin(Player p) {
@@ -89,6 +94,20 @@ public class TpasManager {
                 p.sendMessage(Component.text("§cUne erreur est survenue lors de votre téléportation."));
             }
             incomingPlayersTpa.remove(p.getUniqueId());
+            TpasManager.INSTANCE.removeTpaRequest(sender, p.getUniqueId(), false);
+            return true;
+        }
+        if (incomingPlayersTpaHere.containsKey(p.getUniqueId())) {
+            UUID sender = incomingPlayersTpaHere.get(p.getUniqueId());
+            Player teleportTo = Bukkit.getPlayer(sender);
+            if (teleportTo != null) {
+                p.teleport(teleportTo);
+                p.sendMessage(Component.text("§7Vous avez été téléporté par §e" + teleportTo.getName() + "§7."));
+            } else {
+                p.sendMessage(Component.text("§cUne erreur est survenue lors de votre téléportation."));
+            }
+            incomingPlayersTpaHere.remove(p.getUniqueId());
+            TpasManager.INSTANCE.removeTpaRequest(sender, p.getUniqueId(), true);
             return true;
         }
         return false;

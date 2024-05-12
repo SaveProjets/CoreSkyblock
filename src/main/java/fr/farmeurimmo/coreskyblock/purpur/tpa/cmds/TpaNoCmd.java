@@ -53,6 +53,15 @@ public class TpaNoCmd implements CommandExecutor {
                 p.sendMessage(Component.text("§cVous n'avez pas de demande de téléportation de la part de ce joueur."));
                 return false;
             }
+            TpasManager.INSTANCE.removeTpaRequest(player.left(), p.getUniqueId(), true);
+            p.sendMessage(Component.text("§7Vous avez refusé la demande de téléportation de §e" + targetName + "§7."));
+
+            Player senderPlayer = CoreSkyblock.INSTANCE.getServer().getPlayer(player.left());
+            if (senderPlayer != null) {
+                senderPlayer.sendMessage(Component.text("§e" + p.getName() + " §7a refusé votre demande de téléportation."));
+                return false;
+            }
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "tpa_deny:tpahere:" + player.left() + ":" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME);
             return false;
         }
         p.sendMessage(Component.text("§cUtilisation: /tpadeny <tpa/tpahere> <joueur>"));

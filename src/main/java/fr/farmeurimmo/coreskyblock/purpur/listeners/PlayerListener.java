@@ -56,6 +56,7 @@ public class PlayerListener implements Listener {
                     IslandsManager.INSTANCE.setSpying(p.getUniqueId(), true);
                 }
             }
+            CoreSkyblock.INSTANCE.clockSendPlayerConnectedToRedis();
         });
     }
 
@@ -83,6 +84,9 @@ public class PlayerListener implements Listener {
                 });
             }
         });
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () ->
+                CoreSkyblock.INSTANCE.clockSendPlayerConnectedToRedis(), 20L);
     }
 
     @EventHandler

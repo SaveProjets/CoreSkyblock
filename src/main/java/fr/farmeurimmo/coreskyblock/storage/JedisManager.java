@@ -441,9 +441,6 @@ public class JedisManager {
                         }
                         return;
                     }
-                    if (args[0].equalsIgnoreCase("tpahere")) {
-                        return;
-                    }
                     if (args[0].equalsIgnoreCase("tpa_accept")) {
                         try {
                             String type = args[1];
@@ -473,6 +470,15 @@ public class JedisManager {
                                 if (!TpasManager.INSTANCE.alreadyHasTpaHereRequest(sender, receiver)) {
                                     return;
                                 }
+                                Player senderP = CoreSkyblock.INSTANCE.getServer().getPlayer(sender);
+                                if (senderP == null) {
+                                    return;
+                                }
+                                senderP.sendMessage(Component.text("§aVotre demande de téléportation a été acceptée. Le joueur va être téléporté à vous."));
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    TpasManager.INSTANCE.incomingPlayersTpaHere.put(receiver, sender);
+                                    return null;
+                                });
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -503,6 +509,12 @@ public class JedisManager {
                                 if (!TpasManager.INSTANCE.alreadyHasTpaHereRequest(sender, receiver)) {
                                     return;
                                 }
+                                TpasManager.INSTANCE.removeTpaRequest(sender, receiver, true);
+                                Player senderP = CoreSkyblock.INSTANCE.getServer().getPlayer(sender);
+                                if (senderP != null) {
+                                    senderP.sendMessage(Component.text("§cVotre demande de téléportation a été refusée."));
+                                }
+                                return;
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
