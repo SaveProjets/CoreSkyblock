@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
@@ -7,10 +8,12 @@ import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.TradesManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Beacon;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
@@ -20,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -29,12 +33,9 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
 
-        e.joinMessage(null);
         ScoreboardManager.INSTANCE.addPlayer(p);
 
-        if (!TpasManager.INSTANCE.onJoin(p)) {
-            p.teleportAsync(CoreSkyblock.SPAWN);
-        }
+        e.joinMessage(null);
 
         CompletableFuture.runAsync(() -> {
             SyncUsersManager.INSTANCE.startPlayerSync(p);
@@ -58,6 +59,31 @@ public class PlayerListener implements Listener {
             }
             CoreSkyblock.INSTANCE.clockSendPlayerConnectedToRedis();
         });
+    }
+
+    @EventHandler
+    public void onPlayerSpawn(PlayerSpawnLocationEvent e) {
+        Player p = e.getPlayer();
+        Location tpaLocation = TpasManager.INSTANCE.onJoin(p);
+        if (tpaLocation != null) {
+            e.setSpawnLocation(tpaLocation);
+            return;
+        }
+        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+            e.setSpawnLocation(CoreSkyblock.SPAWN);
+            return;
+        }
+        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
+            if (IslandsManager.INSTANCE.teleportToIsland.containsKey(p.getUniqueId())) {
+                Island island = IslandsManager.INSTANCE.getIslandByUUID(IslandsManager.INSTANCE.teleportToIsland.get(p.getUniqueId()));
+                if (island != null) {
+                    e.setSpawnLocation(island.getSpawn());
+                    p.sendMessage(Component.text("§aVous avez été téléporté sur votre île."));
+                    return;
+                }
+            }
+        }
+
     }
 
     @EventHandler

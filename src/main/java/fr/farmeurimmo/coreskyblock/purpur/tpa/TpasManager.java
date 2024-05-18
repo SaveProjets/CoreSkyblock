@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -83,34 +84,35 @@ public class TpasManager {
         return (tpaRequests.stream().filter(request -> request.sender().equals(sender) && request.receiver().equals(receiver) && request.isTpaHere()).findFirst().map(TpaRequest::timestamp).orElse(-1L) + 30_000 - System.currentTimeMillis()) * 1_000;
     }
 
-    public boolean onJoin(Player p) {
+    public Location onJoin(Player p) {
+        Location spawn = null;
         if (incomingPlayersTpa.containsKey(p.getUniqueId())) {
             UUID sender = incomingPlayersTpa.get(p.getUniqueId());
             Player teleportTo = Bukkit.getPlayer(sender);
             if (teleportTo != null) {
-                p.teleport(teleportTo);
+                spawn = teleportTo.getLocation();
                 p.sendMessage(Component.text("§7Vous avez été téléporté à §e" + teleportTo.getName() + "§7."));
             } else {
                 p.sendMessage(Component.text("§cUne erreur est survenue lors de votre téléportation."));
             }
             incomingPlayersTpa.remove(p.getUniqueId());
             TpasManager.INSTANCE.removeTpaRequest(sender, p.getUniqueId(), false);
-            return true;
+            return spawn;
         }
         if (incomingPlayersTpaHere.containsKey(p.getUniqueId())) {
             UUID sender = incomingPlayersTpaHere.get(p.getUniqueId());
             Player teleportTo = Bukkit.getPlayer(sender);
             if (teleportTo != null) {
-                p.teleport(teleportTo);
+                spawn = teleportTo.getLocation();
                 p.sendMessage(Component.text("§7Vous avez été téléporté par §e" + teleportTo.getName() + "§7."));
             } else {
                 p.sendMessage(Component.text("§cUne erreur est survenue lors de votre téléportation."));
             }
             incomingPlayersTpaHere.remove(p.getUniqueId());
             TpasManager.INSTANCE.removeTpaRequest(sender, p.getUniqueId(), true);
-            return true;
+            return spawn;
         }
-        return false;
+        return spawn;
     }
 
     public void removeTpaRequest(UUID sender, UUID receiver, boolean tpaHere) {

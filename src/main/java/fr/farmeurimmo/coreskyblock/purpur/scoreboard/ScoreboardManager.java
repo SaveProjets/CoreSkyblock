@@ -49,11 +49,11 @@ public class ScoreboardManager {
         SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) {
             board.updateTitle("§c§lChargement...");
-            board.updateLines("§c§lVeuillez patienter, vos données", "§c§lsont en cours de chargement...", "", "§f» §c§lplay.edmine.net");
+            board.updateLines("§c§lVeuillez patienter,", "§c§lvos données sont en", "§c§lcours de chargement...", "", "§f» §c§lplay.edmine.net");
             return;
         }
         board.updateTitle("§4»§c» §c§lSKYBLOCK §c«§4«");
-        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
+        if (CoreSkyblock.SERVER_TYPE == ServerType.GAME || CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
             Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
             ArrayList<String> islandLines = new ArrayList<>();
             if (island != null) {

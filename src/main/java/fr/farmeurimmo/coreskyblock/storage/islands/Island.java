@@ -15,6 +15,7 @@ import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -239,12 +240,16 @@ public class Island {
     }
 
     public Location getSpawn() {
-        if (this.spawn == null) {
+        if (this.spawn == null || this.spawn.getWorld() == null) {
             if (isLoaded()) {
                 this.spawn.setWorld(IslandsManager.INSTANCE.getIslandWorld(this.islandUUID));
             }
         }
-        return this.spawn;
+        Location temp = this.spawn.clone();
+        while (temp.getBlock().getType() != Material.AIR) {
+            temp.add(0, 1, 0);
+        }
+        return temp;
     }
 
     public void setSpawn(Location spawn) {

@@ -194,7 +194,11 @@ public class JedisManager {
                                 if (!CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
                                     return;
                                 }
-                                AtomicInteger tries = new AtomicInteger(0);
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    IslandsManager.INSTANCE.teleportToIsland.put(playerUUID, islandUUID);
+                                    return null;
+                                });
+                                /*AtomicInteger tries = new AtomicInteger(0);
                                 Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
                                     if (tries.get() >= 40) {
                                         task.cancel();
@@ -212,7 +216,7 @@ public class JedisManager {
                                     }
                                     IslandsManager.INSTANCE.teleportToIsland(island, p);
                                     task.cancel();
-                                }, 0, 5);
+                                }, 0, 5);*/
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

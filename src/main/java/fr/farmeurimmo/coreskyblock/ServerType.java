@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock;
 
 public enum ServerType {
 
+    SPAWN("spawn"),
     GAME("game"),
     PVE("pve"),
     PVP("pvp");

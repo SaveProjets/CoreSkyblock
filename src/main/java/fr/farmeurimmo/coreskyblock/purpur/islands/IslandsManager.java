@@ -22,7 +22,10 @@ import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -40,6 +43,7 @@ public class IslandsManager {
     public final Map<String, Integer> serversData = new HashMap<>();
     public final Map<UUID, String> awaitingResponseFromServer = new HashMap<>();
     public final Map<UUID, Long> awaitingResponseFromServerTime = new HashMap<>(); //for unload
+    public final Map<UUID, UUID> teleportToIsland = new HashMap<>();
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
     private final ArrayList<UUID> isSpying = new ArrayList<>();
@@ -175,6 +179,13 @@ public class IslandsManager {
             }
         }
         return serverToLoad;
+    }
+
+    public boolean isIslandLoadedHere(UUID uuid) {
+        for (UUID uuidKey : IslandsDataManager.INSTANCE.getCache().keySet()) {
+            if (uuidKey.equals(uuid)) return true;
+        }
+        return false;
     }
 
     public void checkForDataIntegrity(@Nullable String islandUUIDString, @Nullable UUID playerUUID, boolean forceLoad) {
@@ -496,10 +507,6 @@ public class IslandsManager {
         if (island.isLoaded()) {
             long startTime = System.currentTimeMillis();
             p.sendMessage(Component.text("§aTéléportation en cours..."));
-            Location spawn = island.getSpawn();
-            while (spawn.getBlock().getType() != Material.AIR) {
-                spawn.add(0, 1, 0);
-            }
             p.teleportAsync(island.getSpawn()).thenAccept(result -> {
                 if (result) {
                     p.sendMessage(Component.text("§aVous avez été téléporté sur votre île. ("
@@ -527,7 +534,7 @@ public class IslandsManager {
             checkIfIslandIsLoaded(island.getIslandUUID());
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
                 teleportToIsland(island, p);
-            }, 12);
+            }, 30);
         }
     }
 
