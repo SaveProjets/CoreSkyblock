@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
@@ -67,7 +69,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public static String SPAWN_WORLD_NAME = "spawn";
     public static ServerType SERVER_TYPE;
     public static CoreSkyblock INSTANCE;
-    public static Location SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
+    public static Location SPAWN;
     public static Location ENCHANTING_TABLE_LOCATION;
     public static String SERVER_NAME;
     public final Gson gson = new Gson();
@@ -75,6 +77,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
+    public Map<String, Integer> serversLoad = new HashMap<>();
 
     @Override
     public void onLoad() {
@@ -121,8 +124,10 @@ public final class CoreSkyblock extends JavaPlugin {
             SPAWN_WORLD_NAME = "pvp-spawn";
         } else if (SERVER_TYPE == ServerType.PVE) {
             SPAWN_WORLD_NAME = "pve-spawn";
+        } else if (SERVER_TYPE == ServerType.GAME) {
+            SPAWN_WORLD_NAME = "game-spawn";
         }
-        SPAWN.setWorld(Bukkit.getWorld(SPAWN_WORLD_NAME));
+        SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
         World spawnWorld = Bukkit.getWorld(SPAWN_WORLD_NAME);
         if (spawnWorld != null) {
             spawnWorld.setSpawnLocation(SPAWN);
@@ -216,24 +221,33 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des tâches...");
         CompletableFuture.runAsync(this::clockSendPlayerConnectedToRedis);
         clockForBuildMode();
-        if (SERVER_TYPE == ServerType.GAME) {
+        if (SERVER_TYPE == ServerType.SPAWN) {
             setupEnchantingTable();
+
+            serversLoad.put(SERVER_NAME, getSpawnServerLoad());
+
+            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
+                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "spawn:space:" +
+                            CoreSkyblock.SERVER_NAME + ":" + getSpawnServerLoad()), 0, 20);
+
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversLoad.put(SERVER_NAME,
+                    getSpawnServerLoad()), 0, 20);
+
+            World world = Bukkit.getWorld(SPAWN_WORLD_NAME);
+            if (world != null) {
+                world.setSpawnLocation(SPAWN);
+
+                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks du spawn...");
+                long startTime2 = System.currentTimeMillis();
+                for (int x = -9; x <= 9; x++) {
+                    for (int z = -9; z <= 9; z++) {
+                        world.getChunkAt(x, z).setForceLoaded(true);
+                    }
+                }
+                console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks terminé en " + (System.currentTimeMillis() - startTime2) + "ms");
+            }
         }
         optimizeSpawn();
-
-        World world = Bukkit.getWorld(SPAWN_WORLD_NAME);
-        if (world != null) {
-            world.setSpawnLocation(SPAWN);
-
-            console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks du spawn...");
-            long startTime2 = System.currentTimeMillis();
-            for (int x = -9; x <= 9; x++) {
-                for (int z = -9; z <= 9; z++) {
-                    world.getChunkAt(x, z).setForceLoaded(true);
-                }
-            }
-            console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks terminé en " + (System.currentTimeMillis() - startTime2) + "ms");
-        }
 
         console.sendMessage("§b[CoreSkyblock] §aDémarrage du plugin CoreSkyblock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }
@@ -371,5 +385,31 @@ public final class CoreSkyblock extends JavaPlugin {
             }
         }
         return null;
+    }
+
+    private int getSpawnServerLoad() {
+        return Bukkit.getOnlinePlayers().size();
+    }
+
+    public String getASpawnServer() {
+        int min = Integer.MAX_VALUE;
+        String server = null;
+        for (Map.Entry<String, Integer> entry : serversLoad.entrySet()) {
+            if (entry.getValue() < min) {
+                min = entry.getValue();
+                server = entry.getKey();
+            }
+        }
+        return server;
+    }
+
+    public void sendToServer(Player player, String server) {
+        player.sendMessage(Component.text("§aTéléportation au serveur §6" + server + "§a..."));
+
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Connect");
+        out.writeUTF(server);
+
+        player.sendPluginMessage(INSTANCE, "BungeeCord", out.toByteArray());
     }
 }

@@ -1,7 +1,5 @@
 package fr.farmeurimmo.coreskyblock.purpur.tpa.cmds;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
@@ -78,10 +76,7 @@ public class TpaYesCmd implements CommandExecutor {
 
             p.sendMessage(Component.text("§7Vous avez accepté la demande de téléportation de §e" + targetName + "§7. Envoi à l'autre serveur..."));
 
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Connect");
-            out.writeUTF(to);
-            p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
+            CoreSkyblock.INSTANCE.sendToServer(p, to);
             return false;
         }
         p.sendMessage(Component.text("§cUtilisation: /tpaccept <tpa/tpahere> <joueur>"));

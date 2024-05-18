@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.cmds.base;
 
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -41,11 +42,20 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
             return false;
         }
         p.sendActionBar(Component.text("§aTéléportation au spawn..."));
-        p.teleportAsync(CoreSkyblock.SPAWN).thenRun(() -> p.sendActionBar(Component.text("§aVous avez été téléporté au spawn.")))
-                .exceptionally(throwable -> {
-                    p.sendMessage(Component.text("§cErreur lors de la téléportation au spawn !"));
-                    return null;
-                });
+        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+            p.teleportAsync(CoreSkyblock.SPAWN).thenRun(() -> p.sendActionBar(Component.text("§aVous avez été téléporté au spawn.")))
+                    .exceptionally(throwable -> {
+                        p.sendMessage(Component.text("§cErreur lors de la téléportation au spawn !"));
+                        return null;
+                    });
+            return false;
+        }
+        String server = CoreSkyblock.INSTANCE.getASpawnServer();
+        if (server == null) {
+            p.sendMessage(Component.text("§cErreur, aucun serveur de spawn disponible !"));
+            return false;
+        }
+        CoreSkyblock.INSTANCE.sendToServer(p, server);
         return false;
     }
 

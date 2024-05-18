@@ -83,7 +83,11 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+    }
 
+    @EventHandler
+    public void onAdvancement(PlayerAdvancementDoneEvent e) {
+        e.message(null);
     }
 
     @EventHandler

@@ -1,7 +1,5 @@
 package fr.farmeurimmo.coreskyblock.storage;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
@@ -108,10 +106,7 @@ public class JedisManager {
                                 }
                                 p.sendMessage("§aVotre île a bien été créée ! Téléportation en cours...");
 
-                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                                out.writeUTF("Connect");
-                                out.writeUTF(serverName);
-                                p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
+                                CoreSkyblock.INSTANCE.sendToServer(p, serverName);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -394,6 +389,24 @@ public class JedisManager {
                         }
                         return;
                     }
+                    if (args[0].equalsIgnoreCase("spawn")) {
+                        if (args[1].equalsIgnoreCase("space")) {
+                            String serverName = args[2];
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
+                            try {
+                                int load = Integer.parseInt(args[3]);
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    CoreSkyblock.INSTANCE.serversLoad.put(serverName, load);
+                                    return null;
+                                });
+                            } catch (Exception ignored) {
+                            }
+                            return;
+                        }
+                        return;
+                    }
                     if (args[0].equalsIgnoreCase("player_list")) {
                         String serverName = args[1];
                         if (args.length < 3) {
@@ -464,10 +477,8 @@ public class JedisManager {
                                     return;
                                 }
                                 senderP.sendMessage(Component.text("§aVotre demande de téléportation a été acceptée. Envoi en cours..."));
-                                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                                out.writeUTF("Connect");
-                                out.writeUTF(serverName);
-                                senderP.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
+
+                                CoreSkyblock.INSTANCE.sendToServer(senderP, serverName);
                                 return;
                             }
                             if (type.equalsIgnoreCase("tpahere")) {

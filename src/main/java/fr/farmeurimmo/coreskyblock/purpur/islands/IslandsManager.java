@@ -1,7 +1,5 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
@@ -521,14 +519,10 @@ public class IslandsManager {
         }
         String serverWhereIslandIsLoaded = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
         if (serverWhereIslandIsLoaded != null && !serverWhereIslandIsLoaded.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
-            p.sendMessage(Component.text("§aTéléportation sur votre île..."));
             JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:teleport:" + p.getUniqueId() + ":"
                     + island.getIslandUUID() + ":" + serverWhereIslandIsLoaded);
 
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Connect");
-            out.writeUTF(serverWhereIslandIsLoaded);
-            p.sendPluginMessage(CoreSkyblock.INSTANCE, "BungeeCord", out.toByteArray());
+            CoreSkyblock.INSTANCE.sendToServer(p, serverWhereIslandIsLoaded);
         } else {
             p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un cours instant..."));
             checkIfIslandIsLoaded(island.getIslandUUID());
