@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -169,6 +170,8 @@ public final class CoreSkyblock extends JavaPlugin {
 
         new ChatDisplayManager();
         new PrestigesManager();
+
+        new AuctionHouseManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
