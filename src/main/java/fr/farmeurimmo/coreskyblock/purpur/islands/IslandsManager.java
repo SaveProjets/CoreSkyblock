@@ -528,7 +528,7 @@ public class IslandsManager {
             checkIfIslandIsLoaded(island.getIslandUUID());
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
                 teleportToIsland(island, p);
-            }, 30);
+            }, 50);
         }
     }
 
