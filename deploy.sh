@@ -9,14 +9,11 @@ check_command() {
     fi
 }
 
-./gradlew build
-check_command "Gradle build"
-
-./gradlew shadowJar
-check_command "Gradle shadowJar"
+mvn clean package
+check_command "Maven clean package"
 
 PRIVATE_KEY_FILE="$HOME/.ssh/edmine_farmeur"
-LOCAL_JAR_FILE="$HOME/IdeaProjects/CoreSkyblock/build/libs/CoreSkyblock-1.0.0-SNAPSHOT-all.jar"
+LOCAL_JAR_FILE="$HOME/IdeaProjects/CoreSkyblock/target/CoreSkyblock.jar"
 SFTP_HOST="45.13.119.124"
 SFTP_USERNAME="farmeur"
 SFTP_PORT="22"

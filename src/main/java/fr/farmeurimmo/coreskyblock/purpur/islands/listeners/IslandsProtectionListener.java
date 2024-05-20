@@ -353,7 +353,6 @@ public class IslandsProtectionListener implements Listener {
                 if (!island.hasPerms(rank, IslandPerms.KILL_MOBS, p.getUniqueId())) {
                     e.setCancelled(true);
                 }
-                return;
             }
         }
     }

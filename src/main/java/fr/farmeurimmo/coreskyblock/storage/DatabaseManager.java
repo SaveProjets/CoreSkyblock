@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 public class DatabaseManager {
 
     public static DatabaseManager INSTANCE;
-    private static HikariConfig config = new HikariConfig();
+    private static final HikariConfig config = new HikariConfig();
     private static HikariDataSource ds;
     private final String host;
     private final String user;

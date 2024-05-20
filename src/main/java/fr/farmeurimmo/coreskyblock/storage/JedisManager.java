@@ -529,7 +529,6 @@ public class JedisManager {
                                 if (senderP != null) {
                                     senderP.sendMessage(Component.text("§cVotre demande de téléportation a été refusée."));
                                 }
-                                return;
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

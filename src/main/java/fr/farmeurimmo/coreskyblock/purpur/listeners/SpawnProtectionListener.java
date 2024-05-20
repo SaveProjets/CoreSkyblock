@@ -53,7 +53,6 @@ public class SpawnProtectionListener implements Listener {
             e.setCancelled(true);
             e.getPlayer().teleportAsync(CoreSkyblock.SPAWN).thenRun(() ->
                     e.getPlayer().sendMessage(Component.text("§cVous avez été téléporté au spawn car vous êtes tombé dans le vide.")));
-            return;
         }
     }
 }

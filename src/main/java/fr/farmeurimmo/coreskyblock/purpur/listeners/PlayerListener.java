@@ -79,7 +79,6 @@ public class PlayerListener implements Listener {
                 if (island != null) {
                     e.setSpawnLocation(island.getSpawn());
                     p.sendMessage(Component.text("§aVous avez été téléporté sur votre île."));
-                    return;
                 }
             }
         }
