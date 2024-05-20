@@ -179,12 +179,12 @@ public class IslandsManager {
         return serverToLoad;
     }
 
-    public boolean isIslandLoadedHere(UUID uuid) {
+    /*public boolean isIslandLoadedHere(UUID uuid) {
         for (UUID uuidKey : IslandsDataManager.INSTANCE.getCache().keySet()) {
             if (uuidKey.equals(uuid)) return true;
         }
         return false;
-    }
+    }*/
 
     public void checkForDataIntegrity(@Nullable String islandUUIDString, @Nullable UUID playerUUID, boolean forceLoad) {
         Island islandInLocalCache = getIslandOf(playerUUID);
@@ -526,9 +526,7 @@ public class IslandsManager {
         } else {
             p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un cours instant..."));
             checkIfIslandIsLoaded(island.getIslandUUID());
-            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
-                teleportToIsland(island, p);
-            }, 50);
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> teleportToIsland(island, p), 50);
         }
     }
 
