@@ -1,0 +1,64 @@
+name: CoreSkyblock
+version: '${version}'
+main: fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock
+api-version: '1.20'
+author: Farmeurimmo
+description: Mine skyblock plugin
+website: https://edmine.fr
+depend:
+  - SlimeWorldManager
+commands:
+  buildspawn:
+    description: Permet de modifier le spawn (déconseillé il faut modifier la template)
+    permission: coreskyblock.buildspawn
+  featherfly:
+    description: Donne des plumes de fly temporaire
+    permission: coreskyblock.featherfly
+  money:
+    description: Montre l'argent du joueur
+  is:
+    description: Permet d'accéder aux commandes de l'île
+    aliases:
+      - ile
+  chests:
+    permission: coreskyblock.chests
+  minions:
+    permission: coreskyblock.minions
+  trade:
+    permission: coreskyblock.trade
+  tradeaccept:
+  tradedeny:
+  tradecancel:
+  spawn:
+  shop:
+  sellall:
+    permission: coreskyblock.sellall
+  trash:
+  craft:
+    permission: coreskyblock.craft
+  enchantement:
+    permission: coreskyblock.enchantement
+  anvil:
+    permission: coreskyblock.anvil
+  furnace:
+    permission: coreskyblock.furnace
+  silo:
+    permission: coreskyblock.silo
+  feed:
+    permission: coreskyblock.feed
+  near:
+    permission: coreskyblock.near
+  fix:
+    permission: coreskyblock.fix
+  kits:
+  tpa:
+  tpahere:
+  tpayes:
+    aliases:
+      - tpaccept
+  tpano:
+    aliases:
+      - tpadeny
+  xp:
+  prestige:
+  baltop:
