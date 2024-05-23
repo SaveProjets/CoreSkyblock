@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseCmd;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
@@ -217,6 +218,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("xp")).setExecutor(new XpCmd());
         Objects.requireNonNull(getCommand("prestige")).setExecutor(new PrestigeCmd());
         Objects.requireNonNull(getCommand("baltop")).setExecutor(new BaltopCmd());
+        Objects.requireNonNull(getCommand("ah")).setExecutor(new AuctionHouseCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");

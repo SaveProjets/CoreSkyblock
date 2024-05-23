@@ -1,11 +1,17 @@
 package fr.farmeurimmo.coreskyblock.storage.auctions;
 
+import com.google.gson.JsonObject;
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.CompletableFuture;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class AuctionHouseDataManager {
 
@@ -14,8 +20,8 @@ public class AuctionHouseDataManager {
             "owner VARCHAR(36) NOT NULL, " +
             "owner_name VARCHAR(16) NOT NULL, " +
             "price DOUBLE NOT NULL, " +
-            "item JSON NOT NULL, " +
-            "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
+            "item TEXT NOT NULL, " +
+            "created_at BIGINT NOT NULL, " +
             "PRIMARY KEY (uuid), " +
             "FOREIGN KEY (owner) REFERENCES skyblock_users(uuid) ON DELETE CASCADE" +
             ")";
@@ -34,21 +40,79 @@ public class AuctionHouseDataManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        CompletableFuture.runAsync(this::loadAuctions);
     }
 
-    public void loadAuctions() {
+    public List<AuctionItem> loadAuctions() {
         try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM auctions")) {
                 statement.executeQuery();
 
-                // TODO: Load auctions
+                ArrayList<AuctionItem> auctionItems = new ArrayList<>();
+
+                ResultSet resultSet = statement.getResultSet();
+                while (resultSet.next()) {
+                    auctionItems.add(new AuctionItem(
+                            UUID.fromString(resultSet.getString("uuid")),
+                            UUID.fromString(resultSet.getString("owner")),
+                            resultSet.getString("owner_name"),
+                            resultSet.getDouble("price"),
+                            AuctionItem.itemFromJson(CoreSkyblock.INSTANCE.gson.fromJson(resultSet.getString("item"), JsonObject.class)),
+                            resultSet.getLong("created_at")
+                    ));
+                }
+
+                return auctionItems;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    public void insertItem(AuctionItem item) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO auctions (uuid, owner, " +
+                    "owner_name, price, item, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
+                statement.setString(1, item.itemUUID().toString());
+                statement.setString(2, item.ownerUUID().toString());
+                statement.setString(3, item.ownerName());
+                statement.setDouble(4, item.price());
+                statement.setObject(5, CoreSkyblock.INSTANCE.gson.toJson(item.itemToJson()));
+                statement.setLong(6, item.createdAt());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public AuctionItem getItem(UUID uuid) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM auctions WHERE uuid = ?")) {
+                statement.setString(1, uuid.toString());
+                statement.executeQuery();
+
+                ResultSet resultSet = statement.getResultSet();
+                if (resultSet.next()) {
+                    return new AuctionItem(
+                            UUID.fromString(resultSet.getString("uuid")),
+                            UUID.fromString(resultSet.getString("owner")),
+                            resultSet.getString("owner_name"),
+                            resultSet.getDouble("price"),
+                            AuctionItem.itemFromJson(CoreSkyblock.INSTANCE.gson.fromJson(resultSet.getString("item"), JsonObject.class)),
+                            resultSet.getLong("created_at")
+                    );
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -62,3 +62,5 @@ commands:
   xp:
   prestige:
   baltop:
+  ah:
+    permission: coreskyblock.ah
