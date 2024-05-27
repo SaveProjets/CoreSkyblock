@@ -312,6 +312,8 @@ public final class CoreSkyblock extends JavaPlugin {
         w.setGameRule(GameRule.MOB_GRIEFING, false);
         w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         w.setGameRule(GameRule.KEEP_INVENTORY, true);
+
+        w.setDifficulty(org.bukkit.Difficulty.PEACEFUL);
     }
 
     public void clockSendPlayerConnectedToRedis() {

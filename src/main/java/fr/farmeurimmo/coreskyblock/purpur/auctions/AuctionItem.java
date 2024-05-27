@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.NumberFormat;
 import java.util.UUID;
 
 public record AuctionItem(UUID itemUUID, UUID ownerUUID, String ownerName, double price, ItemStack itemStack,
@@ -15,5 +16,9 @@ public record AuctionItem(UUID itemUUID, UUID ownerUUID, String ownerName, doubl
 
     public JsonObject itemToJson() {
         return InventorySyncUtils.INSTANCE.itemStackToJson(itemStack);
+    }
+
+    public String priceFormatted() {
+        return NumberFormat.getInstance().format(price);
     }
 }

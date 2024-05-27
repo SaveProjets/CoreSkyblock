@@ -90,7 +90,7 @@ public class AuctionHouseDataManager {
         }
     }
 
-    public AuctionItem getItem(UUID uuid) {
+    public AuctionItem loadItem(UUID uuid) {
         try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM auctions WHERE uuid = ?")) {
                 statement.setString(1, uuid.toString());
@@ -114,5 +114,18 @@ public class AuctionHouseDataManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void deleteItem(UUID uuid) {
+        try (Connection connection = DatabaseManager.INSTANCE.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM auctions WHERE uuid = ?")) {
+                statement.setString(1, uuid.toString());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -39,10 +39,11 @@ public class AuctionHouseCmd implements CommandExecutor {
                     p.sendMessage(Component.text("§cVous devez tenir un objet dans votre main."));
                     return false;
                 }
-                if (!AuctionHouseManager.INSTANCE.canPostAnotherItem(p.getUniqueId())) {
-                    p.sendMessage(Component.text("§cVous avez déjà un objet en vente."));
+                /*if (!AuctionHouseManager.INSTANCE.canPostAnotherItem(p.getUniqueId())) {
+                    p.sendMessage(Component.text("§cVous avez atteint la limite d'objets que vous pouvez mettre en vente (§6" +
+                            AuctionHouseManager.MAX_AUCTIONS + "§c)."));
                     return true;
-                }
+                }*/
                 p.getInventory().setItemInMainHand(null);
                 AuctionHouseManager.INSTANCE.addAuctionItem(new AuctionItem(UUID.randomUUID(), p.getUniqueId(),
                         p.getName(), price, item, System.currentTimeMillis()));

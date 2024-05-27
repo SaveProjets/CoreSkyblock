@@ -67,6 +67,7 @@ public class Chest {
     }
 
     public Location getBlock() {
+        if (block == null) return null;
         if (block.getWorld() == null) {
             Island island = IslandsManager.INSTANCE.getIslandByUUID(islandId);
             if (island != null && island.isLoaded()) {

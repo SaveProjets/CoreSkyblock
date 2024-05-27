@@ -3,15 +3,20 @@ package fr.farmeurimmo.coreskyblock.storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpaRequest;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.storage.auctions.AuctionHouseDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -20,8 +25,10 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JedisManager {
@@ -498,6 +505,7 @@ public class JedisManager {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        return;
                     }
                     if (args[0].equalsIgnoreCase("tpa_deny")) {
                         try {
@@ -532,6 +540,87 @@ public class JedisManager {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                        }
+                        return;
+                    }
+                    if (args[0].equalsIgnoreCase("auction")) {
+                        if (args[1].equalsIgnoreCase("create")) {
+                            try {
+                                UUID itemUUID = UUID.fromString(args[2]);
+                                String serverName = args[3];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                CompletableFuture.supplyAsync(() -> AuctionHouseDataManager.INSTANCE.loadItem(itemUUID))
+                                        .thenAccept((item) -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                            AuctionHouseManager.INSTANCE.addAuctionItemToCache(item);
+                                            return null;
+                                        }));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
+                        if (args[1].equalsIgnoreCase("buy")) {
+                            try {
+                                UUID itemUUID = UUID.fromString(args[2]);
+                                UUID buyer = UUID.fromString(args[3]);
+                                long timestamp = Long.parseLong(args[4]);
+                                String serverName = args[5];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                AuctionItem item = AuctionHouseManager.INSTANCE.getByUUID(itemUUID);
+                                if (item == null) return;
+
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    AuctionHouseManager.INSTANCE.addBuyingProcess(item, buyer, timestamp);
+                                    return null;
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
+                        if (args[1].equalsIgnoreCase("remove")) {
+                            try {
+                                UUID itemUUID = UUID.fromString(args[2]);
+                                String serverName = args[3];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    AuctionHouseManager.INSTANCE.removeItemFromCache(itemUUID);
+                                    return null;
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (args[1].equalsIgnoreCase("givemoney")) {
+                            try {
+                                UUID playerUUID = UUID.fromString(args[2]);
+                                double amount = Double.parseDouble(args[3]);
+                                String serverName = args[4];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                                if (p == null) {
+                                    return;
+                                }
+                                SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(playerUUID);
+                                if (skyblockUser == null) return;
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    skyblockUser.addMoney(amount);
+                                    p.sendMessage("§aVous avez reçu §6" + NumberFormat.getInstance().format(amount) +
+                                            " §ade la part de l'hôtel des ventes.");
+                                    return null;
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
