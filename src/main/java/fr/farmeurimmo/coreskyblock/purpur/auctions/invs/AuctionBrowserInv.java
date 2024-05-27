@@ -49,7 +49,14 @@ public class AuctionBrowserInv extends FastInv {
         gotUpdate = false;
 
         int i = page * slots.length;
+
         ArrayList<AuctionItem> auctionItems = AuctionHouseManager.INSTANCE.getAuctionItemsByCreationTime();
+        if (i >= auctionItems.size()) {
+            page--;
+            update();
+            return;
+        }
+
         for (int slot : slots) {
             if (i >= auctionItems.size()) {
                 setItem(slot, null);
@@ -79,10 +86,10 @@ public class AuctionBrowserInv extends FastInv {
                     p.sendMessage("§cCet objet n'est plus en vente.");
                     return;
                 }
-                if (p.getUniqueId().equals(auctionItem.ownerUUID())) {
+                /*if (p.getUniqueId().equals(auctionItem.ownerUUID())) {
                     p.sendMessage("§cVous ne pouvez pas acheter votre propre objet.");
                     return;
-                }
+                }*/
                 if (p.getInventory().firstEmpty() == -1) {
                     p.sendMessage("§cVotre inventaire est plein.");
                     return;
@@ -102,7 +109,7 @@ public class AuctionBrowserInv extends FastInv {
                 }
                 lastAction = System.currentTimeMillis();
                 p.sendMessage(Component.text("§7Tentative d'achat..."));
-                AuctionHouseManager.INSTANCE.startBuyProcess(auctionItem, p.getUniqueId());
+                AuctionHouseManager.INSTANCE.startBuyProcess(auctionItem, p.getUniqueId(), p.getName());
             });
             i++;
         }

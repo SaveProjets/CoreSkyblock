@@ -566,7 +566,8 @@ public class JedisManager {
                                 UUID itemUUID = UUID.fromString(args[2]);
                                 UUID buyer = UUID.fromString(args[3]);
                                 long timestamp = Long.parseLong(args[4]);
-                                String serverName = args[5];
+                                String buyerName = args[5];
+                                String serverName = args[6];
                                 if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
                                     return;
                                 }
@@ -574,7 +575,7 @@ public class JedisManager {
                                 if (item == null) return;
 
                                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                                    AuctionHouseManager.INSTANCE.addBuyingProcess(item, buyer, timestamp);
+                                    AuctionHouseManager.INSTANCE.addBuyingProcess(item, buyer, timestamp, buyerName, true);
                                     return null;
                                 });
                             } catch (Exception e) {

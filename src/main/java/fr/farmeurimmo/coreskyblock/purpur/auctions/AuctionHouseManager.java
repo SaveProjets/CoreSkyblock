@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public class AuctionHouseManager {
 
     public static final int MAX_AUCTIONS = 5;
+    public static final long AUCTION_EXPIRATION = 7 * 24 * 60 * 60 * 1000;
     public static AuctionHouseManager INSTANCE;
     public final Map<AuctionItem, Pair<UUID, Long>> buyingProcesses = new HashMap<>();
     private final ArrayList<AuctionItem> auctionItems = new ArrayList<>();
@@ -78,20 +79,20 @@ public class AuctionHouseManager {
         return null;
     }
 
-    public void startBuyProcess(AuctionItem auctionItem, UUID buyer) {
+    public void startBuyProcess(AuctionItem auctionItem, UUID buyer, String buyerName) {
         long time = System.currentTimeMillis();
         CompletableFuture.runAsync(() -> {
             JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:buy:" +
-                    auctionItem.itemUUID().toString() + ":" + buyer + ":" + time + ":" + CoreSkyblock.SERVER_NAME);
+                    auctionItem.itemUUID().toString() + ":" + buyer + ":" + time + ":" + buyerName + ":" + CoreSkyblock.SERVER_NAME);
         });
-        buyingProcesses.put(auctionItem, Pair.of(buyer, time));
+        addBuyingProcess(auctionItem, buyer, time, buyerName, false);
     }
 
     public void removeItemFromCache(UUID auctionUUID) {
         auctionItems.removeIf(auctionItem -> auctionItem.itemUUID().equals(auctionUUID));
     }
 
-    public void addBuyingProcess(AuctionItem auctionItem, UUID buyer, long time) {
+    public void addBuyingProcess(AuctionItem auctionItem, UUID buyer, long time, String buyerName, boolean fromRedis) {
         if (buyingProcesses.containsKey(auctionItem)) {
             if (buyingProcesses.get(auctionItem).right() < time) {
                 Player oldBuyer = Bukkit.getPlayer(buyingProcesses.get(auctionItem).left());
@@ -104,40 +105,49 @@ public class AuctionHouseManager {
                     // if the buyer is still the same after 20 ticks, remove the buying process and process the purchase
                     buyingProcesses.remove(auctionItem);
                     auctionItems.remove(auctionItem);
+
+                    Player buyerPlayer = Bukkit.getPlayer(buyer);
+                    if (buyerPlayer != null) {
+                        SkyblockUser buyerUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(buyer);
+                        if (buyerUser != null) {
+                            buyerUser.setMoney(buyerUser.getMoney() - auctionItem.price());
+                            buyerPlayer.sendMessage("§aVous avez acheté l'objet pour §6" + auctionItem.priceFormatted() + " $§a.");
+                        }
+                        if (buyerPlayer.getInventory().firstEmpty() != -1) {
+                            buyerPlayer.getInventory().addItem(auctionItem.itemStack());
+                        } else {
+                            buyerPlayer.getWorld().dropItem(buyerPlayer.getLocation(), auctionItem.itemStack());
+                        }
+                    }
+
+                    Player sellerPlayer = Bukkit.getPlayer(auctionItem.ownerUUID());
+                    if (sellerPlayer != null) {
+                        SkyblockUser sellerUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(auctionItem.ownerUUID());
+                        if (sellerUser != null) {
+                            sellerUser.setMoney(sellerUser.getMoney() + auctionItem.price());
+                            sellerPlayer.sendMessage("§6§lAH §8» §7" + buyerName +
+                                    " §aa acheté votre objet pour §6" + auctionItem.priceFormatted() + " $§a.");
+                        }
+                        return;
+                    }
+
+                    if (fromRedis) return;
+
                     CompletableFuture.runAsync(() -> {
                         AuctionHouseDataManager.INSTANCE.deleteItem(auctionItem.itemUUID());
                         JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:remove:" +
                                 auctionItem.itemUUID() + ":" + CoreSkyblock.SERVER_NAME);
 
-                        Player buyerPlayer = Bukkit.getPlayer(buyer);
-                        if (buyerPlayer != null) {
-                            SkyblockUser buyerUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(buyer);
-                            if (buyerUser != null) {
-                                buyerUser.setMoney(buyerUser.getMoney() - auctionItem.price());
-                                buyerPlayer.sendMessage("§aVous avez acheté l'objet pour §6" + auctionItem.priceFormatted() + "§a.");
-                            }
-                        }
-
-                        Player sellerPlayer = Bukkit.getPlayer(auctionItem.ownerUUID());
-                        if (sellerPlayer != null) {
-                            SkyblockUser sellerUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(auctionItem.ownerUUID());
-                            if (sellerUser != null) {
-                                sellerUser.setMoney(sellerUser.getMoney() + auctionItem.price());
-                                sellerPlayer.sendMessage("§aVotre objet a été vendu pour §6" + auctionItem.priceFormatted() + "§a.");
-                            }
-                            return;
-                        }
-
                         //if seller is on another skyblock server
                         // or if seller is offline
 
                         if (CoreSkyblock.INSTANCE.getServerNameWherePlayerIsConnected(auctionItem.ownerUUID()) != null) {
-                            JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:givemoney:" +
-                                    ":" + auctionItem.price() + ":" + CoreSkyblock.SERVER_NAME);
+                            JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:givemoney:" + buyer
+                                    + ":" + auctionItem.price() + ":" + CoreSkyblock.SERVER_NAME);
                         }
                     });
                 }
-            }, 20);
+            }, 10);
         }
         buyingProcesses.put(auctionItem, Pair.of(buyer, time));
     }

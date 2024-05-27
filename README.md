@@ -179,7 +179,7 @@ coreskyblock → auction:create:{auction_uuid}:{server_name}
 
 #### Auction buying
 
-coreskyblock → auction:buy:{auction_uuid}:{buyer_uuid}:{timestamp}:{server_name}
+coreskyblock → auction:buy:{auction_uuid}:{buyer_uuid}:{timestamp}:{buyer_name}:{server_name}
 
 #### Auction remove
 
