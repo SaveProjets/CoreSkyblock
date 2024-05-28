@@ -21,4 +21,8 @@ public record AuctionItem(UUID itemUUID, UUID ownerUUID, String ownerName, doubl
     public String priceFormatted() {
         return NumberFormat.getInstance().format(price);
     }
+
+    public boolean isExpired() {
+        return System.currentTimeMillis() - createdAt >= AuctionHouseManager.AUCTION_EXPIRATION;
+    }
 }

@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class AuctionBrowserInv extends FastInv {
 
@@ -25,7 +26,7 @@ public class AuctionBrowserInv extends FastInv {
     private int page = 0;
     private long lastAction = System.currentTimeMillis();
 
-    public AuctionBrowserInv() {
+    public AuctionBrowserInv(UUID uuid) {
         super(54, "§0Hôtel des ventes");
 
         setCloseFilter(p -> {
@@ -41,11 +42,11 @@ public class AuctionBrowserInv extends FastInv {
             }
             if (gotUpdate) return;
             gotUpdate = true;
-            update();
+            update(uuid);
         }, 0, 40L);
     }
 
-    private void update() {
+    private void update(UUID uuid) {
         gotUpdate = false;
 
         int i = page * slots.length;
@@ -53,7 +54,7 @@ public class AuctionBrowserInv extends FastInv {
         ArrayList<AuctionItem> auctionItems = AuctionHouseManager.INSTANCE.getAuctionItemsByCreationTime();
         if (i >= auctionItems.size()) {
             page--;
-            update();
+            update(uuid);
             return;
         }
 
@@ -86,10 +87,10 @@ public class AuctionBrowserInv extends FastInv {
                     p.sendMessage("§cCet objet n'est plus en vente.");
                     return;
                 }
-                /*if (p.getUniqueId().equals(auctionItem.ownerUUID())) {
+                if (p.getUniqueId().equals(auctionItem.ownerUUID())) {
                     p.sendMessage("§cVous ne pouvez pas acheter votre propre objet.");
                     return;
-                }*/
+                }
                 if (p.getInventory().firstEmpty() == -1) {
                     p.sendMessage("§cVotre inventaire est plein.");
                     return;
@@ -117,7 +118,7 @@ public class AuctionBrowserInv extends FastInv {
         if (page > 0) {
             setItem(48, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page précédente").build(), e -> {
                 page--;
-                update();
+                update(uuid);
             });
         } else {
             setItem(48, null);
@@ -126,10 +127,18 @@ public class AuctionBrowserInv extends FastInv {
         if (auctionItems.size() > (page + 1) * slots.length) {
             setItem(50, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page suivante").build(), e -> {
                 page++;
-                update();
+                update(uuid);
             });
         } else {
             setItem(50, null);
+        }
+
+        if (AuctionHouseManager.INSTANCE.getAuctionItemsForPlayer(uuid).isEmpty()) {
+            setItem(45, null);
+        } else {
+            setItem(45, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Gérer mes objets").build(), e -> {
+                new AuctionItemManagerInv(uuid).open((Player) e.getWhoClicked());
+            });
         }
     }
 }

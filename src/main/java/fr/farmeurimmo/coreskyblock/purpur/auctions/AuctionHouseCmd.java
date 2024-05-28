@@ -20,7 +20,7 @@ public class AuctionHouseCmd implements CommandExecutor {
             return false;
         }
         if (args.length == 0) {
-            new AuctionBrowserInv().open(p);
+            new AuctionBrowserInv(p.getUniqueId()).open(p);
             return false;
         }
         if (args.length != 2) {

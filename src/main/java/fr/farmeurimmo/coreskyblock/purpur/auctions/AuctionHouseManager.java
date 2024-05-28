@@ -62,6 +62,7 @@ public class AuctionHouseManager {
 
     public final ArrayList<AuctionItem> getAuctionItemsByCreationTime() {
         ArrayList<AuctionItem> auctionItemsByCreationTime = new ArrayList<>(auctionItems);
+        auctionItemsByCreationTime.removeIf(AuctionItem::isExpired);
         auctionItemsByCreationTime.sort(Comparator.comparingLong(AuctionItem::createdAt));
         return auctionItemsByCreationTime;
     }
@@ -77,6 +78,22 @@ public class AuctionHouseManager {
             }
         }
         return null;
+    }
+
+    public ArrayList<AuctionItem> getAuctionItemsForPlayer(UUID uuid) {
+        ArrayList<AuctionItem> auctionItemsForPlayer = new ArrayList<>();
+        for (AuctionItem auctionItem : auctionItems) {
+            if (auctionItem.ownerUUID().equals(uuid)) {
+                auctionItemsForPlayer.add(auctionItem);
+            }
+        }
+        return auctionItemsForPlayer;
+    }
+
+    public ArrayList<AuctionItem> getAuctionItemsForPlayerByCreationTime(UUID uuid) {
+        ArrayList<AuctionItem> auctionItemsForPlayer = getAuctionItemsForPlayer(uuid);
+        auctionItemsForPlayer.sort(Comparator.comparingLong(AuctionItem::createdAt));
+        return auctionItemsForPlayer;
     }
 
     public void startBuyProcess(AuctionItem auctionItem, UUID buyer, String buyerName) {
@@ -138,12 +155,16 @@ public class AuctionHouseManager {
                         JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:remove:" +
                                 auctionItem.itemUUID() + ":" + CoreSkyblock.SERVER_NAME);
 
-                        //if seller is on another skyblock server
-                        // or if seller is offline
-
                         if (CoreSkyblock.INSTANCE.getServerNameWherePlayerIsConnected(auctionItem.ownerUUID()) != null) {
                             JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:givemoney:" + buyer
                                     + ":" + auctionItem.price() + ":" + CoreSkyblock.SERVER_NAME);
+                        } else {
+                            SkyblockUser user = SkyblockUsersManager.INSTANCE.loadUser(auctionItem.ownerUUID(),
+                                    auctionItem.ownerName());
+                            if (user != null) {
+                                user.addMoney(auctionItem.price());
+                                SkyblockUsersManager.INSTANCE.unloadUser(user);
+                            }
                         }
                     });
                 }
