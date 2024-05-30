@@ -167,5 +167,29 @@ Pas de donnée = Pas d'île.
 
 coreskyblock:user:{uuid}:{data}
 
+-----------------
+
+## Données AUCTIONS
+
+### Pubsub
+
+#### Auction create
+
+coreskyblock → auction:create:{auction_uuid}:{server_name}
+
+#### Auction buying
+
+coreskyblock → auction:buy:{auction_uuid}:{buyer_uuid}:{timestamp}:{buyer_name}:{server_name}
+
+#### Auction remove
+
+coreskyblock → auction:remove:{auction_uuid}:{server_name}
+
+#### Auction givemoney
+
+Déclenché lorsqu'un joueur achète un item à l'enchéreur sur un serveur différent
+
+coreskyblock → auction:givemoney:{player}:{auction_price}:{server_name}
+
 
 

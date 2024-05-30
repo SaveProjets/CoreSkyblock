@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseCmd;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -170,6 +172,8 @@ public final class CoreSkyblock extends JavaPlugin {
         new ChatDisplayManager();
         new PrestigesManager();
 
+        new AuctionHouseManager();
+
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
 
@@ -214,6 +218,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("xp")).setExecutor(new XpCmd());
         Objects.requireNonNull(getCommand("prestige")).setExecutor(new PrestigeCmd());
         Objects.requireNonNull(getCommand("baltop")).setExecutor(new BaltopCmd());
+        Objects.requireNonNull(getCommand("ah")).setExecutor(new AuctionHouseCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
@@ -307,6 +312,8 @@ public final class CoreSkyblock extends JavaPlugin {
         w.setGameRule(GameRule.MOB_GRIEFING, false);
         w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         w.setGameRule(GameRule.KEEP_INVENTORY, true);
+
+        w.setDifficulty(org.bukkit.Difficulty.PEACEFUL);
     }
 
     public void clockSendPlayerConnectedToRedis() {
