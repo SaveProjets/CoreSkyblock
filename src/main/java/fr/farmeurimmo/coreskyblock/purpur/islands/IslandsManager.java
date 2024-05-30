@@ -286,6 +286,7 @@ public class IslandsManager {
                     World world = Bukkit.getWorld(getIslandWorldName(islandUUID));
                     if (world != null) {
                         island.setLoaded(true);
+                        island.setReadOnly(true);
                         island.getSpawn().setWorld(world);
                         applyTimeAndWeather(world, island);
                         IslandsSizeManager.INSTANCE.updateWorldBorder(island);
@@ -481,6 +482,7 @@ public class IslandsManager {
                 }
                 applyTimeAndWeather(w, island);
                 IslandsSizeManager.INSTANCE.updateWorldBorder(island);
+                island.setReadOnly(false);
 
                 island.sendMessageToAll("§aVotre île a été chargée.");
                 return null;
@@ -601,6 +603,7 @@ public class IslandsManager {
     public void unload(Island island, boolean async, boolean delete) {
         if (island.isLoaded()) {
             WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
+            island.sendMessageToAll("§cVotre île a été déchargée.");
             island.setLoaded(false);
             if (async) CompletableFuture.runAsync(() -> actForUnload(island, delete));
             else actForUnload(island, delete);

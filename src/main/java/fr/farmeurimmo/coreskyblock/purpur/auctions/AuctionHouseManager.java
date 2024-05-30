@@ -109,7 +109,28 @@ public class AuctionHouseManager {
         auctionItems.removeIf(auctionItem -> auctionItem.itemUUID().equals(auctionUUID));
     }
 
+    public boolean checkIfExpired(AuctionItem auctionItem) {
+        if (auctionItem.isExpired()) {
+            for (Map.Entry<AuctionItem, Pair<UUID, Long>> entry : buyingProcesses.entrySet()) {
+                if (entry.getKey().itemUUID().equals(auctionItem.itemUUID())) {
+                    buyingProcesses.remove(entry.getKey());
+                    for (Pair<UUID, Long> pair : buyingProcesses.values()) {
+                        Player player = Bukkit.getPlayer(pair.left());
+                        if (player != null) player.sendMessage(Component.text(
+                                "§cVotre achat a été annulé car l'objet a expiré."));
+                    }
+                    break;
+                }
+            }
+            buyingProcesses.remove(auctionItem);
+            return true;
+        }
+        return false;
+    }
+
     public void addBuyingProcess(AuctionItem auctionItem, UUID buyer, long time, String buyerName, boolean fromRedis) {
+        if (checkIfExpired(auctionItem)) return;
+
         if (buyingProcesses.containsKey(auctionItem)) {
             if (buyingProcesses.get(auctionItem).right() < time) {
                 Player oldBuyer = Bukkit.getPlayer(buyingProcesses.get(auctionItem).left());
@@ -118,6 +139,8 @@ public class AuctionHouseManager {
             }
         } else {
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+                if (checkIfExpired(auctionItem)) return;
+
                 if (buyingProcesses.containsKey(auctionItem) && buyingProcesses.get(auctionItem).right() == time) {
                     // if the buyer is still the same after 20 ticks, remove the buying process and process the purchase
                     buyingProcesses.remove(auctionItem);

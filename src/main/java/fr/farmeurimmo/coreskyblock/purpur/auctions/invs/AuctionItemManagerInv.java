@@ -3,6 +3,8 @@ package fr.farmeurimmo.coreskyblock.purpur.auctions.invs;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
+import fr.farmeurimmo.coreskyblock.storage.JedisManager;
+import fr.farmeurimmo.coreskyblock.storage.auctions.AuctionHouseDataManager;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -14,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class AuctionItemManagerInv extends FastInv {
 
@@ -22,7 +25,6 @@ public class AuctionItemManagerInv extends FastInv {
             33, 34, 37, 38, 39, 40, 41, 42, 43};
     private boolean gotUpdate = false;
     private boolean closed = false;
-    private final int page = 0;
     private long lastAction = System.currentTimeMillis();
 
     public AuctionItemManagerInv(UUID uuid) {
@@ -75,10 +77,22 @@ public class AuctionItemManagerInv extends FastInv {
             setItem(slot, itemStack, e -> {
                 if (System.currentTimeMillis() - lastAction < DELAY_BETWEEN_ACTIONS) return;
 
+                Player p = (Player) e.getWhoClicked();
+                if (p.getInventory().firstEmpty() == -1) {
+                    p.sendMessage(Component.text("§cVous devez avoir un emplacement vide dans votre inventaire."));
+                    return;
+                }
+
+                AuctionHouseManager.INSTANCE.removeItemFromCache(auctionItem.itemUUID());
+                CompletableFuture.runAsync(() -> {
+                    AuctionHouseDataManager.INSTANCE.deleteItem(auctionItem.itemUUID());
+                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:remove:" +
+                            auctionItem.itemUUID() + ":" + CoreSkyblock.SERVER_NAME);
+                });
+                p.getInventory().addItem(auctionItem.itemStack());
+                p.sendMessage(Component.text("§aVous avez récupéré l'objet expiré."));
 
                 lastAction = System.currentTimeMillis();
-
-
             });
 
             i++;

@@ -155,7 +155,7 @@ public class IslandsDataManager {
 
                 Island island = new Island(uuid, name, spawn, members.left(), members.right(), perms, upgradeSize,
                         upgradeMembers, upgradeGenerator, bankMoney, bannedPlayers, isPublic, exp, settings, level,
-                        chests, false);
+                        chests, true);
 
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, island);

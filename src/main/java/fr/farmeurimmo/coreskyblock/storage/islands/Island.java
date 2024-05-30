@@ -42,7 +42,7 @@ public class Island {
     private double exp;
     private float level;
     private boolean loaded = false; // not saved
-    private boolean readOnly = false; // not saved
+    private boolean readOnly = true; // not saved
     private long loadTimeout = -1; // not saved
     private boolean isModified = false; // not saved
     private boolean areMembersModified = false; // not saved
@@ -167,7 +167,7 @@ public class Island {
             perms = getRanksPermsFromReduced(perms);
 
             return new Island(islandUUID, name, spawn, members, membersNames, perms, maxSize, maxMembers, generatorLevel,
-                    bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, false);
+                    bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true);
         } catch (Exception ignored) {
         }
         return null;
