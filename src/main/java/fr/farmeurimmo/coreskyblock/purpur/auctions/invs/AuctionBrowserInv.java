@@ -133,12 +133,8 @@ public class AuctionBrowserInv extends FastInv {
             setItem(50, null);
         }
 
-        if (AuctionHouseManager.INSTANCE.getAuctionItemsForPlayer(uuid).isEmpty()) {
-            setItem(45, null);
-        } else {
-            setItem(45, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Gérer mes objets").build(), e -> {
-                new AuctionItemManagerInv(uuid).open((Player) e.getWhoClicked());
-            });
-        }
+        setItem(45, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Gérer mes objets").build(), e -> {
+            new AuctionItemManagerInv(uuid).open((Player) e.getWhoClicked());
+        });
     }
 }

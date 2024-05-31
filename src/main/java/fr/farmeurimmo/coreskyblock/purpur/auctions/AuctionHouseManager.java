@@ -141,6 +141,11 @@ public class AuctionHouseManager {
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
                 if (checkIfExpired(auctionItem)) return;
 
+                if (!auctionItems.contains(auctionItem)) {
+                    buyingProcesses.remove(auctionItem);
+                    return;
+                }
+
                 if (buyingProcesses.containsKey(auctionItem) && buyingProcesses.get(auctionItem).right() == time) {
                     // if the buyer is still the same after 20 ticks, remove the buying process and process the purchase
                     buyingProcesses.remove(auctionItem);

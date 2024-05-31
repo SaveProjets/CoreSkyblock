@@ -83,14 +83,23 @@ public class AuctionItemManagerInv extends FastInv {
                     return;
                 }
 
+                if (AuctionHouseManager.INSTANCE.buyingProcesses.containsKey(auctionItem)) {
+                    p.sendMessage(Component.text("§cCet objet est déjà en cours d'achat."));
+                    return;
+                }
+
                 AuctionHouseManager.INSTANCE.removeItemFromCache(auctionItem.itemUUID());
                 CompletableFuture.runAsync(() -> {
-                    AuctionHouseDataManager.INSTANCE.deleteItem(auctionItem.itemUUID());
                     JedisManager.INSTANCE.publishToRedis("coreskyblock", "auction:remove:" +
                             auctionItem.itemUUID() + ":" + CoreSkyblock.SERVER_NAME);
+                    AuctionHouseDataManager.INSTANCE.deleteItem(auctionItem.itemUUID());
                 });
                 p.getInventory().addItem(auctionItem.itemStack());
-                p.sendMessage(Component.text("§aVous avez récupéré l'objet expiré."));
+                if (auctionItem.isExpired()) {
+                    p.sendMessage(Component.text("§aVous avez récupéré votre objet expiré."));
+                } else {
+                    p.sendMessage(Component.text("§aVous avez récupéré votre objet."));
+                }
 
                 lastAction = System.currentTimeMillis();
             });
