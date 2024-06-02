@@ -337,6 +337,7 @@ public class Island {
 
     public void setLevelExp(double exp) {
         this.exp = exp;
+
         isModified = true;
     }
 
