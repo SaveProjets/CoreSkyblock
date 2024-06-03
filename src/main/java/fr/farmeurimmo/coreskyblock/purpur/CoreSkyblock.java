@@ -53,10 +53,7 @@ import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInvManager;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -313,7 +310,7 @@ public final class CoreSkyblock extends JavaPlugin {
         w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         w.setGameRule(GameRule.KEEP_INVENTORY, true);
 
-        w.setDifficulty(org.bukkit.Difficulty.PEACEFUL);
+        w.setDifficulty(Difficulty.NORMAL);
     }
 
     public void clockSendPlayerConnectedToRedis() {
