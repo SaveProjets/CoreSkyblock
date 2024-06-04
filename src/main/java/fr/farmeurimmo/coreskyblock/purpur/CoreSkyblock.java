@@ -8,6 +8,9 @@ import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseCmd;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsCmd;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsListener;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -171,6 +174,8 @@ public final class CoreSkyblock extends JavaPlugin {
 
         new AuctionHouseManager();
 
+        new ElevatorsManager();
+
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
 
@@ -183,6 +188,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MinionsListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(), this);
         getServer().getPluginManager().registerEvents(new SilosListener(), this);
+        getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
         Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
@@ -216,6 +222,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("prestige")).setExecutor(new PrestigeCmd());
         Objects.requireNonNull(getCommand("baltop")).setExecutor(new BaltopCmd());
         Objects.requireNonNull(getCommand("ah")).setExecutor(new AuctionHouseCmd());
+        Objects.requireNonNull(getCommand("elevators")).setExecutor(new ElevatorsCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
