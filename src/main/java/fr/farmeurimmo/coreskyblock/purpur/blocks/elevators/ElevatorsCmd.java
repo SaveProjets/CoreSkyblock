@@ -12,7 +12,7 @@ public class ElevatorsCmd implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (args.length != 1) {
-            sender.sendMessage(Component.text("§cUsage: /elevator <joueur>"));
+            sender.sendMessage(Component.text("§cUsage: /elevators <joueur>"));
             return false;
         }
         Player target = sender.getServer().getPlayer(args[0]);
