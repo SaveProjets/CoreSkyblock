@@ -64,3 +64,5 @@ commands:
   baltop:
   ah:
     permission: coreskyblock.ah
+  elevators:
+    permission: coreskyblock.elevators
