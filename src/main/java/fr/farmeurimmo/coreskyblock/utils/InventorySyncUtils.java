@@ -207,6 +207,7 @@ public class InventorySyncUtils {
             jsonObject.addProperty("shulkerBoxInventory", inventoryToJson(shulkerBox.getInventory()));
         }
 
+
         /*if (itemStack.getType().name().contains("PAINTING")) {
             // Clear the json object and only store the base64 of the item
             jsonObject = new JsonObject();
@@ -400,6 +401,10 @@ public class InventorySyncUtils {
     // AUTHOR brunyman
     // EDITED BY Farmeurimmo
 
+    public String serializeItemStackBukkit(ItemStack itemStack) {
+        return gson.toJson(itemStack.serialize());
+    }
+
     public String itemStackToBase64(ItemStack itemStack) throws IllegalStateException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -430,6 +435,33 @@ public class InventorySyncUtils {
             return new ItemStack(Material.AIR);
         }
     }
+
+    public String inventoryToBase64String(Inventory inventory) {
+        JsonObject jsonObject = new JsonObject();
+        int position = 0;
+        for (ItemStack itemStack : inventory.getContents()) {
+            if (itemStack != null) {
+                jsonObject.addProperty(String.valueOf(position), itemStackToBase64(itemStack));
+            }
+            position++;
+        }
+        return gson.toJson(jsonObject);
+    }
+
+    public ItemStack[] inventoryFromBase64String(String data) {
+        JsonObject jsonObject = JsonParser.parseString(data).getAsJsonObject();
+        ItemStack[] itemStacks = new ItemStack[SIZE];
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            itemStacks[Integer.parseInt(entry.getKey())] = itemStackFromBase64(entry.getValue().getAsString());
+        }
+        for (int i = 0; i < itemStacks.length; i++) {
+            if (itemStacks[i] == null) {
+                itemStacks[i] = new ItemStack(Material.AIR);
+            }
+        }
+        return itemStacks;
+    }
+
 
     public JsonObject potionEffectsToJson(PotionEffect[] potionEffects) {
         JsonObject jsonObject = new JsonObject();
