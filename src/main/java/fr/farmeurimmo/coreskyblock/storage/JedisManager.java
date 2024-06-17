@@ -143,11 +143,14 @@ public class JedisManager {
                             try {
                                 UUID islandUUID = UUID.fromString(args[2]);
                                 if (args[3].equalsIgnoreCase("no")) {
-                                    IslandsManager.INSTANCE.awaitingResponseFromServerTime.remove(islandUUID);
-                                    Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
-                                    if (island != null && island.isLoaded()) {
-                                        island.setLoaded(true);
-                                    }
+                                    Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                        IslandsManager.INSTANCE.awaitingResponseFromServerTime.remove(islandUUID);
+                                        Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                        if (island != null && island.isLoaded()) {
+                                            island.setLoaded(true);
+                                        }
+                                        return null;
+                                    });
                                 }
                             } catch (Exception ignored) {
                             }

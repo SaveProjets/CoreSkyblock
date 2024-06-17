@@ -43,7 +43,6 @@ public class Island {
     private float level;
     private boolean loaded = false; // not saved
     private boolean readOnly = true; // not saved
-    private long loadTimeout = -1; // not saved
     private boolean isModified = false; // not saved
     private boolean areMembersModified = false; // not saved
     private boolean arePermsModified = false; // not saved
@@ -246,8 +245,10 @@ public class Island {
             }
         }
         Location temp = this.spawn.clone();
-        while (temp.getBlock().getType() != Material.AIR) {
-            temp.add(0, 1, 0);
+        if (temp.getWorld() != null) {
+            while (temp.getBlock().getType() != Material.AIR) {
+                temp.add(0, 1, 0);
+            }
         }
         return temp;
     }
@@ -638,25 +639,7 @@ public class Island {
     }
 
     public void setLoaded(boolean loaded) {
-        if (loaded) {
-            this.loadTimeout = System.currentTimeMillis();
-        } else {
-            this.loadTimeout = -1;
-        }
-
         this.loaded = loaded;
-    }
-
-    public boolean isLoadTimeout() {
-        return getLoadTimeout() != -1 && System.currentTimeMillis() - getLoadTimeout() > 1000 * 60 * 5;
-    }
-
-    public long getLoadTimeout() {
-        return this.loadTimeout;
-    }
-
-    public void setLoadTimeout(long loadTimeout) {
-        this.loadTimeout = loadTimeout;
     }
 
     public List<IslandSettings> getSettings() {

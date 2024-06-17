@@ -273,13 +273,13 @@ public final class CoreSkyblock extends JavaPlugin {
 
         SyncUsersManager.INSTANCE.onDisable();
 
-        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
-
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
             IslandsManager.INSTANCE.onDisable();
 
             WorldsManager.INSTANCE.unload("island_template_1", false);
         }
+
+        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
 
         DatabaseManager.INSTANCE.closeConnection();
 
