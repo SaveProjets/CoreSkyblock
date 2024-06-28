@@ -1,10 +1,10 @@
 package fr.farmeurimmo.coreskyblock.purpur.blocks.elevators;
 
+import dev.lone.itemsadder.api.CustomBlock;
+import dev.lone.itemsadder.api.CustomStack;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,6 +14,7 @@ import java.util.UUID;
 
 public class ElevatorsManager {
 
+    public static final int MAX_ELEVATOR_HEIGHT = 30;
     public static ElevatorsManager INSTANCE;
     public final ArrayList<UUID> usingElevator = new ArrayList<>();
 
@@ -21,23 +22,39 @@ public class ElevatorsManager {
         INSTANCE = this;
     }
 
+    public final ItemStack getElevator() {
+        return getElevatorCustomStack().getItemStack();
+    }
+
+    public final CustomStack getElevatorCustomStack() {
+        return CustomStack.getInstance("elevator");
+    }
+
     public void giveElevator(Player p) {
-        if (p.getInventory().firstEmpty() == -1) {
-            p.getWorld().dropItem(p.getLocation(), getElevator());
-            p.sendMessage(Component.text("§aVotre inventaire est plein, un ascenseur a été déposé au sol."));
+        CustomStack customStack = getElevatorCustomStack();
+        if (customStack != null) {
+            if (p.getInventory().firstEmpty() == -1) {
+                p.getWorld().dropItem(p.getLocation(), getElevator());
+                p.sendMessage(Component.text("§aVotre inventaire est plein, un ascenseur a été déposé au sol."));
+            } else {
+                p.getInventory().addItem(getElevator());
+                p.sendMessage(Component.text("§aVous avez reçu un ascenseur."));
+            }
         } else {
-            p.getInventory().addItem(getElevator());
-            p.sendMessage(Component.text("§aVous avez reçu un ascenseur."));
+            p.sendMessage(Component.text("§cErreur lors de la récupération de l'ascenseur."));
         }
     }
 
-    public ItemStack getElevator() {
-        return ItemBuilder.copyOf(new ItemStack(Material.OBSIDIAN)).name("§6Ascenseur")
-                .lore("§7Placer des ascenseurs pour vous déplacer", "§7rapidement entre les étages de votre île.").build();
+    public boolean isAnElevator(CustomBlock customBlock) {
+        if (customBlock != null) {
+            return Objects.equals(customBlock.getNamespace(), getElevatorCustomStack().getNamespace());
+        }
+        return false;
     }
 
-    public boolean isAnElevator(ItemStack item) { // FIXME: itemadder
-        return item.getType() == getElevator().getType() && Objects.equals(item.getItemMeta(), getElevator().getItemMeta());
+    public boolean isAnElevator(String namespaceID) {
+        return Objects.equals(namespaceID, getElevatorCustomStack().getNamespacedID());
+
     }
 
     public void addUsingElevator(Player p) {

@@ -61,15 +61,6 @@ public class PlayerListener implements Listener {
             }
             CoreSkyblock.INSTANCE.clockSendPlayerConnectedToRedis();
         });
-
-        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
-            BossBar bossBar = BossBarBackgroundUtils.getBossBarWithText("CoreSkyblock|Patate est en forme");
-            p.showBossBar(bossBar);
-            BossBar bossBar2 = BossBarBackgroundUtils.getBossBarWithText("CoreSkyblock 1234 1334");
-            p.showBossBar(bossBar2);
-            BossBar bossBar3 = BossBarBackgroundUtils.getBossBarWithText("CoreSkyblock 1 1 1 11 1 11 1 11 1 11 11 1 1 11 1");
-            p.showBossBar(bossBar3);
-        }, 20L);
     }
 
     @EventHandler
