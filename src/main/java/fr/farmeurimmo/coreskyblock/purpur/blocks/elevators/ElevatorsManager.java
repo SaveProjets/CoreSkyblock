@@ -60,6 +60,6 @@ public class ElevatorsManager {
     public void addUsingElevator(Player p) {
         usingElevator.add(p.getUniqueId());
 
-        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> usingElevator.remove(p.getUniqueId()), 10);
+        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> usingElevator.remove(p.getUniqueId()), 7);
     }
 }
