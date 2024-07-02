@@ -41,30 +41,34 @@ public class SyncUsersManager {
     }
 
     public void autoSave(Player p, boolean async) {
-        SyncUser user = users.get(p.getUniqueId());
-        if (user == null) {
-            user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToJson(p.getInventory()),
-                    p.getHealth(), p.getFoodLevel(), p.getExp(), p.getLevel(),
-                    p.getActivePotionEffects().toArray(PotionEffect[]::new));
-        } else {
-            user.updateInventory(p.getInventory());
-        }
-        user.setHealth(p.getHealth());
-        user.setFood(p.getFoodLevel());
-        user.setExp(p.getExp());
-        user.setPotionEffects(p.getActivePotionEffects().toArray(PotionEffect[]::new));
+        try {
+            SyncUser user = users.get(p.getUniqueId());
+            if (user == null) {
+                user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToBase64String(p.getInventory()),
+                        p.getHealth(), p.getFoodLevel(), p.getExp(), p.getLevel(),
+                        p.getActivePotionEffects().toArray(PotionEffect[]::new));
+            } else {
+                user.updateInventory(p.getInventory());
+            }
+            user.setHealth(p.getHealth());
+            user.setFood(p.getFoodLevel());
+            user.setExp(p.getExp());
+            user.setPotionEffects(p.getActivePotionEffects().toArray(PotionEffect[]::new));
 
-        if (async) {
-            final SyncUser finalUser = user;
-            CompletableFuture.runAsync(() -> {
-                JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + finalUser.getUuid(),
-                        gson.toJson(finalUser.toJson()));
+            if (async) {
+                final SyncUser finalUser = user;
+                CompletableFuture.runAsync(() -> {
+                    JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + finalUser.getUuid(),
+                            gson.toJson(finalUser.toJson()));
 
-                SyncUsersDataManager.INSTANCE.saveInventory(finalUser);
-            });
-        } else {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + user.getUuid(), gson.toJson(user.toJson()));
-            SyncUsersDataManager.INSTANCE.saveInventory(user);
+                    SyncUsersDataManager.INSTANCE.saveInventory(finalUser);
+                });
+            } else {
+                JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + user.getUuid(), gson.toJson(user.toJson()));
+                SyncUsersDataManager.INSTANCE.saveInventory(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -106,7 +110,7 @@ public class SyncUsersManager {
             }
 
             //if the user is not in the database, create a new one
-            user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToJson(p.getInventory()),
+            user = new SyncUser(p.getUniqueId(), InventorySyncUtils.INSTANCE.inventoryToBase64String(p.getInventory()),
                     p.getHealth(), p.getFoodLevel(), p.getExp(), p.getLevel(),
                     p.getActivePotionEffects().toArray(PotionEffect[]::new));
             users.put(p.getUniqueId(), user);

@@ -13,6 +13,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.NumberFormat;
+
 public class IslandUpgradesInv extends FastInv {
 
     public IslandUpgradesInv(Island island, Player p) {
@@ -46,9 +48,13 @@ public class IslandUpgradesInv extends FastInv {
             int currentLevelSize = island.getMaxSize();
             if (currentLevelSize < 5) {
                 double price = IslandsSizeManager.INSTANCE.getSizePriceFromLevel(currentLevelSize + 1);
-                //FIXME: Add the possibility to buy the upgrade
+                if (island.getExp() < price) {
+                    p.sendMessage(Component.text("§cL'île n'a pas assez d'expérience pour améliorer la taille ! "
+                            + "Il manque §6" + NumberFormat.getInstance().format(price - island.getExp()) + "§c d'expérience."));
+                    return;
+                }
+                island.setLevelExp(island.getExp() - price);
                 island.setMaxSize(currentLevelSize + 1);
-                p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
                 update(island, p);
             } else {
                 p.sendMessage(Component.text("§cVotre île est déjà au niveau maximum !"));
@@ -68,8 +74,13 @@ public class IslandUpgradesInv extends FastInv {
             int currentLevel = island.getGeneratorLevel();
             if (currentLevel < 5) {
                 double price = IslandsGeneratorManager.INSTANCE.getGeneratorPriceFromLevel(currentLevel + 1);
-                //FIXME: Add the possibility to buy the upgrade
-                p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
+                if (island.getExp() < price) {
+                    p.sendMessage(Component.text("§cL'île n'a pas assez d'expérience pour améliorer le " +
+                            "générateur ! Il manque §6" + NumberFormat.getInstance().format(price - island.getExp())
+                            + "§c d'expérience."));
+                    return;
+                }
+                island.setLevelExp(island.getExp() - price);
                 island.setGeneratorLevel(currentLevel + 1);
                 update(island, p);
             } else {
@@ -90,7 +101,13 @@ public class IslandUpgradesInv extends FastInv {
             int currentLevel = island.getMaxMembers();
             if (currentLevel < 5) {
                 double price = IslandsMaxMembersManager.INSTANCE.getMembersPriceFromLevel(currentLevel + 1);
-                p.sendMessage(Component.text("§aEn développement... Prix: " + price + "exp"));
+                if (island.getExp() < price) {
+                    p.sendMessage(Component.text("§cL'île n'a pas assez d'expérience pour améliorer le nombre " +
+                            "de membres ! Il manque §6" + NumberFormat.getInstance().format(price - island.getExp())
+                            + "§c d'expérience."));
+                    return;
+                }
+                island.setLevelExp(island.getExp() - price);
                 island.setMaxMembers(currentLevel + 1);
                 update(island, p);
             } else {
@@ -98,13 +115,14 @@ public class IslandUpgradesInv extends FastInv {
             }
         });
 
-        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.PAPER)).name("§6Warps d'île")
+
+        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
                 .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
-        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
+        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
                 .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
-        setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
-                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
+        setItem(16, ItemBuilder.copyOf(new ItemStack(Material.BEDROCK)).name("§6???")
+                .lore("§4Pas tout de suite :D").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
     }
 }

@@ -1,5 +1,9 @@
 package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
+import dev.lone.itemsadder.api.Events.CustomBlockBreakEvent;
+import dev.lone.itemsadder.api.Events.CustomBlockPlaceEvent;
+import dev.lone.itemsadder.api.Events.FurnitureInteractEvent;
+import dev.lone.itemsadder.api.Events.FurniturePlaceEvent;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
@@ -55,4 +59,33 @@ public class SpawnProtectionListener implements Listener {
                     e.getPlayer().sendMessage(Component.text("§cVous avez été téléporté au spawn car vous êtes tombé dans le vide.")));
         }
     }
+
+    @EventHandler
+    public void onCustomBlockBreak(CustomBlockBreakEvent e) {
+        if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
+        if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCustomBlockPlace(CustomBlockPlaceEvent e) {
+        if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
+        if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCustomFurniturePlace(FurniturePlaceEvent e) {
+        if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
+        if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCustomFurnitureInteract(FurnitureInteractEvent e) {
+        if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
+        if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
 }

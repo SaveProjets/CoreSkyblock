@@ -85,27 +85,27 @@ Plusieurs facteurs sont pris en compte pour la répartition des îles :
 
 ### Mise en cache redis
 
-coreskyblock → island:{island_uuid}:{data}
+coreskyblock:island:{island_uuid} → {data}
 
 ### Mise en cache du serveur qui possède l'île chargée (optionnel)
 
-coreskyblock → island:server:{island_uuid}:{SERVER_NAME}
+coreskyblock:island:server:{island_uuid} → {SERVER_NAME}
 
 ### Mise en cache des membres de l'île
 
-coreskyblock → island:members:{uuid}:{island_uuid}
+coreskyblock:island:members:{uuid} → {island_uuid}
 
 ### Mise en cache d'un warp d'île
 
-coreskyblock → island:warp:{island_uuid}
+coreskyblock:island:warp → {island_uuid}
 
 ### Mise en cache du BYPASS d'un joueur sur les îles
 
-coreskyblock → island:bypass:{uuid}
+coreskyblock:island:bypass → {uuid}
 
 ### Mise en cache du SPY d'un joueur sur les îles
 
-coreskyblock → island:spy:{uuid}
+coreskyblock:island:spy → {uuid}
 
 ### Pubsub
 
@@ -165,7 +165,31 @@ Pas de donnée = Pas d'île.
 
 ### Mise en cache redis
 
-coreskyblock:user:{uuid}:{data}
+coreskyblock:user:{uuid} → {data}
+
+-----------------
+
+## Données AUCTIONS
+
+### Pubsub
+
+#### Auction create
+
+coreskyblock → auction:create:{auction_uuid}:{server_name}
+
+#### Auction buying
+
+coreskyblock → auction:buy:{auction_uuid}:{buyer_uuid}:{timestamp}:{buyer_name}:{server_name}
+
+#### Auction remove
+
+coreskyblock → auction:remove:{auction_uuid}:{server_name}
+
+#### Auction givemoney
+
+Déclenché lorsqu'un joueur achète un item à l'enchéreur sur un serveur différent
+
+coreskyblock → auction:givemoney:{player}:{auction_price}:{server_name}
 
 
 

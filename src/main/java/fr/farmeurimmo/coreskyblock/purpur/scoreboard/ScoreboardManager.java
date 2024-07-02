@@ -52,29 +52,28 @@ public class ScoreboardManager {
             board.updateLines("§c§lVeuillez patienter,", "§c§lvos données sont en", "§c§lcours de chargement...", "", "§f» §c§lplay.edmine.net");
             return;
         }
-        board.updateTitle("§4»§c» §c§lSKYBLOCK §c«§4«");
+        board.updateTitle("§8● §6§lSkyblock §8●");
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME || CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
             Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
             ArrayList<String> islandLines = new ArrayList<>();
             if (island != null) {
                 int position = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0);
-                islandLines.add("§6§l" + island.getName().replace("&", "§") + " " + (position > 0 ?
+                islandLines.add("➡ §a§l" + island.getName().replace("&", "§") + " " + (position > 0 ?
                         "§8(§6#" + position + "§8)" : "§8(§7#?§8)"));
-                islandLines.add("§8┃ §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));
-                islandLines.add("§8┃ §7Niveau: §3" + NumberFormat.getInstance().format(island.getLevel()));
+                islandLines.add("§e §8• §7Argent: §d" + NumberFormat.getInstance().format(island.getBankMoney()));
+                islandLines.add("§e §8• §7Niveau: §b" + NumberFormat.getInstance().format(island.getLevel()));
             } else {
-                islandLines.add("§6§lVous n'avez pas d'île");
-                islandLines.add("§8┃ §7/is create");
-                islandLines.add("§8┃ §7/is accept <joueur>");
+                islandLines.add("➡ §a§lVous n'avez pas d'île");
+                islandLines.add("§e §8• §7/is create");
+                islandLines.add("§e §8• §7/is accept <joueur>");
             }
             if (number == 0) {
                 board.updateLines(
-                        "§8" + CoreSkyblock.SERVER_NAME,
                         "",
-                        "§6§lProfil",
-                        "§8┃ §7Grade: §c????",
-                        "§8┃ §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
-                        "§8┃ §7Prestige: §b" + PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
+                        "➡ §d§lInformations:",
+                        "§e §8• §7Grade: §c§lADMIN",
+                        "§e §8• §7Argent: §e" + NumberFormat.getInstance().format(user.getMoney()),
+                        "§e §8• §7Prestige: §4" + PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
                                 NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + " " +
                                 PrestigesManager.INSTANCE.getProgressBar(p.getUniqueId()),
                         "",
@@ -82,7 +81,7 @@ public class ScoreboardManager {
                         islandLines.get(1),
                         islandLines.get(2),
                         "",
-                        "§f» §c§lplay.edmine.net"
+                        "§8➡ §eplay.edmine.net"
                 );
             } else if (number == 1) {
                 board.updateTitle("§6§lCoreSkyblock");

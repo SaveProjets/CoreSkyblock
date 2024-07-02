@@ -22,12 +22,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class IslandCmd implements CommandExecutor {
 
     private static final Component USAGE_NO_IS = Component.text("§cUtilisation: /is create OU /is join <joueur> " +
             "tout en possédant une invitation.");
+
+    private final ArrayList<UUID> creatingIsland = new ArrayList<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -68,7 +71,15 @@ public class IslandCmd implements CommandExecutor {
                 return false;
             }
             if (args[0].equalsIgnoreCase("create")) {
+                if (creatingIsland.contains(p.getUniqueId())) {
+                    p.sendMessage(Component.text("§cVous êtes déjà en train de créer une île. Veuillez patienter ou réessayer plus tard."));
+                    return false;
+                }
+                creatingIsland.add(p.getUniqueId());
+                p.sendMessage(Component.text("§6Création de votre île..."));
                 IslandsManager.INSTANCE.createIsland(p.getUniqueId());
+
+                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> creatingIsland.remove(p.getUniqueId()), 20 * 10);
                 return false;
             }
             if (args[0].equalsIgnoreCase("accept") || args[0].equalsIgnoreCase("join")) {

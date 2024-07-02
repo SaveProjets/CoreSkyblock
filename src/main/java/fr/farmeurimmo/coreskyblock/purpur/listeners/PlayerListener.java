@@ -11,6 +11,8 @@ import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.BossBarBackgroundUtils;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -59,6 +61,15 @@ public class PlayerListener implements Listener {
             }
             CoreSkyblock.INSTANCE.clockSendPlayerConnectedToRedis();
         });
+
+        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+            BossBar bossBar = BossBarBackgroundUtils.getBossBarWithText("OoO aaa eoo e e e|Salut " + p.getName());
+            p.showBossBar(bossBar);
+            /*BossBar bossBar2 = BossBarBackgroundUtils.getBossBarWithText("CoreSkyblock 1234 1334");
+            p.showBossBar(bossBar2);
+            BossBar bossBar3 = BossBarBackgroundUtils.getBossBarWithText("CoreSkyblock 1 1 1 11 1 11 1 11 1 11 11 1 1 11 1");
+            p.showBossBar(bossBar3);*/
+        }, 20L);
     }
 
     @EventHandler

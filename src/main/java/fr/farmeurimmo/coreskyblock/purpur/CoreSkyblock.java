@@ -6,6 +6,11 @@ import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseCmd;
+import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsCmd;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsListener;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
@@ -51,10 +56,7 @@ import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInvManager;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -170,6 +172,10 @@ public final class CoreSkyblock extends JavaPlugin {
         new ChatDisplayManager();
         new PrestigesManager();
 
+        new AuctionHouseManager();
+
+        new ElevatorsManager();
+
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
 
@@ -182,6 +188,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MinionsListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(), this);
         getServer().getPluginManager().registerEvents(new SilosListener(), this);
+        getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
         Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
@@ -214,6 +221,8 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("xp")).setExecutor(new XpCmd());
         Objects.requireNonNull(getCommand("prestige")).setExecutor(new PrestigeCmd());
         Objects.requireNonNull(getCommand("baltop")).setExecutor(new BaltopCmd());
+        Objects.requireNonNull(getCommand("ah")).setExecutor(new AuctionHouseCmd());
+        Objects.requireNonNull(getCommand("elevators")).setExecutor(new ElevatorsCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
@@ -264,13 +273,13 @@ public final class CoreSkyblock extends JavaPlugin {
 
         SyncUsersManager.INSTANCE.onDisable();
 
-        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
-
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
             IslandsManager.INSTANCE.onDisable();
 
             WorldsManager.INSTANCE.unload("island_template_1", false);
         }
+
+        WorldsManager.INSTANCE.unload(SPAWN_WORLD_NAME, !SPAWN_IN_READ_ONLY);
 
         DatabaseManager.INSTANCE.closeConnection();
 
@@ -307,6 +316,8 @@ public final class CoreSkyblock extends JavaPlugin {
         w.setGameRule(GameRule.MOB_GRIEFING, false);
         w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         w.setGameRule(GameRule.KEEP_INVENTORY, true);
+
+        w.setDifficulty(Difficulty.NORMAL);
     }
 
     public void clockSendPlayerConnectedToRedis() {

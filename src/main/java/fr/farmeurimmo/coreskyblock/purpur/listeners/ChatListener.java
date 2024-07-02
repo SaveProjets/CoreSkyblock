@@ -126,10 +126,16 @@ public class ChatListener implements Listener {
             return;
         }
 
-        int islandRanking = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0);
-        String level = (islandRanking > 0) ? "§8[§e#" + NumberFormat.getInstance().format(IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0)) + "§8] " : "";
-        String prestigeLevel = (user.getCurrentPrestigeLevel() > 0) ? PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
-                NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + "§l✨ " : "";
-        p.getServer().sendMessage(Component.text(prestigeLevel + level + "§6???? " + p.getName() + " §8» §f").append(component));
+        if (island != null) {
+            int islandRanking = IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0);
+            String level = (islandRanking > 0) ? "§8[§e#" + NumberFormat.getInstance().format(IslandsTopManager.INSTANCE.getPosition(island.getIslandUUID(), 0)) + "§8] " : "";
+            String prestigeLevel = (user.getCurrentPrestigeLevel() > 0) ? PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
+                    NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + "§l✨ " : "";
+            p.getServer().sendMessage(Component.text(prestigeLevel + level + "§6???? " + p.getName() + " §8» §f").append(component));
+        } else {
+            String prestigeLevel = (user.getCurrentPrestigeLevel() > 0) ? PrestigesManager.INSTANCE.getColorCode(user.getLastPrestigeLevelClaimed()) +
+                    NumberFormat.getInstance().format(user.getLastPrestigeLevelClaimed()) + "§l✨ " : "";
+            p.getServer().sendMessage(Component.text(prestigeLevel + "§6???? " + p.getName() + " §8» §f").append(component));
+        }
     }
 }

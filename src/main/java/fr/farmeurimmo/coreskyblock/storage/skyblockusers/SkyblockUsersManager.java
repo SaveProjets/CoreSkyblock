@@ -159,4 +159,11 @@ public class SkyblockUsersManager {
     public final LinkedHashMap<String, Double> getMoneyTop() {
         return baltop;
     }
+
+    public void unloadUser(SkyblockUser user) {
+        Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+            cache.remove(user.getUuid());
+            return null;
+        });
+    }
 }

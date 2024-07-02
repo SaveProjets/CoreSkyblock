@@ -7,6 +7,7 @@ description: Mine skyblock plugin
 website: https://edmine.fr
 depend:
   - SlimeWorldManager
+  - ItemsAdder
 commands:
   buildspawn:
     description: Permet de modifier le spawn (déconseillé il faut modifier la template)
@@ -62,3 +63,7 @@ commands:
   xp:
   prestige:
   baltop:
+  ah:
+    permission: coreskyblock.ah
+  elevators:
+    permission: coreskyblock.elevators

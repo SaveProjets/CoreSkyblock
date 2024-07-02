@@ -19,8 +19,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
 
-    public static DatabaseManager INSTANCE;
     private static final HikariConfig config = new HikariConfig();
+    public static DatabaseManager INSTANCE;
     private static HikariDataSource ds;
     private final String host;
     private final String user;

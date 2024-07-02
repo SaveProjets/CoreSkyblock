@@ -47,7 +47,7 @@ public class SyncUser {
     }
 
     public ItemStack[] getContentsItemStack() {
-        return InventorySyncUtils.INSTANCE.jsonToInventory(inventory);
+        return InventorySyncUtils.INSTANCE.inventoryFromBase64String(inventory);
     }
 
     public String getInventory() {
@@ -55,7 +55,7 @@ public class SyncUser {
     }
 
     public void updateInventory(Inventory inv) {
-        inventory = InventorySyncUtils.INSTANCE.inventoryToJson(inv);
+        inventory = InventorySyncUtils.INSTANCE.inventoryToBase64String(inv);
     }
 
     public double getHealth() {

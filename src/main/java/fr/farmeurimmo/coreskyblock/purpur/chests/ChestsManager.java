@@ -107,6 +107,8 @@ public class ChestsManager {
                 SellChestTiers tier = SellChestTiers.values()[chest.getTier()];
                 double sellMultiplier = tier.getSellMultiplier();
 
+                if (chest.getBlock() == null) continue;
+
                 Block block = chest.getBlock().getBlock();
                 if (block.getState() instanceof org.bukkit.block.Chest c) {
                     double moneyMade = 0;
