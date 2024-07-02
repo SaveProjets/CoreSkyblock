@@ -12,7 +12,20 @@ public class BossBarBackgroundUtils {
     }
 
     public static String applyBackGround(String text) {
+        StringBuilder builder = new StringBuilder();
+
         String[] texts = text.split("\\|");
+
+        for (String txt : texts) {
+            builder.append("\uF801䧼".repeat(Math.max(0, (txt.length() + 1) / 2)));
+            builder.append("\uF806".repeat(txt.length()));
+            builder.append(txt);
+            builder.append(" ".repeat(4));
+        }
+
+        return builder.toString();
+
+        /*String[] texts = text.split("\\|");
         StringBuilder builder = new StringBuilder();
         int it = 0;
         String lastBack = "";
@@ -36,9 +49,10 @@ public class BossBarBackgroundUtils {
             //we need  per 2 characters
 
             builder.append(txt);
+            builder.append("\uF808\uF808\uF808");
             it++;
         }
 
-        return builder.toString();
+        return builder.toString();*/
     }
 }
