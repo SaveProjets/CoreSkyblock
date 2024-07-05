@@ -18,6 +18,7 @@ import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsManager;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.BuildSpawnCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.base.*;
 import fr.farmeurimmo.coreskyblock.purpur.eco.MoneyCmd;
+import fr.farmeurimmo.coreskyblock.purpur.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyListener;
@@ -175,6 +176,8 @@ public final class CoreSkyblock extends JavaPlugin {
         new AuctionHouseManager();
 
         new ElevatorsManager();
+
+        new CustomEnchantmentsManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
