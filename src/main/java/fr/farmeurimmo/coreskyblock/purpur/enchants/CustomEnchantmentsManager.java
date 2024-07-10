@@ -32,7 +32,7 @@ public class CustomEnchantmentsManager {
     public ItemStack getItemStackEnchantedBook(Enchantments enchantment, int level) {
         ItemStack itemStack = new ItemStack(Material.ENCHANTED_BOOK);
         itemStack.setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ? ENCHANTMENT_LORE_SEPARATOR + level : ""));
-        itemStack.lore(enchantment.getDescriptionFormatted());
+        itemStack.lore(enchantment.getDescriptionFormatted(level));
 
         return itemStack;
     }
