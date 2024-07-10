@@ -135,14 +135,6 @@ public enum Enchantments {
         return isPercentage;
     }
 
-    public double getBaseValue() {
-        return baseValue;
-    }
-
-    public double getMultiplier() {
-        return multiplier;
-    }
-
     public boolean hasCooldown() {
         return baseCooldown != -1;
     }
@@ -168,7 +160,7 @@ public enum Enchantments {
     }
 
     public List<Component> getDescriptionFormatted(int level) {
-        int maxLengthPerLine = 38;
+        int maxLengthPerLine = 34;
         ArrayList<Component> components = new ArrayList<>();
         int current = 0;
         StringBuilder builder = new StringBuilder();
