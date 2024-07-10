@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.enchants.enums;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -149,6 +150,10 @@ public enum Enchantments {
 
     public double getValueEffectForLevel(int level) {
         return cooldownReductionPerLevel + (level - 1) * multiplier * cooldownReductionPerLevel;
+    }
+
+    public boolean canBeAppliedOn(Material material) {
+        return recipients.stream().anyMatch(recipient -> material.name().contains(recipient.name()));
     }
 
     public boolean isAllowed(EnchantmentsRecipients recipient) {
