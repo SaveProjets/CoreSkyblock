@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants;
+package fr.farmeurimmo.coreskyblock.purpur.enchants.enums;
 
 import net.kyori.adventure.text.Component;
 
