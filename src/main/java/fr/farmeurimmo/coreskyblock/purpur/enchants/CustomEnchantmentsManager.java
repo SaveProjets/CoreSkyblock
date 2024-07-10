@@ -25,6 +25,19 @@ public class CustomEnchantmentsManager {
                 smellRecipes.add(furnaceRecipe);
             }
         });
+
+        //register all recipes to combine enchants
+        /*for (Enchantments enchantments : Enchantments.values()) {
+            if (!enchantments.hasMaxLevel()) continue;
+            for (int i = 1; i < enchantments.getMaxLevel(); i++) {
+                ShapedRecipe recipe = new ShapedRecipe(Objects.requireNonNull(NamespacedKey.fromString("combine_enchants_"
+                        + enchantments.name().toLowerCase() + "_" + i)), getItemStackEnchantedBook(enchantments, i+1));
+                recipe.shape("AA");
+                recipe.setIngredient('A', getItemStackEnchantedBook(enchantments, i));
+
+                Bukkit.addRecipe(recipe);
+            }
+        }*/
     }
 
     public ItemStack getItemStackWithEnchantsApplied(List<Enchantments> enchantments, ItemStack itemStack) {
@@ -41,8 +54,7 @@ public class CustomEnchantmentsManager {
 
     public ItemStack getItemStackEnchantedBook(Enchantments enchantment, int level) {
         ItemStack itemStack = new ItemStack(Material.ENCHANTED_BOOK);
-        itemStack.setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ? ENCHANTMENT_LORE_SEPARATOR + level : "")
-                + ENCHANTMENT_LORE_SEPARATOR + "§0" + UUID.randomUUID().toString().substring(0, 4));
+        itemStack.setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ? ENCHANTMENT_LORE_SEPARATOR + level : ""));
         itemStack.lore(enchantment.getDescriptionFormatted(level));
 
         return itemStack;
