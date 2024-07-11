@@ -11,11 +11,13 @@ public enum Enchantments {
 
     GAIN_DE_VIE("Gain de vie", "§7Permet de gagner {value} cœurs supplémentaires.",
             2, false, 1, 1, 0, -1,
-            EnchantmentRarity.RARE, List.of(EnchantmentsRecipients.ARMOR)),
+            EnchantmentRarity.RARE, List.of(EnchantmentsRecipients.HELMET, EnchantmentsRecipients.CHESTPLATE,
+            EnchantmentsRecipients.LEGGINGS, EnchantmentsRecipients.BOOTS)),
 
     RENVOI("Renvoi", "§7Chance de {value}% de rediriger l’attaque de l’adversaire contre lui-même.",
             2, true, 0.02, 1, 0, -1,
-            EnchantmentRarity.EPIC, List.of(EnchantmentsRecipients.ARMOR)),
+            EnchantmentRarity.EPIC, List.of(EnchantmentsRecipients.HELMET, EnchantmentsRecipients.CHESTPLATE,
+            EnchantmentsRecipients.LEGGINGS, EnchantmentsRecipients.BOOTS)),
 
     LAMPE_TORCHE("Lampe torche", "§7Permet d’avoir l’effet vision nocturne", -1, false,
             0, 0, 0, -1, EnchantmentRarity.UNCOMMON, List.of(EnchantmentsRecipients.HELMET)),
@@ -116,6 +118,10 @@ public enum Enchantments {
                 .replace("{value_effect}", NumberFormat.getInstance().format(enchantments.getValueEffectForLevel(level)));
     }
 
+    public String canBeAppliedOn() {
+        return "§7Applicable sur: " + recipients.stream().map(EnchantmentsRecipients::getName).reduce((s1, s2) -> s1 + ", " + s2).orElse("");
+    }
+
     public String getDisplayName() {
         return rarity.getColor() + displayName;
     }
@@ -157,6 +163,7 @@ public enum Enchantments {
     }
 
     public boolean isAllowed(EnchantmentsRecipients recipient) {
+        if (recipient == null) return false;
         return recipients.contains(recipient);
     }
 
@@ -170,6 +177,21 @@ public enum Enchantments {
         int current = 0;
         StringBuilder builder = new StringBuilder();
         for (char c : Enchantments.getDescription(this, level).toCharArray()) {
+            if (current >= maxLengthPerLine && c == ' ') {
+                components.add(Component.text(builder.toString()));
+                builder = new StringBuilder();
+                builder.append("§7");
+                current = 0;
+                continue;
+            }
+            builder.append(c);
+            current++;
+        }
+        components.add(Component.text(builder.toString()));
+        components.add(Component.text(""));
+        current = 0;
+        builder = new StringBuilder();
+        for (char c : canBeAppliedOn().toCharArray()) {
             if (current >= maxLengthPerLine && c == ' ') {
                 components.add(Component.text(builder.toString()));
                 builder = new StringBuilder();

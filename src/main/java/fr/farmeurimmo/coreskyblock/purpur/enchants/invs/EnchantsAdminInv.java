@@ -68,11 +68,8 @@ public class EnchantsAdminInv extends FastInv {
             });
         }
 
-        setItem(47, new ItemBuilder(Material.ANVIL).name("§6Fusionner des enchants").build(), e ->
-                new EnchantsFusionnerInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
-
-        setItem(49, new ItemBuilder(Material.ANVIL).name("§6Appliquer un enchantement").build(), e ->
-                new EnchantsApplierInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
+        setItem(49, new ItemBuilder(Material.ANVIL).name("§6Fusionner et appliquer des enchants").build(), e ->
+                new EnchantsJoinerInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
     }
 
     private int getMaxPage() {
