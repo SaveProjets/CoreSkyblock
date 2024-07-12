@@ -99,14 +99,14 @@ public class EnchantsRemoverInv extends FastInv {
     private void update() {
         for (int i = 0; i < getInventory().getSize(); i++) {
             if (i == ITEM_SLOT || i == 14) continue;
-            setItem(i, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).name("§7").build());
+            setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build(), e -> e.setCancelled(true));
         }
 
         ItemStack item = getInventory().getItem(ITEM_SLOT);
 
         if (item == null || item.getType() == Material.AIR) {
             for (int slot : ENCHANTS_SLOTS) {
-                setItem(slot, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).name("§7").build());
+                setItem(slot, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build(), e -> e.setCancelled(true));
             }
             return;
         }

@@ -25,7 +25,6 @@ public class EnchantsJoinerInv extends FastInv {
     private static final int SLOT_2 = 14;
     private static final int FINAL_SLOT = 31;
     private final Player p;
-    private boolean hasConfirmed = false;
     private boolean isClosed = false;
 
     public EnchantsJoinerInv(Player p) {
@@ -47,19 +46,40 @@ public class EnchantsJoinerInv extends FastInv {
                 setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§0").build(), e -> e.setCancelled(true));
         }
 
+        setItem(22, new ItemBuilder(Material.ANVIL).name("§aFusionner").build(), e -> {
+            e.setCancelled(true);
+
+            update(true);
+
+            ItemStack finalItem = getInventory().getItem(FINAL_SLOT);
+
+            if (finalItem == null) {
+                return;
+            }
+            if (CustomEnchantmentsManager.INSTANCE.getValidEnchantments(finalItem).isEmpty()) {
+                return;
+            }
+            if (finalItem.getType() == Material.BARRIER) {
+                return;
+            }
+
+            p.getInventory().addItem(finalItem);
+
+            getInventory().setItem(SLOT_1, null);
+            getInventory().setItem(SLOT_2, null);
+            getInventory().setItem(FINAL_SLOT, null);
+
+            p.playSound(Sound.sound(org.bukkit.Sound.BLOCK_ANVIL_USE, Sound.Source.PLAYER, 1, 1));
+
+            update(false);
+        });
+
         setCloseFilter(e -> {
-            if (hasConfirmed) {
-                e.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(FINAL_SLOT)));
-                e.getInventory().setItem(FINAL_SLOT, null);
-                e.getInventory().setItem(SLOT_1, null);
-                e.getInventory().setItem(SLOT_2, null);
-            } else {
-                if (getInventory().getItem(SLOT_1) != null) {
-                    e.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(SLOT_1)));
-                }
-                if (getInventory().getItem(SLOT_2) != null) {
-                    e.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(SLOT_2)));
-                }
+            if (getInventory().getItem(SLOT_1) != null) {
+                e.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(SLOT_1)));
+            }
+            if (getInventory().getItem(SLOT_2) != null) {
+                e.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(SLOT_2)));
             }
             e.setCanPickupItems(true);
             isClosed = true;
@@ -76,15 +96,13 @@ public class EnchantsJoinerInv extends FastInv {
         ItemStack item2 = getInventory().getItem(SLOT_2);
 
         if (item1 == null) {
-            hasConfirmed = false;
-            setItemResultAsError();
+            setItemResultAsError(false);
             sendFeedback(notify, p, Component.text("§cVeuillez mettre un item dans la première case"),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
         if (item2 == null) {
-            hasConfirmed = false;
-            setItemResultAsError();
+            setItemResultAsError(false);
             sendFeedback(notify, p, Component.text("§cVeuillez mettre un item dans la deuxième case"),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
@@ -95,14 +113,8 @@ public class EnchantsJoinerInv extends FastInv {
             final ItemStack item = item1.getType() == Material.ENCHANTED_BOOK ? item2.clone() : item1.clone();
 
             if (enchantmentBook.getType() != Material.ENCHANTED_BOOK) {
-                setItemResultAsError();
+                setItemResultAsError(true);
                 sendFeedback(notify, p, Component.text("§cIl doit y avoir un livre enchanté dans une des deux cases."),
-                        Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
-                return;
-            }
-            if (item.getType() == Material.ENCHANTED_BOOK) {
-                setItemResultAsError();
-                sendFeedback(notify, p, Component.text("§cVous ne pouvez pas fusionner deux livres enchantés."),
                         Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                 return;
             }
@@ -111,7 +123,7 @@ public class EnchantsJoinerInv extends FastInv {
             Optional<ArrayList<Pair<Enchantments, Integer>>> itemEnchantments = CustomEnchantmentsManager.INSTANCE.getValidEnchantments(item);
 
             if (bookEnchantments.isEmpty()) {
-                setItemResultAsError();
+                setItemResultAsError(true);
                 sendFeedback(notify, p, Component.text("§cLe livre enchanté ne contient pas d'enchantement spécial."),
                         Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                 return;
@@ -124,13 +136,13 @@ public class EnchantsJoinerInv extends FastInv {
                         if (enchantment.left().equals(bookEnchantment.left())) {
                             if (enchantment.right() <= bookEnchantment.right()) {
                                 if (!enchantment.left().hasMaxLevel()) {
-                                    setItemResultAsError();
+                                    setItemResultAsError(true);
                                     sendFeedback(notify, p, Component.text("§cVous ne pouvez pas fusionner un item avec un livre enchanté sans niveau."),
                                             Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                                     return;
                                 }
                                 if (enchantment.right() + 1 > enchantment.left().getMaxLevel()) {
-                                    setItemResultAsError();
+                                    setItemResultAsError(true);
                                     sendFeedback(notify, p, Component.text("§cVous avez atteint le niveau maximum pour cet enchantement."),
                                             Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                                     return;
@@ -156,6 +168,13 @@ public class EnchantsJoinerInv extends FastInv {
                         }
                     }
                 }
+                if (!bookEnchantments.get().get(0).left().isAllowed(EnchantmentsRecipients.getFromItemStack(item))) {
+                    setItemResultAsError(true);
+                    sendFeedback(notify, p, Component.text("§cCet enchantement ne peut pas être appliqué sur cet item."),
+                            Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
+                    return;
+                }
+
                 itemEnchantments.get().addAll(bookEnchantments.get());
 
                 setFinalItem(CustomEnchantmentsManager.INSTANCE.getItemStackWithEnchantsApplied(itemEnchantments.get(), item));
@@ -167,7 +186,7 @@ public class EnchantsJoinerInv extends FastInv {
             itemEnchantments = bookEnchantments;
 
             if (!itemEnchantments.get().get(0).left().isAllowed(EnchantmentsRecipients.getFromItemStack(item))) {
-                setItemResultAsError();
+                setItemResultAsError(true);
                 sendFeedback(notify, p, Component.text("§cCet enchantement ne peut pas être appliqué sur cet item."),
                         Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                 return;
@@ -186,26 +205,26 @@ public class EnchantsJoinerInv extends FastInv {
         Optional<ArrayList<Pair<Enchantments, Integer>>> enchantments2 = CustomEnchantmentsManager.INSTANCE.getValidEnchantments(item2);
 
         if (enchantments1.isEmpty()) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cL'item dans la première case n'est pas un enchantement spécial."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
         if (enchantments2.isEmpty()) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cL'item dans la deuxième case n'est pas un enchantement spécial."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
 
         if (enchantments1.get().size() != 1) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cL'item dans la première case ne doit contenir qu'un seul enchantement."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
         if (enchantments2.get().size() != 1) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cL'item dans la deuxième case ne doit contenir qu'un seul enchantement."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
@@ -215,27 +234,27 @@ public class EnchantsJoinerInv extends FastInv {
         Pair<Enchantments, Integer> enchantment2 = enchantments2.get().get(0);
 
         if (!enchantment1.left().equals(enchantment2.left())) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cLes deux livres d'enchantements doivent contenir le même enchantement."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
         if (!enchantment1.right().equals(enchantment2.right())) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cLes deux livres d'enchantements doivent contenir le même niveau."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
 
         if (!enchantment1.left().hasMaxLevel()) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cVous ne pouvez pas fusionner deux livres enchantés sans niveau."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
         }
 
         if (enchantment1.right() + 1 > enchantment1.left().getMaxLevel()) {
-            setItemResultAsError();
+            setItemResultAsError(true);
             sendFeedback(notify, p, Component.text("§cVous avez atteint le niveau maximum pour cet enchantement."),
                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
             return;
@@ -247,22 +266,14 @@ public class EnchantsJoinerInv extends FastInv {
                 Sound.sound(org.bukkit.Sound.BLOCK_ENCHANTMENT_TABLE_USE, Sound.Source.PLAYER, 1, 1));
     }
 
-    private void setItemResultAsError() {
-        setItem(FINAL_SLOT, new ItemBuilder(Material.BARRIER).name("§cImpossible").build(), e -> e.setCancelled(true));
+    private void setItemResultAsError(boolean canNotBeAppliedOn) {
+        if (canNotBeAppliedOn)
+            setItem(FINAL_SLOT, new ItemBuilder(Material.BARRIER).name("§cImpossible").build(), e -> e.setCancelled(true));
+        else setItem(FINAL_SLOT, null);
     }
 
     private void setFinalItem(ItemStack newItem) {
-        hasConfirmed = true;
-        setItem(FINAL_SLOT, newItem, e -> {
-            if (hasConfirmed) {
-                e.setCancelled(false);
-                getInventory().setItem(SLOT_1, null);
-                getInventory().setItem(SLOT_2, null);
-                hasConfirmed = false;
-                return;
-            }
-            e.setCancelled(true);
-        });
+        setItem(FINAL_SLOT, newItem, e -> e.setCancelled(true));
     }
 
     private void sendFeedback(boolean shouldSend, Player player, Component message, Sound sound) {
