@@ -110,4 +110,14 @@ public class InventoryUtils {
 
         return total;
     }
+
+    public int freeSlots(Inventory inv) {
+        int free = 0;
+        for (ItemStack itemStack : inv.getStorageContents()) {
+            if (itemStack == null) {
+                free++;
+            }
+        }
+        return free;
+    }
 }

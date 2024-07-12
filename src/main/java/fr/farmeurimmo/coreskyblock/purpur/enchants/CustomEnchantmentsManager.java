@@ -29,6 +29,11 @@ public class CustomEnchantmentsManager {
     }
 
     public ItemStack getItemStackWithEnchantsApplied(ArrayList<Pair<Enchantments, Integer>> enchantments, ItemStack itemStack) {
+        if (enchantments.isEmpty()) {
+            itemStack.lore(null);
+
+            return itemStack;
+        }
         itemStack.lore(getEnchantmentsOrderedByRarityFromList(enchantments).stream().map(enchantment -> (Component)
                 Component.text(enchantment.left().getDisplayName() + (enchantment.left().getMaxLevel() > 1 ?
                         ENCHANTMENT_LORE_SEPARATOR + enchantment.right() : ""))).collect(Collectors.toList()));
