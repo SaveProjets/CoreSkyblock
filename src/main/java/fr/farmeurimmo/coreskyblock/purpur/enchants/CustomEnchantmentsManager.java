@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,15 +16,18 @@ import java.util.stream.Collectors;
 public class CustomEnchantmentsManager {
 
     public static final String ENCHANTMENT_LORE_SEPARATOR = "§  ";
-    public static final ArrayList<FurnaceRecipe> smellRecipes = new ArrayList<>();
+    public static final ArrayList<FurnaceRecipe> SMELL_RECIPES = new ArrayList<>();
     public static CustomEnchantmentsManager INSTANCE;
+    public static ArrayList<Material> SMELTING_ALLOWED_MATERIALS = new ArrayList<>(Arrays.asList(
+            Material.COBBLESTONE, Material.STONE, Material.RAW_IRON, Material.RAW_GOLD, Material.RAW_COPPER,
+            Material.RAW_COPPER));
 
     public CustomEnchantmentsManager() {
         INSTANCE = this;
 
         Bukkit.recipeIterator().forEachRemaining(recipe -> {
             if (recipe instanceof FurnaceRecipe furnaceRecipe) {
-                smellRecipes.add(furnaceRecipe);
+                SMELL_RECIPES.add(furnaceRecipe);
             }
         });
     }
@@ -113,5 +117,15 @@ public class CustomEnchantmentsManager {
         }
 
         return enchantedBooks;
+    }
+
+    public void applyAmant(ArrayList<ItemStack> drops, Player p) {
+        for (ItemStack drop : drops) {
+            if (p.getInventory().firstEmpty() == -1) {
+                p.getWorld().dropItem(p.getLocation(), drop);
+            } else {
+                p.getInventory().addItem(drop);
+            }
+        }
     }
 }
