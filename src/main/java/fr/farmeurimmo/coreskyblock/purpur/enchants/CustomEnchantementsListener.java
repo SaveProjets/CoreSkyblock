@@ -66,6 +66,8 @@ public class CustomEnchantementsListener implements Listener {
                             smeltResult.setAmount((int) Math.round(furnaceRecipe.getResult().getAmount() * fortune));
                         }
 
+                        e.setExpToDrop((int) Math.ceil(furnaceRecipe.getExperience()));
+
                         newDrops.add(smeltResult);
                         break;
                     }
@@ -76,11 +78,18 @@ public class CustomEnchantementsListener implements Listener {
             drops.addAll(newDrops);
         }
 
+        if (enchantmentsList.stream().anyMatch(enchantmentsIntegerPair -> enchantmentsIntegerPair.left() == Enchantments.ORE_XP)) {
+            e.setExpToDrop((int) (e.getExpToDrop() + e.getExpToDrop() * (Enchantments.ORE_XP.getBaseValue() / 100)));
+        }
+
         if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.AIMANT)) {
             e.setDropItems(false);
 
             CustomEnchantmentsManager.INSTANCE.applyAmant(drops, p);
         }
+
+        p.giveExp(e.getExpToDrop());
+        e.setExpToDrop(0);
     }
 
     @EventHandler
