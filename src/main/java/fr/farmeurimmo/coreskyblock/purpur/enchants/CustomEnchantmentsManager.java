@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.enchants;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.EnchantmentRarity;
 import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
 import it.unimi.dsi.fastutil.Pair;
@@ -9,6 +10,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +33,12 @@ public class CustomEnchantmentsManager {
                 SMELL_RECIPES.add(furnaceRecipe);
             }
         });
+
+        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                checkForArmorEffects(p);
+            }
+        }, 0, 20 * 15);
     }
 
     public ItemStack getItemStackWithEnchantsApplied(ArrayList<Pair<Enchantments, Integer>> enchantments, ItemStack itemStack) {
@@ -96,6 +105,9 @@ public class CustomEnchantmentsManager {
     }
 
     public Optional<ArrayList<Pair<Enchantments, Integer>>> getValidEnchantments(ItemStack item) {
+        if (item == null) {
+            return Optional.empty();
+        }
         if (item.getType().isAir() || !item.hasItemMeta() || !item.getItemMeta().hasLore()) {
             return Optional.empty();
         }
@@ -125,6 +137,37 @@ public class CustomEnchantmentsManager {
                 p.getWorld().dropItem(p.getLocation(), drop);
             } else {
                 p.getInventory().addItem(drop);
+            }
+        }
+    }
+
+    public void checkForArmorEffects(Player p) {
+        for (ItemStack itemStack : p.getInventory().getArmorContents()) {
+            Optional<ArrayList<Pair<Enchantments, Integer>>> enchantments = getValidEnchantments(itemStack);
+            if (enchantments.isEmpty()) {
+                Optional<PotionEffect> potionEffect = p.getActivePotionEffects().stream().filter(potionEffect1 ->
+                        potionEffect1.getType() == PotionEffectType.NIGHT_VISION).findFirst();
+
+                if (potionEffect.isPresent()) {
+                    if (!potionEffect.get().hasParticles()) {
+                        p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                    }
+                }
+                continue;
+            }
+
+            ArrayList<Pair<Enchantments, Integer>> enchantmentsList = enchantments.get();
+            if (enchantmentsList.stream().anyMatch(enchantmentsIntegerPair -> enchantmentsIntegerPair.left() == Enchantments.LAMPE_TORCHE)) {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 400, 0, false, false));
+            } else {
+                Optional<PotionEffect> potionEffect = p.getActivePotionEffects().stream().filter(potionEffect1 ->
+                        potionEffect1.getType() == PotionEffectType.NIGHT_VISION).findFirst();
+
+                if (potionEffect.isPresent()) {
+                    if (!potionEffect.get().hasParticles()) {
+                        p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                    }
+                }
             }
         }
     }

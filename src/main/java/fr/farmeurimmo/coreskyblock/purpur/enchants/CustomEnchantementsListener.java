@@ -1,17 +1,21 @@
 package fr.farmeurimmo.coreskyblock.purpur.enchants;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import dev.lone.itemsadder.api.CustomBlock;
 import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CustomEnchantementsListener implements Listener {
@@ -46,7 +50,22 @@ public class CustomEnchantementsListener implements Listener {
 
                 for (FurnaceRecipe furnaceRecipe : CustomEnchantmentsManager.SMELL_RECIPES) {
                     if (furnaceRecipe.getInputChoice().test(drop) && furnaceRecipe.getResult().getType() != Material.AIR) {
-                        newDrops.add(furnaceRecipe.getResult());
+
+                        int fortuneLevel = 0;
+
+                        try {
+                            fortuneLevel = e.getPlayer().getItemInHand().getEnchantmentLevel(Objects.requireNonNull(Enchantment.LOOT_BONUS_BLOCKS));
+                        } catch (NullPointerException ignored) {
+                        }
+
+                        ItemStack smeltResult = furnaceRecipe.getResult().clone();
+
+                        if (fortuneLevel > 0) {
+                            double fortune = 1.0 / (fortuneLevel + 2) + (fortuneLevel + 1) / 2.0;
+                            smeltResult.setAmount((int) Math.round(furnaceRecipe.getResult().getAmount() * fortune));
+                        }
+
+                        newDrops.add(smeltResult);
                         break;
                     }
                 }
@@ -61,5 +80,15 @@ public class CustomEnchantementsListener implements Listener {
 
             CustomEnchantmentsManager.INSTANCE.applyAmant(drops, p);
         }
+    }
+
+    @EventHandler
+    public void onPlayerArmorChange(PlayerArmorChangeEvent e) {
+        CustomEnchantmentsManager.INSTANCE.checkForArmorEffects(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        CustomEnchantmentsManager.INSTANCE.checkForArmorEffects(e.getPlayer());
     }
 }
