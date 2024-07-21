@@ -154,6 +154,10 @@ public enum Enchantments {
         return baseValue + (level - 1) * multiplier * baseValue;
     }
 
+    public double getBaseValue() {
+        return baseValue;
+    }
+
     public double getValueEffectForLevel(int level) {
         return cooldownReductionPerLevel + (level - 1) * multiplier * cooldownReductionPerLevel;
     }

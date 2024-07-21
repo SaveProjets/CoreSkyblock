@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
@@ -90,5 +91,33 @@ public class CustomEnchantementsListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         CustomEnchantmentsManager.INSTANCE.checkForArmorEffects(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent e) {
+        if (e.getEntity() instanceof Player) return;
+
+        if (e.getEntity().getKiller() == null) return;
+
+        Player killer = e.getEntity().getKiller();
+
+        Optional<ArrayList<Pair<Enchantments, Integer>>> enchantments = CustomEnchantmentsManager.INSTANCE.getValidEnchantments(killer.getInventory().getItemInMainHand());
+        if (enchantments.isEmpty()) return;
+
+        ArrayList<Pair<Enchantments, Integer>> enchantmentsList = enchantments.get();
+
+        ArrayList<ItemStack> drops = new ArrayList<>(e.getDrops());
+
+        if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.XP_TRANSFORMATEUR)) {
+            e.getDrops().clear();
+
+            e.setDroppedExp((int) (e.getDroppedExp() + e.getDroppedExp() * (Enchantments.XP_TRANSFORMATEUR.getBaseValue() / 100)));
+        }
+
+        if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.AIMANT)) {
+            if (!drops.isEmpty()) {
+                CustomEnchantmentsManager.INSTANCE.applyAmant(drops, killer);
+            }
+        }
     }
 }
