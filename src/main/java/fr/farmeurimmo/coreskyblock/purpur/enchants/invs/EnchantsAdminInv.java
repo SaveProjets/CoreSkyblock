@@ -24,13 +24,13 @@ public class EnchantsAdminInv extends FastInv {
     private void update() {
         Map<Enchantments, List<ItemStack>> enchantmentsListMap = CustomEnchantmentsManager.INSTANCE.getAllEnchantedBooks();
 
-        for (int i = 9; i < 54; i++) {
+        for (int i = 0; i < 54; i++) {
             setItem(i, null);
         }
 
-        //we start at slot 9 and stop at slot 44
-        int slot = 9;
-        int index = page * 36;
+        //we start at slot 0 and stop at slot 44
+        int slot = 0;
+        int index = page * 45;
         int current = 0;
 
         for (Map.Entry<Enchantments, List<ItemStack>> entry : enchantmentsListMap.entrySet()) {
@@ -40,7 +40,7 @@ public class EnchantsAdminInv extends FastInv {
                 if (current <= index) {
                     continue;
                 }
-                if (current > index + 36) {
+                if (current > index + 45) {
                     break;
                 }
 

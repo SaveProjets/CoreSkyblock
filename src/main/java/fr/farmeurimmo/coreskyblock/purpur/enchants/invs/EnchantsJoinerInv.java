@@ -108,7 +108,7 @@ public class EnchantsJoinerInv extends FastInv {
             return;
         }
 
-        if (!item1.equals(item2)) {
+        if (!item1.equals(item2) && item1.getType() != item2.getType()) {
             final ItemStack enchantmentBook = item1.getType() == Material.ENCHANTED_BOOK ? item1.clone() : item2.clone();
             final ItemStack item = item1.getType() == Material.ENCHANTED_BOOK ? item2.clone() : item1.clone();
 
@@ -162,6 +162,7 @@ public class EnchantsJoinerInv extends FastInv {
                                         Sound.sound(org.bukkit.Sound.BLOCK_ENCHANTMENT_TABLE_USE, Sound.Source.PLAYER, 1, 1));
                                 return;
                             }
+                            setItemResultAsError(true);
                             sendFeedback(notify, p, Component.text("§cLes deux enchantements doivent être du même niveau."),
                                     Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                             return;

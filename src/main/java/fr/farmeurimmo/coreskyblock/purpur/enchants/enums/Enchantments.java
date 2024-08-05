@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.enchants.enums;
 
+import fr.farmeurimmo.coreskyblock.utils.RomanNumberUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 
@@ -207,6 +208,13 @@ public enum Enchantments {
             current++;
         }
         components.add(Component.text(builder.toString()));
+
+        if (hasMaxLevel()) {
+            components.add(Component.text("§7Niveau maximum: " + RomanNumberUtils.toRoman(maxLevel)));
+        } else {
+            components.add(Component.text("§7Niveau maximum: " + RomanNumberUtils.toRoman(1)));
+        }
+
         return components;
     }
 }
