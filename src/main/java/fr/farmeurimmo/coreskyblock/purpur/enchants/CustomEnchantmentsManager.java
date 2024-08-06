@@ -173,4 +173,8 @@ public class CustomEnchantmentsManager {
             }
         }
     }
+
+    public float getRng() {
+        return new Random().nextFloat();
+    }
 }
