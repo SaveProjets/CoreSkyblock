@@ -91,8 +91,9 @@ public class EnchantsRemoverInv extends FastInv {
             return false;
         });
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
             if (!isClosed) update();
+            else task.cancel();
         }, 0, 20L);
     }
 

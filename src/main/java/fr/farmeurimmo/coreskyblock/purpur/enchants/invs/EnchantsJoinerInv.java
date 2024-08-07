@@ -86,8 +86,9 @@ public class EnchantsJoinerInv extends FastInv {
             return false;
         });
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
             if (!isClosed) update(false);
+            else task.cancel();
         }, 0, 15L);
     }
 

@@ -71,10 +71,13 @@ public class EnchantsAdminInv extends FastInv {
         setItem(45, new ItemBuilder(Material.BOOK).name("§6Acheter un livre enchanté").build(), e ->
                 new EnchantsBuyerInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
-        setItem(48, new ItemBuilder(Material.ANVIL).name("§6Fusionner et appliquer des enchants").build(), e ->
+        setItem(47, new ItemBuilder(Material.DIRT).name("§6Recycler les livres enchantés").build(), e ->
+                new EnchantsRecyclerInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
+
+        setItem(49, new ItemBuilder(Material.ANVIL).name("§6Fusionner et appliquer des enchants").build(), e ->
                 new EnchantsJoinerInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
-        setItem(50, new ItemBuilder(Material.GRINDSTONE).name("§6Retirer les enchants").build(), e ->
+        setItem(51, new ItemBuilder(Material.GRINDSTONE).name("§6Retirer les enchants").build(), e ->
                 new EnchantsRemoverInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
     }
 
