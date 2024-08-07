@@ -1,0 +1,207 @@
+package fr.farmeurimmo.coreskyblock.purpur.enchants.invs;
+
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.enchants.CustomEnchantmentsManager;
+import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.EnchantmentRarity;
+import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
+import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.mrmicky.fastinv.FastInv;
+import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.text.NumberFormat;
+import java.util.*;
+
+public class EnchantsBuyerInv extends FastInv {
+
+    private static final int SLOT_1 = 12;
+    private static final int SLOT_2 = 14;
+    private final Player p;
+    private final LinkedList<Integer> expPrices = new LinkedList<>(Arrays.asList(5000, 6500, 8500, 10000, 12000, 13500, 15500, 17000, 19000, 20500, 22500, 25000));
+
+    public EnchantsBuyerInv(Player p) {
+        super(4 * 9, "§0Acheter des enchantements");
+
+        this.p = p;
+        p.setCanPickupItems(false);
+
+        setCloseFilter(e -> {
+            if (getInventory().getItem(SLOT_1) != null && getInventory().getItem(SLOT_2) != null) {
+                float rng = CustomEnchantmentsManager.INSTANCE.getRng();
+                if (rng <= 0.5) {
+                    p.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(SLOT_1)));
+                } else {
+                    p.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(SLOT_2)));
+                }
+                p.sendMessage(Component.text("§aVous avez quittez l'inventaire, vous avez reçu un livre enchanté parmi les deux."));
+            }
+            e.setCanPickupItems(true);
+            return false;
+        });
+
+        for (int i = 0; i < getInventory().getSize(); i++) {
+            if (i == SLOT_1 || i == SLOT_2) {
+                continue;
+            }
+            if (getInventory().getItem(i) == null)
+                setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§0").build(), e -> e.setCancelled(true));
+        }
+
+        setItem(27, new ItemBuilder(Material.PAPER).name("§6Tableau des prix").lore(
+                "§7- 1 §7échange: §e" + NumberFormat.getInstance().format(expPrices.get(0)) + "xp",
+                "§7- 2 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(1)) + "xp",
+                "§7- 3 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(2)) + "xp",
+                "§7- 4 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(3)) + "xp",
+                "§7- 5 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(4)) + "xp",
+                "§7- 6 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(5)) + "xp",
+                "§7- 7 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(6)) + "xp",
+                "§7- 8 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(7)) + "xp",
+                "§7- 9 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(8)) + "xp",
+                "§7- 10 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(9)) + "xp",
+                "§7- 11 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(10)) + "xp",
+                "§7- 12 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(11)) + "xp",
+                "",
+                "§cLimité à 12 livres enchantés par jour.").build());
+
+        update();
+    }
+
+    private void update() {
+        SkyblockUser skyblockUser = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
+        if (skyblockUser == null) {
+            p.sendMessage(Component.text("§cUne erreur est survenue."));
+
+            Bukkit.getScheduler().runTask(CoreSkyblock.INSTANCE, () -> p.closeInventory());
+            return;
+        }
+
+        if (p.getInventory().firstEmpty() == -1) {
+            p.sendMessage(Component.text("§cVotre inventaire est plein."));
+            p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
+            return;
+        }
+
+        String lastSpecialBooks = skyblockUser.getLastSpecialBooks();
+        String[] specialBooks = lastSpecialBooks.split(",");
+
+        ArrayList<Long> specialBooksList = new ArrayList<>();
+        for (String specialBook : specialBooks) {
+            if (specialBook.isEmpty()) {
+                continue;
+            }
+            try {
+                specialBooksList.add(Long.parseLong(specialBook));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        LinkedList<Integer> posToRemove = new LinkedList<>();
+        for (int i = 0; i < specialBooksList.size(); i++) {
+            long specialBook = specialBooksList.get(i);
+
+            Calendar dateOfBook = Calendar.getInstance();
+            dateOfBook.setTimeInMillis(specialBook);
+
+            // if the book was made before 00:00 of the previous day, remove it
+            if (dateOfBook.get(Calendar.DAY_OF_YEAR) <= calendar.get(Calendar.DAY_OF_YEAR) - 1) {
+                posToRemove.addFirst(i);
+            }
+        }
+
+        for (int i : posToRemove) {
+            specialBooksList.remove(i);
+        }
+
+        if (specialBooksList.size() > 12) {
+            setItem(SLOT_1, null);
+            setItem(SLOT_2, null);
+
+            setItem(22, new ItemBuilder(Material.BARRIER).name("§cVous avez atteint la limite de 12 livres enchantés par jour.").build(),
+                    e -> p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1)));
+            return;
+        }
+
+        int expPrice = expPrices.get(specialBooksList.size());
+        setItem(22, new ItemBuilder(Material.BOOK).name("§6Lancer un choix de livré aléatoire").lore("§7Coût: §e" +
+                NumberFormat.getInstance().format(expPrice) + "xp").build(), e -> {
+
+            if (getInventory().getItem(SLOT_1) != null && getInventory().getItem(SLOT_2) != null) {
+                p.sendMessage(Component.text("§cVous devez choisir un livre avant de lancer un autre choix."));
+                p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
+                return;
+            }
+
+            if (p.calculateTotalExperiencePoints() <= expPrice) {
+                p.sendMessage(Component.text("§cVous n'avez pas assez d'expérience."));
+                p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
+                return;
+            }
+            p.setExperienceLevelAndProgress(p.calculateTotalExperiencePoints() - expPrice);
+            p.sendMessage(Component.text("§aVous avez dépensé " + NumberFormat.getInstance().format(expPrice) + "xp."));
+            p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_EXPERIENCE_BOTTLE_THROW, Sound.Source.PLAYER, 1, 1));
+
+            setSlots(SLOT_1);
+            setSlots(SLOT_2);
+
+            StringBuilder updatedSpecialBooks = new StringBuilder();
+            for (long specialBook : specialBooksList) {
+                updatedSpecialBooks.append(specialBook).append(",");
+            }
+            updatedSpecialBooks.append(System.currentTimeMillis());
+            skyblockUser.setLastSpecialBooks(updatedSpecialBooks.toString());
+
+            update();
+        });
+    }
+
+    private void setSlots(int slot) {
+        setItem(slot, getARandomEnchant(), e1 -> {
+            p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, 1, 1));
+
+            p.getInventory().addItem(Objects.requireNonNull(getInventory().getItem(slot)));
+
+            getInventory().setItem(SLOT_2, null);
+            getInventory().setItem(SLOT_1, null);
+
+            update();
+        });
+    }
+
+    public ItemStack getARandomEnchant() {
+        float rng = CustomEnchantmentsManager.INSTANCE.getRng();
+        float rng2 = CustomEnchantmentsManager.INSTANCE.getRng();
+
+        // with rng, we determine the book rarity, for EPIC, you need 5% of rng, for RARE, 15% and for UNCOMMON, 80%
+        // with rng2, we determine the level of the book if he has more than 1 level, the level is determined by the rng2
+        // to reach higher levels, the rng2 is exponentially lower
+        if (rng <= 0.05) { // EPIC
+            return getItemStack(rng2, Enchantments.getEnchantmentsByRarity(EnchantmentRarity.EPIC));
+        } else if (rng <= 0.20) { // RARE
+            return getItemStack(rng2, Enchantments.getEnchantmentsByRarity(EnchantmentRarity.RARE));
+        } else { // UNCOMMON
+            return getItemStack(rng2, Enchantments.getEnchantmentsByRarity(EnchantmentRarity.UNCOMMON));
+        }
+    }
+
+    private ItemStack getItemStack(float rng2, ArrayList<Enchantments> enchantments) {
+        Enchantments enchantment = enchantments.get((int) (rng2 * enchantments.size())); // get a random enchantment
+        int level = 1;
+
+        if (enchantment.hasMaxLevel()) {
+            if (rng2 >= 0.5) {
+                level = (int) (rng2 * enchantment.getMaxLevel());
+            }
+        }
+
+        return CustomEnchantmentsManager.INSTANCE.getItemStackEnchantedBook(enchantment, level);
+    }
+}

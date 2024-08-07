@@ -119,6 +119,16 @@ public enum Enchantments {
                 .replace("{value_effect}", NumberFormat.getInstance().format(enchantments.getValueEffectForLevel(level)));
     }
 
+    public static ArrayList<Enchantments> getEnchantmentsByRarity(EnchantmentRarity rarity) {
+        ArrayList<Enchantments> enchantments = new ArrayList<>();
+        for (Enchantments enchantment : values()) {
+            if (enchantment.getRarity() == rarity) {
+                enchantments.add(enchantment);
+            }
+        }
+        return enchantments;
+    }
+
     public String canBeAppliedOn() {
         return "§7Applicable sur: " + recipients.stream().map(EnchantmentsRecipients::getName).reduce((s1, s2) -> s1 + ", " + s2).orElse("");
     }
