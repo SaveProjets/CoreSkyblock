@@ -52,6 +52,13 @@ public class CustomEnchantmentsManager {
                 Component.text(enchantment.left().getDisplayName() + (enchantment.left().getMaxLevel() > 1 ?
                         ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(enchantment.right()) : ""))).collect(Collectors.toList()));
 
+        for (Pair<Enchantments, Integer> enchantment : enchantments) {
+            /*if (enchantment.left().equals(Enchantments.GAIN_DE_VIE)) { //FIXME: Custom stats system to fix GAIN_DE_VIE
+                itemStack.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier("gain_de_vie",
+                        enchantment.left().getValueForLevel(enchantment.right()), AttributeModifier.Operation.ADD_NUMBER));
+            }*/
+        }
+
         return itemStack;
     }
 

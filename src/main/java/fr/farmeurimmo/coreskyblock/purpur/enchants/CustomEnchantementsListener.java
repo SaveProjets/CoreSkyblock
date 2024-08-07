@@ -20,6 +20,8 @@ import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -168,7 +170,7 @@ public class CustomEnchantementsListener implements Listener {
             }
             if (enchantmentsIntegerPair.left().equals(Enchantments.FLECHE_GELEE)) {
                 if (enchantmentsIntegerPair.left().getValueForLevel(enchantmentsIntegerPair.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
-                    arrow.setFreezeTicks((int) enchantmentsIntegerPair.left().getValueEffectForLevel(enchantmentsIntegerPair.right()) * 20);
+                    arrow.setFreezeTicks(enchantmentsIntegerPair.left().getValueEffectForLevel(enchantmentsIntegerPair.right()) * 20);
                 }
                 continue;
             }
@@ -228,6 +230,22 @@ public class CustomEnchantementsListener implements Listener {
                 if (enchantment.left().getValueForLevel(enchantment.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
                     damager.damage(e.getDamage(), p);
                     e.setCancelled(true);
+                }
+            }
+            if (enchantment.left().equals(Enchantments.INTIMIDATION)) {
+                if (enchantment.left().getValueForLevel(enchantment.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20 *
+                            enchantment.left().getValueEffectForLevel(enchantment.right()), 0));
+                }
+            }
+            if (enchantment.left().equals(Enchantments.TEMPETE_DE_FOUDRE)) {
+                if (enchantment.left().getValueForLevel(enchantment.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    p.getWorld().strikeLightningEffect(p.getLocation());
+                    p.damage(2);
+                    for (ItemStack itemStack1 : p.getInventory().getArmorContents()) {
+                        if (itemStack1 == null) continue;
+                        itemStack1.damage(3);
+                    }
                 }
             }
         }

@@ -11,7 +11,7 @@ import java.util.List;
 public enum Enchantments {
 
     GAIN_DE_VIE("Gain de vie", "§8Permet de gagner {value} cœurs supplémentaires.",
-            2, false, 1, 1, 0, -1,
+            2, false, 1, 3, 0, -1,
             EnchantmentRarity.RARE, List.of(EnchantmentsRecipients.HELMET, EnchantmentsRecipients.CHESTPLATE,
             EnchantmentsRecipients.LEGGINGS, EnchantmentsRecipients.BOOTS)),
 
@@ -159,8 +159,8 @@ public enum Enchantments {
         return baseValue;
     }
 
-    public double getValueEffectForLevel(int level) {
-        return cooldownReductionPerLevel + (level - 1) * multiplier * cooldownReductionPerLevel;
+    public int getValueEffectForLevel(int level) {
+        return (int) (cooldownReductionPerLevel + (level - 1) * multiplier * cooldownReductionPerLevel);
     }
 
     public boolean canBeAppliedOn(Material material) {
