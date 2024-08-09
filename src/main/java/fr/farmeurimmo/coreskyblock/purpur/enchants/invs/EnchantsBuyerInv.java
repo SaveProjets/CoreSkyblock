@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.EnchantmentRarity;
 import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.sound.Sound;
@@ -24,6 +25,8 @@ public class EnchantsBuyerInv extends FastInv {
     private static final int SLOT_2 = 14;
     private final Player p;
     private final LinkedList<Integer> expPrices = new LinkedList<>(Arrays.asList(5000, 6500, 8500, 10000, 12000, 13500, 15500, 17000, 19000, 20500, 22500, 25000));
+    private boolean canAutoUpdate = true;
+    private boolean isClosed = false;
 
     public EnchantsBuyerInv(Player p) {
         super(4 * 9, "§0Acheter des enchantements");
@@ -42,6 +45,7 @@ public class EnchantsBuyerInv extends FastInv {
                 p.sendMessage(Component.text("§aVous avez quittez l'inventaire, vous avez reçu un livre enchanté parmi les deux."));
             }
             e.setCanPickupItems(true);
+            isClosed = true;
             return false;
         });
 
@@ -53,21 +57,10 @@ public class EnchantsBuyerInv extends FastInv {
                 setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§0").build(), e -> e.setCancelled(true));
         }
 
-        setItem(27, new ItemBuilder(Material.PAPER).name("§6Tableau des prix").lore(
-                "§7- 1 §7échange: §e" + NumberFormat.getInstance().format(expPrices.get(0)) + "xp",
-                "§7- 2 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(1)) + "xp",
-                "§7- 3 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(2)) + "xp",
-                "§7- 4 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(3)) + "xp",
-                "§7- 5 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(4)) + "xp",
-                "§7- 6 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(5)) + "xp",
-                "§7- 7 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(6)) + "xp",
-                "§7- 8 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(7)) + "xp",
-                "§7- 9 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(8)) + "xp",
-                "§7- 10 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(9)) + "xp",
-                "§7- 11 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(10)) + "xp",
-                "§7- 12 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(11)) + "xp",
-                "",
-                "§cLimité à 12 livres enchantés par jour.").build());
+        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task -> {
+            if (isClosed) task.cancel();
+            else if (canAutoUpdate) update();
+        }), 0, 20);
 
         update();
     }
@@ -121,11 +114,28 @@ public class EnchantsBuyerInv extends FastInv {
             specialBooksList.remove(i);
         }
 
-        if (specialBooksList.size() > 12) {
+        setItem(27, new ItemBuilder(Material.PAPER).name("§6Tableau des prix").lore(
+                (specialBooksList.isEmpty() ? "§a§l->" : "§7") + " 1 §7échange: §e" + NumberFormat.getInstance().format(expPrices.get(0)) + "xp",
+                (specialBooksList.size() == 1 ? "§a§l->" : "§7") + " 2 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(1)) + "xp",
+                (specialBooksList.size() == 2 ? "§a§l->" : "§7") + " 3 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(2)) + "xp",
+                (specialBooksList.size() == 3 ? "§a§l->" : "§7") + " 4 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(3)) + "xp",
+                (specialBooksList.size() == 4 ? "§a§l->" : "§7") + " 5 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(4)) + "xp",
+                (specialBooksList.size() == 5 ? "§a§l->" : "§7") + " 6 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(5)) + "xp",
+                (specialBooksList.size() == 6 ? "§a§l->" : "§7") + " 7 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(6)) + "xp",
+                (specialBooksList.size() == 7 ? "§a§l->" : "§7") + " 8 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(7)) + "xp",
+                (specialBooksList.size() == 8 ? "§a§l->" : "§7") + " 9 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(8)) + "xp",
+                (specialBooksList.size() == 9 ? "§a§l->" : "§7") + " 10 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(9)) + "xp",
+                (specialBooksList.size() == 10 ? "§a§l->" : "§7") + " 11 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(10)) + "xp",
+                (specialBooksList.size() == 11 ? "§a§l->" : "§7") + " 12 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(11)) + "xp",
+                "",
+                (specialBooksList.size() == 12 ? "§c§lLimite atteinte" : "§c§lLimité à 12 échanges par jour")).build());
+
+        if (specialBooksList.size() >= 12) {
             setItem(SLOT_1, null);
             setItem(SLOT_2, null);
 
-            setItem(22, new ItemBuilder(Material.BARRIER).name("§cVous avez atteint la limite de 12 livres enchantés par jour.").build(),
+            setItem(22, new ItemBuilder(Material.BARRIER).name("§cLimite de 12 échanges par jour atteinte")
+                            .lore("§7De nouveau disponible dans: §c" + DateUtils.expireAt00()).build(),
                     e -> p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1)));
             return;
         }
@@ -145,6 +155,9 @@ public class EnchantsBuyerInv extends FastInv {
                 p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.PLAYER, 1, 1));
                 return;
             }
+
+            canAutoUpdate = false;
+
             p.setExperienceLevelAndProgress(p.calculateTotalExperiencePoints() - expPrice);
             p.sendMessage(Component.text("§aVous avez dépensé " + NumberFormat.getInstance().format(expPrice) + "xp."));
             p.playSound(Sound.sound(org.bukkit.Sound.ENTITY_EXPERIENCE_BOTTLE_THROW, Sound.Source.PLAYER, 1, 1));
@@ -171,6 +184,8 @@ public class EnchantsBuyerInv extends FastInv {
 
             getInventory().setItem(SLOT_2, null);
             getInventory().setItem(SLOT_1, null);
+
+            canAutoUpdate = true;
 
             update();
         });

@@ -119,7 +119,7 @@ public class SkyblockUsersManager {
                              "adventure_exp = ?, adventure_level = ?, fly_time = ?, current_prestige_level = ?, " +
                              "last_prestige_level_claimed = ?, current_premium_prestige_level = ?, " +
                              "last_premium_prestige_level_claimed = ?, own_premium_prestige = ?, last_special_books = ?," +
-                                "updated_at = CURRENT_TIMESTAMP")) {
+                             "updated_at = CURRENT_TIMESTAMP")) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
 
