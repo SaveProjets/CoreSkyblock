@@ -40,9 +40,6 @@ import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.SellAllCmd;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.ShopCmd;
-import fr.farmeurimmo.coreskyblock.purpur.silos.SiloCmd;
-import fr.farmeurimmo.coreskyblock.purpur.silos.SilosListener;
-import fr.farmeurimmo.coreskyblock.purpur.silos.SilosManager;
 import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaCmd;
@@ -168,7 +165,6 @@ public final class CoreSkyblock extends JavaPlugin {
         new TpasManager();
 
         new ShopsManager();
-        new SilosManager();
 
         new AgricultureCycleManager();
 
@@ -192,7 +188,6 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChestsListener(), this);
         getServer().getPluginManager().registerEvents(new MinionsListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(), this);
-        getServer().getPluginManager().registerEvents(new SilosListener(), this);
         getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
         getServer().getPluginManager().registerEvents(new CustomEnchantementsListener(), this);
 
@@ -215,7 +210,6 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("enchantement")).setExecutor(new EnchantementCmd());
         Objects.requireNonNull(getCommand("anvil")).setExecutor(new AnvilCmd());
         Objects.requireNonNull(getCommand("furnace")).setExecutor(new FurnaceCmd());
-        Objects.requireNonNull(getCommand("silo")).setExecutor(new SiloCmd());
         Objects.requireNonNull(getCommand("feed")).setExecutor(new FeedCmd());
         Objects.requireNonNull(getCommand("near")).setExecutor(new NearCmd());
         Objects.requireNonNull(getCommand("fix")).setExecutor(new FixCmd());

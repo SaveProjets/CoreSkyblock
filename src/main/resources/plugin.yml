@@ -43,8 +43,6 @@ commands:
     permission: coreskyblock.anvil
   furnace:
     permission: coreskyblock.furnace
-  silo:
-    permission: coreskyblock.silo
   feed:
     permission: coreskyblock.feed
   near:
