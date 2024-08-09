@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.enchants.enums;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public enum EnchantmentsRecipients {
@@ -39,6 +40,23 @@ public enum EnchantmentsRecipients {
         if (name.contains("SHOVEL")) return SHOVEL;
 
         return null;
+    }
+
+    public Material getMaterialForDisplay() {
+        return switch (this) {
+            case HELMET -> Material.DIAMOND_HELMET;
+            case CHESTPLATE -> Material.DIAMOND_CHESTPLATE;
+            case LEGGINGS -> Material.DIAMOND_LEGGINGS;
+            case BOOTS -> Material.DIAMOND_BOOTS;
+            case SWORD -> Material.DIAMOND_SWORD;
+            case BOW_AND_CROSSBOW -> Material.BOW;
+            case PICKAXE -> Material.DIAMOND_PICKAXE;
+            case AXE -> Material.DIAMOND_AXE;
+            case HOE -> Material.DIAMOND_HOE;
+            case ROD -> Material.FISHING_ROD;
+            case SHOVEL -> Material.DIAMOND_SHOVEL;
+            default -> Material.BARRIER;
+        };
     }
 
     public String getName() {

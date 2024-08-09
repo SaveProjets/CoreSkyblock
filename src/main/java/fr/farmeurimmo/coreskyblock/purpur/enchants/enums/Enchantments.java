@@ -6,7 +6,9 @@ import org.bukkit.Material;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public enum Enchantments {
 
@@ -127,6 +129,24 @@ public enum Enchantments {
             }
         }
         return enchantments;
+    }
+
+    public static Map<EnchantmentsRecipients, ArrayList<Enchantments>> getEnchantmentsByMaterial() {
+        Map<EnchantmentsRecipients, ArrayList<Enchantments>> enchantmentsByMaterial = new HashMap<>();
+
+        for (Enchantments enchantment : values()) {
+            for (EnchantmentsRecipients recipient : enchantment.getRecipients()) {
+                if (enchantmentsByMaterial.containsKey(recipient)) {
+                    enchantmentsByMaterial.get(recipient).add(enchantment);
+                } else {
+                    ArrayList<Enchantments> enchantments = new ArrayList<>();
+                    enchantments.add(enchantment);
+                    enchantmentsByMaterial.put(recipient, enchantments);
+                }
+            }
+        }
+
+        return enchantmentsByMaterial;
     }
 
     public String canBeAppliedOn() {
