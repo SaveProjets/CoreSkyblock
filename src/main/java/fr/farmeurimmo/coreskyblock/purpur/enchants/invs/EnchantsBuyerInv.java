@@ -23,6 +23,10 @@ public class EnchantsBuyerInv extends FastInv {
 
     private static final int SLOT_1 = 12;
     private static final int SLOT_2 = 14;
+    private static final int COMMON_WEIGHT = 4;
+    private static final int RARE_WEIGHT = 2;
+    private static final int EPIC_WEIGHT = 1;
+    private static final int TOTAL_WEIGHT = (8 * COMMON_WEIGHT) + (6 * RARE_WEIGHT) + (7 * EPIC_WEIGHT);
     private final Player p;
     private final LinkedList<Integer> expPrices = new LinkedList<>(Arrays.asList(5000, 6500, 8500, 10000, 12000, 13500, 15500, 17000, 19000, 20500, 22500, 25000));
     private boolean canAutoUpdate = true;
@@ -171,8 +175,6 @@ public class EnchantsBuyerInv extends FastInv {
             }
             updatedSpecialBooks.append(System.currentTimeMillis());
             skyblockUser.setLastSpecialBooks(updatedSpecialBooks.toString());
-
-            update();
         });
     }
 
@@ -192,19 +194,19 @@ public class EnchantsBuyerInv extends FastInv {
     }
 
     public ItemStack getARandomEnchant() {
-        float rng = CustomEnchantmentsManager.INSTANCE.getRng();
+        float rng = CustomEnchantmentsManager.INSTANCE.getRng() * TOTAL_WEIGHT;
         float rng2 = CustomEnchantmentsManager.INSTANCE.getRng();
 
-        // with rng, we determine the book rarity, for EPIC, you need 5% of rng, for RARE, 15% and for UNCOMMON, 80%
-        // with rng2, we determine the level of the book if he has more than 1 level, the level is determined by the rng2
-        // to reach higher levels, the rng2 is exponentially lower
-        if (rng <= 0.05) { // EPIC
-            return getItemStack(rng2, Enchantments.getEnchantmentsByRarity(EnchantmentRarity.EPIC));
-        } else if (rng <= 0.20) { // RARE
-            return getItemStack(rng2, Enchantments.getEnchantmentsByRarity(EnchantmentRarity.RARE));
-        } else { // UNCOMMON
-            return getItemStack(rng2, Enchantments.getEnchantmentsByRarity(EnchantmentRarity.UNCOMMON));
+        ArrayList<Enchantments> selectedEnchantments;
+        if (rng < 8 * COMMON_WEIGHT) { // COMMON
+            selectedEnchantments = Enchantments.getEnchantmentsByRarity(EnchantmentRarity.UNCOMMON);
+        } else if (rng < (8 * COMMON_WEIGHT) + (6 * RARE_WEIGHT)) { // RARE
+            selectedEnchantments = Enchantments.getEnchantmentsByRarity(EnchantmentRarity.RARE);
+        } else { // EPIC
+            selectedEnchantments = Enchantments.getEnchantmentsByRarity(EnchantmentRarity.EPIC);
         }
+
+        return getItemStack(rng2, selectedEnchantments);
     }
 
     private ItemStack getItemStack(float rng2, ArrayList<Enchantments> enchantments) {
@@ -212,9 +214,7 @@ public class EnchantsBuyerInv extends FastInv {
         int level = 1;
 
         if (enchantment.hasMaxLevel()) {
-            if (rng2 >= 0.5) {
-                level = (int) (rng2 * enchantment.getMaxLevel());
-            }
+            level = 1 + new Random().nextInt(enchantment.getMaxLevel()); // choose a random level
         }
 
         return CustomEnchantmentsManager.INSTANCE.getItemStackEnchantedBook(enchantment, level);
