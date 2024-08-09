@@ -115,11 +115,7 @@ public class SyncUsersManager {
                     p.getActivePotionEffects().toArray(PotionEffect[]::new));
             users.put(p.getUniqueId(), user);
 
-            // async to speed up the process
-            SyncUser finalUser = user;
-            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.sendToRedis("CoreSkyblock:sync:" +
-                    finalUser.getUuid(), gson.toJson(finalUser.toJson())));
-
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + user.getUuid(), gson.toJson(user.toJson()));
         }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             inSync.remove(p.getUniqueId()); // Remove the player from the list of players currently being synced
             p.sendMessage(Component.text("§aSynchronisation terminée en " + (System.currentTimeMillis() - start) + "ms"));
