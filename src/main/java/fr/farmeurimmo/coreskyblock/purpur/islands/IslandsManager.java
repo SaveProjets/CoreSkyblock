@@ -344,6 +344,16 @@ public class IslandsManager {
         JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create:" + serverToLoad + ":" + owner +
                 ":" + islandId);
         awaitingResponseFromServer.put(islandId, serverToLoad);
+
+        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+            if (awaitingResponseFromServer.containsKey(islandId)) {
+                awaitingResponseFromServer.remove(islandId);
+                Player ownerPlayer = plugin.getServer().getPlayer(owner);
+                if (ownerPlayer != null) {
+                    ownerPlayer.sendMessage(Component.text("§cUne erreur est survenue lors de la création de votre île. Veuillez réessayer dans quelques instants."));
+                }
+            }
+        }, 20 * 3);
     }
 
     public void setIslandLoadedAt(UUID uuid) {
@@ -548,7 +558,7 @@ public class IslandsManager {
     public void deleteIsland(Island island) {
         if (island == null) return;
         if (island.isLoaded()) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> unload(island, true, true), 5);
+            unload(island, true, true);
         }
     }
 
@@ -588,6 +598,9 @@ public class IslandsManager {
 
     public void unload(Island island, boolean async, boolean delete) {
         if (island.isLoaded()) {
+            if (async) CompletableFuture.runAsync(() -> actForUnload(island, delete));
+            else actForUnload(island, delete);
+
             World w = Bukkit.getWorld(getIslandWorldName(island.getIslandUUID()));
             if (w != null) {
                 try {
@@ -598,7 +611,7 @@ public class IslandsManager {
                             p.sendMessage(Component.text("§cErreur, aucun serveur de spawn disponible !"));
                             p.teleport(CoreSkyblock.SPAWN);
                         } else {
-                            CoreSkyblock.INSTANCE.sendToServer(p, server);
+                            if (CoreSkyblock.INSTANCE.isEnabled()) CoreSkyblock.INSTANCE.sendToServer(p, server);
                         }
                     });
                 } catch (Exception e) {
@@ -608,8 +621,6 @@ public class IslandsManager {
             WorldsManager.INSTANCE.unload(getIslandWorldName(island.getIslandUUID()), true);
             island.setLoaded(false);
             island.sendMessageToAll("§cVotre île a été déchargée.");
-            if (async) CompletableFuture.runAsync(() -> actForUnload(island, delete));
-            else actForUnload(island, delete);
         }
     }
 
