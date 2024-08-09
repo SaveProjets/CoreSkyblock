@@ -44,6 +44,7 @@ public class IslandsManager {
     public final Map<UUID, String> awaitingResponseFromServer = new HashMap<>();
     public final Map<UUID, Long> awaitingResponseFromServerTime = new HashMap<>(); //for unload
     public final Map<UUID, UUID> teleportToIsland = new HashMap<>();
+    public final Map<UUID, ArrayList<Long>> teleportTry = new HashMap<>();
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
     private final ArrayList<UUID> isSpying = new ArrayList<>();
@@ -334,21 +335,30 @@ public class IslandsManager {
         UUID islandId = UUID.randomUUID();
 
         String serverToLoad = getServerToLoadIsland();
-        if (serverToLoad == null) serverToLoad = CoreSkyblock.SERVER_NAME;
 
-        if (serverToLoad.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
-            create(owner, islandId, true);
-            return;
+        Player ownerPlayer = plugin.getServer().getPlayer(owner);
+        if (serverToLoad != null) {
+            if (serverToLoad.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
+                create(owner, islandId, true);
+                return;
+            }
+
+            if (ownerPlayer != null) {
+                ownerPlayer.sendMessage(Component.text("§6Création de votre île en cours..."));
+            }
+
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create:" + serverToLoad + ":" + owner +
+                    ":" + islandId);
+            awaitingResponseFromServer.put(islandId, serverToLoad);
+        } else {
+            if (ownerPlayer != null) {
+                ownerPlayer.sendMessage(Component.text("§cAucun serveur disponible pour créer votre île. Veuillez réessayer dans quelques instants."));
+            }
         }
-
-        JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create:" + serverToLoad + ":" + owner +
-                ":" + islandId);
-        awaitingResponseFromServer.put(islandId, serverToLoad);
 
         Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
             if (awaitingResponseFromServer.containsKey(islandId)) {
                 awaitingResponseFromServer.remove(islandId);
-                Player ownerPlayer = plugin.getServer().getPlayer(owner);
                 if (ownerPlayer != null) {
                     ownerPlayer.sendMessage(Component.text("§cUne erreur est survenue lors de la création de votre île. Veuillez réessayer dans quelques instants."));
                 }
@@ -531,6 +541,21 @@ public class IslandsManager {
             CoreSkyblock.INSTANCE.sendToServer(p, serverWhereIslandIsLoaded);
         } else {
             p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un cours instant..."));
+
+            if (teleportTry.containsKey(p.getUniqueId())) {
+                ArrayList<Long> tries = teleportTry.get(p.getUniqueId());
+                tries.add(System.currentTimeMillis());
+                if (tries.size() > 3) {
+                    teleportTry.remove(p.getUniqueId());
+                    p.sendMessage(Component.text("§cUne erreur est survenue lors de la téléportation. Veuillez réessayer dans quelques instants."));
+                    return;
+                }
+            } else {
+                ArrayList<Long> tries = new ArrayList<>();
+                tries.add(System.currentTimeMillis());
+                teleportTry.put(p.getUniqueId(), tries);
+            }
+
             checkIfIslandIsLoaded(island.getIslandUUID());
             Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> teleportToIsland(island, p), 50);
         }

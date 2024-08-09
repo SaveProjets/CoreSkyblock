@@ -76,7 +76,6 @@ public class IslandCmd implements CommandExecutor {
                     return false;
                 }
                 creatingIsland.add(p.getUniqueId());
-                p.sendMessage(Component.text("§6Création de votre île..."));
                 IslandsManager.INSTANCE.createIsland(p.getUniqueId());
 
                 Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> creatingIsland.remove(p.getUniqueId()), 20 * 3);
