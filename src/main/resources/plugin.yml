@@ -67,3 +67,5 @@ commands:
     permission: coreskyblock.ah
   elevators:
     permission: coreskyblock.elevators
+  enchantsadmin:
+    permission: coreskyblock.enchantsadmin

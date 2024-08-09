@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class DateUtils {
 
@@ -23,5 +24,23 @@ public class DateUtils {
         int seconds = (int) (millis / 1000);
         int milliseconds = (int) (millis % 1000);
         return seconds + "." + (milliseconds < 100 ? "0" : "") + (milliseconds < 10 ? "0" : "") + milliseconds + "s";
+    }
+
+    public static String expireAt00() {
+        Calendar now = Calendar.getInstance();
+        Calendar nextMidnight = (Calendar) now.clone();
+        nextMidnight.add(Calendar.DAY_OF_YEAR, 1);
+        nextMidnight.set(Calendar.HOUR_OF_DAY, 0);
+        nextMidnight.set(Calendar.MINUTE, 0);
+        nextMidnight.set(Calendar.SECOND, 0);
+        nextMidnight.set(Calendar.MILLISECOND, 0);
+
+        long millisUntilMidnight = nextMidnight.getTimeInMillis() - now.getTimeInMillis();
+        int seconds = (int) (millisUntilMidnight / 1000);
+
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        seconds = seconds % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 }

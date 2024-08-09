@@ -18,12 +18,13 @@ public class SkyblockUser {
     private int currentPremiumPrestigeLevel;
     private int lastPremiumPrestigeLevelClaimed;
     private boolean ownPremiumPrestige;
+    private String lastSpecialBooks;
 
     private boolean modified = false;
 
     public SkyblockUser(UUID uuid, String name, double money, double adventureExp, double adventureLevel, int flyTime,
                         int currentPrestigeLevel, int lastPrestigeLevelClaimed, int currentPremiumPrestigeLevel,
-                        int lastPremiumPrestigeLevelClaimed, boolean ownPremiumPrestige) {
+                        int lastPremiumPrestigeLevelClaimed, boolean ownPremiumPrestige, String lastSpecialBooks) {
         this.uuid = uuid;
         this.name = name;
         this.money = money;
@@ -35,6 +36,7 @@ public class SkyblockUser {
         this.currentPremiumPrestigeLevel = currentPremiumPrestigeLevel;
         this.lastPremiumPrestigeLevelClaimed = lastPremiumPrestigeLevelClaimed;
         this.ownPremiumPrestige = ownPremiumPrestige;
+        this.lastSpecialBooks = lastSpecialBooks;
     }
 
     public SkyblockUser(UUID uuid, String name) {
@@ -49,6 +51,7 @@ public class SkyblockUser {
         this.currentPremiumPrestigeLevel = 0;
         this.lastPremiumPrestigeLevelClaimed = 0;
         this.ownPremiumPrestige = false;
+        this.lastSpecialBooks = "";
     }
 
     public static SkyblockUser fromJson(JsonObject json) {
@@ -64,9 +67,11 @@ public class SkyblockUser {
             int currentPremiumPrestigeLevel = json.get("cPPL").getAsInt();
             int lastPremiumPrestigeLevelClaimed = json.get("lPPLC").getAsInt();
             boolean ownPremiumPrestige = json.get("ownPP").getAsBoolean();
+            String lastSpecialBooks = json.get("lastSpecialBooks").getAsString();
 
             return new SkyblockUser(uuid, name, money, adventureExp, adventureLevel, flyTime, currentPrestigeLevel,
-                    lastPrestigeLevelClaimed, currentPremiumPrestigeLevel, lastPremiumPrestigeLevelClaimed, ownPremiumPrestige);
+                    lastPrestigeLevelClaimed, currentPremiumPrestigeLevel, lastPremiumPrestigeLevelClaimed,
+                    ownPremiumPrestige, lastSpecialBooks);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -160,6 +165,7 @@ public class SkyblockUser {
         json.addProperty("cPPL", currentPremiumPrestigeLevel);
         json.addProperty("lPPLC", lastPremiumPrestigeLevelClaimed);
         json.addProperty("ownPP", ownPremiumPrestige);
+        json.addProperty("lastSpecialBooks", lastSpecialBooks);
 
         return json;
     }
@@ -205,6 +211,16 @@ public class SkyblockUser {
 
     public void setOwnPremiumPrestige(boolean ownPremiumPrestige) {
         this.ownPremiumPrestige = ownPremiumPrestige;
+
+        update();
+    }
+
+    public String getLastSpecialBooks() {
+        return lastSpecialBooks;
+    }
+
+    public void setLastSpecialBooks(String lastSpecialBooks) {
+        this.lastSpecialBooks = lastSpecialBooks;
 
         update();
     }
