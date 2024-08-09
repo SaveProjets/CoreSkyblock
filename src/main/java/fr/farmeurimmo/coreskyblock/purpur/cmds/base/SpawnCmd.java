@@ -19,7 +19,7 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (args.length == 1) {
-            if (sender.hasPermission("CoreSkyblock.admin")) {
+            if (sender.hasPermission("coreskyblock.admin")) {
                 Player target = Bukkit.getPlayer(args[0]);
                 if (target == null) {
                     sender.sendMessage(Component.text("§cErreur, joueur inconnu ou non connecté sur ce serveur !"));
@@ -63,7 +63,7 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (args.length == 1) {
-            if (sender.hasPermission("CoreSkyblock.admin")) {
+            if (sender.hasPermission("coreskyblock.admin")) {
                 return Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(s -> s.startsWith(args[0])).toList();
             }
         }

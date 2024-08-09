@@ -20,7 +20,7 @@ public class ShopCmd implements CommandExecutor, TabCompleter {
                              @NotNull String[] args) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reload")) {
-                if (!sender.hasPermission("CoreSkyblock.shop.reload")) {
+                if (!sender.hasPermission("coreskyblock.shop.reload")) {
                     sender.sendMessage(Component.text("§cVous n'avez pas la permission de faire cela !"));
                     return false;
                 }
@@ -45,7 +45,7 @@ public class ShopCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 1 && sender.hasPermission("CoreSkyblock.shop.reload")) {
+        if (args.length == 1 && sender.hasPermission("coreskyblock.shop.reload")) {
             return List.of("reload");
         }
         return List.of();
