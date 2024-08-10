@@ -27,6 +27,7 @@ import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyListener;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.cmds.IslandCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.CustomSacsListener;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatListener;
@@ -193,6 +194,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(), this);
         getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
         getServer().getPluginManager().registerEvents(new CustomEnchantementsListener(), this);
+        getServer().getPluginManager().registerEvents(new CustomSacsListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
         Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
