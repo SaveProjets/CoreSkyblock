@@ -27,6 +27,8 @@ import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyListener;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.cmds.IslandCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatListener;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatReactionListener;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.PlayerListener;
@@ -165,6 +167,7 @@ public final class CoreSkyblock extends JavaPlugin {
         new TpasManager();
 
         new ShopsManager();
+        new SacsManager();
 
         new AgricultureCycleManager();
 
@@ -224,6 +227,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("ah")).setExecutor(new AuctionHouseCmd());
         Objects.requireNonNull(getCommand("elevators")).setExecutor(new ElevatorsCmd());
         Objects.requireNonNull(getCommand("enchantsadmin")).setExecutor(new EnchantsAdminCmd());
+        Objects.requireNonNull(getCommand("sacs")).setExecutor(new SacsCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
@@ -423,5 +427,15 @@ public final class CoreSkyblock extends JavaPlugin {
         out.writeUTF(server);
 
         player.sendPluginMessage(INSTANCE, "BungeeCord", out.toByteArray());
+    }
+
+    public ArrayList<String> getStartingBy(List<String> list, String start) {
+        ArrayList<String> result = new ArrayList<>();
+        for (String s : list) {
+            if (s.toLowerCase().startsWith(start.toLowerCase())) {
+                result.add(s);
+            }
+        }
+        return result;
     }
 }
