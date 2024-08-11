@@ -64,7 +64,7 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (args.length == 1) {
             if (sender.hasPermission("coreskyblock.admin")) {
-                return Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(s -> s.startsWith(args[0])).toList();
+                return CoreSkyblock.INSTANCE.getStartingBy(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[0]);
             }
         }
         return List.of();

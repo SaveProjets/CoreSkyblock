@@ -8,12 +8,15 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
-public class TpaNoCmd implements CommandExecutor {
+public class TpaNoCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -66,5 +69,10 @@ public class TpaNoCmd implements CommandExecutor {
         }
         p.sendMessage(Component.text("§cUtilisation: /tpadeny <tpa/tpahere> <joueur>"));
         return false;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        return TpasManager.INSTANCE.getStrings(sender, args);
     }
 }

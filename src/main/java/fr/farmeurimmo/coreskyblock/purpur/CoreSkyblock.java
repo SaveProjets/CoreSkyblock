@@ -18,6 +18,7 @@ import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.BuildSpawnCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.base.*;
+import fr.farmeurimmo.coreskyblock.purpur.cmds.eco.BaltopCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.eco.MoneyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyCmd;

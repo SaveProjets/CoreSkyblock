@@ -6,12 +6,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class TpasManager {
 
@@ -117,5 +116,25 @@ public class TpasManager {
 
     public void removeTpaRequest(UUID sender, UUID receiver, boolean tpaHere) {
         tpaRequests.removeIf(request -> request.sender().equals(sender) && request.receiver().equals(receiver) && request.isTpaHere() == tpaHere);
+    }
+
+    public List<String> getPlayersThatRequestedTpa(UUID receiver) {
+        return tpaRequests.stream().filter(request -> request.receiver().equals(receiver)).map(TpaRequest::senderName).toList();
+    }
+
+    public List<String> getPlayersThatRequestedTpaHere(UUID receiver) {
+        return tpaRequests.stream().filter(request -> request.receiver().equals(receiver) && request.isTpaHere()).map(TpaRequest::senderName).toList();
+    }
+
+    public List<String> getStrings(@NotNull CommandSender sender, @NotNull String[] args) {
+        if (args.length == 1) return CoreSkyblock.INSTANCE.getStartingBy(List.of("tpa", "tpahere"), args[0]);
+        if (!(sender instanceof Player p)) return List.of();
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("tpa"))
+                return TpasManager.INSTANCE.getPlayersThatRequestedTpa(p.getUniqueId());
+            if (args[0].equalsIgnoreCase("tpahere"))
+                return TpasManager.INSTANCE.getPlayersThatRequestedTpaHere(p.getUniqueId());
+        }
+        return List.of();
     }
 }
