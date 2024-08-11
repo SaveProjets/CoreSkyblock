@@ -44,7 +44,7 @@ public class ChestsManager {
         meta.lore(lore);
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
         item.setItemMeta(meta);
-        item.setUnbreakable(true);
+        item.getItemMeta().setUnbreakable(true);
 
         return item;
     }

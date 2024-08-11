@@ -44,7 +44,7 @@ public class Chest {
             block = LocationTranslator.fromString(json.get("location").getAsString());
         ItemStack itemToBuySell = null;
         if (json.has("itemToBuySell"))
-            itemToBuySell = InventorySyncUtils.INSTANCE.jsonToItemStack(json.get("itemToBuySell").getAsJsonObject());
+            itemToBuySell = InventorySyncUtils.INSTANCE.itemStackFromBase64(json.get("itemToBuySell").getAsString());
         double price = 0;
         if (json.has("price"))
             price = json.get("price").getAsDouble();
@@ -132,7 +132,7 @@ public class Chest {
         json.addProperty("type", type.name());
         if (block.getWorld() != null) json.addProperty("location", LocationTranslator.fromLocation(block));
         if (itemToBuySell != null)
-            json.add("itemToBuySell", InventorySyncUtils.INSTANCE.itemStackToJson(itemToBuySell));
+            json.addProperty("itemToBuySell", InventorySyncUtils.INSTANCE.itemStackToBase64(itemToBuySell));
         if (price != 0) json.addProperty("price", price);
         json.addProperty("isSell", isSell);
         json.addProperty("activeSellOrBuy", activeSellOrBuy);

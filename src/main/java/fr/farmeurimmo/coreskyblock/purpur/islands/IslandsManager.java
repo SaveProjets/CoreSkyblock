@@ -89,7 +89,7 @@ public class IslandsManager {
                     if (island.isLoaded()) {
                         World world = getIslandWorld(island.getIslandUUID());
                         if (world != null) {
-                            world.save();
+                            WorldsManager.INSTANCE.saveWorldAsync(world);
                         }
                     }
                 }
@@ -389,7 +389,7 @@ public class IslandsManager {
                 return;
             }
             Bukkit.getScheduler().callSyncMethod(plugin, () -> {
-                SlimeWorld slimeWorld = WorldsManager.INSTANCE.cloneAndLoad(worldName, "island_template_1");
+                SlimeWorld slimeWorld = WorldsManager.INSTANCE.cloneAndLoad(worldName, "island_template_1", false);
                 if (slimeWorld == null) {
                     JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create_response:" +
                             CoreSkyblock.SERVER_NAME + ":" + owner + ":error");

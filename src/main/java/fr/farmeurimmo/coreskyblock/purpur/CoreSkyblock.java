@@ -3,7 +3,7 @@ package fr.farmeurimmo.coreskyblock.purpur;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
-import com.infernalsuite.aswm.api.SlimePlugin;
+import com.infernalsuite.aswm.api.AdvancedSlimePaperAPI;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
@@ -83,7 +83,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public final Map<String, ArrayList<Pair<UUID, String>>> skyblockPlayers = new HashMap<>();
     public RoseStackerAPI roseStackerAPI;
     public ConsoleCommandSender console;
-    public SlimePlugin slimePlugin;
+    public AdvancedSlimePaperAPI slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
     public Map<String, Integer> serversLoad = new HashMap<>();
 
@@ -92,7 +92,7 @@ public final class CoreSkyblock extends JavaPlugin {
         INSTANCE = this;
         console = getServer().getConsoleSender();
         console.sendMessage("§b[CoreSkyblock] §7Récupération du plugin SlimeWorldManager...");
-        slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
+        slimePlugin = AdvancedSlimePaperAPI.instance();
         new WorldsManager();
 
         //This is now handled by the SlimeWorldManager plugin
@@ -128,6 +128,25 @@ public final class CoreSkyblock extends JavaPlugin {
         new InventorySyncUtils();
         new InventoryUtils();
 
+        if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
+            roseStackerAPI = RoseStackerAPI.getInstance();
+        }
+
+        console.sendMessage("§b[CoreSkyblock] §7Connexion à la base de donnée...");
+        try {
+            String host = getConfig().getString("mysql.host");
+            String user = getConfig().getString("mysql.user");
+            String password = getConfig().getString("mysql.password");
+            String database = getConfig().getString("mysql.database");
+            int port = getConfig().getInt("mysql.port");
+            new DatabaseManager("jdbc:mysql://" + host + ":" + port + "/" + database, user, password);
+            WorldsManager.INSTANCE.createLoader(host, port, user, password, database);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.shutdown();
+            return;
+        }
+
         if (SERVER_TYPE == ServerType.PVP) {
             SPAWN_WORLD_NAME = "pvp-spawn";
         } else if (SERVER_TYPE == ServerType.PVE) {
@@ -141,23 +160,6 @@ public final class CoreSkyblock extends JavaPlugin {
             spawnWorld.setSpawnLocation(SPAWN);
             spawnWorld.getWorldBorder().setCenter(SPAWN);
             spawnWorld.getWorldBorder().setSize(500);
-        }
-        if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
-            roseStackerAPI = RoseStackerAPI.getInstance();
-        }
-
-        console.sendMessage("§b[CoreSkyblock] §7Connexion à la base de donnée...");
-        try {
-            String host = getConfig().getString("mysql.host");
-            String user = getConfig().getString("mysql.user");
-            String password = getConfig().getString("mysql.password");
-            String database = getConfig().getString("mysql.database");
-            int port = getConfig().getInt("mysql.port");
-            new DatabaseManager("jdbc:mysql://" + host + ":" + port + "/" + database, user, password);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Bukkit.shutdown();
-            return;
         }
 
         console.sendMessage("§b[CoreSkyblock] §7Démarrage des managers...");

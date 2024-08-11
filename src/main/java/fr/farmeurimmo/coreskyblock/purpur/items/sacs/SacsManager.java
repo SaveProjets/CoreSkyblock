@@ -31,7 +31,6 @@ public class SacsManager {
                 Component.text("§7en un seul endroit."), Component.text(""),
                 Component.text("§7Clic droit pour ouvrir.")));
         meta.setUnbreakable(true);
-        meta.setPlaceableKeys(List.of());
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
         item.setItemMeta(meta);
@@ -47,12 +46,13 @@ public class SacsManager {
         if (itemStack.getType() != Material.CHEST) return -1;
         if (!itemStack.hasItemMeta()) return -1;
         if (!itemStack.getItemMeta().hasLore()) return -1;
-        if (!itemStack.isUnbreakable()) return -1;
+        if (!itemStack.getItemMeta().isUnbreakable()) return -1;
         ItemMeta meta = itemStack.getItemMeta();
         if (meta.displayName() == null) return -1;
         if (meta.lore() == null) return -1;
         if (Objects.requireNonNull(meta.lore()).size() < 3) return -1;
-        if (!Objects.equals(itemStack.getDisplayName(), String.format(NAME_FORMAT, sacsType.getName()))) return -1;
+        if (!Objects.equals(itemStack.getItemMeta().getDisplayName(), String.format(NAME_FORMAT, sacsType.getName())))
+            return -1;
         String lore = Objects.requireNonNull(meta.getLore()).get(0);
         int amount = Integer.parseInt(lore.substring(lore.indexOf("x") + 1, lore.indexOf(" ")));
         if (amount >= MAX_AMOUNT) return -2;

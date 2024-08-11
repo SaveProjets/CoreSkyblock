@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -78,7 +79,7 @@ public class CustomEnchantmentsManager {
 
     public ItemStack getItemStackEnchantedBook(Enchantments enchantment, int level) {
         ItemStack itemStack = new ItemStack(Material.ENCHANTED_BOOK);
-        itemStack.setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ?
+        itemStack.getItemMeta().setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ?
                 ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(level) : ""));
         itemStack.lore(enchantment.getDescriptionFormatted(level));
 
@@ -104,10 +105,10 @@ public class CustomEnchantmentsManager {
     private ArrayList<Pair<Enchantments, Integer>> getEnchantmentsFromDisplayName(ItemStack itemStack) {
         ArrayList<Pair<Enchantments, Integer>> enchantments = new ArrayList<>();
         for (Enchantments enchantment : Enchantments.values()) {
-            if (itemStack.getDisplayName().contains(enchantment.getDisplayName())) {
+            if (itemStack.getItemMeta().getDisplayName().contains(enchantment.getDisplayName())) {
                 int level = 0;
-                if (itemStack.getDisplayName().contains(ENCHANTMENT_LORE_SEPARATOR)) {
-                    level = RomanNumberUtils.fromRoman(itemStack.getDisplayName().split(ENCHANTMENT_LORE_SEPARATOR)[1]);
+                if (itemStack.getItemMeta().getDisplayName().contains(ENCHANTMENT_LORE_SEPARATOR)) {
+                    level = RomanNumberUtils.fromRoman(itemStack.getItemMeta().getDisplayName().split(ENCHANTMENT_LORE_SEPARATOR)[1]);
                 }
                 enchantments.add(Pair.of(enchantment, level));
             }
@@ -149,8 +150,8 @@ public class CustomEnchantmentsManager {
                 for (ItemStack itemStack : p.getInventory().getStorageContents()) {
                     if (itemStack == null) continue;
                     if (!itemStack.hasItemMeta()) continue;
-                    if (!itemStack.hasLore()) continue;
-                    if (!itemStack.isUnbreakable()) continue;
+                    if (itemStack.lore() == null) continue;
+                    if (!itemStack.getItemFlags().contains(ItemFlag.HIDE_UNBREAKABLE)) continue;
 
                     if (SacsManager.INSTANCE.isASacs(itemStack, sacsType)) {
                         int amount = SacsManager.INSTANCE.getAmount(itemStack, sacsType);

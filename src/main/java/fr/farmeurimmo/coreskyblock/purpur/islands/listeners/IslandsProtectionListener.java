@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.entity.minecart.RideableMinecart;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -449,9 +450,11 @@ public class IslandsProtectionListener implements Listener {
                 }
                 return;
             }
-            if (e.getRightClicked().isRidable()) {
-                if (!island.hasPerms(rank, IslandPerms.INTERACT_WITH_MOUNTS, p.getUniqueId())) {
-                    e.setCancelled(true);
+            if (e.getRightClicked() instanceof LivingEntity livingEntity) {
+                if (livingEntity instanceof Tameable || livingEntity instanceof RideableMinecart || livingEntity instanceof Boat) {
+                    if (!island.hasPerms(rank, IslandPerms.INTERACT_WITH_MOUNTS, p.getUniqueId())) {
+                        e.setCancelled(true);
+                    }
                 }
                 return;
             }

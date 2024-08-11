@@ -73,7 +73,7 @@ public class MinionsListener implements Listener {
         if (e.getItem() == null) return;
         if (!e.getItem().hasItemMeta()) return;
         if (!e.getItem().getItemMeta().hasDisplayName()) return;
-        if (!e.getItem().isUnbreakable()) return;
+        if (!e.getItem().getItemMeta().isUnbreakable()) return;
 
         Player p = e.getPlayer();
 

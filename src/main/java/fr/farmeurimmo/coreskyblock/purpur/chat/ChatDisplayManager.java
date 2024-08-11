@@ -21,7 +21,7 @@ public class ChatDisplayManager {
     }
 
     public Component getComponentForItem(ItemStack item) {
-        return Component.text("[" + (item.hasDisplayName() ? item.getDisplayName() :
+        return Component.text("[" + (item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() :
                         Objects.requireNonNull(item.getType().getKey()).getKey()) + "]").color(NamedTextColor.GOLD)
                 .hoverEvent(item.asHoverEvent(UnaryOperator.identity()));
     }

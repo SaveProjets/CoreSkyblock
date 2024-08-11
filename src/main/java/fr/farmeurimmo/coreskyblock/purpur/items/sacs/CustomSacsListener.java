@@ -8,6 +8,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
@@ -44,8 +45,8 @@ public class CustomSacsListener implements Listener {
             for (ItemStack itemStack : p.getInventory().getStorageContents()) {
                 if (itemStack == null) continue;
                 if (!itemStack.hasItemMeta()) continue;
-                if (!itemStack.hasLore()) continue;
-                if (!itemStack.isUnbreakable()) continue;
+                if (itemStack.lore() == null) continue;
+                if (!itemStack.getItemFlags().contains(ItemFlag.HIDE_UNBREAKABLE)) continue;
 
                 if (SacsManager.INSTANCE.isASacs(itemStack, sacsType)) {
                     int amount = SacsManager.INSTANCE.getAmount(itemStack, sacsType);

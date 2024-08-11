@@ -63,7 +63,7 @@ public class CustomEnchantementsListener implements Listener {
                         int fortuneLevel = 0;
 
                         try {
-                            fortuneLevel = e.getPlayer().getItemInHand().getEnchantmentLevel(Objects.requireNonNull(Enchantment.LOOT_BONUS_BLOCKS));
+                            fortuneLevel = e.getPlayer().getItemInHand().getEnchantmentLevel(Objects.requireNonNull(Enchantment.FORTUNE));
                         } catch (NullPointerException ignored) {
                         }
 
@@ -200,7 +200,7 @@ public class CustomEnchantementsListener implements Listener {
                 p.damage(2);
                 for (ItemStack itemStack : p.getInventory().getArmorContents()) {
                     if (itemStack == null) continue;
-                    itemStack.damage(2);
+                    itemStack.damage(2, p);
                 }
                 return;
             }
@@ -244,7 +244,7 @@ public class CustomEnchantementsListener implements Listener {
                     p.damage(2);
                     for (ItemStack itemStack1 : p.getInventory().getArmorContents()) {
                         if (itemStack1 == null) continue;
-                        itemStack1.damage(3);
+                        itemStack1.damage(3, p);
                     }
                 }
             }

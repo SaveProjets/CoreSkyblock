@@ -61,11 +61,11 @@ public class IslandsTopInv extends FastInv {
                 .lore("§7Cliquez pour changer le classement", (topSelected == 2 ? "§aAffiché" : "§cNon affiché"))
                 .flags(ItemFlag.HIDE_ENCHANTS).build();
         if (topSelected == 0) {
-            topValue.addEnchant(Enchantment.DURABILITY, 1, true);
+            topValue.addEnchantment(Enchantment.UNBREAKING, 1);
         } else if (topSelected == 1) {
-            topBankMoney.addEnchant(Enchantment.DURABILITY, 1, true);
+            topBankMoney.addEnchantment(Enchantment.UNBREAKING, 1);
         } else if (topSelected == 2) {
-            topWarpRate.addEnchant(Enchantment.DURABILITY, 1, true);
+            topWarpRate.addEnchantment(Enchantment.UNBREAKING, 1);
         }
         setItem(3, topValue, e -> {
             if (topSelected == 0) {

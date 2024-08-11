@@ -23,7 +23,7 @@ public class FeatherFlyListener implements Listener {
         Player p = e.getPlayer();
         if (e.getItem() != null && e.getItem().getType().equals(Material.FEATHER)) {
             if (e.getItem().getItemMeta().getItemFlags().contains(ItemFlag.HIDE_UNBREAKABLE)) {
-                String sample = ChatColor.stripColor(e.getItem().getDisplayName());
+                String sample = ChatColor.stripColor(e.getItem().getItemMeta().getDisplayName());
                 char[] chars = sample.toCharArray();
                 StringBuilder sb = new StringBuilder();
                 for (char c : chars) {

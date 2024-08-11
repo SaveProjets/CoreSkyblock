@@ -84,7 +84,7 @@ public class PrestigeInv extends FastInv {
                     .flags(ItemFlag.HIDE_ENCHANTS)
                     .build();
             if (user.getLastPrestigeLevelClaimed() < i && user.getCurrentPrestigeLevel() >= i) {
-                prestigeItem.addUnsafeEnchantment(Enchantment.LUCK, 1);
+                prestigeItem.addUnsafeEnchantment(Enchantment.FORTUNE, 1);
             }
             int finalI = i;
             setItem(10 + (i - prestigeLevelDisplayed), prestigeItem, e -> {
@@ -117,7 +117,7 @@ public class PrestigeInv extends FastInv {
                     .flags(ItemFlag.HIDE_ENCHANTS)
                     .build();
             if (user.getLastPremiumPrestigeLevelClaimed() <= i && user.getCurrentPrestigeLevel() >= i) {
-                premiumPrestigeItem.addUnsafeEnchantment(Enchantment.LUCK, 1);
+                premiumPrestigeItem.addUnsafeEnchantment(Enchantment.FORTUNE, 1);
             }
             setItem(28 + (i - prestigeLevelDisplayed), premiumPrestigeItem,
                     e -> {
