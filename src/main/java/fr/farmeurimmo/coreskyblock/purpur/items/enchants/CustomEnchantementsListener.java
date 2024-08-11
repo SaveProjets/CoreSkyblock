@@ -1,9 +1,9 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants;
+package fr.farmeurimmo.coreskyblock.purpur.items.enchants;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import dev.lone.itemsadder.api.CustomBlock;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

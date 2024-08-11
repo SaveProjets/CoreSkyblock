@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.eco;
+package fr.farmeurimmo.coreskyblock.purpur.cmds.eco;
 
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;

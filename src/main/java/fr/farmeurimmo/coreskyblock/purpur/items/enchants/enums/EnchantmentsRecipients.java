@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants.enums;
+package fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

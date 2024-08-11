@@ -1,8 +1,8 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants;
+package fr.farmeurimmo.coreskyblock.purpur.items.enchants;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.EnchantmentRarity;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.EnchantmentRarity;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsType;
 import fr.farmeurimmo.coreskyblock.utils.RomanNumberUtils;

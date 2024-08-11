@@ -1,8 +1,8 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants.cmds;
+package fr.farmeurimmo.coreskyblock.purpur.items.enchants.cmds;
 
-import fr.farmeurimmo.coreskyblock.purpur.enchants.CustomEnchantmentsManager;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.invs.EnchantsAdminInv;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs.EnchantsAdminInv;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants.enums;
+package fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums;
 
 public enum EnchantmentRarity {
 

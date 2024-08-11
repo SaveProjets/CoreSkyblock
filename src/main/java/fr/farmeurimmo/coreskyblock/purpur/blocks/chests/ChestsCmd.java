@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.chests;
+package fr.farmeurimmo.coreskyblock.purpur.blocks.chests;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

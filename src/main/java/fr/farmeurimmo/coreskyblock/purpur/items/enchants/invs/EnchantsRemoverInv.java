@@ -1,8 +1,8 @@
-package fr.farmeurimmo.coreskyblock.purpur.enchants.invs;
+package fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.CustomEnchantmentsManager;
-import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
