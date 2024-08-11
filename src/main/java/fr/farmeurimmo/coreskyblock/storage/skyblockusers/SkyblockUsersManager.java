@@ -41,11 +41,11 @@ public class SkyblockUsersManager {
             });
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 toRemoveModified.forEach(uuid -> cache.get(uuid).setModified(false));
-                baltop.clear();
+                this.baltop.clear();
                 this.baltop.putAll(baltop);
                 return null;
             });
-        }, 0, 20 * 60 * 5 - 20);
+        }, 0, 20 * 60 * 3 - 20);
 
         CompletableFuture.runAsync(() -> {
             LinkedHashMap<String, Double> baltop = getBaltop();
@@ -61,6 +61,14 @@ public class SkyblockUsersManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void onDisable() {
+        cache.values().forEach(user -> {
+            if (user.isModified()) {
+                upsertUser(user);
+            }
+        });
     }
 
     public SkyblockUser loadUser(UUID uuid, String name) {

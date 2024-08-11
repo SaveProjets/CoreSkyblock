@@ -284,6 +284,7 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§6Arrêt du plugin CoreSkyblock");
 
         SyncUsersManager.INSTANCE.onDisable();
+        SkyblockUsersManager.INSTANCE.onDisable();
 
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
             IslandsManager.INSTANCE.onDisable();

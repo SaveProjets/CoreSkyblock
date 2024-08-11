@@ -48,10 +48,6 @@ public class FeatherFlyManager {
                 toRemove.add(uuid);
                 continue;
             }
-            if (p.getWorld().getName().contains("donjon")) {
-                toRemove.add(uuid);
-                continue;
-            }
             if (!IslandsManager.INSTANCE.isAnIsland(p.getWorld())) {
                 p.sendActionBar(Component.text("§aIl vous reste §e" + DateUtils.getFormattedTimeLeft(user.getFlyTime()) + " §ade fly, §2§lEN PAUSE"));
                 continue;
@@ -100,20 +96,21 @@ public class FeatherFlyManager {
     public boolean enableFly(Player p, int time) {
         SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) return false;
-        if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return false;
         int flyLeft = user.getFlyTime();
-        if (flyLeft + time > 86400) {
-            p.sendMessage("§cErreur, vous ne pouvez pas avoir plus de 24h de fly actif !");
+        if (flyLeft + time > 86400 * 3) {
+            p.sendMessage("§cErreur, vous ne pouvez pas avoir plus de 72h de fly actif !");
             return false;
         } else if (flyLeft != 0) {
             user.setFlyTime(flyLeft + time);
-            p.sendMessage("§aVous pouvez voler pendant encore " + (flyLeft + time) + " secondes !");
-            players.add(p.getUniqueId());
+            p.sendMessage("§aVous pouvez voler pendant encore " + (flyLeft + time) + " secondes ! §l(Ajout de " + time + "s)");
+            if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return true;
+            if (!players.contains(p.getUniqueId())) players.add(p.getUniqueId());
             return true;
         }
         user.setFlyTime(time);
-        p.sendMessage("§aVous pouvez désormais voler pendant encore " + time + " secondes !");
-        players.add(p.getUniqueId());
+        p.sendMessage("§aVous pouvez désormais voler pendant encore " + time + " secondes ! §l(Ajout de " + time + "s)");
+        if (CoreSkyblock.SERVER_TYPE != ServerType.GAME) return true;
+        if (!players.contains(p.getUniqueId())) players.add(p.getUniqueId());
         return true;
     }
 }

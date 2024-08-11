@@ -119,7 +119,8 @@ public class SyncUsersManager {
             JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + user.getUuid(), gson.toJson(user.toJson()));
         }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             inSync.remove(p.getUniqueId()); // Remove the player from the list of players currently being synced
-            if (showMessages) p.sendMessage(Component.text("§aSynchronisation terminée en " + (System.currentTimeMillis() - start) + "ms"));
+            if (showMessages)
+                p.sendMessage(Component.text("§aSynchronisation terminée en " + (System.currentTimeMillis() - start) + "ms"));
             return null;
         })).exceptionally(ex -> {
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
