@@ -38,7 +38,6 @@ public class ShopsManager {
             }
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
-                CoreSkyblock.INSTANCE.console.sendMessage("§7Loaded §6" + futures.size() + "§7 shop pages");
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     this.pages.clear();
                     futures.forEach(future -> future.thenAccept(page -> {
@@ -46,6 +45,7 @@ public class ShopsManager {
                             this.pages.add(page);
                         }
                     }));
+                    CoreSkyblock.INSTANCE.console.sendMessage("§7Loaded §6" + futures.size() + "§7 shop pages");
                     return null;
                 });
             });
@@ -105,9 +105,5 @@ public class ShopsManager {
             }
         }
         return -1;
-    }
-
-    public boolean isSellable(ItemStack iS) {
-        return getSellPrice(iS) > 0;
     }
 }

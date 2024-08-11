@@ -31,12 +31,15 @@ public class IslandsWarpManager {
         CompletableFuture.runAsync(() -> {
             List<IslandWarp> warps = IslandsDataManager.INSTANCE.loadIslandsWarps();
 
-            this.warps.clear();
-            for (IslandWarp warp : warps) {
-                this.warps.put(warp, System.currentTimeMillis());
-            }
+            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                this.warps.clear();
+                for (IslandWarp warp : warps) {
+                    this.warps.put(warp, System.currentTimeMillis());
+                }
 
-            CoreSkyblock.INSTANCE.console.sendMessage("§7Loaded §6" + warps.size() + "§7 warps.");
+                CoreSkyblock.INSTANCE.console.sendMessage("§7Loaded §6" + warps.size() + "§7 warps.");
+                return null;
+            });
         });
     }
 

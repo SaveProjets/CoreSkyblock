@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.chests;
+package fr.farmeurimmo.coreskyblock.purpur.blocks.chests;
 
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;

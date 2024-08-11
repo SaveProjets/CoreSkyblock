@@ -132,7 +132,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onWorldChange(PlayerTeleportEvent e) {
         Player p = e.getPlayer();
-        if (p.hasPermission("CoreSkyblock.admin")) return;
+        if (p.hasPermission("coreskyblock.admin")) return;
         if (e.getTo().getWorld().getName().equals("world")) {
             e.setCancelled(true);
         }

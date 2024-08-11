@@ -3,7 +3,7 @@ package fr.farmeurimmo.coreskyblock.storage.islands;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.farmeurimmo.coreskyblock.purpur.chests.Chest;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.chests.Chest;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;

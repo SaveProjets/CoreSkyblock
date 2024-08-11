@@ -8,6 +8,7 @@ website: https://edmine.fr
 depend:
   - SlimeWorldManager
   - ItemsAdder
+  - RoseStacker
 commands:
   buildspawn:
     description: Permet de modifier le spawn (déconseillé il faut modifier la template)
@@ -43,8 +44,6 @@ commands:
     permission: coreskyblock.anvil
   furnace:
     permission: coreskyblock.furnace
-  silo:
-    permission: coreskyblock.silo
   feed:
     permission: coreskyblock.feed
   near:
@@ -67,3 +66,7 @@ commands:
     permission: coreskyblock.ah
   elevators:
     permission: coreskyblock.elevators
+  enchantsadmin:
+    permission: coreskyblock.enchantsadmin
+  sacs:
+    permission: coreskyblock.sacs

@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.eco;
+package fr.farmeurimmo.coreskyblock.purpur.cmds.eco;
 
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -34,7 +34,7 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
             p.sendMessage(Component.text("§7Vous avez §e" + NumberFormat.getInstance().format(skyblockUser.getMoney()) + " §7$"));
             return false;
         }
-        if (!sender.hasPermission("CoreSkyblock.admin")) {
+        if (!sender.hasPermission("coreskyblock.admin")) {
             sender.sendMessage(USAGE_PLAYER);
             return false;
         }
@@ -67,19 +67,16 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
                     skyblockUser.addMoney(amount);
                     sender.sendMessage(Component.text("§aVous avez donné §e" + NumberFormat.getInstance()
                             .format(amount) + " §7$ à §e" + playerName));
-                    //FIXME
                     break;
                 case "take":
                     skyblockUser.removeMoney(amount);
                     sender.sendMessage(Component.text("§aVous avez retiré §e" + NumberFormat.getInstance()
                             .format(amount) + " §7$ à §e" + playerName));
-                    //FIXME
                     break;
                 case "set":
                     skyblockUser.setMoney(amount);
                     sender.sendMessage(Component.text("§aVous avez défini le solde de §e" + playerName +
                             " §7à §e" + NumberFormat.getInstance().format(amount) + " §7$"));
-                    //FIXME
                     break;
                 default:
                     sender.sendMessage(USAGE_ADMIN);
@@ -93,7 +90,6 @@ public class MoneyCmd implements TabCompleter, CommandExecutor {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        //FIXME
-        return null;
+        return List.of();
     }
 }

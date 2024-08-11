@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.silos;
+package fr.farmeurimmo.coreskyblock.purpur.items.sacs;
 
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
@@ -9,33 +9,26 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 
-public class SilosInv extends FastInv {
+public class SacInv extends FastInv {
 
-    public SilosInv(ItemStack itemStack, SilosType silosType) {
-        super(27, SilosManager.NAME_FORMAT.formatted(silosType.getName()));
+    public SacInv(@NotNull ItemStack item, SacsType sacsType) {
+        super(3 * 9, "§0" + sacsType.getName());
 
-        setItems(new int[]{9, 0, 1, 7, 8, 17, 18, 19, 25, 26}, ItemBuilder.copyOf(new ItemStack(
-                Material.LIME_STAINED_GLASS_PANE)).name("§6").build());
-
-
-        Material material;
-        if (silosType.getAlternativeMaterial() != null) {
-            material = silosType.getAlternativeMaterial();
-        } else {
-            material = silosType.getMaterial();
-        }
+        Material material = sacsType.getMaterial();
         double sellPrice = ShopsManager.INSTANCE.getSellPrice(new ItemStack(material));
-        int amount = SilosManager.INSTANCE.getAmount(itemStack, silosType);
+        int amount = SacsManager.INSTANCE.getAmount(item, sacsType);
         if (amount < 0) {
             amount = 0;
         }
         double price = sellPrice * amount;
         String priceFormatted = NumberFormat.getInstance().format(price);
         int finalAmount = amount;
-        setItem(12, ItemBuilder.copyOf(new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 64))
+
+        setItem(11, ItemBuilder.copyOf(new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 64))
                 .name("§aTout vendre").lore("§6Gains prévus: §a" + priceFormatted + "$").build(), e -> {
             e.setCancelled(true);
             if (finalAmount < 1) {
@@ -45,14 +38,13 @@ public class SilosInv extends FastInv {
             e.getWhoClicked().closeInventory();
 
             e.getWhoClicked().sendMessage(Component.text("§aVous avez vendu §6x" + finalAmount + " " +
-                    silosType.getName() + "§a pour §6" + priceFormatted + "$§a."));
+                    sacsType.getName() + "§a pour §6" + priceFormatted + "$§a."));
             SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(e.getWhoClicked().getUniqueId());
             user.addMoney(price);
-            SilosManager.INSTANCE.setAmount(itemStack, silosType, 0);
+            SacsManager.INSTANCE.setAmount(item, sacsType, 0);
         });
 
-        int finalAmount1 = amount;
-        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.ORANGE_STAINED_GLASS_PANE, 64))
+        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.ORANGE_STAINED_GLASS_PANE, 64))
                 .name("§6Récupérer").lore("§eClic droit pour tout récupérer").build(), e -> {
             e.setCancelled(true);
 
@@ -62,23 +54,22 @@ public class SilosInv extends FastInv {
                 e.getWhoClicked().sendMessage(Component.text("§cVotre inventaire est plein."));
                 return;
             }
-            if (finalAmount1 < 1) {
+            if (finalAmount < 1) {
                 e.getWhoClicked().sendMessage(Component.text("§cIl n'y a pas assez d'items dans ce silo."));
                 return;
             }
             e.getWhoClicked().closeInventory();
-            int total = Math.min(space, finalAmount1);
+            int total = Math.min(space, finalAmount);
             e.getWhoClicked().sendMessage(Component.text("§aVous avez récupéré §6x" + total + " " +
-                    silosType.getName() + "§a."));
-            SilosManager.INSTANCE.setAmount(itemStack, silosType, finalAmount1 - total);
-            for (int i = 0; i < finalAmount1; i++) {
+                    sacsType.getName() + "§a."));
+            SacsManager.INSTANCE.setAmount(item, sacsType, finalAmount - total);
+            for (int i = 0; i < finalAmount; i++) {
                 e.getWhoClicked().getInventory().addItem(new ItemStack(material));
             }
         });
 
-        int finalAmount2 = amount;
-        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.ORANGE_STAINED_GLASS_PANE, 1))
-                .name("§6Récupérer 64").lore("§eClic droit pour récupérer 64 items").build(), e -> {
+        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.ORANGE_STAINED_GLASS_PANE, 16))
+                .name("§6Récupérer 16").lore("§eClic droit pour récupérer 16 items").build(), e -> {
             e.setCancelled(true);
 
             int space = ShopsManager.INSTANCE.getSpaceAvailableFor((Player) e.getWhoClicked(),
@@ -87,15 +78,15 @@ public class SilosInv extends FastInv {
                 e.getWhoClicked().sendMessage(Component.text("§cVotre inventaire est plein."));
                 return;
             }
-            if (finalAmount2 < 64) {
+            if (finalAmount < 16) {
                 e.getWhoClicked().sendMessage(Component.text("§cIl n'y a pas assez d'items dans ce silo."));
                 return;
             }
             e.getWhoClicked().closeInventory();
-            int total = Math.min(space, 64);
+            int total = Math.min(space, 16);
             e.getWhoClicked().sendMessage(Component.text("§aVous avez récupéré §6x" + total + " " +
-                    silosType.getName() + "§a."));
-            SilosManager.INSTANCE.setAmount(itemStack, silosType, finalAmount2 - total);
+                    sacsType.getName() + "§a."));
+            SacsManager.INSTANCE.setAmount(item, sacsType, finalAmount - total);
             for (int i = 0; i < total; i++) {
                 e.getWhoClicked().getInventory().addItem(new ItemStack(material));
             }

@@ -21,6 +21,7 @@ public class SyncUsersManager {
     public final List<UUID> inSync = new ArrayList<>(); // List of players currently being synced (all of their actions are cancelled)
     private final Map<UUID, SyncUser> users = new HashMap<>();
     private final Gson gson = new Gson();
+    private final boolean showMessages = false;
 
     public SyncUsersManager() {
         INSTANCE = this;
@@ -87,7 +88,7 @@ public class SyncUsersManager {
     // Triggered when a player logs in
     public void startPlayerSync(Player p) {
         inSync.add(p.getUniqueId()); // Add the player to the list of players currently being synced and cancel all of their actions
-        p.sendMessage(Component.text("§cSynchronisation de votre inventaire en cours..."));
+        if (showMessages) p.sendMessage(Component.text("§cSynchronisation de votre inventaire en cours..."));
         long start = System.currentTimeMillis();
 
         CompletableFuture.runAsync(() -> {
@@ -115,14 +116,11 @@ public class SyncUsersManager {
                     p.getActivePotionEffects().toArray(PotionEffect[]::new));
             users.put(p.getUniqueId(), user);
 
-            // async to speed up the process
-            SyncUser finalUser = user;
-            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.sendToRedis("CoreSkyblock:sync:" +
-                    finalUser.getUuid(), gson.toJson(finalUser.toJson())));
-
+            JedisManager.INSTANCE.sendToRedis("coreskyblock:sync:" + user.getUuid(), gson.toJson(user.toJson()));
         }).thenRun(() -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
             inSync.remove(p.getUniqueId()); // Remove the player from the list of players currently being synced
-            p.sendMessage(Component.text("§aSynchronisation terminée en " + (System.currentTimeMillis() - start) + "ms"));
+            if (showMessages)
+                p.sendMessage(Component.text("§aSynchronisation terminée en " + (System.currentTimeMillis() - start) + "ms"));
             return null;
         })).exceptionally(ex -> {
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {

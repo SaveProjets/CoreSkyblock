@@ -1,26 +1,24 @@
-package fr.farmeurimmo.coreskyblock.purpur.cmds.base;
+package fr.farmeurimmo.coreskyblock.purpur.cmds.eco;
 
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class BaltopCmd implements CommandExecutor {
+public class BaltopCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player p)) {
-            sender.sendMessage(Component.text("§cVous devez être un joueur pour exécuter cette commande."));
-            return false;
-        }
         if (args.length > 1) {
             sender.sendMessage(Component.text("§cUsage: /baltop [page]"));
             return false;
@@ -60,5 +58,15 @@ public class BaltopCmd implements CommandExecutor {
             sender.sendMessage(Component.text("§6Page " + finalPage + "/" + maxPage));
         });
         return false;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args.length == 1) {
+            return java.util.stream.IntStream.rangeClosed(1, (int) Math.ceil(SkyblockUsersManager.INSTANCE.getMoneyTop().size() / 10.0))
+                    .mapToObj(String::valueOf)
+                    .toList();
+        }
+        return List.of();
     }
 }

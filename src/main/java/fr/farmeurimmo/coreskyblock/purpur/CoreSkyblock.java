@@ -4,26 +4,34 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
+import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseCmd;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.chests.ChestsCmd;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.chests.ChestsListener;
+import fr.farmeurimmo.coreskyblock.purpur.blocks.chests.ChestsManager;
 import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsListener;
 import fr.farmeurimmo.coreskyblock.purpur.blocks.elevators.ElevatorsManager;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
-import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsCmd;
-import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsListener;
-import fr.farmeurimmo.coreskyblock.purpur.chests.ChestsManager;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.BuildSpawnCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.base.*;
-import fr.farmeurimmo.coreskyblock.purpur.eco.MoneyCmd;
+import fr.farmeurimmo.coreskyblock.purpur.cmds.eco.BaltopCmd;
+import fr.farmeurimmo.coreskyblock.purpur.cmds.eco.MoneyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyListener;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.cmds.IslandCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantementsListener;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
+import fr.farmeurimmo.coreskyblock.purpur.items.enchants.cmds.EnchantsAdminCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.CustomSacsListener;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatListener;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatReactionListener;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.PlayerListener;
@@ -37,9 +45,6 @@ import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.SellAllCmd;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.ShopCmd;
-import fr.farmeurimmo.coreskyblock.purpur.silos.SiloCmd;
-import fr.farmeurimmo.coreskyblock.purpur.silos.SilosListener;
-import fr.farmeurimmo.coreskyblock.purpur.silos.SilosManager;
 import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaCmd;
@@ -76,6 +81,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public static String SERVER_NAME;
     public final Gson gson = new Gson();
     public final Map<String, ArrayList<Pair<UUID, String>>> skyblockPlayers = new HashMap<>();
+    public RoseStackerAPI roseStackerAPI;
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
@@ -136,6 +142,9 @@ public final class CoreSkyblock extends JavaPlugin {
             spawnWorld.getWorldBorder().setCenter(SPAWN);
             spawnWorld.getWorldBorder().setSize(500);
         }
+        if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
+            roseStackerAPI = RoseStackerAPI.getInstance();
+        }
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à la base de donnée...");
         try {
@@ -165,7 +174,7 @@ public final class CoreSkyblock extends JavaPlugin {
         new TpasManager();
 
         new ShopsManager();
-        new SilosManager();
+        new SacsManager();
 
         new AgricultureCycleManager();
 
@@ -175,6 +184,8 @@ public final class CoreSkyblock extends JavaPlugin {
         new AuctionHouseManager();
 
         new ElevatorsManager();
+
+        new CustomEnchantmentsManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
@@ -187,8 +198,9 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChestsListener(), this);
         getServer().getPluginManager().registerEvents(new MinionsListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(), this);
-        getServer().getPluginManager().registerEvents(new SilosListener(), this);
         getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
+        getServer().getPluginManager().registerEvents(new CustomEnchantementsListener(), this);
+        getServer().getPluginManager().registerEvents(new CustomSacsListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
         Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
@@ -209,7 +221,6 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("enchantement")).setExecutor(new EnchantementCmd());
         Objects.requireNonNull(getCommand("anvil")).setExecutor(new AnvilCmd());
         Objects.requireNonNull(getCommand("furnace")).setExecutor(new FurnaceCmd());
-        Objects.requireNonNull(getCommand("silo")).setExecutor(new SiloCmd());
         Objects.requireNonNull(getCommand("feed")).setExecutor(new FeedCmd());
         Objects.requireNonNull(getCommand("near")).setExecutor(new NearCmd());
         Objects.requireNonNull(getCommand("fix")).setExecutor(new FixCmd());
@@ -223,6 +234,8 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("baltop")).setExecutor(new BaltopCmd());
         Objects.requireNonNull(getCommand("ah")).setExecutor(new AuctionHouseCmd());
         Objects.requireNonNull(getCommand("elevators")).setExecutor(new ElevatorsCmd());
+        Objects.requireNonNull(getCommand("enchantsadmin")).setExecutor(new EnchantsAdminCmd());
+        Objects.requireNonNull(getCommand("sacs")).setExecutor(new SacsCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
@@ -272,6 +285,7 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§6Arrêt du plugin CoreSkyblock");
 
         SyncUsersManager.INSTANCE.onDisable();
+        SkyblockUsersManager.INSTANCE.onDisable();
 
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
             IslandsManager.INSTANCE.onDisable();
@@ -422,5 +436,15 @@ public final class CoreSkyblock extends JavaPlugin {
         out.writeUTF(server);
 
         player.sendPluginMessage(INSTANCE, "BungeeCord", out.toByteArray());
+    }
+
+    public ArrayList<String> getStartingBy(List<String> list, String start) {
+        ArrayList<String> result = new ArrayList<>();
+        for (String s : list) {
+            if (s.toLowerCase().startsWith(start.toLowerCase())) {
+                result.add(s);
+            }
+        }
+        return result;
     }
 }
