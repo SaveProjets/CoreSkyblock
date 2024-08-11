@@ -8,6 +8,7 @@ website: https://edmine.fr
 depend:
   - SlimeWorldManager
   - ItemsAdder
+  - RoseStacker
 commands:
   buildspawn:
     description: Permet de modifier le spawn (déconseillé il faut modifier la template)

@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.infernalsuite.aswm.api.SlimePlugin;
+import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseCmd;
@@ -79,6 +80,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public static String SERVER_NAME;
     public final Gson gson = new Gson();
     public final Map<String, ArrayList<Pair<UUID, String>>> skyblockPlayers = new HashMap<>();
+    public RoseStackerAPI roseStackerAPI;
     public ConsoleCommandSender console;
     public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
@@ -138,6 +140,9 @@ public final class CoreSkyblock extends JavaPlugin {
             spawnWorld.setSpawnLocation(SPAWN);
             spawnWorld.getWorldBorder().setCenter(SPAWN);
             spawnWorld.getWorldBorder().setSize(500);
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
+            roseStackerAPI = RoseStackerAPI.getInstance();
         }
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à la base de donnée...");

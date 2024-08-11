@@ -3,6 +3,8 @@ package fr.farmeurimmo.coreskyblock.purpur.enchants;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.EnchantmentRarity;
 import fr.farmeurimmo.coreskyblock.purpur.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
+import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsType;
 import fr.farmeurimmo.coreskyblock.utils.RomanNumberUtils;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
@@ -140,8 +142,36 @@ public class CustomEnchantmentsManager {
         return enchantedBooks;
     }
 
-    public void applyAmant(ArrayList<ItemStack> drops, Player p) {
+    public void applyAimant(ArrayList<ItemStack> drops, Player p) {
         for (ItemStack drop : drops) {
+            SacsType sacsType = SacsType.getByMaterial(drop.getType());
+            if (sacsType != null) {
+                for (ItemStack itemStack : p.getInventory().getStorageContents()) {
+                    if (itemStack == null) continue;
+                    if (!itemStack.hasItemMeta()) continue;
+                    if (!itemStack.hasLore()) continue;
+                    if (!itemStack.isUnbreakable()) continue;
+
+                    if (SacsManager.INSTANCE.isASacs(itemStack, sacsType)) {
+                        int amount = SacsManager.INSTANCE.getAmount(itemStack, sacsType);
+
+                        if (amount == -1) continue;
+
+                        int newAmount = amount + drop.getAmount();
+
+                        if (newAmount > SacsManager.MAX_AMOUNT) {
+                            amount -= newAmount - SacsManager.MAX_AMOUNT;
+                            newAmount = SacsManager.MAX_AMOUNT;
+                            drop.setAmount(amount);
+                        } else {
+                            drop.setAmount(0);
+                        }
+
+                        SacsManager.INSTANCE.setAmount(itemStack, sacsType, newAmount);
+                    }
+                }
+            }
+            if (drop.getAmount() == 0) continue;
             if (p.getInventory().firstEmpty() == -1) {
                 p.getWorld().dropItem(p.getLocation(), drop);
             } else {

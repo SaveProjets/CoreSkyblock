@@ -93,7 +93,7 @@ public class CustomEnchantementsListener implements Listener {
         if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.AIMANT)) {
             e.setDropItems(false);
 
-            CustomEnchantmentsManager.INSTANCE.applyAmant(drops, p);
+            CustomEnchantmentsManager.INSTANCE.applyAimant(drops, p);
         }
 
         p.giveExp(e.getExpToDrop());
@@ -140,7 +140,7 @@ public class CustomEnchantementsListener implements Listener {
 
         if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.AIMANT)) {
             if (!drops.isEmpty()) {
-                CustomEnchantmentsManager.INSTANCE.applyAmant(drops, killer);
+                CustomEnchantmentsManager.INSTANCE.applyAimant(drops, killer);
             }
         }
     }

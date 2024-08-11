@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.items.sacs;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,6 +9,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Objects;
 
 public class CustomSacsListener implements Listener {
 
@@ -21,6 +24,8 @@ public class CustomSacsListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (e.getItem() == null) return;
+
         if (SacsManager.INSTANCE.isASacs(e.getItem())) {
             SacsType sacsType = SacsManager.INSTANCE.getSacsType(e.getItem());
             if (sacsType == null) return;
@@ -47,13 +52,12 @@ public class CustomSacsListener implements Listener {
 
                     if (amount == -1) continue;
 
-                    int newAmount = amount + e.getItem().getItemStack().getAmount();
+                    int newAmount = amount + Objects.requireNonNull(CoreSkyblock.INSTANCE.roseStackerAPI.getStackedItem(e.getItem())).getStackSize();
 
                     if (newAmount > SacsManager.MAX_AMOUNT) {
                         amount -= newAmount - SacsManager.MAX_AMOUNT;
                         newAmount = SacsManager.MAX_AMOUNT;
                         e.getItem().getItemStack().setAmount(amount);
-                        return;
                     } else {
                         e.setCancelled(true);
                         e.getItem().remove();
