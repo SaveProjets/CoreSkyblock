@@ -97,16 +97,20 @@ public class IslandsManager {
 
             WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 
-            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
-                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:space:" +
-                            CoreSkyblock.SERVER_NAME + ":" + (getIslandsLoaded() + getTheoreticalMaxPlayersOnline() +
-                            getActualPlayersOnline())), 0, 20);
-            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversData.put(CoreSkyblock.SERVER_NAME,
-                    getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline()), 0, 20);
-
             CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
 
             serversData.put(CoreSkyblock.SERVER_NAME, getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline());
+
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversData.put(CoreSkyblock.SERVER_NAME,
+                    getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline()), 0, 20);
+
+            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
+                        JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:space:" +
+                                CoreSkyblock.SERVER_NAME + ":" + (getIslandsLoaded() + getTheoreticalMaxPlayersOnline() +
+                                getActualPlayersOnline())), 0, 20);
+                return null;
+            });
         }
     }
 
