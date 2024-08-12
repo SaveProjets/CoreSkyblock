@@ -12,6 +12,7 @@ import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.StringUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;
@@ -30,9 +31,11 @@ public class ChatListener implements Listener {
 
         Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
 
+        String message = StringUtils.getTheMessageWithOnlyAllowedCharacters(e.getMessage());
+
         if (IslandsWarpManager.INSTANCE.isAwaitingInput(p.getUniqueId())) {
             e.setCancelled(true);
-            if (e.getMessage().equalsIgnoreCase("cancel")) {
+            if (message.equalsIgnoreCase("cancel")) {
                 p.sendMessage(Component.text("§cOpération annulée."));
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     IslandsWarpManager.INSTANCE.removeAwaitingInput(p.getUniqueId());
@@ -40,28 +43,27 @@ public class ChatListener implements Listener {
                 });
                 return;
             }
-            String input = e.getMessage();
-            if (input.length() < 4) {
+            if (message.length() < 4) {
                 p.sendMessage(Component.text("§cLe nom doit contenir au moins 4 caractères."));
                 return;
             }
             if (IslandsWarpManager.INSTANCE.isAwaitingLongString(p.getUniqueId())) {
-                if (input.length() > 300) {
+                if (message.length() > 300) {
                     p.sendMessage(Component.text("§cLe nom doit contenir moins de 256 caractères."));
                     return;
                 }
             } else {
-                if (input.length() > 32) {
+                if (message.length() > 32) {
                     p.sendMessage(Component.text("§cLe nom doit contenir moins de 32 caractères."));
                     return;
                 }
             }
-            if (input.replace("\\n", "\n").split("\n").length > 12) {
+            if (message.replace("\\n", "\n").split("\n").length > 12) {
                 p.sendMessage(Component.text("§cMaximum 12 lignes."));
                 return;
             }
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                IslandsWarpManager.INSTANCE.processInput(p, input);
+                IslandsWarpManager.INSTANCE.processInput(p, message);
                 return null;
             });
             return;
@@ -69,7 +71,7 @@ public class ChatListener implements Listener {
 
         if (IslandsBankManager.INSTANCE.isAwaitingAmount(p.getUniqueId())) {
             e.setCancelled(true);
-            if (e.getMessage().equalsIgnoreCase("cancel")) {
+            if (message.equalsIgnoreCase("cancel")) {
                 p.sendMessage(Component.text("§cOpération annulée."));
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     IslandsBankManager.INSTANCE.removeAwaitingAmount(p, false, 0);
@@ -78,7 +80,7 @@ public class ChatListener implements Listener {
                 return;
             }
             try {
-                double amount = Double.parseDouble(e.getMessage());
+                double amount = Double.parseDouble(message);
                 if (amount <= 0) {
                     p.sendMessage(Component.text("§cVeuillez entrer un nombre positif."));
                     return;
@@ -97,15 +99,14 @@ public class ChatListener implements Listener {
 
         if (IslandsChatManager.INSTANCE.isInIslandChat(p.getUniqueId())) {
             e.setCancelled(true);
-            IslandsChatManager.INSTANCE.sendIslandChatMessage(p, e.getMessage());
+            IslandsChatManager.INSTANCE.sendIslandChatMessage(p, message);
             return;
         }
 
-        String message = e.getMessage();
         boolean item = message.contains("[item]");
         boolean money = message.contains("[money]");
 
-        Component component = Component.text((p.hasPermission("coreskyblock.chat.color") ? e.getMessage().replace("&", "§") : e.getMessage()));
+        Component component = Component.text((p.hasPermission("coreskyblock.chat.color") ? message.replace("&", "§") : message));
 
         if (item) {
             component = component.replaceText(config -> config.matchLiteral("[item]")
