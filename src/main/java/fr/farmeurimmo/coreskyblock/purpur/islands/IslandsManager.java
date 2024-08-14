@@ -49,6 +49,7 @@ public class IslandsManager {
     private final ArrayList<UUID> isBypass = new ArrayList<>();
     private final ArrayList<UUID> isSpying = new ArrayList<>();
     private final ArrayList<UUID> deleteConfirmation = new ArrayList<>();
+    private final Map<UUID, Long> connecting = new HashMap<>();
 
     public IslandsManager(JavaPlugin plugin) {
         INSTANCE = this;
@@ -541,6 +542,18 @@ public class IslandsManager {
         }
         String serverWhereIslandIsLoaded = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded");
         if (serverWhereIslandIsLoaded != null && !serverWhereIslandIsLoaded.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
+            if (connecting.containsKey(p.getUniqueId())) {
+                long time = connecting.get(p.getUniqueId());
+                if (System.currentTimeMillis() - time > 10 * 1_000) {
+                    connecting.remove(p.getUniqueId());
+                } else {
+                    p.sendMessage(Component.text("§cVotre téléportation est en cours, veuillez patienter..."));
+                    return;
+                }
+            }
+            connecting.put(p.getUniqueId(), System.currentTimeMillis());
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> connecting.remove(p.getUniqueId()), 9 * 10L);
+
             JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:teleport:" + p.getUniqueId() + ":"
                     + island.getIslandUUID() + ":" + serverWhereIslandIsLoaded);
 
