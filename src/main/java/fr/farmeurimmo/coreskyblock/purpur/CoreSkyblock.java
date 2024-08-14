@@ -81,9 +81,9 @@ public final class CoreSkyblock extends JavaPlugin {
     public static String SERVER_NAME;
     public final Gson gson = new Gson();
     public final Map<String, ArrayList<Pair<UUID, String>>> skyblockPlayers = new HashMap<>();
+    public final AdvancedSlimePaperAPI slimePlugin = AdvancedSlimePaperAPI.instance();
     public RoseStackerAPI roseStackerAPI;
     public ConsoleCommandSender console;
-    public AdvancedSlimePaperAPI slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
     public Map<String, Integer> serversLoad = new HashMap<>();
 
@@ -91,8 +91,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public void onLoad() {
         INSTANCE = this;
         console = getServer().getConsoleSender();
-        console.sendMessage("§b[CoreSkyblock] §7Récupération du plugin SlimeWorldManager...");
-        slimePlugin = AdvancedSlimePaperAPI.instance();
+
         new WorldsManager();
 
         //This is now handled by the SlimeWorldManager plugin

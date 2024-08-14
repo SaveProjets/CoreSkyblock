@@ -197,7 +197,7 @@ public class IslandsManager {
                 try {
                     UUID islandUUID = UUID.fromString(islandUUIDOfPlayerString);
                     loadFromRedis(islandUUID.toString());
-                    Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 2);
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 20);
                     return;
                 } catch (Exception ignored) {
                 }
@@ -206,7 +206,7 @@ public class IslandsManager {
                     assert islandUUIDString != null;
                     UUID islandUUID = UUID.fromString(islandUUIDString);
                     loadFromRedis(islandUUID.toString());
-                    Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 2);
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(islandUUID), 20);
                     return;
                 } catch (Exception ignored) {
                 }
@@ -229,7 +229,7 @@ public class IslandsManager {
             if (island != null) {
                 if (forceLoad) return;
                 UUID finalIslandUUID = islandUUID;
-                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(finalIslandUUID), 2);
+                Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> checkIfIslandIsLoaded(finalIslandUUID), 20);
                 JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID(),
                         CoreSkyblock.INSTANCE.gson.toJson(island.toJson()));
                 for (UUID member : island.getMembers().keySet()) {
@@ -280,7 +280,7 @@ public class IslandsManager {
                     return;
                 }
                 JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_load:" + islandUUID + ":" + server);
-            } else {
+            } else if (server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     World world = Bukkit.getWorld(getIslandWorldName(islandUUID));
                     if (world != null) {
@@ -292,6 +292,8 @@ public class IslandsManager {
                     }
                     return null;
                 });
+            } else {
+                island.setReadOnly(true);
             }
         }
     }
@@ -358,6 +360,8 @@ public class IslandsManager {
             if (ownerPlayer != null) {
                 ownerPlayer.sendMessage(Component.text("§cAucun serveur disponible pour créer votre île. Veuillez réessayer dans quelques instants."));
             }
+
+            return;
         }
 
         Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
@@ -367,14 +371,11 @@ public class IslandsManager {
                     ownerPlayer.sendMessage(Component.text("§cUne erreur est survenue lors de la création de votre île. Veuillez réessayer dans quelques instants."));
                 }
             }
-        }, 20 * 3);
+        }, 20 * 10);
     }
 
     public void setIslandLoadedAt(UUID uuid) {
-        Island island = getIslandByUUID(uuid);
-        if (island != null) {
-            JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + island.getIslandUUID() + ":loaded", CoreSkyblock.SERVER_NAME);
-        }
+        JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + uuid + ":loaded", CoreSkyblock.SERVER_NAME);
     }
 
     public void create(UUID owner, UUID islandUUID, boolean sameServer) {
@@ -488,6 +489,8 @@ public class IslandsManager {
     public void loadIsland(Island island) {
         if (island.isLoaded()) return;
         WorldsManager.INSTANCE.loadAsync(getIslandWorldName(island.getIslandUUID()), false).thenRun(() -> {
+            setIslandLoadedAt(island.getIslandUUID());
+
             Bukkit.getScheduler().callSyncMethod(plugin, () -> {
                 island.setLoaded(true);
                 Location spawn = island.getSpawn();
@@ -505,7 +508,6 @@ public class IslandsManager {
                 island.sendMessageToAll("§aVotre île a été chargée.");
                 return null;
             });
-            setIslandLoadedAt(island.getIslandUUID());
         }).exceptionally(throwable -> {
             island.sendMessageToAll("§cUne erreur est survenue lors du chargement de votre île.");
             return null;
@@ -544,7 +546,7 @@ public class IslandsManager {
 
             CoreSkyblock.INSTANCE.sendToServer(p, serverWhereIslandIsLoaded);
         } else {
-            p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un cours instant..."));
+            p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un instant..."));
 
             if (teleportTry.containsKey(p.getUniqueId())) {
                 ArrayList<Long> tries = teleportTry.get(p.getUniqueId());
@@ -561,7 +563,7 @@ public class IslandsManager {
             }
 
             checkIfIslandIsLoaded(island.getIslandUUID());
-            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> teleportToIsland(island, p), 50);
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> teleportToIsland(island, p), 20 * 5L);
         }
     }
 
