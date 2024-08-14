@@ -33,7 +33,7 @@ public class IslandWarpInv extends FastInv {
     private IslandWarp warp;
 
     public IslandWarpInv(Island island, IslandWarp warp) {
-        super(36, "§8Warp de l'île");
+        super(36, "§0Warp de l'île");
 
         setItem(35, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
                 .name("§6Retour §8| §7(clic gauche)").build(), e -> {

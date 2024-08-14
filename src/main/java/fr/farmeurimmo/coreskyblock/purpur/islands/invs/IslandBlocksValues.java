@@ -14,7 +14,7 @@ import java.util.Map;
 public class IslandBlocksValues extends FastInv {
 
     public IslandBlocksValues(Island island) {
-        super(27, "§8Valeur des blocs");
+        super(27, "§0Valeur des blocs");
 
         setItem(18, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
                 .name("§6Informations complémentaires").lore("§7Il faut recalculer la valeur de l'île",

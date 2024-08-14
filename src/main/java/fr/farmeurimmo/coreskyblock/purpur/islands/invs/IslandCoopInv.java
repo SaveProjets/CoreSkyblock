@@ -23,7 +23,7 @@ public class IslandCoopInv extends FastInv {
     private boolean closed = false;
 
     public IslandCoopInv(Island island) {
-        super(54, "§8Coops de l'île");
+        super(54, "§0Coops de l'île");
 
         setItem(53, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
                 .name("§6Retour §8| §7(clic gauche)").build(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));

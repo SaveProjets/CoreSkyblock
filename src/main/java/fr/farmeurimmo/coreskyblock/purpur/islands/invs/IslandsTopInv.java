@@ -29,7 +29,7 @@ public class IslandsTopInv extends FastInv {
     private int topSelected = 0; //0 = Top value, 1 = Top bank money, 2 = Warp rate
 
     public IslandsTopInv() {
-        super(54, "§8Classement des îles");
+        super(54, "§0Classement des îles");
 
         setCloseFilter(p -> {
             gotUpdate = true;

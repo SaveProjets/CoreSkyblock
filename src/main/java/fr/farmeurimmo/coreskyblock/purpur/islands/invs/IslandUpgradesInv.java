@@ -18,7 +18,7 @@ import java.text.NumberFormat;
 public class IslandUpgradesInv extends FastInv {
 
     public IslandUpgradesInv(Island island, Player p) {
-        super(27, "§8Améliorations de l'île");
+        super(27, "§0Améliorations de l'île");
 
         if (island == null) {
             return;

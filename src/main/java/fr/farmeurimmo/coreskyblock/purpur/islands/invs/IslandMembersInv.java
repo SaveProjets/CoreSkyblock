@@ -25,7 +25,7 @@ public class IslandMembersInv extends FastInv {
             33, 34, 37, 38, 39, 40, 41, 42, 43};
 
     public IslandMembersInv(Island island, Player whoClicked) {
-        super(54, "§8Membres de l'île");
+        super(54, "§0Membres de l'île");
 
         if (island == null) {
             whoClicked.sendMessage("§cUne erreur est survenue lors de la récupération de votre île.");

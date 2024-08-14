@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 public class IslandInv extends FastInv {
 
     public IslandInv(Island island) {
-        super(45, "§8Menu de l'île");
+        super(45, "§0Menu de l'île");
 
         setItem(40, ItemBuilder.copyOf(new ItemStack(Material.ENDER_EYE))
                 .name("§6Téléportation §8| §7(clic gauche)").build(), e ->
