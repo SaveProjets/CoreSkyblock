@@ -337,7 +337,7 @@ public class IslandsManager {
         }
     }
 
-    public void createIsland(UUID owner) {
+    public void createIsland(UUID owner, String ownerName) {
         UUID islandId = UUID.randomUUID();
 
         String serverToLoad = getServerToLoadIsland();
@@ -345,7 +345,7 @@ public class IslandsManager {
         Player ownerPlayer = plugin.getServer().getPlayer(owner);
         if (serverToLoad != null) {
             if (serverToLoad.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
-                create(owner, islandId, true);
+                create(owner, ownerName, islandId, true);
                 return;
             }
 
@@ -353,8 +353,8 @@ public class IslandsManager {
                 ownerPlayer.sendMessage(Component.text("§6Création de votre île en cours..."));
             }
 
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create:" + serverToLoad + ":" + owner +
-                    ":" + islandId);
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create:" + serverToLoad + ":"
+                    + owner + ":" + ownerName + ":" + islandId);
             awaitingResponseFromServer.put(islandId, serverToLoad);
         } else {
             if (ownerPlayer != null) {
@@ -378,11 +378,11 @@ public class IslandsManager {
         JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + uuid + ":loaded", CoreSkyblock.SERVER_NAME);
     }
 
-    public void create(UUID owner, UUID islandUUID, boolean sameServer) {
+    public void create(UUID owner, String ownerName, UUID islandUUID, boolean sameServer) {
         String worldName = getIslandWorldName(islandUUID);
 
         Island island = new Island(islandUUID, new Location(Bukkit.getWorld(worldName), 0.5, 80.1, 0.5,
-                40, 0), owner);
+                40, 0), owner, ownerName);
         CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.saveIsland(island)).thenAccept(result -> {
             if (!result) {
                 JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_create_response:" +

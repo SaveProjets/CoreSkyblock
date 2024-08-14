@@ -76,13 +76,13 @@ public class Island {
     }
 
     //default just the necessary to establish a start island
-    public Island(UUID islandUUID, Location spawn, UUID owner) {
+    public Island(UUID islandUUID, Location spawn, UUID owner, String ownerName) {
         this.islandUUID = islandUUID;
         this.name = "Nom par défaut";
         this.spawn = spawn;
         this.members = new HashMap<>();
         this.members.put(owner, IslandRanks.CHEF); // this is an exception, please use the addMember method to trigger an update
-        this.membersNames.put(owner, CoreSkyblock.INSTANCE.getServer().getOfflinePlayer(owner).getName());
+        this.membersNames.put(owner, ownerName);
         this.perms = new HashMap<>();
         setDefaultPerms(false);
         this.maxSize = 1;
@@ -618,6 +618,7 @@ public class Island {
     }
 
     public Map<UUID, String> getMembersNames() {
+        System.out.println(membersNames);
         return membersNames;
     }
 

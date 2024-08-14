@@ -89,8 +89,9 @@ public class JedisManager {
                             }
                             try {
                                 UUID playerUUID = UUID.fromString(args[3]);
-                                UUID islandUUID = UUID.fromString(args[4]);
-                                IslandsManager.INSTANCE.create(playerUUID, islandUUID, false);
+                                String playerName = args[4];
+                                UUID islandUUID = UUID.fromString(args[5]);
+                                IslandsManager.INSTANCE.create(playerUUID, playerName, islandUUID, false);
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 publishToRedis("coreskyblock", "island:remote_create_response:" + serverName
