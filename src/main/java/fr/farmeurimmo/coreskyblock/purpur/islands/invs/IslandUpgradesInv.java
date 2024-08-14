@@ -116,7 +116,7 @@ public class IslandUpgradesInv extends FastInv {
         });
 
 
-        setItem(14, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
+        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
                 .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
 
         setItem(15, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")

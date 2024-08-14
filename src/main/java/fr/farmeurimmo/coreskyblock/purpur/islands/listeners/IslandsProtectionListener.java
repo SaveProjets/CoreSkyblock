@@ -1,9 +1,9 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
-import dev.lone.itemsadder.api.Events.*;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsBlocksLimiterManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
@@ -160,9 +160,15 @@ public class IslandsProtectionListener implements Listener {
     public void onBlockExplode(BlockExplodeEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getBlock().getWorld());
-        if (island != null && !island.hasSettingActivated(IslandSettings.BLOCK_EXPLOSION)) {
+        if (island == null) return;
+        if (IslandsBlocksLimiterManager.INSTANCE.inCalculating.contains(island.getIslandUUID())) {
+            e.setCancelled(true);
+            return;
+        }
+        if (!island.hasSettingActivated(IslandSettings.BLOCK_EXPLOSION)) {
             e.setCancelled(true);
         }
+        IslandsBlocksLimiterManager.INSTANCE.remove(e.getBlock().getType(), island);
     }
 
     @EventHandler
@@ -170,6 +176,10 @@ public class IslandsProtectionListener implements Listener {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getLocation().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getLocation().getWorld());
         if (island != null) {
+            if (IslandsBlocksLimiterManager.INSTANCE.inCalculating.contains(island.getIslandUUID())) {
+                e.setCancelled(true);
+                return;
+            }
             if (e.getEntity() instanceof TNTPrimed) {
                 if (!island.hasSettingActivated(IslandSettings.BLOCK_EXPLOSION)) {
                     e.setYield(0);
@@ -217,11 +227,17 @@ public class IslandsProtectionListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        if (e.getClickedBlock() == null) return;
 
         e.setUseItemInHand(PlayerInteractEvent.Result.ALLOW);
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         if (island == null) return;
+        if (IslandsBlocksLimiterManager.INSTANCE.inCalculating.contains(island.getIslandUUID())) {
+            e.getPlayer().sendMessage(Component.text("§cL'île est en plein scan de sécurité, veuillez patienter."));
+            e.setUseInteractedBlock(Event.Result.DENY);
+            return;
+        }
+
+        if (e.getClickedBlock() == null) return;
 
         Player p = e.getPlayer();
         IslandRanks rank = island.getPlayerRank(p.getUniqueId());
@@ -260,6 +276,26 @@ public class IslandsProtectionListener implements Listener {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         if (island != null) {
+            if (IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.contains(e.getPlayer().getUniqueId())) {
+                e.setBuild(false);
+                return;
+            }
+            if (IslandsBlocksLimiterManager.INSTANCE.inCalculating.contains(island.getIslandUUID())) {
+                e.getPlayer().sendMessage(Component.text("§cL'île est en plein scan de sécurité, veuillez patienter."));
+                e.setBuild(false);
+                IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.add(e.getPlayer().getUniqueId());
+                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () ->
+                        IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.remove(e.getPlayer().getUniqueId()), 20 * 5);
+                return;
+            }
+            if (IslandsBlocksLimiterManager.INSTANCE.hasReachedLimit(e.getBlock().getType(), island)) {
+                e.getPlayer().sendMessage(Component.text("§cVous avez atteint la limite de blocs de ce type sur l'île."));
+                e.setBuild(false);
+                IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.add(e.getPlayer().getUniqueId());
+                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () ->
+                        IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.remove(e.getPlayer().getUniqueId()), 20 * 5);
+                return;
+            }
             Player p = e.getPlayer();
             IslandRanks rank = island.getPlayerRank(p.getUniqueId());
             if (!island.hasPerms(rank, IslandPerms.BUILD, p.getUniqueId())) {
@@ -273,6 +309,11 @@ public class IslandsProtectionListener implements Listener {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
         if (island != null) {
+            if (IslandsBlocksLimiterManager.INSTANCE.inCalculating.contains(island.getIslandUUID())) {
+                e.getPlayer().sendMessage(Component.text("§cL'île est en plein scan de sécurité, veuillez patienter."));
+                e.setCancelled(true);
+                return;
+            }
             Player p = e.getPlayer();
             IslandRanks rank = island.getPlayerRank(p.getUniqueId());
             if (!island.hasPerms(rank, IslandPerms.BREAK, p.getUniqueId())) {
@@ -288,84 +329,7 @@ public class IslandsProtectionListener implements Listener {
                     e.setCancelled(true);
                 }
             }
-        }
-    }
-
-    @EventHandler
-    public void onCustomBlockBreak(CustomBlockBreakEvent e) {
-        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
-        if (island != null) {
-            Player p = e.getPlayer();
-            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-            if (!island.hasPerms(rank, IslandPerms.BREAK, p.getUniqueId())) {
-                e.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onCustomFurnitureBreak(FurnitureBreakEvent e) {
-        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
-        if (island != null) {
-            Player p = e.getPlayer();
-            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-            if (!island.hasPerms(rank, IslandPerms.BREAK, p.getUniqueId())) {
-                e.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onCustomBlockPlace(CustomBlockPlaceEvent e) {
-        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
-        if (island != null) {
-            Player p = e.getPlayer();
-            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-            if (!island.hasPerms(rank, IslandPerms.BUILD, p.getUniqueId())) {
-                e.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onCustomFurniturePlace(FurniturePlaceEvent e) {
-        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
-        if (island != null) {
-            Player p = e.getPlayer();
-            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-            if (!island.hasPerms(rank, IslandPerms.BUILD, p.getUniqueId())) {
-                e.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onCustomBlockInteract(CustomBlockInteractEvent e) {
-        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
-        if (island != null) {
-            Player p = e.getPlayer();
-            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-            if (!island.hasPerms(rank, IslandPerms.INTERACT, p.getUniqueId())) {
-                e.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onCustomBlockInteract(FurnitureInteractEvent e) {
-        if (!IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) return;
-        Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getPlayer().getWorld());
-        if (island != null) {
-            Player p = e.getPlayer();
-            IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-            if (!island.hasPerms(rank, IslandPerms.INTERACT, p.getUniqueId())) {
-                e.setCancelled(true);
-            }
+            IslandsBlocksLimiterManager.INSTANCE.remove(e.getBlock().getType(), island);
         }
     }
 

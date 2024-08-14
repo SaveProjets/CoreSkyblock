@@ -9,7 +9,9 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
+import fr.farmeurimmo.coreskyblock.purpur.islands.listeners.IslandsProtectionItemsAdderListener;
 import fr.farmeurimmo.coreskyblock.purpur.islands.listeners.IslandsProtectionListener;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsBlocksLimiterManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
@@ -20,18 +22,12 @@ import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -63,6 +59,7 @@ public class IslandsManager {
         new IslandsGeneratorManager();
         new IslandsSizeManager();
         new IslandsMaxMembersManager();
+        new IslandsBlocksLimiterManager();
 
         new IslandsBlocksValues();
         new IslandsBankManager();
@@ -99,6 +96,7 @@ public class IslandsManager {
             WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 
             CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionListener(), plugin);
+            CoreSkyblock.INSTANCE.getServer().getPluginManager().registerEvents(new IslandsProtectionItemsAdderListener(), plugin);
 
             serversData.put(CoreSkyblock.SERVER_NAME, getIslandsLoaded() + getTheoreticalMaxPlayersOnline() + getActualPlayersOnline());
 
@@ -409,6 +407,9 @@ public class IslandsManager {
                 w.setSpawnLocation(island.getSpawn());
                 applyTimeAndWeather(w, island);
                 IslandsSizeManager.INSTANCE.updateWorldBorder(island);
+
+                IslandsBlocksLimiterManager.INSTANCE.initializeIsland(island);
+
                 CompletableFuture.runAsync(() -> {
                     setIslandLoadedAt(islandUUID);
                     island.update(false);
@@ -507,6 +508,8 @@ public class IslandsManager {
                 island.setReadOnly(false);
 
                 island.sendMessageToAll("§aVotre île a été chargée.");
+
+                IslandsBlocksLimiterManager.INSTANCE.initializeIsland(island);
                 return null;
             });
         }).exceptionally(throwable -> {
@@ -703,5 +706,32 @@ public class IslandsManager {
                 }
             }
         }
+    }
+
+    public Set<ChunkSnapshot> getSnapshots(Island island) {
+        double minX = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double minZ = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double maxX = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+        double maxZ = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
+
+        World world = IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID());
+
+        Set<ChunkSnapshot> chunks = new HashSet<>();
+
+        for (int x = (int) minX; x < (maxX + 16); x += 16) {
+            for (int z = (int) minZ; z < (maxZ + 16); z += 16) {
+                Chunk chunk = world.getChunkAt(x >> 4, z >> 4);
+                if (!chunk.isLoaded()) {
+                    if (chunk.load(false)) {
+                        chunks.add(chunk.getChunkSnapshot(true, false, false));
+                        chunk.unload();
+                    }
+                } else {
+                    chunks.add(chunk.getChunkSnapshot(true, false, false));
+                }
+            }
+        }
+
+        return chunks;
     }
 }
