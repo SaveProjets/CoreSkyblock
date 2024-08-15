@@ -70,3 +70,5 @@ commands:
     permission: coreskyblock.enchantsadmin
   sacs:
     permission: coreskyblock.sacs
+  legendaryhoe:
+    permission: coreskyblock.legendaryhoe

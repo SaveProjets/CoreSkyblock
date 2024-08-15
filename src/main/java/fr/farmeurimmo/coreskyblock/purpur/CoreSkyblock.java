@@ -29,6 +29,9 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.cmds.IslandCmd;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantementsListener;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.cmds.EnchantsAdminCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe.LegendaryHoeCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe.LegendaryHoeListener;
+import fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe.LegendaryHoeManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.CustomSacsListener;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
@@ -166,27 +169,28 @@ public final class CoreSkyblock extends JavaPlugin {
         new IslandsManager(INSTANCE);
         new SyncUsersManager();
 
-        new ScoreboardManager();
+        new ShopsManager();
+        new AuctionHouseManager();
+
+        new AgricultureCycleManager();
         new FeatherFlyManager();
-        new ChatReactionManager();
-        new ChestsManager();
         new MinionsManager();
         new TradesManager();
         new TpasManager();
-
-        new ShopsManager();
-        new SacsManager();
-
-        new AgricultureCycleManager();
-
         new ChatDisplayManager();
         new PrestigesManager();
 
-        new AuctionHouseManager();
-
+        // blocks
         new ElevatorsManager();
+        new ChestsManager();
 
+        // items
         new CustomEnchantmentsManager();
+        new SacsManager();
+        new LegendaryHoeManager();
+
+        new ChatReactionManager();
+        new ScoreboardManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
@@ -202,6 +206,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
         getServer().getPluginManager().registerEvents(new CustomEnchantementsListener(), this);
         getServer().getPluginManager().registerEvents(new CustomSacsListener(), this);
+        getServer().getPluginManager().registerEvents(new LegendaryHoeListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
         Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
@@ -237,6 +242,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("elevators")).setExecutor(new ElevatorsCmd());
         Objects.requireNonNull(getCommand("enchantsadmin")).setExecutor(new EnchantsAdminCmd());
         Objects.requireNonNull(getCommand("sacs")).setExecutor(new SacsCmd());
+        Objects.requireNonNull(getCommand("legendaryhoe")).setExecutor(new LegendaryHoeCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
