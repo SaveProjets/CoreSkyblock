@@ -81,10 +81,10 @@ public class PrestigeInv extends FastInv {
                     .lore((PrestigesManager.INSTANCE.isUltraMajorReward(i) ? PrestigesManager.INSTANCE.getMajorRewardName(i) : ""),
                             "",
                             (user.getLastPrestigeLevelClaimed() >= i ? "§aDéjà réclamé" : (user.getCurrentPrestigeLevel() >= i ? "§cNon réclamé" : "§cNon atteint")))
-                    .flags(ItemFlag.HIDE_ENCHANTS)
                     .build();
             if (user.getLastPrestigeLevelClaimed() < i && user.getCurrentPrestigeLevel() >= i) {
                 prestigeItem.addUnsafeEnchantment(Enchantment.FORTUNE, 1);
+                prestigeItem.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
             int finalI = i;
             setItem(10 + (i - prestigeLevelDisplayed), prestigeItem, e -> {
@@ -114,10 +114,10 @@ public class PrestigeInv extends FastInv {
                     .name("§6Prestige §f" + i + " §6premium")
                     .lore((user.getLastPremiumPrestigeLevelClaimed() >= i ? "§aDéjà réclamé" :
                             (user.getCurrentPrestigeLevel() >= i ? "§cNon réclamé" : "§cNon atteint")))
-                    .flags(ItemFlag.HIDE_ENCHANTS)
                     .build();
             if (user.getLastPremiumPrestigeLevelClaimed() <= i && user.getCurrentPrestigeLevel() >= i) {
                 premiumPrestigeItem.addUnsafeEnchantment(Enchantment.FORTUNE, 1);
+                premiumPrestigeItem.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
             setItem(28 + (i - prestigeLevelDisplayed), premiumPrestigeItem,
                     e -> {
