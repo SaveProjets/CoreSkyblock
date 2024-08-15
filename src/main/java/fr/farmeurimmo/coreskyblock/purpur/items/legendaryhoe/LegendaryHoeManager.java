@@ -48,4 +48,10 @@ public class LegendaryHoeManager {
         item.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES);
         return item;
     }
+
+    public boolean isALegendaryHoe(ItemStack item) {
+        if (item == null || item.getItemMeta() == null) return false;
+        if (!item.getItemMeta().isUnbreakable()) return false;
+        return Objects.equals(item.getItemMeta().displayName(), Component.text(NAME_FORMAT));
+    }
 }

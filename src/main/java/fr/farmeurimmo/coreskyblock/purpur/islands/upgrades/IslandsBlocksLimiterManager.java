@@ -25,6 +25,7 @@ public class IslandsBlocksLimiterManager {
         if (inCalculating.contains(island.getIslandUUID())) return true;
         Map<Material, Integer> blocks = blocksPlaced.get(island.getIslandUUID());
         if (blocks == null) return false;
+        if (!blocks.containsKey(material)) return false;
         if (blocks.getOrDefault(material, 0) >= getLimit(material, 0)) {
             return true;
         } else {
@@ -64,6 +65,8 @@ public class IslandsBlocksLimiterManager {
         values.put(Material.HOPPER, 0);
         values.put(Material.SPAWNER, 0);
 
+        blocksPlaced.put(island.getIslandUUID(), values);
+
         CompletableFuture.supplyAsync(() -> {
             if (chunks.isEmpty()) return 0.0;
 
@@ -77,8 +80,6 @@ public class IslandsBlocksLimiterManager {
                             if (material == Material.AIR) continue;
                             if (values.containsKey(material)) {
                                 values.put(material, values.get(material) + 1);
-                            } else {
-                                values.put(material, 1);
                             }
                         }
                     }

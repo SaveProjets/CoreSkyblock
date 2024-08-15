@@ -618,7 +618,6 @@ public class Island {
     }
 
     public Map<UUID, String> getMembersNames() {
-        System.out.println(membersNames);
         return membersNames;
     }
 

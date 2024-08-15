@@ -51,9 +51,17 @@ public class CustomEnchantmentsManager {
 
             return itemStack;
         }
-        itemStack.lore(getEnchantmentsOrderedByRarityFromList(enchantments).stream().map(enchantment -> (Component)
-                Component.text(enchantment.left().getDisplayName() + (enchantment.left().getMaxLevel() > 1 ?
-                        ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(enchantment.right()) : ""))).collect(Collectors.toList()));
+        List<Component> existingLore = itemStack.lore() != null ? new ArrayList<>(Objects.requireNonNull(itemStack.lore())) : new ArrayList<>();
+        if (!existingLore.isEmpty() && !existingLore.get(existingLore.size() - 1).equals(Component.text(""))) {
+            existingLore.add(Component.text(""));
+        }
+        List<Component> newLore = getEnchantmentsOrderedByRarityFromList(enchantments).stream()
+                .map(enchantment -> Component.text(enchantment.left().getDisplayName() +
+                        (enchantment.left().getMaxLevel() > 1 ? ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(enchantment.right()) : "")))
+                .collect(Collectors.toList());
+        existingLore.addAll(newLore);
+
+        itemStack.lore(existingLore);
 
         for (Pair<Enchantments, Integer> enchantment : enchantments) {
             /*if (enchantment.left().equals(Enchantments.GAIN_DE_VIE)) { //FIXME: Custom stats system to fix GAIN_DE_VIE
@@ -79,8 +87,8 @@ public class CustomEnchantmentsManager {
 
     public ItemStack getItemStackEnchantedBook(Enchantments enchantment, int level) {
         ItemStack itemStack = new ItemStack(Material.ENCHANTED_BOOK);
-        itemStack.getItemMeta().setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ?
-                ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(level) : ""));
+        itemStack.editMeta(meta -> meta.displayName(Component.text(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ?
+                ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(level) : ""))));
         itemStack.lore(enchantment.getDescriptionFormatted(level));
 
         return itemStack;
