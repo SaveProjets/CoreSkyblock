@@ -52,20 +52,20 @@ public class IslandsTopInv extends FastInv {
         gotUpdate = false;
 
         ItemStack topValue = ItemBuilder.copyOf(new ItemStack(Material.DRAGON_EGG)).name("§6Top valeur de l'île")
-                .lore("§7Cliquez pour changer le classement", (topSelected == 0 ? "§aAffiché" : "§cNon affiché"))
-                .flags(ItemFlag.HIDE_ENCHANTS).build();
+                .lore("§7Cliquez pour changer le classement", (topSelected == 0 ? "§aAffiché" : "§cNon affiché")).build();
         ItemStack topBankMoney = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name("§6Top argent en banque")
-                .lore("§7Cliquez pour changer le classement", (topSelected == 1 ? "§aAffiché" : "§cNon affiché"))
-                .flags(ItemFlag.HIDE_ENCHANTS).build();
+                .lore("§7Cliquez pour changer le classement", (topSelected == 1 ? "§aAffiché" : "§cNon affiché")).build();
         ItemStack topWarpRate = ItemBuilder.copyOf(new ItemStack(Material.ENDER_PEARL)).name("§6Top évaluation des warps")
-                .lore("§7Cliquez pour changer le classement", (topSelected == 2 ? "§aAffiché" : "§cNon affiché"))
-                .flags(ItemFlag.HIDE_ENCHANTS).build();
+                .lore("§7Cliquez pour changer le classement", (topSelected == 2 ? "§aAffiché" : "§cNon affiché")).build();
         if (topSelected == 0) {
-            topValue.addEnchantment(Enchantment.UNBREAKING, 1);
+            topValue.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            topValue.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (topSelected == 1) {
-            topBankMoney.addEnchantment(Enchantment.UNBREAKING, 1);
+            topBankMoney.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            topBankMoney.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (topSelected == 2) {
-            topWarpRate.addEnchantment(Enchantment.UNBREAKING, 1);
+            topWarpRate.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            topWarpRate.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         setItem(3, topValue, e -> {
             if (topSelected == 0) {
