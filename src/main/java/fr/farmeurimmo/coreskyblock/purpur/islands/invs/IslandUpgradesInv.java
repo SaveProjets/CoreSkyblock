@@ -88,7 +88,7 @@ public class IslandUpgradesInv extends FastInv {
             }
         });
 
-        setItem(12, ItemBuilder.copyOf(new ItemStack(Material.BEACON)).name("§6Membres de l'île")
+        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.BEACON)).name("§6Membres de l'île")
                 .lore(IslandsMaxMembersManager.INSTANCE.getLore(island.getMaxMembers())).build(), e -> {
             if (island.isReadOnly()) {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
@@ -115,14 +115,11 @@ public class IslandUpgradesInv extends FastInv {
             }
         });
 
+        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
+                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
 
-        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
-                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
+        setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
+                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
 
-        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
-                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
-
-        setItem(16, ItemBuilder.copyOf(new ItemStack(Material.BEDROCK)).name("§6???")
-                .lore("§4Pas tout de suite :D").build(), e -> p.sendMessage(Component.text("§cEn développement...")));
     }
 }

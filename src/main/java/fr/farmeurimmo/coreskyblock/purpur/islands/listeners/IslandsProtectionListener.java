@@ -285,7 +285,7 @@ public class IslandsProtectionListener implements Listener {
                 e.setBuild(false);
                 IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.add(e.getPlayer().getUniqueId());
                 Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () ->
-                        IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.remove(e.getPlayer().getUniqueId()), 20 * 5);
+                        IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.remove(e.getPlayer().getUniqueId()), 20);
                 return;
             }
             if (IslandsBlocksLimiterManager.INSTANCE.hasReachedLimit(e.getBlock().getType(), island)) {
@@ -293,7 +293,7 @@ public class IslandsProtectionListener implements Listener {
                 e.setBuild(false);
                 IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.add(e.getPlayer().getUniqueId());
                 Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () ->
-                        IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.remove(e.getPlayer().getUniqueId()), 20 * 5);
+                        IslandsBlocksLimiterManager.INSTANCE.lastWarningTriggered.remove(e.getPlayer().getUniqueId()), 20);
                 return;
             }
             Player p = e.getPlayer();

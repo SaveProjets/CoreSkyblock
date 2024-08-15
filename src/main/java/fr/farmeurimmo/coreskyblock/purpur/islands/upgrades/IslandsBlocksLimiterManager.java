@@ -43,6 +43,8 @@ public class IslandsBlocksLimiterManager {
                 };
             case HOPPER:
                 yield 2;
+            case SPAWNER:
+                yield 1;
             default:
                 yield 0;
         };
@@ -60,6 +62,7 @@ public class IslandsBlocksLimiterManager {
         final Map<Material, Integer> values = new HashMap<>();
         values.put(Material.CHEST, 0);
         values.put(Material.HOPPER, 0);
+        values.put(Material.SPAWNER, 0);
 
         CompletableFuture.supplyAsync(() -> {
             if (chunks.isEmpty()) return 0.0;
