@@ -21,8 +21,6 @@ public class LegendaryHoeListener implements Listener {
         if (!LegendaryHoeManager.INSTANCE.isALegendaryHoe(item)) return;
 
         Player p = e.getPlayer();
-        e.setCancelled(true);
-
         ArrayList<ItemStack> drops = new ArrayList<>();
         int startY = e.getBlock().getY();
         int maxY = (e.getBlock().getType() == Material.SUGAR_CANE || e.getBlock().getType() == Material.CACTUS || e.getBlock().getType() == Material.BAMBOO)
@@ -37,6 +35,14 @@ public class LegendaryHoeListener implements Listener {
 
         for (int y = maxY; y >= startY; y--) {
             e.getBlock().getWorld().getBlockAt(e.getBlock().getX(), y, e.getBlock().getZ()).setType(Material.AIR);
+        }
+
+        if (drops.isEmpty()) return;
+
+        if (maxY == startY) {
+            e.setDropItems(false);
+        } else {
+            e.setCancelled(true);
         }
 
         drops.forEach(drop -> {
