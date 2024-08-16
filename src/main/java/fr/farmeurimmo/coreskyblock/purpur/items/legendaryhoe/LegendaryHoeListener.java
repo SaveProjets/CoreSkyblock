@@ -2,7 +2,8 @@ package fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe;
 
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
-import it.unimi.dsi.fastutil.Pair;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,7 +11,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class LegendaryHoeListener implements Listener {
 
@@ -21,28 +21,40 @@ public class LegendaryHoeListener implements Listener {
         if (!LegendaryHoeManager.INSTANCE.isALegendaryHoe(item)) return;
 
         Player p = e.getPlayer();
+        e.setCancelled(true);
 
-        ArrayList<ItemStack> drops = new ArrayList<>(e.getBlock().getDrops(item));
-        e.setDropItems(false);
+        ArrayList<ItemStack> drops = new ArrayList<>();
+        int startY = e.getBlock().getY();
+        int maxY = (e.getBlock().getType() == Material.SUGAR_CANE || e.getBlock().getType() == Material.CACTUS || e.getBlock().getType() == Material.BAMBOO)
+                ? e.getBlock().getWorld().getMaxHeight()
+                : startY;
 
-        for (ItemStack drop : drops) {
-            drop.setAmount(drop.getAmount() * 2);
+        for (int y = startY; y <= maxY; y++) {
+            Block block = e.getBlock().getWorld().getBlockAt(e.getBlock().getX(), y, e.getBlock().getZ());
+            if (block.getType() != e.getBlock().getType()) break;
+            drops.addAll(block.getDrops(item));
         }
 
-        Optional<ArrayList<Pair<Enchantments, Integer>>> enchantments = CustomEnchantmentsManager.INSTANCE.getValidEnchantments(item);
-        if (enchantments.isPresent()) {
+        for (int y = maxY; y >= startY; y--) {
+            e.getBlock().getWorld().getBlockAt(e.getBlock().getX(), y, e.getBlock().getZ()).setType(Material.AIR);
+        }
 
-            ArrayList<Pair<Enchantments, Integer>> enchantmentsList = enchantments.get();
-            for (Pair<Enchantments, Integer> enchantment : enchantmentsList) {
-                if (enchantment.left().equals(Enchantments.AIMANT)) {
+        drops.forEach(drop -> {
+            if (LegendaryHoeManager.CROPS.contains(drop.getType())) drop.setAmount(drop.getAmount() * 2);
+        });
+
+        boolean aimantApplied = CustomEnchantmentsManager.INSTANCE.getValidEnchantments(item)
+                .flatMap(enchantmentsList -> enchantmentsList.stream()
+                        .filter(enchantment -> enchantment.left().equals(Enchantments.AIMANT))
+                        .findFirst())
+                .map(enchantment -> {
                     CustomEnchantmentsManager.INSTANCE.applyAimant(drops, p);
-                    e.setDropItems(false);
-                    return;
-                }
-            }
-        }
-        for (ItemStack drop : drops) {
-            e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), drop);
+                    return true;
+                })
+                .orElse(false);
+
+        if (!aimantApplied) {
+            drops.forEach(drop -> e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), drop));
         }
     }
 }

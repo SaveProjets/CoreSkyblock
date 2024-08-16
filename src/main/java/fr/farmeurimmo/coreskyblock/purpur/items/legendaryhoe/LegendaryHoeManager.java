@@ -18,6 +18,14 @@ public class LegendaryHoeManager {
     public static final String NAME_FORMAT = "§6§lHoue légendaire";
     public static final String LORE_FORMAT = "§7Contient x%d points d'énergie";
     public static final int MAX_AMOUNT = 5_000;
+    public static final List<Material> CROPS = List.of(Material.WHEAT, Material.WHEAT_SEEDS, Material.POTATO,
+            Material.CARROT, Material.BEETROOT, Material.BEETROOT_SEEDS, Material.MELON_SEEDS, Material.PUMPKIN_SEEDS,
+            Material.SUGAR_CANE, Material.COCOA_BEANS, Material.NETHER_WART, Material.BAMBOO, Material.KELP,
+            Material.SWEET_BERRIES, Material.CACTUS, Material.CHORUS_FRUIT, Material.CHORUS_FLOWER,
+            Material.GLOW_BERRIES, Material.GLOW_LICHEN, Material.AZALEA, Material.FLOWERING_AZALEA,
+            Material.BIG_DRIPLEAF, Material.SMALL_DRIPLEAF, Material.MOSS_BLOCK, Material.MOSS_CARPET,
+            Material.VINE, Material.TWISTING_VINES, Material.WEEPING_VINES, Material.LILY_PAD, Material.SEA_PICKLE,
+            Material.KELP_PLANT);
     public static LegendaryHoeManager INSTANCE;
 
     public LegendaryHoeManager() {
