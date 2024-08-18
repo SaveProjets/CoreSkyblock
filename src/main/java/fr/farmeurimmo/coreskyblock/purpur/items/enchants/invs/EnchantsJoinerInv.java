@@ -33,10 +33,7 @@ public class EnchantsJoinerInv extends FastInv {
         this.p = p;
         p.setCanPickupItems(false);
 
-        setItem(0, new ItemBuilder(Material.IRON_DOOR).name("§cFermer").build(), e -> {
-            e.setCancelled(true);
-            e.getWhoClicked().closeInventory();
-        });
+        setItem(getInventory().getSize()-1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(), e -> new EnchantsMainInv().open(p));
 
         for (int i = 0; i < getInventory().getSize(); i++) {
             if (i == SLOT_1 || i == SLOT_2 || i == FINAL_SLOT) {

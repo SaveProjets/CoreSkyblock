@@ -20,7 +20,7 @@ public class IslandBlocksValues extends FastInv {
                 .name("§6Informations complémentaires").lore("§7Il faut recalculer la valeur de l'île",
                         "§7pour que les blocs posés soient pris en compte.").build());
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
                 .name("§6Retour §8| §7(clic gauche)").build(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 

@@ -28,7 +28,7 @@ public class IslandUpgradesInv extends FastInv {
 
         update(island, p);
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
                 .name("§6Retour §8| §7(clic gauche)").build(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
     }
 

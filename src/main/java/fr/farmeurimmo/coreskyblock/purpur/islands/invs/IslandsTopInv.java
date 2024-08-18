@@ -146,6 +146,9 @@ public class IslandsTopInv extends FastInv {
                 .lore("§7Dernière actualisation:", "§c" + IslandsTopManager.INSTANCE.getTimeAfterRefresh(), "",
                         "§7Actualisation du classement:", "§c" + IslandsTopManager.INSTANCE.getTimeUntilRefresh())
                 .build());
+
+        setItem(53, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§cFermer §8| §7(clic gauche)").build(), e ->
+                e.getWhoClicked().closeInventory());
     }
 
     private Consumer<InventoryClickEvent> getConsumer(IslandWarp warp) {

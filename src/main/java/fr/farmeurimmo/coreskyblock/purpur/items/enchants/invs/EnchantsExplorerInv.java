@@ -49,6 +49,9 @@ public class EnchantsExplorerInv extends FastInv {
                 slot++;
             }
 
+            setItem(getInventory().getSize()-1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(),
+                    e -> new EnchantsMainInv().open((Player) e.getWhoClicked()));
+
             return;
         }
 
