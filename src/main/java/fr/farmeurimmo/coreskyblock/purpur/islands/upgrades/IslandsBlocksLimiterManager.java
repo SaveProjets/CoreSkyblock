@@ -36,18 +36,46 @@ public class IslandsBlocksLimiterManager {
 
     public int getLimit(Material material, int level) {
         return switch (material) {
-            case CHEST:
-                yield switch (level) {
-                    case 1 -> 15;
-                    case 2 -> 20;
-                    default -> 10;
-                };
             case HOPPER:
-                yield 2;
-            case SPAWNER:
-                yield 1;
+                yield switch (level) {
+                    case 1 -> 20;
+                    case 2 -> 40;
+                    case 3 -> 80;
+                    case 4 -> 120;
+                    case 5 -> 160;
+                    default -> 0;
+                };
             default:
                 yield 0;
+        };
+    }
+
+    public int getPrice(Material material, int level) {
+        return switch (material) {
+            case HOPPER:
+                yield switch (level) {
+                    case 2 -> 200;
+                    case 3 -> 500;
+                    case 4 -> 1000;
+                    case 5 -> 2000;
+                    default -> 0;
+                };
+            default:
+                yield 0;
+        };
+    }
+
+    public ArrayList<String> getLores(Material material, int level) {
+        List<String> lore = new java.util.ArrayList<>();
+        return switch (material) {
+            case HOPPER:
+                for (int i = 1; i <= 5; i++) {
+                    lore.add("§7" + i + ": §6" + getLimit(material, i) + " blocs §8| " + (level >= i ? "§aDéjà achetée" :
+                            "§7Prix: §e" + getPrice(material, i) + "§6§lexp"));
+                }
+                yield new ArrayList<>(lore);
+            default:
+                yield new ArrayList<>();
         };
     }
 

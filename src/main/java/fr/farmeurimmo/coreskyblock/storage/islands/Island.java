@@ -34,9 +34,10 @@ public class Island {
     private final Map<UUID, UUID> coops = new HashMap<>(); // not saved
     private String name;
     private Location spawn;
-    private int maxSize;
-    private int maxMembers;
+    private int sizeLevel;
+    private int memberLevel;
     private int generatorLevel;
+    private int hopperLevel;
     private double bankMoney;
     private boolean isPublic;
     private double exp;
@@ -52,9 +53,9 @@ public class Island {
     private boolean isBankModified = false; // not saved
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
-            String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int maxSize, int maxMembers,
-                  int generatorLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic, double exp,
-                  List<IslandSettings> settings, float level, List<Chest> chests, boolean readOnly) {
+            String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int sizeLevel, int memberLevel,
+                  int generatorLevel, int hopperLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic,
+                  double exp, List<IslandSettings> settings, float level, List<Chest> chests, boolean readOnly) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
@@ -62,9 +63,10 @@ public class Island {
         this.membersNames.putAll(membersNames);
         this.perms = perms;
         if (perms.isEmpty()) setDefaultPerms(true);
-        this.maxSize = maxSize;
-        this.maxMembers = maxMembers;
+        this.sizeLevel = sizeLevel;
+        this.memberLevel = memberLevel;
         this.generatorLevel = generatorLevel;
+        this.hopperLevel = hopperLevel;
         this.bankMoney = bankMoney;
         this.bannedPlayers = bannedPlayers;
         this.isPublic = isPublic;
@@ -85,9 +87,10 @@ public class Island {
         this.membersNames.put(owner, ownerName);
         this.perms = new HashMap<>();
         setDefaultPerms(false);
-        this.maxSize = 1;
-        this.maxMembers = 1;
+        this.sizeLevel = 1;
+        this.memberLevel = 1;
         this.generatorLevel = 1;
+        this.hopperLevel = 1;
         this.bankMoney = 0;
         this.bannedPlayers = new ArrayList<>();
         this.isPublic = true;
@@ -116,9 +119,10 @@ public class Island {
             UUID islandUUID = UUID.fromString(json.get("islandUUID").getAsString());
             String name = json.get("name").getAsString();
             Location spawn = LocationTranslator.fromString(json.get("spawn").getAsString());
-            int maxSize = json.get("maxSize").getAsInt();
-            int maxMembers = json.get("maxMembers").getAsInt();
+            int sizeLevel = json.get("sizeLevel").getAsInt();
+            int memberLevel = json.get("memberLevel").getAsInt();
             int generatorLevel = json.get("generatorLevel").getAsInt();
+            int hopperLevel = json.get("hopperLevel").getAsInt();
             double bankMoney = json.get("bankMoney").getAsDouble();
             boolean isPublic = json.get("isPublic").getAsBoolean();
             double exp = json.get("exp").getAsDouble();
@@ -165,8 +169,8 @@ public class Island {
             //get dereduced perms
             perms = getRanksPermsFromReduced(perms);
 
-            return new Island(islandUUID, name, spawn, members, membersNames, perms, maxSize, maxMembers, generatorLevel,
-                    bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true);
+            return new Island(islandUUID, name, spawn, members, membersNames, perms, sizeLevel, memberLevel, generatorLevel,
+                    hopperLevel, bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true);
         } catch (Exception ignored) {
         }
         return null;
@@ -267,22 +271,22 @@ public class Island {
     }
 
     public int getMaxSize() {
-        return this.maxSize;
+        return this.sizeLevel;
     }
 
-    public void setMaxSize(int maxSize) {
-        this.maxSize = maxSize;
+    public void setMaxSize(int sizeLevel) {
+        this.sizeLevel = sizeLevel;
         isModified = true;
 
         IslandsSizeManager.INSTANCE.updateWorldBorder(this);
     }
 
     public int getMaxMembers() {
-        return this.maxMembers;
+        return this.memberLevel;
     }
 
-    public void setMaxMembers(int maxMembers) {
-        this.maxMembers = maxMembers;
+    public void setMaxMembers(int memberLevel) {
+        this.memberLevel = memberLevel;
         isModified = true;
     }
 
@@ -572,10 +576,6 @@ public class Island {
         return onlineMembers;
     }
 
-    public int getOnlineMembersCount() {
-        return getOnlineMembers().size();
-    }
-
     public void sendMessage(String message, IslandPerms perm) {
         sendMessageToLocals(message, perm);
         CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
@@ -695,9 +695,10 @@ public class Island {
         json.addProperty("islandUUID", islandUUID.toString());
         json.addProperty("name", name);
         json.addProperty("spawn", LocationTranslator.fromLocation(spawn));
-        json.addProperty("maxSize", maxSize);
-        json.addProperty("maxMembers", maxMembers);
+        json.addProperty("sizeLevel", sizeLevel);
+        json.addProperty("memberLevel", memberLevel);
         json.addProperty("generatorLevel", generatorLevel);
+        json.addProperty("hopperLevel", hopperLevel);
         json.addProperty("bankMoney", bankMoney);
         json.addProperty("isPublic", isPublic);
         json.addProperty("exp", exp);
@@ -774,5 +775,14 @@ public class Island {
             return IslandRanks.COOP;
         }
         return IslandRanks.VISITEUR;
+    }
+
+    public int getHopperLevel() {
+        return this.hopperLevel;
+    }
+
+    public void setHopperLevel(int hopperLevel) {
+        this.hopperLevel = hopperLevel;
+        isModified = true;
     }
 }

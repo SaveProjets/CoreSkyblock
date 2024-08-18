@@ -25,25 +25,25 @@ import java.util.*;
 public class IslandsDataManager {
 
     private static final String CREATE_ISLANDS_TABLE = "CREATE TABLE IF NOT EXISTS islands (uuid VARCHAR(36) " +
-            "PRIMARY KEY, name VARCHAR(255), spawn VARCHAR(255), upgrade_size INT, upgrade_members INT, " +
-            "upgrade_generator INT, bank_money DOUBLE, is_public BOOLEAN, exp DOUBLE, level FLOAT, " +
+            "PRIMARY KEY, name VARCHAR(255), spawn VARCHAR(255), upgrade_size TINYINT, upgrade_members TINYINT, " +
+            "upgrade_generator TINYINT, upgrade_hoppers TINYINT, bank_money DOUBLE, is_public BOOLEAN, exp DOUBLE, level FLOAT, " +
             "created_at TIMESTAMP, updated_at TIMESTAMP)";
     private static final String CREATE_ISLAND_MEMBERS_TABLE = "CREATE TABLE IF NOT EXISTS island_members (island_uuid "
-            + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id INT, created_at TIMESTAMP, " +
+            + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id TINYINT, created_at TIMESTAMP, " +
             "updated_at TIMESTAMP, PRIMARY KEY(island_uuid, uuid), FOREIGN KEY(island_uuid) " +
             "REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_RANKS_PERMISSIONS_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "island_ranks_permissions (island_uuid VARCHAR(36), rank_id INT, permission_id INT, created_at " +
+            "island_ranks_permissions (island_uuid VARCHAR(36), rank_id TINYINT, permission_id TINYINT, created_at " +
             "TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY(island_uuid, permission_id), FOREIGN KEY(island_uuid) " +
             "REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_BANNEDS_TABLE = "CREATE TABLE IF NOT EXISTS island_banneds " +
             "(island_uuid VARCHAR(36), uuid VARCHAR(36), created_at TIMESTAMP, updated_at TIMESTAMP, " +
             "PRIMARY KEY(island_uuid, uuid), FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_SETTINGS_TABLE = "CREATE TABLE IF NOT EXISTS island_settings " +
-            "(island_uuid VARCHAR(36), setting_id INT, value BOOLEAN, created_at TIMESTAMP, updated_at TIMESTAMP, " +
+            "(island_uuid VARCHAR(36), setting_id TINYINT, value BOOLEAN, created_at TIMESTAMP, updated_at TIMESTAMP, " +
             "PRIMARY KEY(island_uuid, setting_id), FOREIGN KEY(island_uuid) REFERENCES islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_CHESTS_TABLE = "CREATE TABLE IF NOT EXISTS island_chests " +
-            "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), type_id INT, block VARCHAR(255), " +
+            "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), type_id TINYINT, block VARCHAR(255), " +
             "item_to_buy_sell VARCHAR(255), price DOUBLE, is_sell BOOLEAN, active_sell_or_buy BOOLEAN, " +
             "tier TINYINT, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) " +
             "REFERENCES islands(uuid) ON DELETE CASCADE)";
@@ -136,6 +136,7 @@ public class IslandsDataManager {
                 int upgradeSize = result.getInt("upgrade_size");
                 int upgradeMembers = result.getInt("upgrade_members");
                 int upgradeGenerator = result.getInt("upgrade_generator");
+                int upgradeHoppers = result.getInt("upgrade_hoppers");
                 double bankMoney = result.getDouble("bank_money");
                 boolean isPublic = result.getBoolean("is_public");
                 double exp = result.getDouble("exp");
@@ -154,8 +155,8 @@ public class IslandsDataManager {
                 List<Chest> chests = loadIslandChests(uuid);
 
                 Island island = new Island(uuid, name, spawn, members.left(), members.right(), perms, upgradeSize,
-                        upgradeMembers, upgradeGenerator, bankMoney, bannedPlayers, isPublic, exp, settings, level,
-                        chests, true);
+                        upgradeMembers, upgradeGenerator, upgradeHoppers, bankMoney, bannedPlayers, isPublic, exp,
+                        settings, level, chests, true);
 
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, island);
@@ -219,10 +220,11 @@ public class IslandsDataManager {
 
     public void updateIsland(Connection connection, Island island) {
         String query = "UPDATE islands SET name = ?, spawn = ?, upgrade_size = ?, upgrade_members = ?, upgrade_generator = ?, " +
-                "bank_money = ?, is_public = ?, exp = ?, level = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?";
+                "upgrade_hoppers = ?, bank_money = ?, is_public = ?, exp = ?, level = ?, updated_at = CURRENT_TIMESTAMP " +
+                "WHERE uuid = ?";
         executeUpdate(connection, query, island.getName(), LocationTranslator.fromLocation(island.getSpawn()),
-                island.getMaxSize(), island.getMaxMembers(), island.getGeneratorLevel(), island.getBankMoney(),
-                island.isPublic(), island.getExp(), island.getLevel(), island.getIslandUUID().toString());
+                island.getMaxSize(), island.getMaxMembers(), island.getGeneratorLevel(), island.getHopperLevel(),
+                island.getBankMoney(), island.isPublic(), island.getExp(), island.getLevel(), island.getIslandUUID().toString());
     }
 
     public void updateIslandMembers(Connection connection, Island island) {
@@ -499,12 +501,12 @@ public class IslandsDataManager {
 
     public void saveIslandData(Connection connection, Island island) {
         String query = "INSERT INTO islands (uuid, name, spawn, upgrade_size, upgrade_members, upgrade_generator, " +
-                "bank_money, is_public, exp, level, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " +
-                "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                "upgrade_hoppers, bank_money, is_public, exp, level, created_at, updated_at) VALUES (?, ?, ?, ?, ?, " +
+                "?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         executeUpdate(connection, query, island.getIslandUUID().toString(), island.getName(),
                 LocationTranslator.fromLocation(island.getSpawn()),
-                island.getMaxSize(), island.getMaxMembers(), island.getGeneratorLevel(), island.getBankMoney(),
-                island.isPublic(), island.getExp(), island.getLevel());
+                island.getMaxSize(), island.getMaxMembers(), island.getGeneratorLevel(), island.getHopperLevel(),
+                island.getBankMoney(), island.isPublic(), island.getExp(), island.getLevel());
     }
 
     public void saveIslandMembers(Connection connection, UUID islandUUID, Map<UUID, IslandRanks> members, Map<UUID,

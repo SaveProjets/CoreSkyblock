@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsBlocksLimiterManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
@@ -115,8 +116,32 @@ public class IslandUpgradesInv extends FastInv {
             }
         });
 
-        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.CHEST)).name("§6Coffres et Hoppeurs")
-                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
+        setItem(15, ItemBuilder.copyOf(new ItemStack(Material.HOPPER)).name("§6Hoppeurs")
+                .lore(IslandsBlocksLimiterManager.INSTANCE.getLores(Material.HOPPER, island.getHopperLevel())).build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
+            if (!island.hasPerms(island, IslandPerms.UPGRADE_ISLAND, e.getWhoClicked().getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'améliorer l'île !"));
+                return;
+            }
+            int currentLevel = island.getHopperLevel();
+            if (currentLevel < 5) {
+                double price = IslandsBlocksLimiterManager.INSTANCE.getPrice(Material.HOPPER, currentLevel + 1);
+                if (island.getExp() < price) {
+                    p.sendMessage(Component.text("§cL'île n'a pas assez d'expérience pour améliorer le " +
+                            "nombre de hoppeurs ! Il manque §6" + NumberFormat.getInstance().format(price - island.getExp())
+                            + "§c d'expérience."));
+                    return;
+                }
+                island.setLevelExp(island.getExp() - price);
+                island.setHopperLevel(currentLevel + 1);
+                update(island, p);
+            } else {
+                p.sendMessage(Component.text("§cVotre île est déjà au niveau maximum !"));
+            }
+        });
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
                 .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
