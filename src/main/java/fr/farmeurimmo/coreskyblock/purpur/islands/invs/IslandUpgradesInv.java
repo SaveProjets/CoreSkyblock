@@ -12,6 +12,7 @@ import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.NumberFormat;
@@ -144,7 +145,8 @@ public class IslandUpgradesInv extends FastInv {
         });
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
-                .lore("§4Prochainement").build(), e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
+                .lore("§4Prochainement").flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build(),
+                e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
 
     }
 }
