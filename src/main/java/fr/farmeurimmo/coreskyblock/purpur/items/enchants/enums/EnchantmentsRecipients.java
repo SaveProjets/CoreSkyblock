@@ -10,12 +10,12 @@ public enum EnchantmentsRecipients {
     LEGGINGS("Jambières"),
     BOOTS("Bottes"),
     SWORD("Epée"),
-    BOW_AND_CROSSBOW("Arc et Arbalète"),
     PICKAXE("Pioche"),
     AXE("Hache"),
+    SHOVEL("Pelle"),
     HOE("Houe"),
-    ROD("Canne à pêche"),
-    SHOVEL("Pelle");
+    BOW_AND_CROSSBOW("Arc et Arbalète"),
+    ROD("Canne à pêche");
 
     private final String name;
 

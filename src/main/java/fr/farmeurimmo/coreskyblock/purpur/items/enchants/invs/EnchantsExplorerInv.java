@@ -9,11 +9,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class EnchantsExplorerInv extends FastInv {
 
-    private static final Map<EnchantmentsRecipients, ArrayList<Enchantments>> ENCHANTMENTS_RECIPIENTS_ARRAY_LIST_MAP = Enchantments.getEnchantmentsByMaterial();
+    private static final LinkedHashMap<EnchantmentsRecipients, ArrayList<Enchantments>> ENCHANTMENTS_RECIPIENTS_ARRAY_LIST_MAP = Enchantments.getEnchantmentsByMaterial();
     private EnchantmentsRecipients recipients;
 
     public EnchantsExplorerInv(Player whoClicked, EnchantmentsRecipients recipients) {

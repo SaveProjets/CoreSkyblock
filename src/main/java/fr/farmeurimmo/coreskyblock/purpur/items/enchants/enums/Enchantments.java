@@ -6,9 +6,8 @@ import org.bukkit.Material;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public enum Enchantments {
 
@@ -131,22 +130,19 @@ public enum Enchantments {
         return enchantments;
     }
 
-    public static Map<EnchantmentsRecipients, ArrayList<Enchantments>> getEnchantmentsByMaterial() {
-        Map<EnchantmentsRecipients, ArrayList<Enchantments>> enchantmentsByMaterial = new HashMap<>();
+    public static LinkedHashMap<EnchantmentsRecipients, ArrayList<Enchantments>> getEnchantmentsByMaterial() {
+        LinkedHashMap<EnchantmentsRecipients, ArrayList<Enchantments>> map = new LinkedHashMap<>();
 
-        for (Enchantments enchantment : values()) {
-            for (EnchantmentsRecipients recipient : enchantment.getRecipients()) {
-                if (enchantmentsByMaterial.containsKey(recipient)) {
-                    enchantmentsByMaterial.get(recipient).add(enchantment);
-                } else {
-                    ArrayList<Enchantments> enchantments = new ArrayList<>();
+        for (EnchantmentsRecipients recipient : EnchantmentsRecipients.values()) {
+            ArrayList<Enchantments> enchantments = new ArrayList<>();
+            for (Enchantments enchantment : values()) {
+                if (enchantment.isAllowed(recipient)) {
                     enchantments.add(enchantment);
-                    enchantmentsByMaterial.put(recipient, enchantments);
                 }
             }
+            map.put(recipient, enchantments);
         }
-
-        return enchantmentsByMaterial;
+        return map;
     }
 
     public String canBeAppliedOn() {
