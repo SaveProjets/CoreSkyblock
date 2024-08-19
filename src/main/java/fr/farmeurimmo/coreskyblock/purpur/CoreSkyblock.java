@@ -383,6 +383,16 @@ public final class CoreSkyblock extends JavaPlugin {
         return players;
     }
 
+    public ArrayList<UUID> getPlayersConnectedUUID() {
+        ArrayList<UUID> players = new ArrayList<>();
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            for (Pair<UUID, String> pair : entry.getValue()) {
+                players.add(pair.left());
+            }
+        }
+        return players;
+    }
+
     public ArrayList<String> getSuggestions(String name, String sender) {
         ArrayList<String> suggestions = new ArrayList<>();
         for (String player : getPlayersConnected()) {
@@ -417,6 +427,15 @@ public final class CoreSkyblock extends JavaPlugin {
             }
         }
         return null;
+    }
+
+    public boolean isOneOfThemOnline(ArrayList<UUID> uuids) {
+        for (UUID uuid : CoreSkyblock.INSTANCE.getPlayersConnectedUUID()) {
+            if (uuids.contains(uuid)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int getSpawnServerLoad() {

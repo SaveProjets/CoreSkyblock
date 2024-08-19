@@ -25,6 +25,6 @@ public class EnchantsMainInv extends FastInv {
         setItem(16, new ItemBuilder(Material.GRINDSTONE).name("§6Retirer les enchants").build(), e ->
                 new EnchantsRemoverInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
-        setItem(getInventory().getSize()-1, new ItemBuilder(Material.IRON_DOOR).name("§cFermer").build(), e -> e.getWhoClicked().closeInventory());
+        setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§cFermer").build(), e -> e.getWhoClicked().closeInventory());
     }
 }

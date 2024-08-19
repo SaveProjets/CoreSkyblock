@@ -40,7 +40,7 @@ public class EnchantsRecyclerInv extends FastInv {
             setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§0").build(), e -> e.setCancelled(true));
         }
 
-        setItem(getInventory().getSize()-1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(), e -> new EnchantsMainInv().open(p));
+        setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(), e -> new EnchantsMainInv().open(p));
 
         setCloseFilter(e -> {
             for (int i = 0; i < 36; i++) {

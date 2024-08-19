@@ -39,8 +39,8 @@ public class EnchantsExplorerInv extends FastInv {
             for (Map.Entry<EnchantmentsRecipients, ArrayList<Enchantments>> entry : ENCHANTMENTS_RECIPIENTS_ARRAY_LIST_MAP.entrySet()) {
                 setItem(slot, new ItemBuilder(entry.getKey().getMaterialForDisplay())
                         .meta(itemMeta -> itemMeta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE,
-                                        new AttributeModifier(Objects.requireNonNull(NamespacedKey.fromString("generic.attack_damage")),
-                                                0.0, AttributeModifier.Operation.ADD_NUMBER)))
+                                new AttributeModifier(Objects.requireNonNull(NamespacedKey.fromString("generic.attack_damage")),
+                                        0.0, AttributeModifier.Operation.ADD_NUMBER)))
                         .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
                         .name("§6" + entry.getKey().getName()).build(), e -> {
                     recipients = entry.getKey();
@@ -49,7 +49,7 @@ public class EnchantsExplorerInv extends FastInv {
                 slot++;
             }
 
-            setItem(getInventory().getSize()-1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(),
+            setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(),
                     e -> new EnchantsMainInv().open((Player) e.getWhoClicked()));
 
             return;

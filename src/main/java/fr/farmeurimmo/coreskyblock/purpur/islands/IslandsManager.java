@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class IslandsManager {
 
-    public static final long UNLOAD_TIME = 1_000 * 60 * 2;
-    public static final long TICK_SAVE = 20 * 60 * 3;
+    public static final long UNLOAD_TIME = 1_000 * 30;
+    public static final long TICK_SAVE = 20 * 60 * 2;
     public static IslandsManager INSTANCE;
     public final Map<String, Integer> serversData = new HashMap<>();
     public final Map<UUID, String> awaitingResponseFromServer = new HashMap<>();
@@ -616,31 +616,43 @@ public class IslandsManager {
             }
         }
 
+        if (!IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID()).getPlayers().isEmpty()) {
+            awaitingResponseFromServerTime.remove(island.getIslandUUID());
+            return;
+        }
+
+        if (CoreSkyblock.INSTANCE.isOneOfThemOnline(new ArrayList<>(island.getMembers().keySet()))) {
+            awaitingResponseFromServerTime.remove(island.getIslandUUID());
+            return;
+        }
+
+        if (awaitingResponseFromServerTime.containsKey(island.getIslandUUID())) return;
+
         awaitingResponseFromServerTime.put(island.getIslandUUID(), System.currentTimeMillis());
 
-        CompletableFuture.runAsync(() -> {
+        Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task) -> {
 
-            StringBuilder message = new StringBuilder("island:check_unload:" + island.getIslandUUID());
-            for (UUID member : island.getMembers().keySet()) {
-                message.append(":").append(member);
+            if (CoreSkyblock.INSTANCE.isOneOfThemOnline(new ArrayList<>(island.getMembers().keySet()))) {
+                awaitingResponseFromServerTime.remove(island.getIslandUUID());
+                task.cancel();
+                return;
             }
 
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", message.toString());
+            if (!IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID()).getPlayers().isEmpty()) {
+                awaitingResponseFromServerTime.remove(island.getIslandUUID());
+                task.cancel();
+                return;
+            }
 
-            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task) -> {
-                if (awaitingResponseFromServerTime.containsKey(island.getIslandUUID())) {
-                    long time = awaitingResponseFromServerTime.get(island.getIslandUUID());
-                    if (System.currentTimeMillis() - time > UNLOAD_TIME) {
-                        Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                            awaitingResponseFromServerTime.remove(island.getIslandUUID());
-                            unload(island, true, false);
-                            task.cancel();
-                            return null;
-                        });
-                    }
-                } else task.cancel();
-            }, 0, 10);
-        });
+            if (awaitingResponseFromServerTime.containsKey(island.getIslandUUID())) {
+                long time = awaitingResponseFromServerTime.get(island.getIslandUUID());
+                if (System.currentTimeMillis() - time > UNLOAD_TIME) {
+                    awaitingResponseFromServerTime.remove(island.getIslandUUID());
+                    unload(island, true, false);
+                    task.cancel();
+                }
+            } else task.cancel();
+        }, 0, 20 * 10);
     }
 
     public void unload(Island island, boolean async, boolean delete) {
