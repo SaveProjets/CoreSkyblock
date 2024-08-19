@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class IslandCmd implements CommandExecutor {
 
@@ -120,7 +121,7 @@ public class IslandCmd implements CommandExecutor {
         }
         if (addCommonCommands(args, p)) return false;
         if (args[0].equalsIgnoreCase("go")) {
-            IslandsManager.INSTANCE.teleportToIsland(island, p);
+            CompletableFuture.runAsync(() -> IslandsManager.INSTANCE.teleportToIsland(island, p));
             return false;
         }
         if (args[0].equalsIgnoreCase("chat")) {

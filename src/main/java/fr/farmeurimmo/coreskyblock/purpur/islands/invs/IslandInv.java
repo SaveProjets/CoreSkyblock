@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.concurrent.CompletableFuture;
+
 public class IslandInv extends FastInv {
 
     public IslandInv(Island island) {
@@ -17,7 +19,7 @@ public class IslandInv extends FastInv {
 
         setItem(40, ItemBuilder.copyOf(new ItemStack(Material.ENDER_EYE))
                 .name("§6Téléportation §8| §7(clic gauche)").build(), e ->
-                IslandsManager.INSTANCE.teleportToIsland(island, (Player) e.getWhoClicked()));
+                CompletableFuture.runAsync(() -> IslandsManager.INSTANCE.teleportToIsland(island, (Player) e.getWhoClicked())));
 
         ItemStack member = ItemBuilder.copyOf(new ItemStack(Material.PLAYER_HEAD))
                 .name("§6Membres §8| §7(clic gauche)").build();

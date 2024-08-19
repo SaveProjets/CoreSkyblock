@@ -398,6 +398,28 @@ public class JedisManager {
                                 e.printStackTrace();
                             }
                         }
+                        if (args[1].equalsIgnoreCase("loaded")) {
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+                                ArrayList<UUID> players = IslandsManager.INSTANCE.wantToTeleport.get(islandUUID);
+                                if (players == null) {
+                                    return;
+                                }
+                                for (UUID playerUUID : players) {
+                                    Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                                    if (p == null) {
+                                        continue;
+                                    }
+                                    Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                    if (island == null) {
+                                        continue;
+                                    }
+                                    IslandsManager.INSTANCE.teleportToIsland(island, p);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         return;
                     }
                     if (args[0].equalsIgnoreCase("spawn")) {

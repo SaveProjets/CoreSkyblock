@@ -41,6 +41,7 @@ public class IslandsManager {
     public final Map<UUID, Long> awaitingResponseFromServerTime = new HashMap<>(); //for unload
     public final Map<UUID, UUID> teleportToIsland = new HashMap<>();
     public final Map<UUID, ArrayList<Long>> teleportTry = new HashMap<>();
+    public final Map<UUID, ArrayList<UUID>> wantToTeleport = new HashMap<>();
     private final JavaPlugin plugin;
     private final ArrayList<UUID> isBypass = new ArrayList<>();
     private final ArrayList<UUID> isSpying = new ArrayList<>();
@@ -375,6 +376,8 @@ public class IslandsManager {
 
     public void setIslandLoadedAt(UUID uuid) {
         JedisManager.INSTANCE.sendToRedis("coreskyblock:island:" + uuid + ":loaded", CoreSkyblock.SERVER_NAME);
+
+        JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:loaded:" + uuid + ":" + CoreSkyblock.SERVER_NAME);
     }
 
     public void create(UUID owner, String ownerName, UUID islandUUID, boolean sameServer) {
@@ -564,6 +567,11 @@ public class IslandsManager {
         } else {
             p.sendMessage(Component.text("§cNous traitons votre requête, veuillez patienter un instant..."));
 
+            wantToTeleport.putIfAbsent(island.getIslandUUID(), new ArrayList<>());
+            if (!wantToTeleport.get(island.getIslandUUID()).contains(p.getUniqueId())) {
+                wantToTeleport.get(island.getIslandUUID()).add(p.getUniqueId());
+            }
+
             if (teleportTry.containsKey(p.getUniqueId())) {
                 ArrayList<Long> tries = teleportTry.get(p.getUniqueId());
                 tries.add(System.currentTimeMillis());
@@ -579,7 +587,7 @@ public class IslandsManager {
             }
 
             checkIfIslandIsLoaded(island.getIslandUUID());
-            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> teleportToIsland(island, p), 20 * 5L);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> teleportToIsland(island, p), 20 * 10L);
         }
     }
 
