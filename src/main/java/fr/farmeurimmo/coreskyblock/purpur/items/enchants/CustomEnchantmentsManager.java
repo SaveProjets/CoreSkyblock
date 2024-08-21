@@ -53,9 +53,7 @@ public class CustomEnchantmentsManager {
         }
         List<Component> existingLore = itemStack.lore() != null ? new ArrayList<>(Objects.requireNonNull(itemStack.lore())) : new ArrayList<>();
         if (!existingLore.isEmpty()) {
-            //remove old enchantments from lore
             List<String> loreString = itemStack.getLore();
-            //remove every enchantment from the lore
             assert loreString != null;
             for (String lore : loreString) {
                 for (Enchantments enchantment : Enchantments.values()) {
@@ -146,8 +144,8 @@ public class CustomEnchantmentsManager {
         return (item.getType() == Material.ENCHANTED_BOOK) ? Optional.of(getEnchantmentsFromDisplayName(item)) : Optional.of(getEnchantmentsFromLore(item));
     }
 
-    public Map<Enchantments, List<ItemStack>> getAllEnchantedBooks() {
-        Map<Enchantments, List<ItemStack>> enchantedBooks = new HashMap<>();
+    public LinkedHashMap<Enchantments, List<ItemStack>> getAllEnchantedBooks() {
+        LinkedHashMap<Enchantments, List<ItemStack>> enchantedBooks = new LinkedHashMap<>();
         for (Enchantments enchantment : Enchantments.values()) {
             enchantedBooks.put(enchantment, new ArrayList<>());
             if (enchantment.getMaxLevel() == -1) {
