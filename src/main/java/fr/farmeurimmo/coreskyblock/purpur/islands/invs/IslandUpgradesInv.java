@@ -145,8 +145,27 @@ public class IslandUpgradesInv extends FastInv {
         });
 
         setItem(16, ItemBuilder.copyOf(new ItemStack(Material.SPAWNER)).name("§6Spawneurs")
-                        .lore("§4Prochainement").flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build(),
-                e -> p.sendMessage(Component.text("§cEn attente de Mar...")));
-
+                .lore(IslandsBlocksLimiterManager.INSTANCE.getLores(Material.SPAWNER, island.getSpawnerLevel()))
+                .flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
+            if (!island.hasPerms(island, IslandPerms.UPGRADE_ISLAND, e.getWhoClicked().getUniqueId())) {
+                p.sendMessage(Component.text("§cVous n'avez pas la permission d'améliorer l'île !"));
+                return;
+            }
+            int currentLevel = island.getSpawnerLevel();
+            double price = IslandsBlocksLimiterManager.INSTANCE.getPrice(Material.SPAWNER, currentLevel + 1);
+            if (island.getExp() < price) {
+                p.sendMessage(Component.text("§cL'île n'a pas assez d'expérience pour améliorer le " +
+                        "nombre de spawneurs ! Il manque §6" + NumberFormat.getInstance().format(price - island.getExp())
+                        + "§c d'expérience."));
+                return;
+            }
+            island.setLevelExp(island.getExp() - price);
+            island.setSpawnerLevel(currentLevel + 1);
+            update(island, p);
+        });
     }
 }

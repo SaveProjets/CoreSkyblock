@@ -45,6 +45,8 @@ public class IslandsBlocksLimiterManager {
                     case 5 -> 160;
                     default -> 0;
                 };
+            case SPAWNER:
+                yield 50 + (level - 1);
             default:
                 yield 0;
         };
@@ -60,6 +62,8 @@ public class IslandsBlocksLimiterManager {
                     case 5 -> 2000;
                     default -> 0;
                 };
+            case SPAWNER:
+                yield 100;
             default:
                 yield 0;
         };
@@ -73,6 +77,14 @@ public class IslandsBlocksLimiterManager {
                     lore.add("§7" + i + ": §6" + getLimit(material, i) + " blocs §8| " + (level >= i ? "§aDéjà achetée" :
                             "§7Prix: §e" + getPrice(material, i) + "§6§lexp"));
                 }
+                yield new ArrayList<>(lore);
+            case SPAWNER:
+                lore.add("§7Limite actuelle: §6" + getLimit(material, level) + " spawneurs");
+                lore.add("");
+                lore.add("§7Prix: §e" + getPrice(material, level) + "§6§lexp");
+                lore.add("");
+                lore.add("§7Chaque niveau augmente la limite de §e§l1§7.");
+                lore.add("§7Le prix n'augmente pas avec le niveau.");
                 yield new ArrayList<>(lore);
             default:
                 yield new ArrayList<>();

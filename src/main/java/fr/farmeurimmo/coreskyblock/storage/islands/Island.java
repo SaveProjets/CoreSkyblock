@@ -38,6 +38,7 @@ public class Island {
     private int memberLevel;
     private int generatorLevel;
     private int hopperLevel;
+    private int spawnerLevel;
     private double bankMoney;
     private boolean isPublic;
     private double exp;
@@ -54,7 +55,7 @@ public class Island {
 
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int sizeLevel, int memberLevel,
-                  int generatorLevel, int hopperLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic,
+                  int generatorLevel, int hopperLevel, int spawnerLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic,
                   double exp, List<IslandSettings> settings, float level, List<Chest> chests, boolean readOnly) {
         this.islandUUID = islandUUID;
         this.name = name;
@@ -67,6 +68,7 @@ public class Island {
         this.memberLevel = memberLevel;
         this.generatorLevel = generatorLevel;
         this.hopperLevel = hopperLevel;
+        this.spawnerLevel = spawnerLevel;
         this.bankMoney = bankMoney;
         this.bannedPlayers = bannedPlayers;
         this.isPublic = isPublic;
@@ -91,6 +93,7 @@ public class Island {
         this.memberLevel = 1;
         this.generatorLevel = 1;
         this.hopperLevel = 1;
+        this.spawnerLevel = 1;
         this.bankMoney = 0;
         this.bannedPlayers = new ArrayList<>();
         this.isPublic = true;
@@ -123,6 +126,7 @@ public class Island {
             int memberLevel = json.get("memberLevel").getAsInt();
             int generatorLevel = json.get("generatorLevel").getAsInt();
             int hopperLevel = json.get("hopperLevel").getAsInt();
+            int spawnLevel = json.get("spawnerLevel").getAsInt();
             double bankMoney = json.get("bankMoney").getAsDouble();
             boolean isPublic = json.get("isPublic").getAsBoolean();
             double exp = json.get("exp").getAsDouble();
@@ -170,7 +174,7 @@ public class Island {
             perms = getRanksPermsFromReduced(perms);
 
             return new Island(islandUUID, name, spawn, members, membersNames, perms, sizeLevel, memberLevel, generatorLevel,
-                    hopperLevel, bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true);
+                    hopperLevel, spawnLevel, bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true);
         } catch (Exception ignored) {
         }
         return null;
@@ -699,6 +703,7 @@ public class Island {
         json.addProperty("memberLevel", memberLevel);
         json.addProperty("generatorLevel", generatorLevel);
         json.addProperty("hopperLevel", hopperLevel);
+        json.addProperty("spawnerLevel", spawnerLevel);
         json.addProperty("bankMoney", bankMoney);
         json.addProperty("isPublic", isPublic);
         json.addProperty("exp", exp);
@@ -783,6 +788,15 @@ public class Island {
 
     public void setHopperLevel(int hopperLevel) {
         this.hopperLevel = hopperLevel;
+        isModified = true;
+    }
+
+    public int getSpawnerLevel() {
+        return this.spawnerLevel;
+    }
+
+    public void setSpawnerLevel(int spawnerLevel) {
+        this.spawnerLevel = spawnerLevel;
         isModified = true;
     }
 }
