@@ -416,6 +416,10 @@ public class JedisManager {
                                     }
                                     IslandsManager.INSTANCE.teleportToIsland(island, p);
                                 }
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    IslandsManager.INSTANCE.wantToTeleport.remove(islandUUID);
+                                    return null;
+                                });
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
