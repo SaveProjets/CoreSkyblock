@@ -73,7 +73,7 @@ public enum Enchantments {
             0.02, 1, 0, -1, EnchantmentRarity.UNCOMMON, List.of(EnchantmentsRecipients.BOW_AND_CROSSBOW)),
 
     PLUIE_DE_FLECHES("Pluie de flèches", "§8Chance de {value}% que des flèches apparaissent autour de l’adversaire et foncent sur lui.",
-            3, true, 0.02, 0.5, 0, -1,
+            3, true, 0.8, 0.5, 0, -1,
             EnchantmentRarity.EPIC, List.of(EnchantmentsRecipients.BOW_AND_CROSSBOW)),
 
     SMELTING("Smelting", "§8Permet de faire fondre automatiquement les minerais minés.",

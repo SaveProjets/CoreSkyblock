@@ -28,6 +28,7 @@ public class CustomEnchantmentsManager {
     public static ArrayList<Material> SMELTING_ALLOWED_MATERIALS = new ArrayList<>(Arrays.asList(
             Material.COBBLESTONE, Material.STONE, Material.RAW_IRON, Material.RAW_GOLD, Material.RAW_COPPER,
             Material.RAW_COPPER));
+    public final Map<UUID, Map<String, Long>> abilityCooldowns = new HashMap<>();
 
     public CustomEnchantmentsManager() {
         INSTANCE = this;
@@ -231,5 +232,26 @@ public class CustomEnchantmentsManager {
 
     public float getRng() {
         return new Random().nextFloat();
+    }
+
+    public boolean isInCooldown(UUID uuid, String ability) {
+        return getCooldownLeft(uuid, ability) > 0;
+    }
+
+    public void addAbilityCooldown(UUID uuid, String ability, long cooldown) {
+        if (!abilityCooldowns.containsKey(uuid)) {
+            abilityCooldowns.put(uuid, new HashMap<>());
+        }
+        abilityCooldowns.get(uuid).put(ability, System.currentTimeMillis() + cooldown * 1_000);
+    }
+
+    public int getCooldownLeft(UUID uuid, String ability) {
+        if (!abilityCooldowns.containsKey(uuid)) {
+            return 0;
+        }
+        if (!abilityCooldowns.get(uuid).containsKey(ability)) {
+            return 0;
+        }
+        return (int) Math.max(0, (abilityCooldowns.get(uuid).get(ability) - System.currentTimeMillis()) / 1_000);
     }
 }
