@@ -87,6 +87,6 @@ public class EnchantsAdminInv extends FastInv {
 
     private int getMaxPage() {
         Map<Enchantments, List<ItemStack>> enchantmentsListMap = CustomEnchantmentsManager.INSTANCE.getAllEnchantedBooks();
-        return (int) Math.ceil(enchantmentsListMap.values().stream().mapToInt(List::size).sum() / 36.0) - 1;
+        return (int) Math.ceil(enchantmentsListMap.values().stream().mapToInt(List::size).sum() / 45.0) - 1;
     }
 }
