@@ -52,9 +52,20 @@ public class CustomEnchantmentsManager {
             return itemStack;
         }
         List<Component> existingLore = itemStack.lore() != null ? new ArrayList<>(Objects.requireNonNull(itemStack.lore())) : new ArrayList<>();
-        if (!existingLore.isEmpty() && !existingLore.get(existingLore.size() - 1).equals(Component.text(""))) {
-            existingLore.add(Component.text(""));
+        if (!existingLore.isEmpty()) {
+            //remove old enchantments from lore
+            List<String> loreString = itemStack.getLore();
+            //remove every enchantment from the lore
+            assert loreString != null;
+            for (String lore : loreString) {
+                for (Enchantments enchantment : Enchantments.values()) {
+                    if (lore.contains(enchantment.getDisplayName())) {
+                        existingLore.remove(Component.text(lore));
+                    }
+                }
+            }
         }
+
         List<Component> newLore = getEnchantmentsOrderedByRarityFromList(enchantments).stream()
                 .map(enchantment -> Component.text(enchantment.left().getDisplayName() +
                         (enchantment.left().getMaxLevel() > 1 ? ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(enchantment.right()) : "")))
