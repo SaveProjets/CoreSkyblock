@@ -63,6 +63,9 @@ public class AuctionBrowserInv extends FastInv {
                 setItem(slot, null);
                 continue;
             }
+            if (i < 0) {
+                continue;
+            }
             AuctionItem auctionItem = auctionItems.get(i);
             ItemStack itemStack = auctionItem.itemStack().clone();
 

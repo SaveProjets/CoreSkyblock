@@ -5,6 +5,7 @@ import dev.lone.itemsadder.api.CustomBlock;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
 import it.unimi.dsi.fastutil.Pair;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
@@ -124,10 +125,16 @@ public class CustomEnchantementsListener implements Listener {
         ArrayList<ItemStack> drops = new ArrayList<>(e.getDrops());
 
         if (e.getEntity() instanceof Player p) {
-            if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.DECAPITEUR)) {
-                ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-                skullMeta.setOwningPlayer(p);
+            Pair<Enchantments, Integer> enchantmentsIntegerPair = enchantmentsList.stream().filter(pair -> pair.left() == Enchantments.DECAPITEUR).findFirst().orElse(null);
+            if (enchantmentsIntegerPair != null) {
+                if (enchantmentsIntegerPair.left().getValueForLevel(enchantmentsIntegerPair.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+                    SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+                    skullMeta.setOwningPlayer(p);
+                    skull.setItemMeta(skullMeta);
+
+                    e.getDrops().add(skull);
+                }
             }
             return;
         }
@@ -170,7 +177,8 @@ public class CustomEnchantementsListener implements Listener {
             }
             if (enchantmentsIntegerPair.left().equals(Enchantments.FLECHE_GELEE)) {
                 if (enchantmentsIntegerPair.left().getValueForLevel(enchantmentsIntegerPair.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
-                    arrow.setFreezeTicks(enchantmentsIntegerPair.left().getValueEffectForLevel(enchantmentsIntegerPair.right()) * 20);
+                    arrow.setMetadata("frozen", new FixedMetadataValue(CoreSkyblock.INSTANCE,
+                            enchantmentsIntegerPair.left().getValueEffectForLevel(enchantmentsIntegerPair.right())));
                 }
                 continue;
             }
@@ -202,11 +210,14 @@ public class CustomEnchantementsListener implements Listener {
                     if (itemStack == null) continue;
                     itemStack.damage(2, p);
                 }
-                return;
             }
             if (arrow.hasMetadata("explosive")) {
                 p.getWorld().createExplosion(p.getLocation(), 0);
-                return;
+            }
+            if (arrow.hasMetadata("frozen")) {
+                p.lockFreezeTicks(true);
+                p.setFreezeTicks(arrow.getMetadata("frozen").get(0).asInt() * 20);
+                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> p.lockFreezeTicks(false), p.getFreezeTicks());
             }
 
             return;
@@ -214,7 +225,7 @@ public class CustomEnchantementsListener implements Listener {
 
         if (!(e.getDamager() instanceof Player damager)) return;
 
-        ItemStack itemStack = p.getInventory().getItemInMainHand();
+        ItemStack itemStack = damager.getInventory().getItemInMainHand();
 
         if (!itemStack.getType().isItem()) return;
         if (itemStack.getItemMeta() == null) return;
@@ -246,6 +257,14 @@ public class CustomEnchantementsListener implements Listener {
                         if (itemStack1 == null) continue;
                         itemStack1.damage(3, p);
                     }
+                }
+            }
+            if (enchantment.left().equals(Enchantments.GELURE)) {
+                System.out.println("Gelure: " + enchantment.left().getValueForLevel(enchantment.right()));
+                if (enchantment.left().getValueForLevel(enchantment.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    p.lockFreezeTicks(true);
+                    p.setFreezeTicks(20 * enchantment.left().getValueEffectForLevel(enchantment.right()));
+                    Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> p.lockFreezeTicks(false), p.getFreezeTicks());
                 }
             }
         }

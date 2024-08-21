@@ -142,6 +142,7 @@ public class PlayerListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
         if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        if (CoreSkyblock.SERVER_TYPE != ServerType.SPAWN) return;
         e.setUseItemInHand(Event.Result.ALLOW);
         if (e.getClickedBlock() != null) {
             if (e.getClickedBlock().getState() instanceof Sign) {
