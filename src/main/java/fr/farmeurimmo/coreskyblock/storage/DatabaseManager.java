@@ -40,7 +40,7 @@ public class DatabaseManager {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setLeakDetectionThreshold(5_000);
-        config.setMaximumPoolSize(10);
+        config.setMaximumPoolSize(5);
         config.setConnectionTimeout(60_000);
         ds = new HikariDataSource(config);
 
