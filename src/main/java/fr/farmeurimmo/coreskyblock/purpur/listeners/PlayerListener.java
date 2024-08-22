@@ -157,9 +157,6 @@ public class PlayerListener implements Listener {
             return;
         }
         e.setUseInteractedBlock(Event.Result.ALLOW);
-        if (e.getItem() != null) {
-            if (!e.getItem().getType().isEdible()) e.setCancelled(true);
-        }
     }
 
     @EventHandler

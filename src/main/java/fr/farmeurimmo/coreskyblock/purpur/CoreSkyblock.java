@@ -44,6 +44,7 @@ import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsManager;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeCmd;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
+import fr.farmeurimmo.coreskyblock.purpur.pvp.PvpManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.SellAllCmd;
@@ -55,6 +56,7 @@ import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaHereCmd;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaNoCmd;
 import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaYesCmd;
 import fr.farmeurimmo.coreskyblock.purpur.trade.*;
+import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsListener;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsManager;
 import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
@@ -172,6 +174,8 @@ public final class CoreSkyblock extends JavaPlugin {
         new ShopsManager();
         new AuctionHouseManager();
 
+        new PvpManager(INSTANCE);
+
         new AgricultureCycleManager();
         new FeatherFlyManager();
         new MinionsManager();
@@ -196,6 +200,7 @@ public final class CoreSkyblock extends JavaPlugin {
         new JedisManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des listeners...");
+        getServer().getPluginManager().registerEvents(new WorldsListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new FeatherFlyListener(), this);
         getServer().getPluginManager().registerEvents(new ChatReactionListener(), this);
@@ -276,7 +281,8 @@ public final class CoreSkyblock extends JavaPlugin {
                 console.sendMessage("§b[CoreSkyblock] §7Forçage des chunks terminé en " + (System.currentTimeMillis() - startTime2) + "ms");
             }
         }
-        optimizeSpawn();
+
+        optimizeWorld(Bukkit.getWorld(SPAWN_WORLD_NAME), 1);
 
         console.sendMessage("§b[CoreSkyblock] §aDémarrage du plugin CoreSkyblock terminé en " + (System.currentTimeMillis() - startTime) + "ms");
     }
@@ -309,36 +315,51 @@ public final class CoreSkyblock extends JavaPlugin {
         console.sendMessage("§aArrêt du plugin CoreSkyblock terminé");
     }
 
-    public void optimizeSpawn() {
-        World w = Bukkit.getWorld(SPAWN_WORLD_NAME);
+    public void optimizeWorld(World w, int type) {
         if (w == null) return;
-        w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        w.setTime(6000);
-        w.setStorm(false);
-        w.setThundering(false);
-        w.setWeatherDuration(0);
-        w.setThunderDuration(0);
-        w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-        w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-        w.setGameRule(GameRule.DO_FIRE_TICK, false);
-        w.setGameRule(GameRule.DO_ENTITY_DROPS, false);
-        w.setGameRule(GameRule.DO_TILE_DROPS, false);
-        w.setGameRule(GameRule.DO_MOB_LOOT, false);
-        w.setGameRule(GameRule.FALL_DAMAGE, false);
+
+        // COMMON
+
         w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
-        w.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-        w.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-        w.setGameRule(GameRule.DO_INSOMNIA, false);
-        w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
-        w.setGameRule(GameRule.DROWNING_DAMAGE, false);
-        w.setGameRule(GameRule.FIRE_DAMAGE, false);
-        w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
-        w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
-        w.setGameRule(GameRule.MOB_GRIEFING, false);
         w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         w.setGameRule(GameRule.KEEP_INVENTORY, true);
+        w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+        w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
+        w.setGameRule(GameRule.SPAWN_RADIUS, 0);
 
         w.setDifficulty(Difficulty.NORMAL);
+
+        if (type == 1) { // SPAWN
+            w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            w.setTime(6000);
+            w.setStorm(false);
+            w.setThundering(false);
+            w.setWeatherDuration(0);
+            w.setThunderDuration(0);
+            w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+            w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+            w.setGameRule(GameRule.DO_FIRE_TICK, false);
+            w.setGameRule(GameRule.DO_ENTITY_DROPS, false);
+            w.setGameRule(GameRule.DO_TILE_DROPS, false);
+            w.setGameRule(GameRule.DO_MOB_LOOT, false);
+            w.setGameRule(GameRule.FALL_DAMAGE, false);
+            w.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+            w.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+            w.setGameRule(GameRule.DO_INSOMNIA, false);
+            w.setGameRule(GameRule.MOB_GRIEFING, false);
+            w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+            w.setGameRule(GameRule.DROWNING_DAMAGE, false);
+            w.setGameRule(GameRule.FIRE_DAMAGE, false);
+        }
+        if (type == 2) { // ISLAND
+
+        }
+        if (type == 3) { // PVP
+            w.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+            w.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+            w.setGameRule(GameRule.DO_INSOMNIA, false);
+            w.setGameRule(GameRule.MOB_GRIEFING, false);
+        }
     }
 
     public void clockSendPlayerConnectedToRedis() {
