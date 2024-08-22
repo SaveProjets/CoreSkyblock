@@ -41,7 +41,9 @@ public class DatabaseManager {
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setLeakDetectionThreshold(5_000);
         config.setMaximumPoolSize(5);
-        config.setConnectionTimeout(60_000);
+        config.setConnectionTimeout(30_000);
+        config.setIdleTimeout(600_000);
+        config.setMaxLifetime(1_800_000);
         ds = new HikariDataSource(config);
 
         startConnection();
@@ -66,7 +68,7 @@ public class DatabaseManager {
     }
 
     public void closeConnection() {
-        ds.close();
+        if (ds != null && !ds.isClosed()) ds.close();
     }
 
     public Connection getConnection() throws SQLException {
