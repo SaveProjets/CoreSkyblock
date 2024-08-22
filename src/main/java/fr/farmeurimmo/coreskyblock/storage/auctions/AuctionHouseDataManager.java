@@ -1,7 +1,5 @@
 package fr.farmeurimmo.coreskyblock.storage.auctions;
 
-import com.google.gson.JsonObject;
-import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.storage.DatabaseManager;
 
@@ -56,7 +54,7 @@ public class AuctionHouseDataManager {
                             UUID.fromString(resultSet.getString("owner")),
                             resultSet.getString("owner_name"),
                             resultSet.getDouble("price"),
-                            AuctionItem.itemFromJson(CoreSkyblock.INSTANCE.gson.fromJson(resultSet.getString("item"), JsonObject.class)),
+                            AuctionItem.itemFromBase64(resultSet.getString("item")),
                             resultSet.getLong("created_at")
                     ));
                 }
@@ -79,7 +77,7 @@ public class AuctionHouseDataManager {
                 statement.setString(2, item.ownerUUID().toString());
                 statement.setString(3, item.ownerName());
                 statement.setDouble(4, item.price());
-                statement.setObject(5, CoreSkyblock.INSTANCE.gson.toJson(item.itemToJson()));
+                statement.setObject(5, item.itemToBase64());
                 statement.setLong(6, item.createdAt());
                 statement.executeUpdate();
             } catch (SQLException e) {
@@ -103,7 +101,7 @@ public class AuctionHouseDataManager {
                             UUID.fromString(resultSet.getString("owner")),
                             resultSet.getString("owner_name"),
                             resultSet.getDouble("price"),
-                            AuctionItem.itemFromJson(CoreSkyblock.INSTANCE.gson.fromJson(resultSet.getString("item"), JsonObject.class)),
+                            AuctionItem.itemFromBase64(resultSet.getString("item")),
                             resultSet.getLong("created_at")
                     );
                 }

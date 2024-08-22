@@ -56,8 +56,8 @@ public class ChestsListener implements Listener {
         }
 
         if (item.getItemMeta() == null) return;
-        if (!item.hasDisplayName()) return;
-        if (!item.isUnbreakable()) return;
+        if (!item.getItemMeta().hasDisplayName()) return;
+        if (!item.getItemMeta().isUnbreakable()) return;
         if (ChestType.containsChestTypeInIt(item.getItemMeta().getDisplayName())) {
             e.setCancelled(true);
 

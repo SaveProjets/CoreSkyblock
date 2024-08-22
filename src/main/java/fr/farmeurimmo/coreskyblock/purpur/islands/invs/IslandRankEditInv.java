@@ -28,7 +28,7 @@ public class IslandRankEditInv extends FastInv {
     private int page = 0;
 
     public IslandRankEditInv(Island island, Player p) {
-        super(54, "§8Permissions des grades de l'île");
+        super(54, "§0Permissions des grades de l'île");
 
         if (island == null) {
             p.sendMessage("§cUne erreur est survenue lors de la récupération de votre île.");

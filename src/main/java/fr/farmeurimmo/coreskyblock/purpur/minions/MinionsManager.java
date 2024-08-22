@@ -25,8 +25,8 @@ public class MinionsManager {
 
     public void giveMinion(Player p, MinionType type, int level) {
         ItemStack minion = new ItemStack(Material.DRAGON_BREATH, 1);
-        minion.setUnbreakable(true);
         ItemMeta meta = minion.getItemMeta();
+        meta.setUnbreakable(true);
         meta.displayName(Component.text("§6Minion " + type.getName()));
         meta.lore(List.of(Component.text("§6Niveau §e" + level)));
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);

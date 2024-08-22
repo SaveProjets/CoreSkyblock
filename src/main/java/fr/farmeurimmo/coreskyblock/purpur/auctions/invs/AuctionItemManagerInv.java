@@ -28,7 +28,7 @@ public class AuctionItemManagerInv extends FastInv {
     private long lastAction = System.currentTimeMillis();
 
     public AuctionItemManagerInv(UUID uuid) {
-        super(54, "§8Gestionnaire d'objets de l'hôtel des ventes");
+        super(54, "§0Gestionnaire d'objets de l'hôtel des ventes");
 
         setCloseFilter(p -> {
             gotUpdate = true;

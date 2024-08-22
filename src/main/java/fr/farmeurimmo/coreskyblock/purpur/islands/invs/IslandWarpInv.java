@@ -33,9 +33,9 @@ public class IslandWarpInv extends FastInv {
     private IslandWarp warp;
 
     public IslandWarpInv(Island island, IslandWarp warp) {
-        super(36, "§8Warp de l'île");
+        super(36, "§0Warp de l'île");
 
-        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
                 .name("§6Retour §8| §7(clic gauche)").build(), e -> {
             new IslandInv(island).open((Player) e.getWhoClicked());
             gotUpdate = true;
@@ -197,7 +197,7 @@ public class IslandWarpInv extends FastInv {
             ItemStack forwardItem = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
                     "§6Mise en avant §8| §7(clic gauche)").lore("§7" + (warp.getForwardedWarp() > System.currentTimeMillis()
                     ? "§aOui" : "§cNon"), expiry, "", "§7Coût: §e25 000$").flags(ItemFlag.HIDE_ENCHANTS).build();
-            if (warp.isStillForwarded()) forwardItem.addEnchant(Enchantment.CHANNELING, 1, true);
+            if (warp.isStillForwarded()) forwardItem.addEnchantment(Enchantment.CHANNELING, 1);
             setItem(15, forwardItem, e -> {
                 if (checkForPermsAndIfLoaded(island, e)) return;
                 if (warp.isStillForwarded()) {

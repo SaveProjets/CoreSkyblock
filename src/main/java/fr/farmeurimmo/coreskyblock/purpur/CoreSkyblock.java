@@ -3,7 +3,7 @@ package fr.farmeurimmo.coreskyblock.purpur;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
-import com.infernalsuite.aswm.api.SlimePlugin;
+import com.infernalsuite.aswm.api.AdvancedSlimePaperAPI;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.agriculture.AgricultureCycleManager;
@@ -29,6 +29,9 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.cmds.IslandCmd;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantementsListener;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.cmds.EnchantsAdminCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe.LegendaryHoeCmd;
+import fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe.LegendaryHoeListener;
+import fr.farmeurimmo.coreskyblock.purpur.items.legendaryhoe.LegendaryHoeManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.CustomSacsListener;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
@@ -81,9 +84,9 @@ public final class CoreSkyblock extends JavaPlugin {
     public static String SERVER_NAME;
     public final Gson gson = new Gson();
     public final Map<String, ArrayList<Pair<UUID, String>>> skyblockPlayers = new HashMap<>();
+    public final AdvancedSlimePaperAPI slimePlugin = AdvancedSlimePaperAPI.instance();
     public RoseStackerAPI roseStackerAPI;
     public ConsoleCommandSender console;
-    public SlimePlugin slimePlugin;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
     public Map<String, Integer> serversLoad = new HashMap<>();
 
@@ -91,8 +94,7 @@ public final class CoreSkyblock extends JavaPlugin {
     public void onLoad() {
         INSTANCE = this;
         console = getServer().getConsoleSender();
-        console.sendMessage("§b[CoreSkyblock] §7Récupération du plugin SlimeWorldManager...");
-        slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
+
         new WorldsManager();
 
         //This is now handled by the SlimeWorldManager plugin
@@ -128,6 +130,25 @@ public final class CoreSkyblock extends JavaPlugin {
         new InventorySyncUtils();
         new InventoryUtils();
 
+        if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
+            roseStackerAPI = RoseStackerAPI.getInstance();
+        }
+
+        console.sendMessage("§b[CoreSkyblock] §7Connexion à la base de donnée...");
+        try {
+            String host = getConfig().getString("mysql.host");
+            String user = getConfig().getString("mysql.user");
+            String password = getConfig().getString("mysql.password");
+            String database = getConfig().getString("mysql.database");
+            int port = getConfig().getInt("mysql.port");
+            new DatabaseManager("jdbc:mysql://" + host + ":" + port + "/" + database, user, password);
+            WorldsManager.INSTANCE.createLoader(host, port, user, password, database);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.shutdown();
+            return;
+        }
+
         if (SERVER_TYPE == ServerType.PVP) {
             SPAWN_WORLD_NAME = "pvp-spawn";
         } else if (SERVER_TYPE == ServerType.PVE) {
@@ -142,50 +163,34 @@ public final class CoreSkyblock extends JavaPlugin {
             spawnWorld.getWorldBorder().setCenter(SPAWN);
             spawnWorld.getWorldBorder().setSize(500);
         }
-        if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
-            roseStackerAPI = RoseStackerAPI.getInstance();
-        }
-
-        console.sendMessage("§b[CoreSkyblock] §7Connexion à la base de donnée...");
-        try {
-            String host = getConfig().getString("mysql.host");
-            String user = getConfig().getString("mysql.user");
-            String password = getConfig().getString("mysql.password");
-            String database = getConfig().getString("mysql.database");
-            int port = getConfig().getInt("mysql.port");
-            new DatabaseManager("jdbc:mysql://" + host + ":" + port + "/" + database, user, password);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Bukkit.shutdown();
-            return;
-        }
 
         console.sendMessage("§b[CoreSkyblock] §7Démarrage des managers...");
         new SkyblockUsersManager();
         new IslandsManager(INSTANCE);
         new SyncUsersManager();
 
-        new ScoreboardManager();
+        new ShopsManager();
+        new AuctionHouseManager();
+
+        new AgricultureCycleManager();
         new FeatherFlyManager();
-        new ChatReactionManager();
-        new ChestsManager();
         new MinionsManager();
         new TradesManager();
         new TpasManager();
-
-        new ShopsManager();
-        new SacsManager();
-
-        new AgricultureCycleManager();
-
         new ChatDisplayManager();
         new PrestigesManager();
 
-        new AuctionHouseManager();
-
+        // blocks
         new ElevatorsManager();
+        new ChestsManager();
 
+        // items
         new CustomEnchantmentsManager();
+        new SacsManager();
+        new LegendaryHoeManager();
+
+        new ChatReactionManager();
+        new ScoreboardManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
@@ -201,6 +206,7 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ElevatorsListener(), this);
         getServer().getPluginManager().registerEvents(new CustomEnchantementsListener(), this);
         getServer().getPluginManager().registerEvents(new CustomSacsListener(), this);
+        getServer().getPluginManager().registerEvents(new LegendaryHoeListener(), this);
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des commandes...");
         Objects.requireNonNull(getCommand("featherfly")).setExecutor(new FeatherFlyCmd());
@@ -236,6 +242,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("elevators")).setExecutor(new ElevatorsCmd());
         Objects.requireNonNull(getCommand("enchantsadmin")).setExecutor(new EnchantsAdminCmd());
         Objects.requireNonNull(getCommand("sacs")).setExecutor(new SacsCmd());
+        Objects.requireNonNull(getCommand("legendaryhoe")).setExecutor(new LegendaryHoeCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
@@ -376,6 +383,16 @@ public final class CoreSkyblock extends JavaPlugin {
         return players;
     }
 
+    public ArrayList<UUID> getPlayersConnectedUUID() {
+        ArrayList<UUID> players = new ArrayList<>();
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            for (Pair<UUID, String> pair : entry.getValue()) {
+                players.add(pair.left());
+            }
+        }
+        return players;
+    }
+
     public ArrayList<String> getSuggestions(String name, String sender) {
         ArrayList<String> suggestions = new ArrayList<>();
         for (String player : getPlayersConnected()) {
@@ -410,6 +427,15 @@ public final class CoreSkyblock extends JavaPlugin {
             }
         }
         return null;
+    }
+
+    public boolean isOneOfThemOnline(ArrayList<UUID> uuids) {
+        for (UUID uuid : CoreSkyblock.INSTANCE.getPlayersConnectedUUID()) {
+            if (uuids.contains(uuid)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int getSpawnServerLoad() {

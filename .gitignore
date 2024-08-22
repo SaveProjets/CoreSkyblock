@@ -1,3 +1,5 @@
-.idea
-target/
+.idea/
+.gradle/
 CoreSkyblock.iml
+build/
+gradle/

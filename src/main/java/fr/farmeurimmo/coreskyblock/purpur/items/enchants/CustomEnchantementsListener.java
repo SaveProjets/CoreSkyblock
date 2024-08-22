@@ -5,7 +5,10 @@ import dev.lone.itemsadder.api.CustomBlock;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
 import it.unimi.dsi.fastutil.Pair;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -15,6 +18,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +26,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -63,7 +68,7 @@ public class CustomEnchantementsListener implements Listener {
                         int fortuneLevel = 0;
 
                         try {
-                            fortuneLevel = e.getPlayer().getItemInHand().getEnchantmentLevel(Objects.requireNonNull(Enchantment.LOOT_BONUS_BLOCKS));
+                            fortuneLevel = e.getPlayer().getItemInHand().getEnchantmentLevel(Objects.requireNonNull(Enchantment.FORTUNE));
                         } catch (NullPointerException ignored) {
                         }
 
@@ -124,10 +129,16 @@ public class CustomEnchantementsListener implements Listener {
         ArrayList<ItemStack> drops = new ArrayList<>(e.getDrops());
 
         if (e.getEntity() instanceof Player p) {
-            if (enchantmentsList.stream().anyMatch(pair -> pair.left() == Enchantments.DECAPITEUR)) {
-                ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-                skullMeta.setOwningPlayer(p);
+            Pair<Enchantments, Integer> enchantmentsIntegerPair = enchantmentsList.stream().filter(pair -> pair.left() == Enchantments.DECAPITEUR).findFirst().orElse(null);
+            if (enchantmentsIntegerPair != null) {
+                if (enchantmentsIntegerPair.left().getValueForLevel(enchantmentsIntegerPair.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+                    SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+                    skullMeta.setOwningPlayer(p);
+                    skull.setItemMeta(skullMeta);
+
+                    e.getDrops().add(skull);
+                }
             }
             return;
         }
@@ -147,6 +158,8 @@ public class CustomEnchantementsListener implements Listener {
 
     @EventHandler
     public void onEntityShoot(EntityShootBowEvent e) {
+        if (!(e.getEntity() instanceof Player p)) return;
+
         ItemStack itemStack = e.getBow();
 
         if (itemStack == null) return;
@@ -170,7 +183,8 @@ public class CustomEnchantementsListener implements Listener {
             }
             if (enchantmentsIntegerPair.left().equals(Enchantments.FLECHE_GELEE)) {
                 if (enchantmentsIntegerPair.left().getValueForLevel(enchantmentsIntegerPair.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
-                    arrow.setFreezeTicks(enchantmentsIntegerPair.left().getValueEffectForLevel(enchantmentsIntegerPair.right()) * 20);
+                    arrow.setMetadata("frozen", new FixedMetadataValue(CoreSkyblock.INSTANCE,
+                            enchantmentsIntegerPair.left().getValueEffectForLevel(enchantmentsIntegerPair.right())));
                 }
                 continue;
             }
@@ -187,6 +201,12 @@ public class CustomEnchantementsListener implements Listener {
                 }
                 continue;
             }
+            if (enchantmentsIntegerPair.left().equals(Enchantments.PLUIE_DE_FLECHES)) {
+                if (enchantmentsIntegerPair.left().getValueForLevel(enchantmentsIntegerPair.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    arrow.setMetadata("rain", new FixedMetadataValue(CoreSkyblock.INSTANCE, p.getName()));
+                }
+                continue;
+            }
         }
     }
 
@@ -200,13 +220,40 @@ public class CustomEnchantementsListener implements Listener {
                 p.damage(2);
                 for (ItemStack itemStack : p.getInventory().getArmorContents()) {
                     if (itemStack == null) continue;
-                    itemStack.damage(2);
+                    itemStack.damage(2, p);
                 }
-                return;
             }
             if (arrow.hasMetadata("explosive")) {
                 p.getWorld().createExplosion(p.getLocation(), 0);
-                return;
+            }
+            if (arrow.hasMetadata("frozen")) {
+                p.lockFreezeTicks(true);
+                p.setFreezeTicks(arrow.getMetadata("frozen").get(0).asInt() * 20);
+                Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> p.lockFreezeTicks(false), p.getFreezeTicks());
+            }
+            if (arrow.hasMetadata("rain")) {
+                try {
+                    Player shooter = Bukkit.getPlayer(arrow.getMetadata("rain").get(0).asString());
+                    if (shooter == null) return;
+
+                    //use pythagorean theorem to make them spawn in a circle around the player
+                    double angle = 0;
+                    double yAdd = 3;
+                    double radius = 4;
+
+                    for (int i = 0; i < 4; i++) {
+                        double x = Math.cos(angle) * radius;
+                        double z = Math.sin(angle) * radius;
+
+                        Arrow arrow1 = p.getWorld().spawn(p.getLocation().add(x, yAdd, z), Arrow.class);
+                        arrow1.setShooter(shooter);
+                        arrow1.setVelocity(p.getLocation().add(0, 1, 0).toVector().subtract(arrow1.getLocation().toVector()).normalize().multiply(2));
+                        arrow1.setDamage(arrow.getDamage());
+
+                        angle += Math.PI / 2;
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
             }
 
             return;
@@ -214,7 +261,7 @@ public class CustomEnchantementsListener implements Listener {
 
         if (!(e.getDamager() instanceof Player damager)) return;
 
-        ItemStack itemStack = p.getInventory().getItemInMainHand();
+        ItemStack itemStack = damager.getInventory().getItemInMainHand();
 
         if (!itemStack.getType().isItem()) return;
         if (itemStack.getItemMeta() == null) return;
@@ -244,8 +291,62 @@ public class CustomEnchantementsListener implements Listener {
                     p.damage(2);
                     for (ItemStack itemStack1 : p.getInventory().getArmorContents()) {
                         if (itemStack1 == null) continue;
-                        itemStack1.damage(3);
+                        itemStack1.damage(3, p);
                     }
+                }
+            }
+            if (enchantment.left().equals(Enchantments.GELURE)) {
+                if (enchantment.left().getValueForLevel(enchantment.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    p.lockFreezeTicks(true);
+                    p.setFreezeTicks(20 * enchantment.left().getValueEffectForLevel(enchantment.right()));
+                    Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> p.lockFreezeTicks(false), p.getFreezeTicks());
+                }
+            }
+            if (enchantment.left().equals(Enchantments.GEYSER)) {
+                if (enchantment.left().getValueForLevel(enchantment.right()) > CustomEnchantmentsManager.INSTANCE.getRng()) {
+                    p.setVelocity(p.getVelocity().setX(0).setZ(0).setY(3.5));
+                    for (int i = 0; i < 10; i++) {
+                        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+                            p.getWorld().playSound(p.getLocation(), "block.water.ambient", 1, 1);
+                            p.getWorld().spawnParticle(Particle.DRIPPING_WATER, p.getLocation(), 3);
+                        }, i);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        Player p = e.getPlayer();
+        if (!(e.getRightClicked() instanceof Player damaged)) return;
+
+        ItemStack itemStack = p.getInventory().getItemInMainHand();
+
+        if (!itemStack.getType().isItem()) return;
+
+        if (itemStack.getItemMeta() == null) return;
+
+        Optional<ArrayList<Pair<Enchantments, Integer>>> enchantments = CustomEnchantmentsManager.INSTANCE.getValidEnchantments(itemStack);
+
+        if (enchantments.isEmpty()) return;
+
+        ArrayList<Pair<Enchantments, Integer>> enchantmentsList = enchantments.get();
+
+        for (Pair<Enchantments, Integer> enchantment : enchantmentsList) {
+            if (enchantment.left().equals(Enchantments.SEISME)) {
+                if (!CustomEnchantmentsManager.INSTANCE.isInCooldown(p.getUniqueId(), enchantment.left().name())) {
+                    CustomEnchantmentsManager.INSTANCE.addAbilityCooldown(p.getUniqueId(), enchantment.left().name(), enchantment.left().getCooldown(enchantment.right()));
+
+                    Vector direction = damaged.getLocation().toVector().subtract(p.getLocation().toVector()).normalize();
+                    direction.setY(0.8);
+
+                    damaged.setVelocity(direction);
+
+
+                    p.sendMessage(Component.text("§aVous avez utilisé la compétence " + enchantment.left().name() + "."));
+                } else {
+                    p.sendMessage(Component.text("§cVous devez attendre §l" + CustomEnchantmentsManager.INSTANCE.getCooldownLeft(p.getUniqueId(), enchantment.left().name()) + "§c secondes avant de réutiliser cette compétence."));
                 }
             }
         }

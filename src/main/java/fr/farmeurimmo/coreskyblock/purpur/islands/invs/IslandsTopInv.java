@@ -29,7 +29,7 @@ public class IslandsTopInv extends FastInv {
     private int topSelected = 0; //0 = Top value, 1 = Top bank money, 2 = Warp rate
 
     public IslandsTopInv() {
-        super(54, "§8Classement des îles");
+        super(54, "§0Classement des îles");
 
         setCloseFilter(p -> {
             gotUpdate = true;
@@ -52,20 +52,20 @@ public class IslandsTopInv extends FastInv {
         gotUpdate = false;
 
         ItemStack topValue = ItemBuilder.copyOf(new ItemStack(Material.DRAGON_EGG)).name("§6Top valeur de l'île")
-                .lore("§7Cliquez pour changer le classement", (topSelected == 0 ? "§aAffiché" : "§cNon affiché"))
-                .flags(ItemFlag.HIDE_ENCHANTS).build();
+                .lore("§7Cliquez pour changer le classement", (topSelected == 0 ? "§aAffiché" : "§cNon affiché")).build();
         ItemStack topBankMoney = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name("§6Top argent en banque")
-                .lore("§7Cliquez pour changer le classement", (topSelected == 1 ? "§aAffiché" : "§cNon affiché"))
-                .flags(ItemFlag.HIDE_ENCHANTS).build();
+                .lore("§7Cliquez pour changer le classement", (topSelected == 1 ? "§aAffiché" : "§cNon affiché")).build();
         ItemStack topWarpRate = ItemBuilder.copyOf(new ItemStack(Material.ENDER_PEARL)).name("§6Top évaluation des warps")
-                .lore("§7Cliquez pour changer le classement", (topSelected == 2 ? "§aAffiché" : "§cNon affiché"))
-                .flags(ItemFlag.HIDE_ENCHANTS).build();
+                .lore("§7Cliquez pour changer le classement", (topSelected == 2 ? "§aAffiché" : "§cNon affiché")).build();
         if (topSelected == 0) {
-            topValue.addEnchant(Enchantment.DURABILITY, 1, true);
+            topValue.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            topValue.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (topSelected == 1) {
-            topBankMoney.addEnchant(Enchantment.DURABILITY, 1, true);
+            topBankMoney.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            topBankMoney.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (topSelected == 2) {
-            topWarpRate.addEnchant(Enchantment.DURABILITY, 1, true);
+            topWarpRate.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            topWarpRate.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         setItem(3, topValue, e -> {
             if (topSelected == 0) {
@@ -146,6 +146,9 @@ public class IslandsTopInv extends FastInv {
                 .lore("§7Dernière actualisation:", "§c" + IslandsTopManager.INSTANCE.getTimeAfterRefresh(), "",
                         "§7Actualisation du classement:", "§c" + IslandsTopManager.INSTANCE.getTimeUntilRefresh())
                 .build());
+
+        setItem(53, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§cFermer §8| §7(clic gauche)").build(), e ->
+                e.getWhoClicked().closeInventory());
     }
 
     private Consumer<InventoryClickEvent> getConsumer(IslandWarp warp) {

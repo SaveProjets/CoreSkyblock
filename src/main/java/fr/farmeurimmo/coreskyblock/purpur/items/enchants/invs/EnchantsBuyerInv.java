@@ -38,6 +38,8 @@ public class EnchantsBuyerInv extends FastInv {
         this.p = p;
         p.setCanPickupItems(false);
 
+        setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(), e -> new EnchantsMainInv().open(p));
+
         setCloseFilter(e -> {
             if (getInventory().getItem(SLOT_1) != null && getInventory().getItem(SLOT_2) != null) {
                 float rng = CustomEnchantmentsManager.INSTANCE.getRng();

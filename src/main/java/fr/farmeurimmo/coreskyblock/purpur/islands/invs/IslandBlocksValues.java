@@ -14,13 +14,13 @@ import java.util.Map;
 public class IslandBlocksValues extends FastInv {
 
     public IslandBlocksValues(Island island) {
-        super(27, "§8Valeur des blocs");
+        super(27, "§0Valeur des blocs");
 
         setItem(18, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
                 .name("§6Informations complémentaires").lore("§7Il faut recalculer la valeur de l'île",
                         "§7pour que les blocs posés soient pris en compte.").build());
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
                 .name("§6Retour §8| §7(clic gauche)").build(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 

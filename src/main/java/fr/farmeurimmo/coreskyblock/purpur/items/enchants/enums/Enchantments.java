@@ -6,9 +6,8 @@ import org.bukkit.Material;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public enum Enchantments {
 
@@ -37,12 +36,12 @@ public enum Enchantments {
             2, true, 0.02, 1, 0, -1,
             EnchantmentRarity.EPIC, List.of(EnchantmentsRecipients.SWORD)),
 
-    GELURE("Gelure", "§8Chance de {value}% de paralyser l'ennemi (effet de slowness extrêmement important) durant 2 à 4 secondes.",
-            3, true, 0.02, 0.5, 0, -1,
+    GELURE("Gelure", "§8Chance de {value}% de paralyser l'ennemi (effet de slowness extrêmement important) durant {value_effect} secondes.",
+            3, true, 0.02, 0.5, 0, 2,
             EnchantmentRarity.RARE, List.of(EnchantmentsRecipients.SWORD)),
 
-    INTIMIDATION("Intimidation", "§8Chance de {value}% d’appliquer l’effet faiblesse à l’adversaire pendant {value_cooldown} secondes.",
-            2, true, 0.02, 0.5, 0, -1,
+    INTIMIDATION("Intimidation", "§8Chance de {value}% d’appliquer l’effet faiblesse à l’adversaire pendant {value_effect} secondes.",
+            2, true, 0.01, 0.7, 0, 3,
             EnchantmentRarity.EPIC, List.of(EnchantmentsRecipients.SWORD)),
 
     XP_TRANSFORMATEUR("Xp transformateur", "§8Permet de transformer le loot des mobs lors de leur mort en xp vanilla. (+10% d’xp).",
@@ -131,22 +130,19 @@ public enum Enchantments {
         return enchantments;
     }
 
-    public static Map<EnchantmentsRecipients, ArrayList<Enchantments>> getEnchantmentsByMaterial() {
-        Map<EnchantmentsRecipients, ArrayList<Enchantments>> enchantmentsByMaterial = new HashMap<>();
+    public static LinkedHashMap<EnchantmentsRecipients, ArrayList<Enchantments>> getEnchantmentsByMaterial() {
+        LinkedHashMap<EnchantmentsRecipients, ArrayList<Enchantments>> map = new LinkedHashMap<>();
 
-        for (Enchantments enchantment : values()) {
-            for (EnchantmentsRecipients recipient : enchantment.getRecipients()) {
-                if (enchantmentsByMaterial.containsKey(recipient)) {
-                    enchantmentsByMaterial.get(recipient).add(enchantment);
-                } else {
-                    ArrayList<Enchantments> enchantments = new ArrayList<>();
+        for (EnchantmentsRecipients recipient : EnchantmentsRecipients.values()) {
+            ArrayList<Enchantments> enchantments = new ArrayList<>();
+            for (Enchantments enchantment : values()) {
+                if (enchantment.isAllowed(recipient)) {
                     enchantments.add(enchantment);
-                    enchantmentsByMaterial.put(recipient, enchantments);
                 }
             }
+            map.put(recipient, enchantments);
         }
-
-        return enchantmentsByMaterial;
+        return map;
     }
 
     public String canBeAppliedOn() {

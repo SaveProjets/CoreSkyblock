@@ -89,8 +89,9 @@ public class JedisManager {
                             }
                             try {
                                 UUID playerUUID = UUID.fromString(args[3]);
-                                UUID islandUUID = UUID.fromString(args[4]);
-                                IslandsManager.INSTANCE.create(playerUUID, islandUUID, false);
+                                String playerName = args[4];
+                                UUID islandUUID = UUID.fromString(args[5]);
+                                IslandsManager.INSTANCE.create(playerUUID, playerName, islandUUID, false);
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 publishToRedis("coreskyblock", "island:remote_create_response:" + serverName
@@ -391,6 +392,32 @@ public class JedisManager {
                                 UUID playerUUID = UUID.fromString(args[2]);
                                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                                     IslandsCoopsManager.INSTANCE.gotResponse(playerUUID);
+                                    return null;
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (args[1].equalsIgnoreCase("loaded")) {
+                            try {
+                                UUID islandUUID = UUID.fromString(args[2]);
+                                ArrayList<UUID> players = IslandsManager.INSTANCE.wantToTeleport.get(islandUUID);
+                                if (players == null) {
+                                    return;
+                                }
+                                for (UUID playerUUID : players) {
+                                    Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                                    if (p == null) {
+                                        continue;
+                                    }
+                                    Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                    if (island == null) {
+                                        continue;
+                                    }
+                                    IslandsManager.INSTANCE.teleportToIsland(island, p);
+                                }
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    IslandsManager.INSTANCE.wantToTeleport.remove(islandUUID);
                                     return null;
                                 });
                             } catch (Exception e) {

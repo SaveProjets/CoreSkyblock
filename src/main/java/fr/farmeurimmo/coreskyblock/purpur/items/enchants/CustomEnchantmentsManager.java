@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -27,6 +28,7 @@ public class CustomEnchantmentsManager {
     public static ArrayList<Material> SMELTING_ALLOWED_MATERIALS = new ArrayList<>(Arrays.asList(
             Material.COBBLESTONE, Material.STONE, Material.RAW_IRON, Material.RAW_GOLD, Material.RAW_COPPER,
             Material.RAW_COPPER));
+    public final Map<UUID, Map<String, Long>> abilityCooldowns = new HashMap<>();
 
     public CustomEnchantmentsManager() {
         INSTANCE = this;
@@ -50,9 +52,26 @@ public class CustomEnchantmentsManager {
 
             return itemStack;
         }
-        itemStack.lore(getEnchantmentsOrderedByRarityFromList(enchantments).stream().map(enchantment -> (Component)
-                Component.text(enchantment.left().getDisplayName() + (enchantment.left().getMaxLevel() > 1 ?
-                        ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(enchantment.right()) : ""))).collect(Collectors.toList()));
+        List<Component> existingLore = itemStack.lore() != null ? new ArrayList<>(Objects.requireNonNull(itemStack.lore())) : new ArrayList<>();
+        if (!existingLore.isEmpty()) {
+            List<String> loreString = itemStack.getLore();
+            assert loreString != null;
+            for (String lore : loreString) {
+                for (Enchantments enchantment : Enchantments.values()) {
+                    if (lore.contains(enchantment.getDisplayName())) {
+                        existingLore.remove(Component.text(lore));
+                    }
+                }
+            }
+        }
+
+        List<Component> newLore = getEnchantmentsOrderedByRarityFromList(enchantments).stream()
+                .map(enchantment -> Component.text(enchantment.left().getDisplayName() +
+                        (enchantment.left().getMaxLevel() > 1 ? ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(enchantment.right()) : "")))
+                .collect(Collectors.toList());
+        existingLore.addAll(newLore);
+
+        itemStack.lore(existingLore);
 
         for (Pair<Enchantments, Integer> enchantment : enchantments) {
             /*if (enchantment.left().equals(Enchantments.GAIN_DE_VIE)) { //FIXME: Custom stats system to fix GAIN_DE_VIE
@@ -78,8 +97,8 @@ public class CustomEnchantmentsManager {
 
     public ItemStack getItemStackEnchantedBook(Enchantments enchantment, int level) {
         ItemStack itemStack = new ItemStack(Material.ENCHANTED_BOOK);
-        itemStack.setDisplayName(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ?
-                ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(level) : ""));
+        itemStack.editMeta(meta -> meta.displayName(Component.text(enchantment.getDisplayName() + (enchantment.getMaxLevel() > 1 ?
+                ENCHANTMENT_LORE_SEPARATOR + RomanNumberUtils.toRoman(level) : ""))));
         itemStack.lore(enchantment.getDescriptionFormatted(level));
 
         return itemStack;
@@ -104,10 +123,10 @@ public class CustomEnchantmentsManager {
     private ArrayList<Pair<Enchantments, Integer>> getEnchantmentsFromDisplayName(ItemStack itemStack) {
         ArrayList<Pair<Enchantments, Integer>> enchantments = new ArrayList<>();
         for (Enchantments enchantment : Enchantments.values()) {
-            if (itemStack.getDisplayName().contains(enchantment.getDisplayName())) {
+            if (itemStack.getItemMeta().getDisplayName().contains(enchantment.getDisplayName())) {
                 int level = 0;
-                if (itemStack.getDisplayName().contains(ENCHANTMENT_LORE_SEPARATOR)) {
-                    level = RomanNumberUtils.fromRoman(itemStack.getDisplayName().split(ENCHANTMENT_LORE_SEPARATOR)[1]);
+                if (itemStack.getItemMeta().getDisplayName().contains(ENCHANTMENT_LORE_SEPARATOR)) {
+                    level = RomanNumberUtils.fromRoman(itemStack.getItemMeta().getDisplayName().split(ENCHANTMENT_LORE_SEPARATOR)[1]);
                 }
                 enchantments.add(Pair.of(enchantment, level));
             }
@@ -126,8 +145,8 @@ public class CustomEnchantmentsManager {
         return (item.getType() == Material.ENCHANTED_BOOK) ? Optional.of(getEnchantmentsFromDisplayName(item)) : Optional.of(getEnchantmentsFromLore(item));
     }
 
-    public Map<Enchantments, List<ItemStack>> getAllEnchantedBooks() {
-        Map<Enchantments, List<ItemStack>> enchantedBooks = new HashMap<>();
+    public LinkedHashMap<Enchantments, List<ItemStack>> getAllEnchantedBooks() {
+        LinkedHashMap<Enchantments, List<ItemStack>> enchantedBooks = new LinkedHashMap<>();
         for (Enchantments enchantment : Enchantments.values()) {
             enchantedBooks.put(enchantment, new ArrayList<>());
             if (enchantment.getMaxLevel() == -1) {
@@ -149,8 +168,8 @@ public class CustomEnchantmentsManager {
                 for (ItemStack itemStack : p.getInventory().getStorageContents()) {
                     if (itemStack == null) continue;
                     if (!itemStack.hasItemMeta()) continue;
-                    if (!itemStack.hasLore()) continue;
-                    if (!itemStack.isUnbreakable()) continue;
+                    if (itemStack.lore() == null) continue;
+                    if (!itemStack.getItemFlags().contains(ItemFlag.HIDE_UNBREAKABLE)) continue;
 
                     if (SacsManager.INSTANCE.isASacs(itemStack, sacsType)) {
                         int amount = SacsManager.INSTANCE.getAmount(itemStack, sacsType);
@@ -213,5 +232,26 @@ public class CustomEnchantmentsManager {
 
     public float getRng() {
         return new Random().nextFloat();
+    }
+
+    public boolean isInCooldown(UUID uuid, String ability) {
+        return getCooldownLeft(uuid, ability) > 0;
+    }
+
+    public void addAbilityCooldown(UUID uuid, String ability, long cooldown) {
+        if (!abilityCooldowns.containsKey(uuid)) {
+            abilityCooldowns.put(uuid, new HashMap<>());
+        }
+        abilityCooldowns.get(uuid).put(ability, System.currentTimeMillis() + cooldown * 1_000);
+    }
+
+    public int getCooldownLeft(UUID uuid, String ability) {
+        if (!abilityCooldowns.containsKey(uuid)) {
+            return 0;
+        }
+        if (!abilityCooldowns.get(uuid).containsKey(ability)) {
+            return 0;
+        }
+        return (int) Math.max(0, (abilityCooldowns.get(uuid).get(ability) - System.currentTimeMillis()) / 1_000);
     }
 }

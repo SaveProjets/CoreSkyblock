@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 public class IslandWarpRateInv extends FastInv {
 
     public IslandWarpRateInv() {
-        super(27, "§8Notez ce warp");
+        super(27, "§0Notez ce warp");
 
         int slot = 10;
         for (int i = -2; i < 3; i++) {

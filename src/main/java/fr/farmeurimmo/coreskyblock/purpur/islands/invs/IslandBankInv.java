@@ -14,9 +14,9 @@ import org.bukkit.inventory.ItemStack;
 public class IslandBankInv extends FastInv {
 
     public IslandBankInv(Island island) {
-        super(27, "§8Banque de l'île");
+        super(27, "§0Banque de l'île");
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
                 .name("§6Retour §8| §7(clic gauche)").build(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 

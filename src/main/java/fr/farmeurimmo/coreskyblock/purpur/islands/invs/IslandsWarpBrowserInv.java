@@ -23,7 +23,7 @@ public class IslandsWarpBrowserInv extends FastInv {
     private boolean closed = false;
 
     public IslandsWarpBrowserInv() {
-        super(54, "§8Warps des îles");
+        super(54, "§0Warps des îles");
 
         update();
 

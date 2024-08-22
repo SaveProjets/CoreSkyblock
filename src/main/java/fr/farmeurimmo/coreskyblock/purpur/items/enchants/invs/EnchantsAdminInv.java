@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class EnchantsAdminInv extends FastInv {
     }
 
     private void update() {
-        Map<Enchantments, List<ItemStack>> enchantmentsListMap = CustomEnchantmentsManager.INSTANCE.getAllEnchantedBooks();
+        LinkedHashMap<Enchantments, List<ItemStack>> enchantmentsListMap = CustomEnchantmentsManager.INSTANCE.getAllEnchantedBooks();
 
         for (int i = 0; i < 54; i++) {
             setItem(i, null);
@@ -86,6 +87,6 @@ public class EnchantsAdminInv extends FastInv {
 
     private int getMaxPage() {
         Map<Enchantments, List<ItemStack>> enchantmentsListMap = CustomEnchantmentsManager.INSTANCE.getAllEnchantedBooks();
-        return (int) Math.ceil(enchantmentsListMap.values().stream().mapToInt(List::size).sum() / 36.0) - 1;
+        return (int) Math.ceil(enchantmentsListMap.values().stream().mapToInt(List::size).sum() / 45.0) - 1;
     }
 }

@@ -21,7 +21,7 @@ public class IslandWarpCategoriesSelectionInv extends FastInv {
     private boolean closed = false;
 
     public IslandWarpCategoriesSelectionInv(Island island, IslandWarp warp) {
-        super(27, "§8Warp de l'île");
+        super(27, "§0Warp de l'île");
 
         setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
                 .name("§6Retour §8| §7(clic gauche)").build(), e -> {

@@ -2,14 +2,14 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.levels;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
-import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.text.NumberFormat;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -24,36 +24,16 @@ public class IslandsLevelCalculator {
     }
 
     public void calculateIslandLevel(Island island, UUID uuid) {
-        double minX = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-        double minZ = -IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-        double maxX = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-        double maxZ = IslandsSizeManager.INSTANCE.getSizeFromLevel(island.getMaxSize());
-
-        World world = IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID());
-
-        Set<ChunkSnapshot> chunks = new HashSet<>();
-
         long start = System.currentTimeMillis();
-        for (int x = (int) minX; x < (maxX + 16); x += 16) {
-            for (int z = (int) minZ; z < (maxZ + 16); z += 16) {
-                Chunk chunk = world.getChunkAt(x >> 4, z >> 4);
-                if (!chunk.isLoaded()) {
-                    if (chunk.load(false)) {
-                        chunks.add(chunk.getChunkSnapshot(true, false, false));
-                        chunk.unload();
-                    }
-                } else {
-                    chunks.add(chunk.getChunkSnapshot(true, false, false));
-                }
-            }
-        }
+
+        Set<ChunkSnapshot> chunks = IslandsManager.INSTANCE.getSnapshots(island);
 
         long total = System.currentTimeMillis() - start;
         if (total > 1000) {
             CoreSkyblock.INSTANCE.console.sendMessage("§c§lANORMAL §cTime to calculate level --> " + total + "ms");
         }
 
-        int minY = world.getMinHeight();
+        int minY = IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID()).getMinHeight();
         Map<Material, Float> values = IslandsBlocksValues.INSTANCE.getBlocksValues();
 
         long finalStart = System.currentTimeMillis();

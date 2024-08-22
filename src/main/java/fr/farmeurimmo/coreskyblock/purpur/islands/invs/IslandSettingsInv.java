@@ -17,9 +17,9 @@ import java.util.List;
 public class IslandSettingsInv extends FastInv {
 
     public IslandSettingsInv(Island island) {
-        super(36, "§8Paramètres de l'île");
+        super(36, "§0Paramètres de l'île");
 
-        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
+        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
                 .name("§6Retour §8| §7(clic gauche)").build(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 

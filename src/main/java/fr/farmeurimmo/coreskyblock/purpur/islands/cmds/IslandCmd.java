@@ -23,14 +23,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class IslandCmd implements CommandExecutor {
 
+    public static final long COOLDOWN = 3_000;
     private static final Component USAGE_NO_IS = Component.text("§cUtilisation: /is create OU /is join <joueur> " +
             "tout en possédant une invitation.");
-
     private final ArrayList<UUID> creatingIsland = new ArrayList<>();
+    private final Map<UUID, Long> lastCmd = new HashMap<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -76,7 +80,7 @@ public class IslandCmd implements CommandExecutor {
                     return false;
                 }
                 creatingIsland.add(p.getUniqueId());
-                IslandsManager.INSTANCE.createIsland(p.getUniqueId());
+                IslandsManager.INSTANCE.createIsland(p.getUniqueId(), p.getName());
 
                 Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> creatingIsland.remove(p.getUniqueId()), 20 * 3);
                 return false;
@@ -119,8 +123,15 @@ public class IslandCmd implements CommandExecutor {
             return false;
         }
         if (addCommonCommands(args, p)) return false;
+
+        if (lastCmd.containsKey(p.getUniqueId()) && System.currentTimeMillis() - lastCmd.get(p.getUniqueId()) < COOLDOWN) {
+            p.sendMessage(Component.text("§cVeuillez patienter avant de pouvoir réutiliser une commande."));
+            return false;
+        }
+        lastCmd.put(p.getUniqueId(), System.currentTimeMillis());
+
         if (args[0].equalsIgnoreCase("go")) {
-            IslandsManager.INSTANCE.teleportToIsland(island, p);
+            CompletableFuture.runAsync(() -> IslandsManager.INSTANCE.teleportToIsland(island, p));
             return false;
         }
         if (args[0].equalsIgnoreCase("chat")) {

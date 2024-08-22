@@ -1,12 +1,12 @@
 name: CoreSkyblock
 version: '${version}'
 main: fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock
-api-version: '1.20'
+api-version: '1.21'
 author: Farmeurimmo
-description: Mine skyblock plugin
+description: Edine skyblock plugin
 website: https://edmine.fr
 depend:
-  - SlimeWorldManager
+  - SlimeWorldPlugin
   - ItemsAdder
   - RoseStacker
 commands:
@@ -70,3 +70,5 @@ commands:
     permission: coreskyblock.enchantsadmin
   sacs:
     permission: coreskyblock.sacs
+  legendaryhoe:
+    permission: coreskyblock.legendaryhoe
