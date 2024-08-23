@@ -19,12 +19,16 @@ public class SkyblockUser {
     private int lastPremiumPrestigeLevelClaimed;
     private boolean ownPremiumPrestige;
     private String lastSpecialBooks;
+    private int pvpKills;
+    private int pvpDeaths;
+    private int pveDeaths;
 
     private boolean modified = false;
 
     public SkyblockUser(UUID uuid, String name, double money, double adventureExp, double adventureLevel, int flyTime,
                         int currentPrestigeLevel, int lastPrestigeLevelClaimed, int currentPremiumPrestigeLevel,
-                        int lastPremiumPrestigeLevelClaimed, boolean ownPremiumPrestige, String lastSpecialBooks) {
+                        int lastPremiumPrestigeLevelClaimed, boolean ownPremiumPrestige, String lastSpecialBooks,
+                        int pvpKills, int pvpDeaths, int pveDeaths) {
         this.uuid = uuid;
         this.name = name;
         this.money = money;
@@ -37,6 +41,9 @@ public class SkyblockUser {
         this.lastPremiumPrestigeLevelClaimed = lastPremiumPrestigeLevelClaimed;
         this.ownPremiumPrestige = ownPremiumPrestige;
         this.lastSpecialBooks = lastSpecialBooks;
+        this.pvpKills = pvpKills;
+        this.pvpDeaths = pvpDeaths;
+        this.pveDeaths = pveDeaths;
     }
 
     public SkyblockUser(UUID uuid, String name) {
@@ -52,6 +59,9 @@ public class SkyblockUser {
         this.lastPremiumPrestigeLevelClaimed = 0;
         this.ownPremiumPrestige = false;
         this.lastSpecialBooks = "";
+        this.pvpKills = 0;
+        this.pvpDeaths = 0;
+        this.pveDeaths = 0;
     }
 
     public static SkyblockUser fromJson(JsonObject json) {
@@ -59,19 +69,22 @@ public class SkyblockUser {
             UUID uuid = UUID.fromString(json.get("uuid").getAsString());
             String name = json.get("name").getAsString();
             double money = json.get("money").getAsDouble();
-            double adventureExp = json.get("adventureExp").getAsDouble();
-            double adventureLevel = json.get("adventureLevel").getAsDouble();
+            double adventureExp = json.get("advExp").getAsDouble();
+            double adventureLevel = json.get("advLevel").getAsDouble();
             int flyTime = json.get("flyTime").getAsInt();
             int currentPrestigeLevel = json.get("cPL").getAsInt();
             int lastPrestigeLevelClaimed = json.get("lPLC").getAsInt();
             int currentPremiumPrestigeLevel = json.get("cPPL").getAsInt();
             int lastPremiumPrestigeLevelClaimed = json.get("lPPLC").getAsInt();
             boolean ownPremiumPrestige = json.get("ownPP").getAsBoolean();
-            String lastSpecialBooks = json.get("lastSpecialBooks").getAsString();
+            String lastSpecialBooks = json.get("lSP").getAsString();
+            int pvpKills = json.get("pvpKills").getAsInt();
+            int pvpDeaths = json.get("pvpDeaths").getAsInt();
+            int pveDeaths = json.get("pveDeaths").getAsInt();
 
             return new SkyblockUser(uuid, name, money, adventureExp, adventureLevel, flyTime, currentPrestigeLevel,
                     lastPrestigeLevelClaimed, currentPremiumPrestigeLevel, lastPremiumPrestigeLevelClaimed,
-                    ownPremiumPrestige, lastSpecialBooks);
+                    ownPremiumPrestige, lastSpecialBooks, pvpKills, pvpDeaths, pveDeaths);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -157,15 +170,18 @@ public class SkyblockUser {
         json.addProperty("uuid", uuid.toString());
         json.addProperty("name", name);
         json.addProperty("money", money);
-        json.addProperty("adventureExp", adventureExp);
-        json.addProperty("adventureLevel", adventureLevel);
+        json.addProperty("advExp", adventureExp);
+        json.addProperty("advLevel", adventureLevel);
         json.addProperty("flyTime", flyTime);
         json.addProperty("cPL", currentPrestigeLevel);
         json.addProperty("lPLC", lastPrestigeLevelClaimed);
         json.addProperty("cPPL", currentPremiumPrestigeLevel);
         json.addProperty("lPPLC", lastPremiumPrestigeLevelClaimed);
         json.addProperty("ownPP", ownPremiumPrestige);
-        json.addProperty("lastSpecialBooks", lastSpecialBooks);
+        json.addProperty("lSP", lastSpecialBooks);
+        json.addProperty("pvpKills", pvpKills);
+        json.addProperty("pvpDeaths", pvpDeaths);
+        json.addProperty("pveDeaths", pveDeaths);
 
         return json;
     }
@@ -224,4 +240,36 @@ public class SkyblockUser {
 
         update();
     }
+
+    public int getPvpKills() {
+        return pvpKills;
+    }
+
+    public void incrementPvpKills() {
+        pvpKills++;
+
+        setModified(true);
+    }
+
+    public int getPvpDeaths() {
+        return pvpDeaths;
+    }
+
+    public void incrementPvpDeaths() {
+        pvpDeaths++;
+
+        setModified(true);
+    }
+
+    public int getPveDeaths() {
+        return pveDeaths;
+    }
+
+    public void incrementPveDeaths() {
+        pveDeaths++;
+
+        setModified(true);
+    }
+
+
 }

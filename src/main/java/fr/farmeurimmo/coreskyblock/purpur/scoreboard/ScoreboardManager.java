@@ -87,12 +87,27 @@ public class ScoreboardManager {
                 board.updateTitle("§6§lCoreSkyblock");
             }
         } else if (CoreSkyblock.SERVER_TYPE == ServerType.PVP) {
-            board.updateLines("§8" + CoreSkyblock.SERVER_NAME,
-                    "", "§6§lProfil", "§8┃ §7En pvp: §cNon(N/A)", "§8┃ §7Kills: §c0", "§8┃ §7Morts: §c0",
-                    "§8┃ §7KDR: §c0.0", "", "§6§lEvents", "§8┃ §7Prochain: §eCTF", "§8┃ §7Dans: §e999J et 25H", "", "§f» §c§lplay.edmine.net");
+            board.updateLines(
+                    "",
+                    "➡ §d§lInformations:",
+                    "§e §8• §7En pvp: §c(N/A)",
+                    "§e §8• §7Kills: §a" + user.getPvpKills(),
+                    "§e §8• §7Morts: §c" + user.getPvpDeaths(),
+                    "§e §8• §7KDR: §e" + NumberFormat.getInstance().format(user.getPvpKills() / (user.getPvpDeaths() == 0 ? 1 : user.getPvpDeaths())),
+                    "",
+                    "➡ §a§lEvents",
+                    "§e §8• §7Prochain: §eCTF",
+                    "§e §8• §7Dans: §e999J et 25H",
+                    "",
+                    "§8➡ §eplay.edmine.net");
         } else if (CoreSkyblock.SERVER_TYPE == ServerType.PVE) {
             board.updateLines("§6§l" + CoreSkyblock.SERVER_NAME,
-                    "", "§6§lProfil", "§8┃ §7Donjons: §cEN DEV", "§c§lplay.edmine.net");
+                    "",
+                    "➡ §d§lInformations:",
+                    "",
+                    "➡ §a§lDonjons: §cEN DEV",
+                    "",
+                    "§8➡ §eplay.edmine.net");
         }
     }
 

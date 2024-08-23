@@ -20,8 +20,8 @@ public class SkyblockUsersManager {
             + " adventure_level DOUBLE DEFAULT 0, fly_time INT DEFAULT 0, current_prestige_level INT DEFAULT 0, " +
             "last_prestige_level_claimed INT DEFAULT 0, current_premium_prestige_level INT DEFAULT 0, " +
             "last_premium_prestige_level_claimed INT DEFAULT 0, own_premium_prestige BOOLEAN DEFAULT FALSE, " +
-            "last_special_books TEXT DEFAULT '', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP "
-            + "DEFAULT CURRENT_TIMESTAMP)";
+            "last_special_books TEXT DEFAULT '', pvp_kills INT DEFAULT 0, pvp_deaths INT DEFAULT 0, pve_deaths INT DEFAULT 0, " +
+            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
     public static SkyblockUsersManager INSTANCE;
     private final Map<UUID, SkyblockUser> cache = new HashMap<>();
     private final LinkedHashMap<String, Double> baltop = new LinkedHashMap<>();
@@ -96,7 +96,8 @@ public class SkyblockUsersManager {
                         resultSet.getInt("fly_time"), resultSet.getInt("current_prestige_level"),
                         resultSet.getInt("last_prestige_level_claimed"), resultSet.getInt("current_premium_prestige_level"),
                         resultSet.getInt("last_premium_prestige_level_claimed"), resultSet.getBoolean("own_premium_prestige"),
-                        resultSet.getString("last_special_books"));
+                        resultSet.getString("last_special_books"), resultSet.getInt("pvp_kills"),
+                        resultSet.getInt("pvp_deaths"), resultSet.getInt("pve_deaths"));
                 Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     cache.put(uuid, user);
                     return null;
@@ -127,7 +128,7 @@ public class SkyblockUsersManager {
                              "adventure_exp = ?, adventure_level = ?, fly_time = ?, current_prestige_level = ?, " +
                              "last_prestige_level_claimed = ?, current_premium_prestige_level = ?, " +
                              "last_premium_prestige_level_claimed = ?, own_premium_prestige = ?, last_special_books = ?," +
-                             "updated_at = CURRENT_TIMESTAMP")) {
+                             "pvp_kills = ?, pvp_deaths = ?, pve_deaths = ?, updated_at = CURRENT_TIMESTAMP")) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
 
@@ -142,6 +143,9 @@ public class SkyblockUsersManager {
             statement.setInt(11, user.getLastPremiumPrestigeLevelClaimed());
             statement.setBoolean(12, user.ownPremiumPrestige());
             statement.setString(13, user.getLastSpecialBooks());
+            statement.setInt(14, user.getPvpKills());
+            statement.setInt(15, user.getPvpDeaths());
+            statement.setInt(16, user.getPveDeaths());
 
             statement.executeUpdate();
         } catch (Exception e) {
