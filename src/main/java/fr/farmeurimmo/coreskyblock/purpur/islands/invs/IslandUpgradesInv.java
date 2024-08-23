@@ -7,6 +7,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersMana
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -20,7 +21,7 @@ import java.text.NumberFormat;
 public class IslandUpgradesInv extends FastInv {
 
     public IslandUpgradesInv(Island island, Player p) {
-        super(27, "§0Améliorations de l'île");
+        super(27, "§8Améliorations de l'île");
 
         if (island == null) {
             return;
@@ -28,8 +29,7 @@ public class IslandUpgradesInv extends FastInv {
 
         update(island, p);
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
-                .name("§6Retour §8| §7(clic gauche)").build(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+        setItem(26, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
     }
 
     private void update(Island island, Player p) {

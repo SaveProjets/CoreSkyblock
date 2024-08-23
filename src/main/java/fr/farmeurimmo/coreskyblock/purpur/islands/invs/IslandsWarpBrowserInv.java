@@ -1,8 +1,11 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -23,7 +26,7 @@ public class IslandsWarpBrowserInv extends FastInv {
     private boolean closed = false;
 
     public IslandsWarpBrowserInv() {
-        super(54, "§0Warps des îles");
+        super(54, "§8Warps des îles");
 
         update();
 
@@ -90,20 +93,25 @@ public class IslandsWarpBrowserInv extends FastInv {
         }
 
         if (PAGE > 0) {
-            setItem(45, new ItemBuilder(Material.ARROW).name("§6Page précédente (§7" + PAGE + "§6)").build(), e -> {
+            setItem(45, CommonItemStacks.getCommonPreviousPage(), e -> {
                 PAGE--;
                 gotUpdate = false;
             });
         }
 
         if (warps.size() > (PAGE + 1) * 27) {
-            setItem(53, new ItemBuilder(Material.ARROW).name("§6Page suivante (§7" + (PAGE + 2) + "§6)").build(), e -> {
+            setItem(53, CommonItemStacks.getCommonNextPage(), e -> {
                 PAGE++;
                 gotUpdate = false;
             });
         }
 
-        setItem(49, new ItemBuilder(Material.IRON_DOOR).name("§6Fermer").build(), e -> e.getWhoClicked().closeInventory());
+        setItem(49, CommonItemStacks.getCommonBack(), e -> {
+            Island island = IslandsManager.INSTANCE.getIslandOf(e.getWhoClicked().getUniqueId());
+            if (island != null) {
+                new IslandInv(island).open((Player) e.getWhoClicked());
+            } else e.getWhoClicked().closeInventory();
+        });
     }
 
     private void setItemForWarp(int i, IslandWarp warp) {

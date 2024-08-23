@@ -7,6 +7,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.farmeurimmo.coreskyblock.utils.LocationTranslator;
 import fr.mrmicky.fastinv.FastInv;
@@ -33,10 +34,9 @@ public class IslandWarpInv extends FastInv {
     private IslandWarp warp;
 
     public IslandWarpInv(Island island, IslandWarp warp) {
-        super(36, "§0Warp de l'île");
+        super(36, "§8Warp de l'île");
 
-        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
-                .name("§6Retour §8| §7(clic gauche)").build(), e -> {
+        setItem(35, CommonItemStacks.getCommonBack(), e -> {
             new IslandInv(island).open((Player) e.getWhoClicked());
             gotUpdate = true;
         });

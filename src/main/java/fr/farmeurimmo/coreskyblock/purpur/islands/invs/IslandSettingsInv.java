@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -17,10 +18,9 @@ import java.util.List;
 public class IslandSettingsInv extends FastInv {
 
     public IslandSettingsInv(Island island) {
-        super(36, "§0Paramètres de l'île");
+        super(36, "§8Paramètres de l'île");
 
-        setItem(35, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
-                .name("§6Retour §8| §7(clic gauche)").build(), e ->
+        setItem(35, CommonItemStacks.getCommonBack(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 
         setItem(27, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))

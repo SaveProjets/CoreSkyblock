@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -28,7 +29,7 @@ public class IslandRankEditInv extends FastInv {
     private int page = 0;
 
     public IslandRankEditInv(Island island, Player p) {
-        super(54, "§0Permissions des grades de l'île");
+        super(54, "§8Permissions des grades de l'île");
 
         if (island == null) {
             p.sendMessage("§cUne erreur est survenue lors de la récupération de votre île.");
@@ -36,8 +37,7 @@ public class IslandRankEditInv extends FastInv {
             return;
         }
 
-        setItem(53, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
-                .name("§6Retour §8| §7(clic gauche)").build(), e -> {
+        setItem(53, CommonItemStacks.getCommonBack(), e -> {
             new IslandInv(island).open(p);
             gotUpdate = true;
         });
@@ -143,14 +143,14 @@ public class IslandRankEditInv extends FastInv {
         }
 
         if (page > 0) {
-            setItem(48, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page précédente").build(), e -> {
+            setItem(48, CommonItemStacks.getCommonPreviousPage(), e -> {
                 page--;
                 update(island);
             });
         } else setItem(48, null);
 
         if (!IslandPerms.getPerms((page + 1) * slots.length, 1).isEmpty()) {
-            setItem(50, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page suivante").build(), e -> {
+            setItem(50, CommonItemStacks.getCommonNextPage(), e -> {
                 page++;
                 update(island);
             });

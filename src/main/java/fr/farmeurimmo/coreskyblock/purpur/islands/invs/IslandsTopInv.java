@@ -1,9 +1,12 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsTopManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import it.unimi.dsi.fastutil.Pair;
@@ -29,7 +32,7 @@ public class IslandsTopInv extends FastInv {
     private int topSelected = 0; //0 = Top value, 1 = Top bank money, 2 = Warp rate
 
     public IslandsTopInv() {
-        super(54, "§0Classement des îles");
+        super(54, "§8Classement des îles");
 
         setCloseFilter(p -> {
             gotUpdate = true;
@@ -147,8 +150,12 @@ public class IslandsTopInv extends FastInv {
                         "§7Actualisation du classement:", "§c" + IslandsTopManager.INSTANCE.getTimeUntilRefresh())
                 .build());
 
-        setItem(53, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§cFermer §8| §7(clic gauche)").build(), e ->
-                e.getWhoClicked().closeInventory());
+        setItem(53, CommonItemStacks.getCommonBack(), e -> {
+            Island island = IslandsManager.INSTANCE.getIslandOf(e.getWhoClicked().getUniqueId());
+            if (island != null) {
+                new IslandInv(island).open((Player) e.getWhoClicked());
+            } else e.getWhoClicked().closeInventory();
+        });
     }
 
     private Consumer<InventoryClickEvent> getConsumer(IslandWarp warp) {

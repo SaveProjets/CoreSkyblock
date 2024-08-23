@@ -13,23 +13,6 @@ public class InventoryUtils {
         INSTANCE = this;
     }
 
-    public boolean checkPlayerInventoryForSlot(Player player) {
-        checkFreeSlot:
-        {
-            for (int i = 0; i < 36; i++) {
-                if (player.getInventory().getItem(i) == null) {
-                    break checkFreeSlot;
-                }
-            }
-
-            //Failed check
-            return false;
-        }
-
-        //Check passed, do something.
-        return true;
-    }
-
     public int hasPlaceWithStackCo(ItemStack item, Inventory inv, Player p) {
 
         int place = 0;
@@ -67,29 +50,6 @@ public class InventoryUtils {
         }
 
         return place;
-
-    }
-
-    public int hasItemWithStackCo(ItemStack item, Inventory inv) {
-
-        int items = 0;
-        ItemStack cloned = item.clone();
-        for (ItemStack itemStack : inv.getContents()) {
-            if (itemStack == null) {
-                continue;
-            }
-            if (itemStack.getType() == Material.AIR) {
-                continue;
-            }
-
-            cloned.setAmount(itemStack.getAmount());
-
-            if (cloned.isSimilar(itemStack)) {
-                items += itemStack.getAmount();
-            }
-        }
-
-        return items;
 
     }
 

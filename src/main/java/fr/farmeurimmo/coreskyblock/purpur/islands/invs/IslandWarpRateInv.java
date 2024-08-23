@@ -4,17 +4,18 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class IslandWarpRateInv extends FastInv {
 
     public IslandWarpRateInv() {
-        super(27, "§0Notez ce warp");
+        super(27, "§8Notez ce warp");
 
         int slot = 10;
         for (int i = -2; i < 3; i++) {
@@ -59,7 +60,9 @@ public class IslandWarpRateInv extends FastInv {
             if (i == 0) slot++;
         }
 
-        setItem(22, new ItemBuilder(Material.IRON_DOOR).name("§6Fermer").build(),
-                e -> e.getWhoClicked().closeInventory());
+        setItem(22, CommonItemStacks.getCommonBack(), e -> {
+            Player p = (Player) e.getWhoClicked();
+            p.chat("/is warpbrowser");
+        });
     }
 }

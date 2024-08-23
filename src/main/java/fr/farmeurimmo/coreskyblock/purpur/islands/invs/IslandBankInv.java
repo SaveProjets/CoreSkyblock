@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -14,10 +15,9 @@ import org.bukkit.inventory.ItemStack;
 public class IslandBankInv extends FastInv {
 
     public IslandBankInv(Island island) {
-        super(27, "§0Banque de l'île");
+        super(27, "§8Banque de l'île");
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
-                .name("§6Retour §8| §7(clic gauche)").build(), e ->
+        setItem(26, CommonItemStacks.getCommonBack(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 
         setItem(13, ItemBuilder.copyOf(new ItemStack(Material.GOLD_NUGGET)).name("§6Argent de l'île")

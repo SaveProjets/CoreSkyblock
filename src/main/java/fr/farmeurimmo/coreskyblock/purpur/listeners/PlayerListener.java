@@ -108,7 +108,6 @@ public class PlayerListener implements Listener {
             String warp = WarpsManager.INSTANCE.getARandomPVPWarp();
             e.setSpawnLocation(WarpsManager.INSTANCE.getWarp(warp));
             p.sendMessage(Component.text("§6Warp aléatoire PVP: §e" + warp));
-            return;
         }
     }
 

@@ -4,12 +4,12 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,10 +21,9 @@ public class IslandWarpCategoriesSelectionInv extends FastInv {
     private boolean closed = false;
 
     public IslandWarpCategoriesSelectionInv(Island island, IslandWarp warp) {
-        super(27, "§0Warp de l'île");
+        super(27, "§8Warp de l'île");
 
-        setItem(26, ItemBuilder.copyOf(new ItemStack(Material.ARROW))
-                .name("§6Retour §8| §7(clic gauche)").build(), e -> {
+        setItem(26, CommonItemStacks.getCommonBack(), e -> {
             new IslandWarpInv(island, warp).open((Player) e.getWhoClicked());
             gotUpdate = true;
         });

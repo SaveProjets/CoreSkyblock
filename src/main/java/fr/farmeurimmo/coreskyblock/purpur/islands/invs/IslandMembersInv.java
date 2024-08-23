@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -25,15 +26,14 @@ public class IslandMembersInv extends FastInv {
             33, 34, 37, 38, 39, 40, 41, 42, 43};
 
     public IslandMembersInv(Island island, Player whoClicked) {
-        super(54, "§0Membres de l'île");
+        super(54, "§8Membres de l'île");
 
         if (island == null) {
             whoClicked.sendMessage("§cUne erreur est survenue lors de la récupération de votre île.");
             return;
         }
 
-        setItem(53, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR))
-                .name("§6Retour §8| §7(clic gauche)").build(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+        setItem(53, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
 
         update(island);
     }
