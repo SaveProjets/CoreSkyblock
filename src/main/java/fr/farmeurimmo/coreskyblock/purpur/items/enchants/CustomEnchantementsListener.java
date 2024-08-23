@@ -247,8 +247,13 @@ public class CustomEnchantementsListener implements Listener {
 
                         Arrow arrow1 = p.getWorld().spawn(p.getLocation().add(x, yAdd, z), Arrow.class);
                         arrow1.setShooter(shooter);
-                        arrow1.setVelocity(p.getLocation().add(0, 1, 0).toVector().subtract(arrow1.getLocation().toVector()).normalize().multiply(2));
-                        arrow1.setDamage(arrow.getDamage());
+                        arrow1.setGravity(false);
+
+                        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
+                            arrow1.setGravity(true);
+                            arrow1.setVelocity(p.getLocation().add(0, 1, 0).toVector().subtract(arrow1.getLocation().toVector()).normalize().multiply(2));
+                            arrow1.setDamage(arrow.getDamage());
+                        }, 6);
 
                         angle += Math.PI / 2;
                     }
