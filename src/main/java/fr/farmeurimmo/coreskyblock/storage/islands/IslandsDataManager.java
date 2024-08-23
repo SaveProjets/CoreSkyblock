@@ -295,10 +295,10 @@ public class IslandsDataManager {
             executeUpdate(connection, query, islandWarp.getUuid().toString(), islandWarp.getIslandUUID().toString(),
                     islandWarp.getName(), islandWarp.getDescription(), islandWarp.getCategoriesString(),
                     LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
-                    islandWarp.isActivated(), islandWarp.getMaterial().name(), islandWarp.getRate(), islandWarp.getName(),
+                    islandWarp.isActivated(), islandWarp.getMaterial(0).name(), islandWarp.getRate(), islandWarp.getName(),
                     islandWarp.getDescription(), islandWarp.getCategoriesString(),
                     LocationTranslator.fromLocation(islandWarp.getLocation()), islandWarp.getForwardedWarp(),
-                    islandWarp.isActivated(), islandWarp.getMaterial().name(), islandWarp.getRate());
+                    islandWarp.isActivated(), islandWarp.getMaterial(0).name(), islandWarp.getRate());
         } catch (SQLException e) {
             e.printStackTrace();
         }

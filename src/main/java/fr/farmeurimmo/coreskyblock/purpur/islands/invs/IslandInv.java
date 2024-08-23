@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -17,6 +18,8 @@ public class IslandInv extends FastInv {
 
     public IslandInv(Island island) {
         super(6 * 9, "§8Menu de l'île");
+
+        CommonItemStacks.applyCommonPanes(Material.LIME_STAINED_GLASS_PANE, getInventory());
 
         ItemStack member = ItemBuilder.copyOf(new ItemStack(Material.PLAYER_HEAD))
                 .name("§6Membres §8| §7(clic gauche)").build();

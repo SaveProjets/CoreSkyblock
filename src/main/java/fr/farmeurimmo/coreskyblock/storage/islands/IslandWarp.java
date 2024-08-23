@@ -225,8 +225,21 @@ public class IslandWarp {
         return (categories.isEmpty() ? categories.toString() : categories.substring(0, categories.length() - 1));
     }
 
-    public Material getMaterial() {
-        return material;
+    public Material getMaterial(int displayType) {
+        if (displayType == 1) {
+            if (rate <= 40) {
+                return Material.SMALL_AMETHYST_BUD;
+            }
+            if (rate <= 80) {
+                return Material.MEDIUM_AMETHYST_BUD;
+            }
+            if (rate <= 120) {
+                return Material.LARGE_AMETHYST_BUD;
+            }
+            return Material.AMETHYST_CLUSTER;
+        }
+        if (displayType == 0) return material;
+        return Material.BARRIER;
     }
 
     public void setMaterial(Material material) {

@@ -5,6 +5,7 @@ import com.mojang.authlib.properties.Property;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,8 +16,8 @@ import java.util.UUID;
 
 public class CommonItemStacks {
 
-    public static ItemStack getCommonGlassPane() {
-        return ItemBuilder.copyOf(new ItemStack(Material.LIME_STAINED_GLASS_PANE))
+    public static ItemStack getCommonGlassPane(Material pane) {
+        return ItemBuilder.copyOf(new ItemStack(pane))
                 .enchant(Enchantment.UNBREAKING)
                 .flags(ItemFlag.HIDE_ENCHANTS)
                 .name("§7")
@@ -39,6 +40,24 @@ public class CommonItemStacks {
         return ItemBuilder.copyOf(getHead("https://textures.minecraft.net/texture/cdc9e4dcfa4221a1fadc1b5b2b11d8beeb57879af1c42362142bae1edd5"))
                 .name("§8⬅ §7Page Précédente")
                 .build();
+    }
+
+    public static void applyCommonPanes(Material pane, Inventory inv) {
+        ItemStack glassPane = getCommonGlassPane(pane);
+
+        inv.setItem(0, glassPane);
+        inv.setItem(8, glassPane);
+
+        if (inv.getSize() <= 9) return;
+        inv.setItem(9, glassPane);
+        inv.setItem(17, glassPane);
+
+        if (inv.getSize() <= 18) return;
+
+        inv.setItem(inv.getSize() - 18, glassPane);
+        inv.setItem(inv.getSize() - 9, glassPane);
+        inv.setItem(inv.getSize() - 1, glassPane);
+        inv.setItem(inv.getSize() - 10, glassPane);
     }
 
     public static ItemStack getHead(String skinURL) {

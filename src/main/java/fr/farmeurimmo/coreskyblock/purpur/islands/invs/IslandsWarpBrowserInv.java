@@ -13,17 +13,21 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 
 public class IslandsWarpBrowserInv extends FastInv {
 
-    private static final int[] promotedSlots = new int[]{1, 3, 5, 7};
+    private static final int[] PROMOTED_SLOTS = new int[]{1, 3, 5, 7};
     private static final long COOLDOWN = 6_000;
-    private static int PAGE = 0;
+    // 0 = affiche par icône définit, 1 = affiche par taille d'amethyste
+    private static final int[] SLOTS = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
+    private int page = 0;
     private boolean gotUpdate = false;
     private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
+    private int displayType = 0;
 
     public IslandsWarpBrowserInv() {
         super(54, "§8Warps des îles");
@@ -33,6 +37,8 @@ public class IslandsWarpBrowserInv extends FastInv {
         setCloseFilter(p -> {
             gotUpdate = true;
             closed = true;
+
+            page = 0;
             return false;
         });
 
@@ -48,23 +54,25 @@ public class IslandsWarpBrowserInv extends FastInv {
     }
 
     private void update() {
-        for (int i = 0; i < 54; i++) {
+        for (int i = 0; i < getInventory().getSize(); i++) {
             setItem(i, new ItemBuilder(Material.AIR).build());
         }
+
+        CommonItemStacks.applyCommonPanes(Material.PINK_STAINED_GLASS_PANE, getInventory());
 
         ArrayList<IslandWarp> warps = IslandsWarpManager.INSTANCE.getActiveWarps();
 
         ArrayList<IslandWarp> forwardedWarps = IslandsWarpManager.INSTANCE.getForwardedWarps();
 
         ArrayList<Integer> slotsTook = new ArrayList<>();
-        for (int slot : promotedSlots) {
+        for (int slot : PROMOTED_SLOTS) {
             if (forwardedWarps.isEmpty()) continue;
             IslandWarp warp = forwardedWarps.get(0);
             if (warp == null) continue;
             if (!warp.isActivated() && warp.isStillForwarded()) {
-                setItem(slot, new ItemBuilder(Material.BEDROCK).enchant(Enchantment.CHANNELING)
-                        .flags(ItemFlag.HIDE_ENCHANTS).name("§c§lPlace de mise en avant occupée")
-                        .lore("§7La place est prise mais le warp", "§7n'est pas encore actif.").build());
+                setItem(slot, new ItemBuilder(Material.BARRIER).name("§c§lPlace de mise en avant occupée")
+                        .lore("", "§dInformation:", "§f▶  §7Cette place est loué,", "    §7mais le warp n'est pas actif.")
+                        .build());
                 slotsTook.add(slot);
                 forwardedWarps.remove(0);
                 continue;
@@ -75,36 +83,65 @@ public class IslandsWarpBrowserInv extends FastInv {
             setItemForWarp(slot, warp);
             forwardedWarps.remove(0);
         }
-        for (int slot : promotedSlots) {
+        for (int slot : PROMOTED_SLOTS) {
             if (!slotsTook.contains(slot)) {
-                setItem(slot, new ItemBuilder(Material.BARRIER).name("§6§lPlace de mise en avant disponible")
-                        .lore("§7Si le warp de votre île n'est pas", "§7en cooldown de mise en avant,",
-                                "§7contre de l'argent votre warp peut", "§7occuper cette place pendant 24H.", "",
-                                "§7Plus d'information dans le menu de", "§7votre warp d'île.").build());
+                setItem(slot, new ItemBuilder(Material.BEDROCK).name("§6Place de mise en avant disponible").lore("",
+                        "§aDescription:", "§f▶  §7Votre warp d'île peut être", "    §7mis en avant contre de l'argent",
+                        "    §7pour une durée de 24h.", "", "§dInformation:", "§f▶ §7Prix: §e25 000$",
+                        "§f▶ §7Cooldown: §c24h après utilisation", "", "§8➡ §fCliquez pour acheter.").build());
             }
         }
 
-        int i = 18;
-        for (int j = PAGE * 27; j < warps.size(); j++) {
-            if (i >= 27) break;
+        int i = 0;
+        for (int j = page * SLOTS.length; j < warps.size(); j++) {
+            if (j < 0) break;
+            if (i >= SLOTS.length) break;
             IslandWarp warp = warps.get(j);
-            setItemForWarp(i, warp);
+            setItemForWarp(SLOTS[i], warp);
             i++;
         }
 
-        if (PAGE > 0) {
-            setItem(45, CommonItemStacks.getCommonPreviousPage(), e -> {
-                PAGE--;
-                gotUpdate = false;
-            });
+        ItemStack item = ItemBuilder.copyOf(new ItemStack(Material.OAK_HANGING_SIGN))
+                .name("§e§lIcône")
+                .lore("", "§aDescrption:", "§f▶ §7Afficher les warps", "   §7en fonction des icônes.", "", "§8➡ §fCliquez pour y accéder.")
+                .build();
+        if (displayType == 0) {
+            item.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            item.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
+        setItem(18, item, e -> {
+            displayType = 0;
+            page = 0;
+            update();
+        });
 
-        if (warps.size() > (PAGE + 1) * 27) {
-            setItem(53, CommonItemStacks.getCommonNextPage(), e -> {
-                PAGE++;
-                gotUpdate = false;
-            });
+        item = ItemBuilder.copyOf(new ItemStack(Material.AMETHYST_SHARD))
+                .name("§d§lNotation")
+                .lore("", "§aDescrption:", "§f▶ §7Afficher les warps", "   §7en fonction des notations.", "", "§8➡ §fCliquez pour y accéder.")
+                .build();
+        if (displayType == 1) {
+            item.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
+            item.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
+        setItem(27, item, e -> {
+            displayType = 1;
+            page = 0;
+            update();
+        });
+
+        if (page > 0) {
+            setItem(48, CommonItemStacks.getCommonPreviousPage(), e -> {
+                page--;
+                update();
+            });
+        } else setItem(48, null);
+
+        if (warps.size() > (page + 1) * SLOTS.length) {
+            setItem(50, CommonItemStacks.getCommonNextPage(), e -> {
+                page++;
+                update();
+            });
+        } else setItem(50, null);
 
         setItem(49, CommonItemStacks.getCommonBack(), e -> {
             Island island = IslandsManager.INSTANCE.getIslandOf(e.getWhoClicked().getUniqueId());
@@ -115,7 +152,7 @@ public class IslandsWarpBrowserInv extends FastInv {
     }
 
     private void setItemForWarp(int i, IslandWarp warp) {
-        setItem(i, new ItemBuilder(warp.getMaterial()).name("§6" + warp.getName())
+        setItem(i, new ItemBuilder(warp.getMaterial(displayType)).name("§6" + warp.getName())
                 .lore(IslandsWarpManager.INSTANCE.getLore(warp)).build(), e -> {
             if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                 e.getWhoClicked().sendMessage("§cVeuillez attendre avant de refaire une action.");

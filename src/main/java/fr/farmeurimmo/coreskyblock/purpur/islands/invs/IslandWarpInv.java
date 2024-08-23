@@ -197,7 +197,10 @@ public class IslandWarpInv extends FastInv {
             ItemStack forwardItem = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name(
                     "§6Mise en avant §8| §7(clic gauche)").lore("§7" + (warp.getForwardedWarp() > System.currentTimeMillis()
                     ? "§aOui" : "§cNon"), expiry, "", "§7Coût: §e25 000$").flags(ItemFlag.HIDE_ENCHANTS).build();
-            if (warp.isStillForwarded()) forwardItem.addEnchantment(Enchantment.CHANNELING, 1);
+            if (warp.isStillForwarded()) {
+                forwardItem.addUnsafeEnchantment(Enchantment.CHANNELING, 1);
+                forwardItem.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            }
             setItem(15, forwardItem, e -> {
                 if (checkForPermsAndIfLoaded(island, e)) return;
                 if (warp.isStillForwarded()) {
