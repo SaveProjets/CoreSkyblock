@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -248,6 +249,7 @@ public class CustomEnchantementsListener implements Listener {
                         Arrow arrow1 = p.getWorld().spawn(p.getLocation().add(x, yAdd, z), Arrow.class);
                         arrow1.setShooter(shooter);
                         arrow1.setGravity(false);
+                        arrow1.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
 
                         Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
                             arrow1.setGravity(true);
