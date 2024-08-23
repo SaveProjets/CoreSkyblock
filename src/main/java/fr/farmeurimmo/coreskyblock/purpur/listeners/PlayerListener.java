@@ -5,7 +5,8 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.scoreboard.ScoreboardManager;
 import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.warps.WarpsManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.TradesManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -80,6 +81,15 @@ public class PlayerListener implements Listener {
             e.setSpawnLocation(tpaLocation);
             return;
         }
+        if (WarpsManager.INSTANCE.isAwaitingToTeleport(p.getUniqueId())) {
+            String warp = WarpsManager.INSTANCE.awaitingToTeleport(p.getUniqueId());
+            System.out.println("Warp: " + warp);
+            System.out.println("Location: " + WarpsManager.INSTANCE.getWarp(warp));
+            e.setSpawnLocation(WarpsManager.INSTANCE.getWarp(warp));
+            p.sendMessage(Component.text("§6Warp: §e" + WarpsManager.INSTANCE.awaitingToTeleport(p.getUniqueId())));
+            WarpsManager.INSTANCE.removeAwaitingToTeleport(p.getUniqueId());
+            return;
+        }
         if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
             e.setSpawnLocation(CoreSkyblock.SPAWN);
             return;
@@ -92,6 +102,13 @@ public class PlayerListener implements Listener {
                     p.sendMessage(Component.text("§aVous avez été téléporté sur votre île."));
                 }
             }
+            return;
+        }
+        if (CoreSkyblock.SERVER_TYPE == ServerType.PVP) {
+            String warp = WarpsManager.INSTANCE.getARandomPVPWarp();
+            e.setSpawnLocation(WarpsManager.INSTANCE.getWarp(warp));
+            p.sendMessage(Component.text("§6Warp aléatoire PVP: §e" + warp));
+            return;
         }
     }
 

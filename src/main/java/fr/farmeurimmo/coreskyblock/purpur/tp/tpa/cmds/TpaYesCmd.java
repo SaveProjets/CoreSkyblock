@@ -1,10 +1,11 @@
-package fr.farmeurimmo.coreskyblock.purpur.tpa.cmds;
+package fr.farmeurimmo.coreskyblock.purpur.tp.tpa.cmds;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,8 +16,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
-public class TpaNoCmd implements CommandExecutor, TabCompleter {
+public class TpaYesCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -25,7 +27,7 @@ public class TpaNoCmd implements CommandExecutor, TabCompleter {
             return false;
         }
         if (args.length != 2) {
-            p.sendMessage(Component.text("§cUtilisation: /tpadeny <tpa/tpahere> <joueur>"));
+            p.sendMessage(Component.text("§cUtilisation: /tpaccept <tpa/tpahere> <joueur>"));
             return false;
         }
         String type = args[0];
@@ -41,14 +43,16 @@ public class TpaNoCmd implements CommandExecutor, TabCompleter {
                 return false;
             }
             TpasManager.INSTANCE.removeTpaRequest(player.left(), p.getUniqueId(), false);
-            p.sendMessage(Component.text("§7Vous avez refusé la demande de téléportation de §e" + targetName + "§7."));
-
-            Player senderPlayer = CoreSkyblock.INSTANCE.getServer().getPlayer(player.left());
+            Player senderPlayer = Bukkit.getPlayer(player.left());
             if (senderPlayer != null) {
-                senderPlayer.sendMessage(Component.text("§e" + p.getName() + " §7a refusé votre demande de téléportation."));
+                senderPlayer.sendMessage(Component.text("§e" + p.getName() + " §7a accepté votre demande de téléportation."));
+                senderPlayer.teleport(p);
+                p.sendMessage(Component.text("§7Vous avez accepté la demande de téléportation de §e" + targetName + "§7."));
                 return false;
             }
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", "tpa_deny:tpa:" + player.left() + ":" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME);
+
+            TpasManager.INSTANCE.incomingPlayersTpa.put(player.left(), p.getUniqueId());
+            JedisManager.INSTANCE.publishToRedis("coreskyblock", "tpa_accept:tpa:" + player.left() + ":" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME);
             return false;
         }
         if (type.equalsIgnoreCase("tpahere")) {
@@ -57,17 +61,28 @@ public class TpaNoCmd implements CommandExecutor, TabCompleter {
                 return false;
             }
             TpasManager.INSTANCE.removeTpaRequest(player.left(), p.getUniqueId(), true);
-            p.sendMessage(Component.text("§7Vous avez refusé la demande de téléportation de §e" + targetName + "§7."));
-
-            Player senderPlayer = CoreSkyblock.INSTANCE.getServer().getPlayer(player.left());
+            Player senderPlayer = Bukkit.getPlayer(player.left());
             if (senderPlayer != null) {
-                senderPlayer.sendMessage(Component.text("§e" + p.getName() + " §7a refusé votre demande de téléportation."));
+                senderPlayer.sendMessage(Component.text("§e" + p.getName() + " §7a accepté votre demande de téléportation."));
+                p.teleport(senderPlayer);
+                p.sendMessage(Component.text("§7Vous avez accepté la demande de téléportation de §e" + targetName + "§7."));
                 return false;
             }
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", "tpa_deny:tpahere:" + player.left() + ":" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME);
+            String to = CoreSkyblock.INSTANCE.getServerNameWherePlayerIsConnected(player.left());
+            if (to == null) {
+                p.sendMessage(Component.text("§cUne erreur est survenue lors de la récupération du serveur du joueur."));
+                return false;
+            }
+
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                    "tpa_accept:tpahere:" + player.left() + ":" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME));
+
+            p.sendMessage(Component.text("§7Vous avez accepté la demande de téléportation de §e" + targetName + "§7. Envoi à l'autre serveur..."));
+
+            CoreSkyblock.INSTANCE.sendToServer(p, to);
             return false;
         }
-        p.sendMessage(Component.text("§cUtilisation: /tpadeny <tpa/tpahere> <joueur>"));
+        p.sendMessage(Component.text("§cUtilisation: /tpaccept <tpa/tpahere> <joueur>"));
         return false;
     }
 

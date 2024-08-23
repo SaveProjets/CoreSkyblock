@@ -8,8 +8,9 @@ import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.TpaRequest;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpaRequest;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.warps.WarpsManager;
 import fr.farmeurimmo.coreskyblock.storage.auctions.AuctionHouseDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
@@ -426,24 +427,6 @@ public class JedisManager {
                         }
                         return;
                     }
-                    if (args[0].equalsIgnoreCase("spawn")) {
-                        if (args[1].equalsIgnoreCase("space")) {
-                            String serverName = args[2];
-                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
-                                return;
-                            }
-                            try {
-                                int load = Integer.parseInt(args[3]);
-                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                                    CoreSkyblock.INSTANCE.serversLoad.put(serverName, load);
-                                    return null;
-                                });
-                            } catch (Exception ignored) {
-                            }
-                            return;
-                        }
-                        return;
-                    }
                     if (args[0].equalsIgnoreCase("player_list")) {
                         String serverName = args[1];
                         if (args.length < 3) {
@@ -652,6 +635,28 @@ public class JedisManager {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
+                        }
+                    }
+                    if (args[0].equalsIgnoreCase("server_warp_teleport")) {
+                        try {
+                            UUID playerUUID = UUID.fromString(args[1]);
+                            String warpName = args[2];
+                            String serverName = args[3];
+                            String toServer = args[4];
+
+                            if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                return;
+                            }
+                            if (!CoreSkyblock.SERVER_NAME.equalsIgnoreCase(toServer)) {
+                                return;
+                            }
+
+                            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                WarpsManager.INSTANCE.awaitingToTeleport.put(playerUUID, Pair.of(warpName, System.currentTimeMillis()));
+                                return null;
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 }

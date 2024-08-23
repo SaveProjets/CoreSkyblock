@@ -34,7 +34,6 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Component.text("§cErreur lors de la téléportation au spawn !"));
                     return null;
                 });
-                return false;
             }
         }
         if (!(sender instanceof Player p)) {

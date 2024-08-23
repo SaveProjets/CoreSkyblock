@@ -50,11 +50,13 @@ import fr.farmeurimmo.coreskyblock.purpur.shop.ShopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.SellAllCmd;
 import fr.farmeurimmo.coreskyblock.purpur.shop.cmds.ShopCmd;
 import fr.farmeurimmo.coreskyblock.purpur.sync.SyncUsersManager;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaCmd;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaHereCmd;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaNoCmd;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.cmds.TpaYesCmd;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.cmds.TpaCmd;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.cmds.TpaHereCmd;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.cmds.TpaNoCmd;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.cmds.TpaYesCmd;
+import fr.farmeurimmo.coreskyblock.purpur.tp.warps.WarpCmd;
+import fr.farmeurimmo.coreskyblock.purpur.tp.warps.WarpsManager;
 import fr.farmeurimmo.coreskyblock.purpur.trade.*;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsListener;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsManager;
@@ -90,7 +92,6 @@ public final class CoreSkyblock extends JavaPlugin {
     public RoseStackerAPI roseStackerAPI;
     public ConsoleCommandSender console;
     public ArrayList<UUID> buildModePlayers = new ArrayList<>();
-    public Map<String, Integer> serversLoad = new HashMap<>();
 
     @Override
     public void onLoad() {
@@ -181,6 +182,7 @@ public final class CoreSkyblock extends JavaPlugin {
         new MinionsManager();
         new TradesManager();
         new TpasManager();
+        new WarpsManager();
         new ChatDisplayManager();
         new PrestigesManager();
 
@@ -248,6 +250,7 @@ public final class CoreSkyblock extends JavaPlugin {
         Objects.requireNonNull(getCommand("enchantsadmin")).setExecutor(new EnchantsAdminCmd());
         Objects.requireNonNull(getCommand("sacs")).setExecutor(new SacsCmd());
         Objects.requireNonNull(getCommand("legendaryhoe")).setExecutor(new LegendaryHoeCmd());
+        Objects.requireNonNull(getCommand("warp")).setExecutor(new WarpCmd());
 
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des canaux BungeeCord...");
         getServer().getMessenger().registerOutgoingPluginChannel(INSTANCE, "BungeeCord");
@@ -257,15 +260,6 @@ public final class CoreSkyblock extends JavaPlugin {
         clockForBuildMode();
         if (SERVER_TYPE == ServerType.SPAWN) {
             setupEnchantingTable();
-
-            serversLoad.put(SERVER_NAME, getSpawnServerLoad());
-
-            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () ->
-                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "spawn:space:" +
-                            CoreSkyblock.SERVER_NAME + ":" + getSpawnServerLoad()), 0, 20);
-
-            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> serversLoad.put(SERVER_NAME,
-                    getSpawnServerLoad()), 0, 20);
 
             World world = Bukkit.getWorld(SPAWN_WORLD_NAME);
             if (world != null) {
@@ -459,14 +453,18 @@ public final class CoreSkyblock extends JavaPlugin {
         return false;
     }
 
-    private int getSpawnServerLoad() {
-        return Bukkit.getOnlinePlayers().size();
+    public Map<String, Integer> getServersLoad() {
+        Map<String, Integer> serversLoad = new HashMap<>();
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            serversLoad.put(entry.getKey(), entry.getValue().size());
+        }
+        return serversLoad;
     }
 
     public String getASpawnServer() {
         int min = Integer.MAX_VALUE;
         String server = null;
-        for (Map.Entry<String, Integer> entry : serversLoad.entrySet()) {
+        for (Map.Entry<String, Integer> entry : getServersLoad().entrySet()) {
             if (entry.getValue() < min) {
                 min = entry.getValue();
                 server = entry.getKey();

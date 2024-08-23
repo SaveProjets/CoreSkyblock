@@ -1,7 +1,7 @@
-package fr.farmeurimmo.coreskyblock.purpur.tpa.cmds;
+package fr.farmeurimmo.coreskyblock.purpur.tp.tpa.cmds;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
-import fr.farmeurimmo.coreskyblock.purpur.tpa.TpasManager;
+import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class TpaCmd implements CommandExecutor, TabCompleter {
+public class TpaHereCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -26,7 +26,7 @@ public class TpaCmd implements CommandExecutor, TabCompleter {
             return false;
         }
         if (args.length != 1) {
-            p.sendMessage(Component.text("§cUtilisation: /tpa <joueur>"));
+            p.sendMessage(Component.text("§cUtilisation: /tpahere <joueur>"));
             return false;
         }
         String targetName = args[0];
@@ -43,15 +43,15 @@ public class TpaCmd implements CommandExecutor, TabCompleter {
             p.sendMessage(Component.text("§cUne erreur est survenue lors de la récupération des informations du joueur."));
             return false;
         }
-        if (TpasManager.INSTANCE.alreadyHasTpaRequest(p.getUniqueId(), player.left())) {
+        if (TpasManager.INSTANCE.alreadyHasTpaHereRequest(p.getUniqueId(), player.left())) {
             p.sendMessage(Component.text("§cVous avez déjà envoyé une demande de téléportation à ce joueur. Elle expirera dans " +
-                    DateUtils.getFormattedTimeLeft2(TpasManager.INSTANCE.getTpaRequestExpireTime(p.getUniqueId(), player.left()) / 1000) + "."));
+                    DateUtils.getFormattedTimeLeft2(TpasManager.INSTANCE.getTpaHereRequestExpireTime(p.getUniqueId(), player.left()) / 1000) + "."));
             return false;
         }
-        TpasManager.INSTANCE.createTpaRequest(p.getUniqueId(), p.getName(), player.left(), player.right(), false);
-        Player target = Bukkit.getPlayer(targetName);
+        TpasManager.INSTANCE.createTpaRequest(p.getUniqueId(), p.getName(), player.left(), player.right(), true);
+        Player target = Bukkit.getPlayer(player.left());
         if (target != null) {
-            target.sendMessage(TpasManager.INSTANCE.getTpaComponent(p.getName()));
+            target.sendMessage(TpasManager.INSTANCE.getTpaHereComponent(p.getName()));
         }
         p.sendMessage(Component.text("§7Votre demande de téléportation a été envoyée à §e" + targetName + "§7."));
         return false;

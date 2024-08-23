@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.tpa;
+package fr.farmeurimmo.coreskyblock.purpur.tp.tpa;
 
 import java.util.UUID;
 
