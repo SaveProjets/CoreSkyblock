@@ -10,6 +10,7 @@ import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -34,7 +35,7 @@ public class IslandSettingsInv extends FastInv {
 
         CommonItemStacks.applyCommonPanes(Material.RED_STAINED_GLASS_PANE, getInventory());
 
-        ArrayList<IslandSettings> settings = getSettings(island);
+        ArrayList<IslandSettings> settings = getSettings();
 
         int currentSlot = 0;
         for (int element = page * SLOTS.length; element < settings.size(); element++) {
@@ -43,15 +44,14 @@ public class IslandSettingsInv extends FastInv {
             ItemStack custom = IslandSettings.getItemForSetting(setting);
             if (custom.getType() == Material.CLOCK && !island.hasSettingActivated(setting)) continue;
             if (custom.getType() == Material.DAYLIGHT_DETECTOR && !island.hasSettingActivated(setting)) continue;
+            custom.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
             ItemMeta meta = custom.getItemMeta();
             meta.lore();
             custom.setItemMeta(meta);
-            IslandSettings next = IslandSettings.getNext(setting);
 
             boolean activated = island.hasSettingActivated(setting);
-            setItem(SLOTS[currentSlot], ItemBuilder.copyOf(custom).name(setting.getDesc()).lore(List.of(activated ? "§aActivé"
-                    : "§cDésactivé", "", "§eClic pour " + (next != null ? "passer à " + next.getDesc() : (activated ?
-                    "§cdésactiver" : "§aactiver")))).build(), e -> {
+            setItem(SLOTS[currentSlot], ItemBuilder.copyOf(custom).name(setting.getDisplayName())
+                    .lore(setting.getDescription(activated, setting)).build(), e -> {
                 if (island.isReadOnly()) {
                     IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
                     return;
@@ -86,7 +86,7 @@ public class IslandSettingsInv extends FastInv {
             });
         }
 
-        if (settings.size() > (page + 1) * SLOTS.length) {
+        if (getSettingsOfIsland(island).size() > (page + 1) * SLOTS.length) {
             setItem(50, CommonItemStacks.getCommonNextPage(), e -> {
                 page++;
                 updateSettings(island);
@@ -97,7 +97,11 @@ public class IslandSettingsInv extends FastInv {
                 new IslandInv(island).open((Player) e.getWhoClicked()));
     }
 
-    private ArrayList<IslandSettings> getSettings(Island island) {
+    private ArrayList<IslandSettings> getSettings() {
+        return new ArrayList<>(List.of(IslandSettings.values()));
+    }
+
+    private ArrayList<IslandSettings> getSettingsOfIsland(Island island) {
         ArrayList<IslandSettings> settings = new ArrayList<>();
         for (IslandSettings setting : IslandSettings.values()) {
             if (island.hasSettingActivated(setting)) {

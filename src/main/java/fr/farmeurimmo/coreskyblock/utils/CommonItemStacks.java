@@ -42,6 +42,10 @@ public class CommonItemStacks {
                 .build();
     }
 
+    public static String getArrowWithColors(boolean isActive) {
+        return isActive ? "§f➟ §a" : "§f▶ §8";
+    }
+
     public static void applyCommonPanes(Material pane, Inventory inv) {
         ItemStack glassPane = getCommonGlassPane(pane);
 
