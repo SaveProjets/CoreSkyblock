@@ -15,14 +15,16 @@ import java.util.Map;
 public class IslandBlocksValues extends FastInv {
 
     public IslandBlocksValues(Island island) {
-        super(27, "§8Valeur des blocs");
+        super(36, "§8Valeur des blocs");
 
-        setItem(18, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
+        setItem(4, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
                 .name("§6Informations complémentaires").lore("§7Il faut recalculer la valeur de l'île",
                         "§7pour que les blocs posés soient pris en compte.").build());
 
-        setItem(26, CommonItemStacks.getCommonBack(), e ->
+        setItem(31, CommonItemStacks.getCommonBack(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
+
+        CommonItemStacks.applyCommonPanes(Material.PURPLE_STAINED_GLASS_PANE, getInventory());
 
         update();
     }

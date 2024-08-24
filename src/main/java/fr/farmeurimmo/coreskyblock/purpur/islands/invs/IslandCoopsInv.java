@@ -15,16 +15,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class IslandCoopInv extends FastInv {
+public class IslandCoopsInv extends FastInv {
 
     private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
             33, 34, 37, 38, 39, 40, 41, 42, 43};
     private boolean closed = false;
 
-    public IslandCoopInv(Island island) {
+    public IslandCoopsInv(Island island) {
         super(54, "§8Coops de l'île");
 
-        setItem(53, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+        CommonItemStacks.applyCommonPanes(Material.YELLOW_STAINED_GLASS_PANE, getInventory());
+
+        setItem(49, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
 
         update(island);
 

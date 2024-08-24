@@ -36,11 +36,13 @@ public class IslandRankEditInv extends FastInv {
             return;
         }
 
-        setItem(53, CommonItemStacks.getCommonBack(), e -> {
+        CommonItemStacks.applyCommonPanes(Material.YELLOW_STAINED_GLASS_PANE, getInventory());
+
+        setItem(49, CommonItemStacks.getCommonBack(), e -> {
             new IslandInv(island).open(p);
         });
 
-        setItem(45, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
+        setItem(4, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
                 .name("§6Informations complémentaires").lore("§7Les permissions (oranges & blanches) s'appliquent à",
                         "§7tous les membres de l'île.", "", "§7Les COOP(s) et les visiteurs bénéficient uniquement",
                         "§7des permissions de couleur blanche.").build());

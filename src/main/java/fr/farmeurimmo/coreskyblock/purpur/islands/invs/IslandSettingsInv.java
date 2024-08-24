@@ -45,8 +45,6 @@ public class IslandSettingsInv extends FastInv {
     }
 
     private void updateSettings(Island island) {
-        setItems(SLOTS, null);
-
         CommonItemStacks.applyCommonPanes(Material.RED_STAINED_GLASS_PANE, getInventory());
 
         ArrayList<IslandSettings> settings = getSettings();
@@ -91,6 +89,10 @@ public class IslandSettingsInv extends FastInv {
                 updateSettings(island);
             });
             currentSlot++;
+        }
+
+        for (int i = currentSlot; i < SLOTS.length; i++) {
+            setItem(SLOTS[i], null);
         }
 
         if (page > 0) {

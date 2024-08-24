@@ -15,12 +15,14 @@ import org.bukkit.inventory.ItemStack;
 public class IslandBankInv extends FastInv {
 
     public IslandBankInv(Island island) {
-        super(27, "§8Banque de l'île");
+        super(36, "§8Banque de l'île");
 
-        setItem(26, CommonItemStacks.getCommonBack(), e ->
+        setItem(31, CommonItemStacks.getCommonBack(), e ->
                 new IslandInv(island).open((Player) e.getWhoClicked()));
 
-        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.GOLD_NUGGET)).name("§6Argent de l'île")
+        CommonItemStacks.applyCommonPanes(Material.RED_STAINED_GLASS_PANE, getInventory());
+
+        setItem(13, ItemBuilder.copyOf(new ItemStack(Material.RAW_GOLD)).name("§6Argent de l'île")
                 .lore("", "§aClic droit pour déposer de l'argent", "§cClic gauche pour retirer de l'argent").build(), e -> {
             if (island.isReadOnly()) {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());

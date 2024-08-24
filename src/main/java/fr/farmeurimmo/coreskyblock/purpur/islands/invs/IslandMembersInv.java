@@ -35,7 +35,9 @@ public class IslandMembersInv extends FastInv {
             return;
         }
 
-        setItem(53, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+        CommonItemStacks.applyCommonPanes(Material.BLACK_STAINED_GLASS_PANE, getInventory());
+
+        setItem(49, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
 
         update(island);
 

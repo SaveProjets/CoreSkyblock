@@ -25,7 +25,7 @@ public class IslandUpgradesInv extends FastInv {
     private boolean closed = false;
 
     public IslandUpgradesInv(Island island, Player p) {
-        super(27, "§8Améliorations de l'île");
+        super(36, "§8Améliorations de l'île");
 
         if (island == null) {
             return;
@@ -33,7 +33,9 @@ public class IslandUpgradesInv extends FastInv {
 
         update(island, p);
 
-        setItem(26, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+        CommonItemStacks.applyCommonPanes(Material.RED_STAINED_GLASS_PANE, getInventory());
+
+        setItem(31, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
 
         setCloseFilter(player -> {
             closed = true;

@@ -57,7 +57,7 @@ public class IslandInv extends FastInv {
 
         setItem(24, ItemBuilder.copyOf(new ItemStack(Material.TOTEM_OF_UNDYING))
                 .name("§6Coops §8| §7(clic gauche)").build(), e ->
-                new IslandCoopInv(island).open((Player) e.getWhoClicked()));
+                new IslandCoopsInv(island).open((Player) e.getWhoClicked()));
 
 
         setItem(30, ItemBuilder.copyOf(new ItemStack(Material.BEACON))
