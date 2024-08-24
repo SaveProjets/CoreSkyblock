@@ -2,8 +2,13 @@ package fr.farmeurimmo.coreskyblock.purpur.sync;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsEffectsManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.Island;
+import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.sync.SyncUser;
 import fr.farmeurimmo.coreskyblock.storage.sync.SyncUsersDataManager;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;
@@ -150,6 +155,11 @@ public class SyncUsersManager {
             p.setLevel(user.getLevel());
             for (PotionEffect effect : user.getPotionEffects()) {
                 p.addPotionEffect(effect);
+            }
+
+            if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
+                Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
+                if (island != null) IslandsEffectsManager.INSTANCE.setEffects(island);
             }
             return null;
         });

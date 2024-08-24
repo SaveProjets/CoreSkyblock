@@ -76,6 +76,10 @@ public class IslandsProtectionListener implements Listener {
 
     @EventHandler
     public void onPlayerChangeWorld(PlayerTeleportEvent e) {
+        Island playerIsland = IslandsManager.INSTANCE.getIslandOf(e.getPlayer().getUniqueId());
+        if (playerIsland != null)
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> IslandsEffectsManager.INSTANCE.setEffects(playerIsland), 1);
+
         if (!IslandsManager.INSTANCE.isAnIsland(e.getTo().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getTo().getWorld());
         if (island != null) {
@@ -91,7 +95,6 @@ public class IslandsProtectionListener implements Listener {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Component.text("§cCette île est privée, vous ne pouvez pas y accéder."));
                 }
-                IslandsEffectsManager.INSTANCE.setEffects(island);
             }
             if (island.getBannedPlayers().contains(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);
