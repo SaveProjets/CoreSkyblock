@@ -21,9 +21,7 @@ public class DateUtils {
     }
 
     public static String getFormattedTimeLeft2(long millis) {
-        int seconds = (int) (millis / 1000);
-        int milliseconds = (int) (millis % 1000);
-        return seconds + "." + (milliseconds < 100 ? "0" : "") + (milliseconds < 10 ? "0" : "") + milliseconds + "s";
+        return getFormattedTimeLeft((int) (millis / 1000));
     }
 
     public static String expireAt00() {

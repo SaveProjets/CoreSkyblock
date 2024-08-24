@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -21,7 +22,6 @@ public class AuctionBrowserInv extends FastInv {
     public static final long DELAY_BETWEEN_ACTIONS = 500;
     private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
             33, 34, 37, 38, 39, 40, 41, 42, 43};
-    private boolean gotUpdate = false;
     private boolean closed = false;
     private int page = 0;
     private long lastAction = System.currentTimeMillis();
@@ -30,7 +30,6 @@ public class AuctionBrowserInv extends FastInv {
         super(54, "§0Hôtel des ventes");
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -40,15 +39,11 @@ public class AuctionBrowserInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update(uuid);
         }, 0, 40L);
     }
 
     private void update(UUID uuid) {
-        gotUpdate = false;
-
         int i = page * slots.length;
 
         ArrayList<AuctionItem> auctionItems = AuctionHouseManager.INSTANCE.getAuctionItemsByCreationTime();
@@ -119,7 +114,7 @@ public class AuctionBrowserInv extends FastInv {
         }
 
         if (page > 0) {
-            setItem(48, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page précédente").build(), e -> {
+            setItem(48, CommonItemStacks.getCommonPreviousPage(), e -> {
                 page--;
                 update(uuid);
             });
@@ -128,7 +123,7 @@ public class AuctionBrowserInv extends FastInv {
         }
 
         if (auctionItems.size() > (page + 1) * slots.length) {
-            setItem(50, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page suivante").build(), e -> {
+            setItem(50, CommonItemStacks.getCommonNextPage(), e -> {
                 page++;
                 update(uuid);
             });

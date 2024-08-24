@@ -27,7 +27,6 @@ public class IslandsWarpBrowserInv extends FastInv {
     // 0 = affiche par icône définit, 1 = affiche par taille d'amethyste
     private static final int[] SLOTS = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
     private int page = 0;
-    private boolean gotUpdate = false;
     private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
     private int displayType = 0;
@@ -39,7 +38,6 @@ public class IslandsWarpBrowserInv extends FastInv {
         update();
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
 
             page = 0;
@@ -51,16 +49,12 @@ public class IslandsWarpBrowserInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update();
         }, 0, 40L);
     }
 
     private void update() {
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            setItem(i, new ItemBuilder(Material.AIR).build());
-        }
+        setItems(SLOTS, null);
 
         CommonItemStacks.applyCommonPanes(Material.PINK_STAINED_GLASS_PANE, getInventory());
 

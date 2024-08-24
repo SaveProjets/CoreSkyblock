@@ -23,7 +23,6 @@ public class IslandRankEditInv extends FastInv {
     private static final long COOLDOWN = 100;
     private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
             33, 34, 37, 38, 39, 40, 41, 42, 43};
-    private boolean gotUpdate = false;
     private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
     private int page = 0;
@@ -33,13 +32,12 @@ public class IslandRankEditInv extends FastInv {
 
         if (island == null) {
             p.sendMessage("§cUne erreur est survenue lors de la récupération de votre île.");
-            gotUpdate = true;
+            closed = true;
             return;
         }
 
         setItem(53, CommonItemStacks.getCommonBack(), e -> {
             new IslandInv(island).open(p);
-            gotUpdate = true;
         });
 
         setItem(45, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
@@ -50,7 +48,6 @@ public class IslandRankEditInv extends FastInv {
         update(island);
 
         setCloseFilter(c -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -60,15 +57,12 @@ public class IslandRankEditInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update(island);
         }, 0, 40L);
     }
 
     public void update(Island island) {
         if (island == null) return;
-        gotUpdate = false;
 
         int startValue = page * slots.length;
         ArrayList<IslandPerms> perms = IslandPerms.getPerms(startValue, slots.length);
@@ -94,7 +88,7 @@ public class IslandRankEditInv extends FastInv {
                 }
             }
             setItem(slots[currentSlot], ItemBuilder.copyOf(custom).name(perm.getDescription()).lore(lore)
-                    .flags(ItemFlag.HIDE_ITEM_SPECIFICS, ItemFlag.HIDE_PLACED_ON).build(), e -> {
+                    .flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_PLACED_ON).build(), e -> {
                 if (island.isReadOnly()) {
                     IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
                     return;

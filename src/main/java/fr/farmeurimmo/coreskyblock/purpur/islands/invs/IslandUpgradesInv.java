@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsBlocksLimiterManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
@@ -11,6 +12,7 @@ import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -19,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import java.text.NumberFormat;
 
 public class IslandUpgradesInv extends FastInv {
+
+    private boolean closed = false;
 
     public IslandUpgradesInv(Island island, Player p) {
         super(27, "§8Améliorations de l'île");
@@ -30,6 +34,19 @@ public class IslandUpgradesInv extends FastInv {
         update(island, p);
 
         setItem(26, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
+
+        setCloseFilter(player -> {
+            closed = true;
+            return false;
+        });
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
+            if (closed) {
+                task.cancel();
+                return;
+            }
+            update(island, p);
+        }, 0, 40L);
     }
 
     private void update(Island island, Player p) {

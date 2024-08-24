@@ -16,6 +16,8 @@ import java.util.UUID;
 
 public class CommonItemStacks {
 
+    private static final UUID uuid = UUID.randomUUID();
+
     public static ItemStack getCommonGlassPane(Material pane) {
         return ItemBuilder.copyOf(new ItemStack(pane))
                 .enchant(Enchantment.UNBREAKING)
@@ -70,7 +72,7 @@ public class CommonItemStacks {
             return head;
         }
         ItemMeta headMeta = head.getItemMeta();
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "a");
+        GameProfile profile = new GameProfile(uuid, "a");
         byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", skinURL).getBytes());
         profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
         Field profileField = null;

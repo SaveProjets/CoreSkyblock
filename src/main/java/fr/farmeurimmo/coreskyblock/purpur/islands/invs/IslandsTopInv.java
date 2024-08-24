@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 public class IslandsTopInv extends FastInv {
 
     private static final int[] slots = new int[]{13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43};
-    private boolean gotUpdate = false;
     private boolean closed = false;
     private int topSelected = 0; //0 = Top value, 1 = Top bank money, 2 = Warp rate
 
@@ -35,7 +34,6 @@ public class IslandsTopInv extends FastInv {
         super(54, "§8Classement des îles");
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -45,15 +43,11 @@ public class IslandsTopInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update();
         }, 0, 40L);
     }
 
     private void update() {
-        gotUpdate = false;
-
         ItemStack topValue = ItemBuilder.copyOf(new ItemStack(Material.DRAGON_EGG)).name("§6Top valeur de l'île")
                 .lore("§7Cliquez pour changer le classement", (topSelected == 0 ? "§aAffiché" : "§cNon affiché")).build();
         ItemStack topBankMoney = ItemBuilder.copyOf(new ItemStack(Material.GOLD_INGOT)).name("§6Top argent en banque")

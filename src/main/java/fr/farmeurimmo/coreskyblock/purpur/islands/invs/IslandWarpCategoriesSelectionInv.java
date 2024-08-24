@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 public class IslandWarpCategoriesSelectionInv extends FastInv {
 
     private static final long COOLDOWN = 1_000;
-    private boolean gotUpdate = false;
     private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
 
@@ -25,13 +24,11 @@ public class IslandWarpCategoriesSelectionInv extends FastInv {
 
         setItem(26, CommonItemStacks.getCommonBack(), e -> {
             new IslandWarpInv(island, warp).open((Player) e.getWhoClicked());
-            gotUpdate = true;
         });
 
         update(island, warp);
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -41,15 +38,11 @@ public class IslandWarpCategoriesSelectionInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update(island, warp);
         }, 0, 40L);
     }
 
     private void update(Island island, IslandWarp warp) {
-        gotUpdate = false;
-
         if (warp != null) {
             int slot = 10;
             for (IslandWarpCategories categories : IslandWarpCategories.getCategories()) {
@@ -64,7 +57,7 @@ public class IslandWarpCategoriesSelectionInv extends FastInv {
 
                     if (System.currentTimeMillis() - lastAction < COOLDOWN) {
                         e.getWhoClicked().sendMessage(Component.text("§cVeuillez patienter entre chaque action."));
-                        e.getWhoClicked().playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO.getKey(), Sound.Source.AMBIENT, 1, 1));
+                        e.getWhoClicked().playSound(Sound.sound(org.bukkit.Sound.ENTITY_VILLAGER_NO, Sound.Source.AMBIENT, 1, 1));
                         return;
                     }
                     lastAction = System.currentTimeMillis();

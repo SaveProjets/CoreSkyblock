@@ -33,6 +33,15 @@ public enum IslandWarpCategories {
         return null;
     }
 
+    public static ArrayList<IslandWarpCategories> getCategories() {
+        ArrayList<IslandWarpCategories> categories = new ArrayList<>();
+        for (IslandWarpCategories category : values()) {
+            if (category == NOTHING) continue;
+            categories.add(category);
+        }
+        return categories;
+    }
+
     public int getId() {
         return id;
     }
@@ -43,14 +52,5 @@ public enum IslandWarpCategories {
 
     public Material getMaterial() {
         return material;
-    }
-
-    public static ArrayList<IslandWarpCategories> getCategories() {
-        ArrayList<IslandWarpCategories> categories = new ArrayList<>();
-        for (IslandWarpCategories category : values()) {
-            if (category == NOTHING) continue;
-            categories.add(category);
-        }
-        return categories;
     }
 }

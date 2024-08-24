@@ -19,7 +19,6 @@ public class IslandCoopInv extends FastInv {
 
     private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
             33, 34, 37, 38, 39, 40, 41, 42, 43};
-    private boolean gotUpdate = false;
     private boolean closed = false;
 
     public IslandCoopInv(Island island) {
@@ -30,7 +29,6 @@ public class IslandCoopInv extends FastInv {
         update(island);
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -40,17 +38,11 @@ public class IslandCoopInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update(island);
         }, 0, 40L);
     }
 
     private void update(Island island) {
-        gotUpdate = false;
-
-        setItems(slots, null);
-
         int i = 0;
         // key = player that is being cooped, value = player that gave the coop
         for (Map.Entry<UUID, UUID> coop : island.getCoops().entrySet()) {
@@ -74,6 +66,10 @@ public class IslandCoopInv extends FastInv {
             });
 
             i++;
+        }
+
+        for (; i < slots.length; i++) {
+            setItem(slots[i], null);
         }
     }
 }

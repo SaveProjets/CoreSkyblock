@@ -27,7 +27,6 @@ import java.util.ArrayList;
 public class IslandWarpInv extends FastInv {
 
     private static final long COOLDOWN = 4_000;
-    private boolean gotUpdate = false;
     private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
     private boolean awaitingMaterial = false;
@@ -38,13 +37,11 @@ public class IslandWarpInv extends FastInv {
 
         setItem(35, CommonItemStacks.getCommonBack(), e -> {
             new IslandInv(island).open((Player) e.getWhoClicked());
-            gotUpdate = true;
         });
 
         update(island, warp);
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -54,15 +51,11 @@ public class IslandWarpInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update(island, warp);
         }, 0, 40L);
     }
 
     private void update(Island island, IslandWarp warp) {
-        gotUpdate = false;
-
         if (warp != null) {
             setItem(10, ItemBuilder.copyOf(new ItemStack(Material.NAME_TAG))
                     .name("§6Nom §8| §7(clic gauche)")
@@ -133,7 +126,7 @@ public class IslandWarpInv extends FastInv {
                 lastAction = System.currentTimeMillis();
                 warp.setLocation(e.getWhoClicked().getLocation());
                 e.getWhoClicked().sendMessage(Component.text("§aLocation définie sur vous."));
-                gotUpdate = true;
+
                 update(island, warp);
             });
 
@@ -185,7 +178,7 @@ public class IslandWarpInv extends FastInv {
 
                 warp.setActivated(!warp.isActivated());
                 e.getWhoClicked().sendMessage(Component.text("§aWarp " + (warp.isActivated() ? "activé" : "désactivé") + "."));
-                gotUpdate = true;
+
                 update(island, warp);
             });
 
@@ -266,7 +259,7 @@ public class IslandWarpInv extends FastInv {
                         e.getWhoClicked().getLocation(), true);
                 IslandsWarpManager.INSTANCE.updateWarpWithId(newWarp.getUuid(), newWarp);
                 e.getWhoClicked().sendMessage(Component.text("§aWarp créé."));
-                gotUpdate = true;
+
                 new IslandWarpInv(island, newWarp).open((Player) e.getWhoClicked());
             });
         }

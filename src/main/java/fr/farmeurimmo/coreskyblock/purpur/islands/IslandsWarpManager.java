@@ -142,12 +142,23 @@ public class IslandsWarpManager {
 
     public ArrayList<String> getLore(IslandWarp islandWarp) {
         ArrayList<String> lore = new ArrayList<>();
-        String rate = "§7Note: §e" + NumberFormat.getInstance().format(islandWarp.getRate());
-        lore.add(rate);
         lore.add("");
+        lore.add("§aDescription:");
+        boolean first = true;
         for (String descLine : islandWarp.getDescription().replace("\\n", "\n").split("\n")) {
-            lore.add("§7" + descLine);
+            if (first) {
+                lore.add("§f▶  §7" + descLine);
+                first = false;
+            } else {
+                lore.add("    §7" + descLine);
+            }
         }
+        lore.add("");
+        lore.add("§dInformation:");
+        lore.add("§f▶ §7Note: §e" + NumberFormat.getInstance().format(islandWarp.getRate()));
+        lore.add("§f▶ §7Catégories: §e" + islandWarp.getCategories().stream().map(IslandWarpCategories::getName).reduce((a, b) -> a + "§8, §e" + b).orElse("Aucune"));
+        if (islandWarp.isStillForwarded()) lore.add("§f▶ §7Mise en avant restante: " + DateUtils.getFormattedTimeLeft(
+                (int) ((islandWarp.getForwardedWarp() - System.currentTimeMillis()) / 1000)));
         return lore;
     }
 

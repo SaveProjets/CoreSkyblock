@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
@@ -8,6 +9,7 @@ import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -21,17 +23,29 @@ public class IslandSettingsInv extends FastInv {
 
     private static final int[] SLOTS = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
     private int page = 0;
+    private boolean closed = false;
 
     public IslandSettingsInv(Island island) {
         super(54, "§8Paramètres de l'île");
 
         updateSettings(island);
+
+        setCloseFilter(p -> {
+            closed = true;
+            return false;
+        });
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
+            if (closed) {
+                task.cancel();
+                return;
+            }
+            updateSettings(island);
+        }, 0, 40L);
     }
 
     private void updateSettings(Island island) {
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            setItem(i, null);
-        }
+        setItems(SLOTS, null);
 
         CommonItemStacks.applyCommonPanes(Material.RED_STAINED_GLASS_PANE, getInventory());
 

@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.invs;
 
+import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
@@ -22,8 +23,9 @@ import java.util.UUID;
 
 public class IslandMembersInv extends FastInv {
 
-    private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
+    private final int[] SLOTS = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
             33, 34, 37, 38, 39, 40, 41, 42, 43};
+    private boolean closed = false;
 
     public IslandMembersInv(Island island, Player whoClicked) {
         super(54, "§8Membres de l'île");
@@ -36,14 +38,23 @@ public class IslandMembersInv extends FastInv {
         setItem(53, CommonItemStacks.getCommonBack(), e -> new IslandInv(island).open((Player) e.getWhoClicked()));
 
         update(island);
+
+        setCloseFilter(p -> {
+            closed = true;
+            return false;
+        });
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
+            if (closed) {
+                task.cancel();
+                return;
+            }
+            update(island);
+        }, 0, 40L);
     }
 
     public void update(Island island) {
         if (island == null) return;
-
-        for (int slot : slots) {
-            setItem(slot, null);
-        }
 
         int currentSlot = 0;
         ArrayList<UUID> members = new ArrayList<>();
@@ -63,7 +74,7 @@ public class IslandMembersInv extends FastInv {
                 }
                 ItemStack custom = new ItemStack(Material.PLAYER_HEAD);
                 SkullMeta meta = (SkullMeta) custom.getItemMeta();
-                meta.setOwner(island.getMemberName(playerEntry.getKey()));
+                meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerEntry.getKey()));
                 meta.displayName(Component.text("§f" + island.getMemberName(playerEntry.getKey())));
                 custom.setItemMeta(meta);
                 ArrayList<String> lore = new ArrayList<>();
@@ -72,7 +83,7 @@ public class IslandMembersInv extends FastInv {
                 lore.add("§7Shift + clic pour retirer");
                 lore.add("");
                 lore.add("§7Grade : " + playerEntry.getValue().getName());
-                setItem(slots[currentSlot], ItemBuilder.copyOf(custom).lore(lore).build(), e -> {
+                setItem(SLOTS[currentSlot], ItemBuilder.copyOf(custom).lore(lore).build(), e -> {
                     if (island.isReadOnly()) {
                         IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
                         return;
@@ -139,6 +150,10 @@ public class IslandMembersInv extends FastInv {
                 currentSlot++;
             }
             currentLevelRank += 1;
+        }
+
+        for (int i = currentSlot; i < SLOTS.length; i++) {
+            setItem(SLOTS[i], null);
         }
     }
 }

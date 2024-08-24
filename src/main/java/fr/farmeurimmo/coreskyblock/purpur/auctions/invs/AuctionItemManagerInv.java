@@ -5,12 +5,11 @@ import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionHouseManager;
 import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.auctions.AuctionHouseDataManager;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import fr.mrmicky.fastinv.FastInv;
-import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,7 +22,6 @@ public class AuctionItemManagerInv extends FastInv {
     public static final long DELAY_BETWEEN_ACTIONS = 500;
     private final int[] slots = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32,
             33, 34, 37, 38, 39, 40, 41, 42, 43};
-    private boolean gotUpdate = false;
     private boolean closed = false;
     private long lastAction = System.currentTimeMillis();
 
@@ -31,7 +29,6 @@ public class AuctionItemManagerInv extends FastInv {
         super(54, "§0Gestionnaire d'objets de l'hôtel des ventes");
 
         setCloseFilter(p -> {
-            gotUpdate = true;
             closed = true;
             return false;
         });
@@ -41,15 +38,11 @@ public class AuctionItemManagerInv extends FastInv {
                 task.cancel();
                 return;
             }
-            if (gotUpdate) return;
-            gotUpdate = true;
             update(uuid);
         }, 0, 40L);
     }
 
     private void update(UUID uuid) {
-        gotUpdate = false;
-
         ArrayList<AuctionItem> auctionItems = AuctionHouseManager.INSTANCE.getAuctionItemsForPlayerByCreationTime(uuid);
 
         int i = 0;
@@ -107,8 +100,6 @@ public class AuctionItemManagerInv extends FastInv {
             i++;
         }
 
-        setItem(49, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e -> {
-            new AuctionBrowserInv(uuid).open((Player) e.getWhoClicked());
-        });
+        setItem(49, CommonItemStacks.getCommonBack(), e -> new AuctionBrowserInv(uuid).open((Player) e.getWhoClicked()));
     }
 }
