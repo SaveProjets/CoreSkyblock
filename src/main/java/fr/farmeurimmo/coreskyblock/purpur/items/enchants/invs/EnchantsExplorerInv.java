@@ -3,9 +3,9 @@ package fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.EnchantmentsRecipients;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -49,7 +49,7 @@ public class EnchantsExplorerInv extends FastInv {
                 slot++;
             }
 
-            setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(),
+            setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(),
                     e -> new EnchantsMainInv().open((Player) e.getWhoClicked()));
 
             return;
@@ -72,7 +72,7 @@ public class EnchantsExplorerInv extends FastInv {
             slot++;
         }
 
-        setItem(2, new ItemBuilder(Material.ARROW).name("§6Retour").build(), e -> {
+        setItem(2, CommonItemStacks.getCommonBack(), e -> {
             recipients = null;
             update();
         });

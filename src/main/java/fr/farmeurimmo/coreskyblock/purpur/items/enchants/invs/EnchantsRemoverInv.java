@@ -3,6 +3,7 @@ package fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.farmeurimmo.coreskyblock.utils.InventoryUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -103,7 +104,7 @@ public class EnchantsRemoverInv extends FastInv {
             setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build(), e -> e.setCancelled(true));
         }
 
-        setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(), e -> new EnchantsMainInv().open(p));
+        setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
 
         ItemStack item = getInventory().getItem(ITEM_SLOT);
 

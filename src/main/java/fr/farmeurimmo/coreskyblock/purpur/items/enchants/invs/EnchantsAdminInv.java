@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;
@@ -56,14 +57,14 @@ public class EnchantsAdminInv extends FastInv {
         }
 
         if (page > 0) {
-            setItem(45, new ItemBuilder(Material.ARROW).name("§6Page précédente").build(), e -> {
+            setItem(45, CommonItemStacks.getCommonPreviousPage(), e -> {
                 page--;
                 update();
             });
         }
 
         if (page < getMaxPage()) {
-            setItem(53, new ItemBuilder(Material.ARROW).name("§6Page suivante").build(), e -> {
+            setItem(53, CommonItemStacks.getCommonNextPage(), e -> {
                 page++;
                 update();
             });

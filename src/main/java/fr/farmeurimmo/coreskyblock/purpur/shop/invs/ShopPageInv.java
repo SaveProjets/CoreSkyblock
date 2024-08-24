@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.shop.invs;
 
 import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopItem;
 import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopPage;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -51,17 +52,17 @@ public class ShopPageInv extends FastInv {
 
         if (page > 1) {
             int finalPage = page;
-            setItem(45, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page précédente").build(), e ->
+            setItem(45, CommonItemStacks.getCommonPreviousPage(), e ->
                     new ShopPageInv(shopPage, finalPage - 1).open((Player) e.getWhoClicked()));
         }
 
         if (page < maxPage) {
             int finalPage = page;
-            setItem(53, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Page suivante").build(), e ->
+            setItem(53, CommonItemStacks.getCommonNextPage(), e ->
                     new ShopPageInv(shopPage, finalPage + 1).open((Player) e.getWhoClicked()));
         }
 
-        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e ->
+        setItem(0, CommonItemStacks.getCommonBack(), e ->
                 new ShopInv().open((Player) e.getWhoClicked()));
     }
 }

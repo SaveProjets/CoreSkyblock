@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.CustomEnchantmentsManager;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.EnchantmentRarity;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.Enchantments;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import it.unimi.dsi.fastutil.Pair;
@@ -40,7 +41,7 @@ public class EnchantsRecyclerInv extends FastInv {
             setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§0").build(), e -> e.setCancelled(true));
         }
 
-        setItem(getInventory().getSize() - 1, new ItemBuilder(Material.IRON_DOOR).name("§6Retour §8| §7(clic gauche)").build(), e -> new EnchantsMainInv().open(p));
+        setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
 
         setCloseFilter(e -> {
             for (int i = 0; i < 36; i++) {

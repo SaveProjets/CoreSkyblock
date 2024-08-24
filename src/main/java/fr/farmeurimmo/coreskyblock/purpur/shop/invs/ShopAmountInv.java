@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopItem;
 import fr.farmeurimmo.coreskyblock.purpur.shop.objects.ShopPage;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -127,7 +128,7 @@ public class ShopAmountInv extends FastInv {
             e.getWhoClicked().closeInventory();
         });
 
-        setItem(0, ItemBuilder.copyOf(new ItemStack(Material.IRON_DOOR)).name("§6Retour").build(), e ->
+        setItem(0, CommonItemStacks.getCommonBack(), e ->
                 new ShopPageInv(shopPage, page).open((Player) e.getWhoClicked()));
 
         if (buy) {

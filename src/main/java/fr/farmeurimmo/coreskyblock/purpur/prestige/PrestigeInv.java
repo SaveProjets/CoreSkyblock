@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.prestige;
 
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.farmeurimmo.coreskyblock.utils.ExperienceUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -131,21 +132,19 @@ public class PrestigeInv extends FastInv {
         }
 
         if (prestigeLevelDisplayed > 1) {
-            setItem(45, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Vers la gauche").build(),
-                    e -> {
-                        prestigeLevelDisplayed--;
-                        update(user);
-                    });
+            setItem(45, CommonItemStacks.getCommonMovingLeft(), e -> {
+                prestigeLevelDisplayed--;
+                update(user);
+            });
         } else {
             setItem(45, ItemBuilder.copyOf(new ItemStack(Material.BARRIER)).name("§cDécalage impossible").build());
         }
 
         if (prestigeLevelDisplayed < (1200 - 6))
-            setItem(53, ItemBuilder.copyOf(new ItemStack(Material.ARROW)).name("§6Vers la droite").build(),
-                    e -> {
-                        prestigeLevelDisplayed++;
-                        update(user);
-                    });
+            setItem(53, CommonItemStacks.getCommonMovingRight(), e -> {
+                prestigeLevelDisplayed++;
+                update(user);
+            });
         else setItem(53, ItemBuilder.copyOf(new ItemStack(Material.BARRIER)).name("§cDécalage impossible").build());
 
         setItem(49, ItemBuilder.copyOf(new ItemStack(Material.EXPERIENCE_BOTTLE)).name("§6Passer au prestige suivant")

@@ -44,6 +44,18 @@ public class CommonItemStacks {
                 .build();
     }
 
+    public static ItemStack getCommonMovingRight() {
+        return ItemBuilder.copyOf(getHead("https://textures.minecraft.net/texture/956a3618459e43b287b22b7e235ec699594546c6fcd6dc84bfca4cf30ab9311"))
+                .name("§8➡ §7Déplacer à droite")
+                .build();
+    }
+
+    public static ItemStack getCommonMovingLeft() {
+        return ItemBuilder.copyOf(getHead("https://textures.minecraft.net/texture/cdc9e4dcfa4221a1fadc1b5b2b11d8beeb57879af1c42362142bae1edd5"))
+                .name("§8⬅ §7Déplacer à gauche")
+                .build();
+    }
+
     public static String getArrowWithColors(boolean isActive) {
         return isActive ? "§f➟ §a" : "§f▶ §8";
     }
