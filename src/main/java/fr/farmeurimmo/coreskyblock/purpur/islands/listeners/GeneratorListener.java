@@ -1,6 +1,7 @@
-package fr.farmeurimmo.coreskyblock.purpur.islands.upgrades;
+package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;

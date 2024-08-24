@@ -20,13 +20,45 @@ public enum IslandSettings {
     BLOCK_EXPLOSION("§aExplosions des blocs", List.of("", "§aDescription:", "§f▶ §7Activez ou désactivez",
             "   §7la possibilité à l'explosion", "   §7d'affecter votre île."), 4),
 
-    TIME_DEFAULT("[Temps par défaut]", List.of(), 5),
-    TIME_DAY("[Jour permanent]", List.of(), 6),
-    TIME_CREPUSCULE("[Crépuscule permanent]", List.of(), 7),
-    TIME_NIGHT("[Nuit permanente]", List.of(), 8),
-    WEATHER_DEFAULT("[Météo par défaut]", List.of(), 9),
-    WEATHER_RAIN("[Météo pluvieuse/neigeuse]", List.of(), 10),
-    WEATHER_CLEAR("[Météo claire]", List.of(), 11);
+    TIME_DEFAULT("[Temps par défaut]", List.of("", "§aDescription:", "§f▶ §7Changer le cycle jour/nuit",
+            "   §7de votre île."), 5),
+    TIME_DAY("[Jour permanent]", List.of("", "§aDescription:", "§f▶ §7Changer le cycle jour/nuit",
+            "   §7de votre île."), 6),
+    TIME_CREPUSCULE("[Crépuscule permanent]", List.of("", "§aDescription:", "§f▶ §7Changer le cycle jour/nuit",
+            "   §7de votre île."), 7),
+    TIME_NIGHT("[Nuit permanente]", List.of("", "§aDescription:", "§f▶ §7Changer le cycle jour/nuit",
+            "   §7de votre île."), 8),
+    WEATHER_DEFAULT("[Météo par défaut]", List.of("", "§aDescription:", "§f▶ §7Changer la météo",
+            "   §7de votre île."), 9),
+    WEATHER_RAIN("[Météo pluvieuse/neigeuse]", List.of("", "§aDescription:", "§f▶ §7Changer la météo",
+            "   §7de votre île."), 10),
+    WEATHER_CLEAR("[Météo claire]", List.of("", "§aDescription:", "§f▶ §7Changer la météo",
+            "   §7de votre île."), 11),
+
+    SPEED_EFFECT("§aVitesse", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet",
+            "   §7de vitesse.", "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté",
+            "   §7dans le menu des améliorations."), 12),
+    REGENERATION_EFFECT("§aRégénération", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet",
+            "   §7de régénération.", "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté",
+            "   §7dans le menu des améliorations."), 13),
+    RESISTANCE_FIRE_EFFECT("§aRésistance au feu", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet",
+            "   §7de résistance au feu.", "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté",
+            "   §7dans le menu des améliorations."), 14),
+    RESPIRATION_EFFECT("§aRespiration aquatique", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet",
+            "   §7de respiration aquatique.", "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté",
+            "   §7dans le menu des améliorations."), 15),
+    NIGHT_VISION_EFFECT("§aVision nocturne", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet",
+            "   §7de vision nocturne.", "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté",
+            "   §7dans le menu des améliorations."), 16),
+    STRENGTH_EFFECT("§aForce", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet", "   §7de force.",
+            "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté", "   §7dans le menu des améliorations."),
+            17),
+    HASTE_EFFECT("§aCélérité", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet", "   §7de célérité."
+            , "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté", "   §7dans le menu des améliorations."),
+            18),
+    RESISTANCE_EFFECT("§aRésistance", List.of("", "§aDescription:", "§f▶ §7Permet d'obtenir l'effet",
+            "   §7de résistance.", "", "§cCondition d'utilisation:", "§f▶ §7L'effet doit être acheté",
+            "   §7dans le menu des améliorations."), 19);
 
     private final String displayName;
     private final List<String> description;
@@ -47,6 +79,14 @@ public enum IslandSettings {
             case BLOCK_EXPLOSION -> new ItemStack(Material.TNT);
             case TIME_DEFAULT, TIME_CREPUSCULE, TIME_DAY, TIME_NIGHT -> new ItemStack(Material.DAYLIGHT_DETECTOR);
             case WEATHER_CLEAR, WEATHER_DEFAULT, WEATHER_RAIN -> new ItemStack(Material.CLOCK);
+            case SPEED_EFFECT -> new ItemStack(Material.SUGAR);
+            case REGENERATION_EFFECT -> new ItemStack(Material.POTION);
+            case RESISTANCE_FIRE_EFFECT -> new ItemStack(Material.FIRE_CORAL);
+            case RESPIRATION_EFFECT -> new ItemStack(Material.CONDUIT);
+            case NIGHT_VISION_EFFECT -> new ItemStack(Material.GLOWSTONE);
+            case STRENGTH_EFFECT -> new ItemStack(Material.IRON_SWORD);
+            case HASTE_EFFECT -> new ItemStack(Material.GOLDEN_PICKAXE);
+            case RESISTANCE_EFFECT -> new ItemStack(Material.SHIELD);
         };
     }
 
@@ -103,19 +143,19 @@ public enum IslandSettings {
 
     public ArrayList<String> getDescription(boolean activated, IslandSettings activatedSetting) {
         ArrayList<String> description = new ArrayList<>(this.description);
-        if (this.id <= 4) {
+        if (this.id <= 4 || this.id >= 12) {
             description.add("");
             description.add("§dInformation:");
-            description.add(CommonItemStacks.getArrowWithColors(activated) + "[Activé]");
-            description.add(CommonItemStacks.getArrowWithColors(!activated) + "[Désactivé]");
+            description.add(CommonItemStacks.getArrowWithColors(activated, false) + "[Activé]");
+            description.add(CommonItemStacks.getArrowWithColors(!activated, true) + "[Désactivé]");
             description.add("");
             description.add("§8➡ §fCliquez pour changer.");
-        } else if (this.id <= 11) {
+        } else {
             description.add("");
             description.add("§dInformation:");
             ArrayList<IslandSettings> settings = getSettingsOfTheSameType(this);
             for (IslandSettings setting : settings) {
-                description.add(CommonItemStacks.getArrowWithColors(setting == activatedSetting) + setting.getDisplayName());
+                description.add(CommonItemStacks.getArrowWithColors(setting == activatedSetting, false) + setting.getDisplayName());
             }
             description.add("");
             description.add("§8➡ §fCliquez pour changer.");

@@ -21,7 +21,7 @@ import java.util.List;
 
 public class IslandSettingsInv extends FastInv {
 
-    private static final int[] SLOTS = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
+    private static final int[] SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33};
     private int page = 0;
     private boolean closed = false;
 
@@ -62,7 +62,13 @@ public class IslandSettingsInv extends FastInv {
             custom.setItemMeta(meta);
 
             boolean activated = island.hasSettingActivated(setting);
-            setItem(SLOTS[currentSlot], ItemBuilder.copyOf(custom).name(setting.getDisplayName())
+            String displayName = setting.getDisplayName();
+            if (setting.name().contains("TIME")) {
+                displayName = "§aModification du cycle";
+            } else if (setting.name().contains("WEATHER")) {
+                displayName = "§aModification de la météo";
+            }
+            setItem(SLOTS[currentSlot], ItemBuilder.copyOf(custom).name(displayName)
                     .lore(setting.getDescription(activated, setting)).build(), e -> {
                 if (island.isReadOnly()) {
                     IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());

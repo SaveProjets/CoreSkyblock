@@ -11,10 +11,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
 import fr.farmeurimmo.coreskyblock.purpur.islands.listeners.IslandsProtectionItemsAdderListener;
 import fr.farmeurimmo.coreskyblock.purpur.islands.listeners.IslandsProtectionListener;
-import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsBlocksLimiterManager;
-import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsGeneratorManager;
-import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
-import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsSizeManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.*;
 import fr.farmeurimmo.coreskyblock.purpur.worlds.WorldsManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
@@ -61,6 +58,7 @@ public class IslandsManager {
         new IslandsSizeManager();
         new IslandsMaxMembersManager();
         new IslandsBlocksLimiterManager();
+        new IslandsEffectsManager();
 
         new IslandsBlocksValues();
         new IslandsBankManager();
@@ -93,6 +91,14 @@ public class IslandsManager {
                     }
                 }
             }, 0, TICK_SAVE);
+
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+                for (Island island : IslandsDataManager.INSTANCE.getCache().values()) {
+                    if (island.isLoaded()) {
+                        IslandsEffectsManager.INSTANCE.setEffects(island);
+                    }
+                }
+            }, 0, 20 * 10);
 
             WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 

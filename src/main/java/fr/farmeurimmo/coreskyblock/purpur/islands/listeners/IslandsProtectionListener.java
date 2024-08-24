@@ -4,6 +4,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsBlocksLimiterManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsEffectsManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
@@ -90,6 +91,7 @@ public class IslandsProtectionListener implements Listener {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Component.text("§cCette île est privée, vous ne pouvez pas y accéder."));
                 }
+                IslandsEffectsManager.INSTANCE.setEffects(island);
             }
             if (island.getBannedPlayers().contains(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);

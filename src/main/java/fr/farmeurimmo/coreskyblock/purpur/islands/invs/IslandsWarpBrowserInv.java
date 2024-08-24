@@ -160,8 +160,8 @@ public class IslandsWarpBrowserInv extends FastInv {
         lore.add(Component.text(""));
         lore.add(Component.text("§dInformation:"));
         for (IslandWarpCategories cat : IslandWarpCategories.values()) {
-            lore.add(Component.text((category != null ? CommonItemStacks.getArrowWithColors(category.equals(cat))
-                    : CommonItemStacks.getArrowWithColors(false)) + cat.getName()));
+            lore.add(Component.text((category != null ? CommonItemStacks.getArrowWithColors(category.equals(cat), false)
+                    : CommonItemStacks.getArrowWithColors(false, false)) + cat.getName()));
         }
         lore.add(Component.text(""));
         lore.add(Component.text("§8➡ §fCliquez pour changer."));

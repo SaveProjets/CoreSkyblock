@@ -54,7 +54,14 @@ public class SyncUsersManager {
             user.setHealth(p.getHealth());
             user.setFood(p.getFoodLevel());
             user.setExp(p.getExp());
-            user.setPotionEffects(p.getActivePotionEffects().toArray(PotionEffect[]::new));
+
+            ArrayList<PotionEffect> effects = new ArrayList<>(p.getActivePotionEffects());
+            for (PotionEffect effect : user.getPotionEffects()) {
+                if (!effect.hasParticles()) {
+                    effects.remove(effect);
+                }
+            }
+            user.setPotionEffects(effects.toArray(PotionEffect[]::new));
 
             if (async) {
                 final SyncUser finalUser = user;

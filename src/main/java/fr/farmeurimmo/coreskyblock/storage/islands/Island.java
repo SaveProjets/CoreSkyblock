@@ -43,6 +43,7 @@ public class Island {
     private boolean isPublic;
     private double exp;
     private float level;
+    private String effectsLevel;
     private boolean loaded = false; // not saved
     private boolean readOnly = true; // not saved
     private boolean isModified = false; // not saved
@@ -56,7 +57,8 @@ public class Island {
     public Island(UUID islandUUID, String name, Location spawn, Map<UUID, IslandRanks> members, Map<UUID,
             String> membersNames, Map<IslandRanks, ArrayList<IslandPerms>> perms, int sizeLevel, int memberLevel,
                   int generatorLevel, int hopperLevel, int spawnerLevel, double bankMoney, ArrayList<UUID> bannedPlayers, boolean isPublic,
-                  double exp, List<IslandSettings> settings, float level, List<Chest> chests, boolean readOnly) {
+                  double exp, List<IslandSettings> settings, float level, List<Chest> chests, boolean readOnly,
+                  String effectsLevel) {
         this.islandUUID = islandUUID;
         this.name = name;
         this.spawn = spawn;
@@ -77,6 +79,7 @@ public class Island {
         this.level = level;
         this.chests = chests;
         this.readOnly = readOnly;
+        this.effectsLevel = effectsLevel;
     }
 
     //default just the necessary to establish a start island
@@ -102,6 +105,7 @@ public class Island {
         this.level = 0;
         addDefaultSettings();
         this.chests = new ArrayList<>();
+        this.effectsLevel = getDefaultEffectsLevel();
     }
 
     public static Map<IslandRanks, ArrayList<IslandPerms>> getRanksPermsFromReduced(Map<IslandRanks, ArrayList<IslandPerms>> reducedPerms) {
@@ -173,11 +177,18 @@ public class Island {
             //get dereduced perms
             perms = getRanksPermsFromReduced(perms);
 
+            String effectsLevel = json.get("effectsLevel").getAsString();
+
             return new Island(islandUUID, name, spawn, members, membersNames, perms, sizeLevel, memberLevel, generatorLevel,
-                    hopperLevel, spawnLevel, bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true);
+                    hopperLevel, spawnLevel, bankMoney, bannedPlayers, isPublic, exp, settings, level, chests, true,
+                    effectsLevel);
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    public String getDefaultEffectsLevel() {
+        return "-1:-1:-1:-1:-1:-1:-1:-1";
     }
 
     public void setDefaultPerms(boolean update) {
@@ -231,6 +242,14 @@ public class Island {
         addSetting(IslandSettings.BLOCK_EXPLOSION);
         addSetting(IslandSettings.MOB_SPAWNING);
         addSetting(IslandSettings.MOB_GRIEFING);
+        addSetting(IslandSettings.SPEED_EFFECT);
+        addSetting(IslandSettings.REGENERATION_EFFECT);
+        addSetting(IslandSettings.RESISTANCE_FIRE_EFFECT);
+        addSetting(IslandSettings.RESPIRATION_EFFECT);
+        addSetting(IslandSettings.NIGHT_VISION_EFFECT);
+        addSetting(IslandSettings.STRENGTH_EFFECT);
+        addSetting(IslandSettings.HASTE_EFFECT);
+        addSetting(IslandSettings.RESISTANCE_EFFECT);
     }
 
     public UUID getIslandUUID() {
@@ -745,6 +764,9 @@ public class Island {
             permsJson.add(entry.getKey().toString(), perms);
         }
         json.add("perms", permsJson);
+
+        json.addProperty("effectsLevel", effectsLevel);
+
         return json;
     }
 
@@ -797,6 +819,18 @@ public class Island {
 
     public void setSpawnerLevel(int spawnerLevel) {
         this.spawnerLevel = spawnerLevel;
+        isModified = true;
+    }
+
+    public String getEffectsLevel() {
+        return this.effectsLevel;
+    }
+
+    public void setLevelForEffect(int effect, int level) {
+        String[] effects = effectsLevel.split(":");
+        effects[effect] = String.valueOf(level);
+        effectsLevel = String.join(":", effects);
+
         isModified = true;
     }
 }

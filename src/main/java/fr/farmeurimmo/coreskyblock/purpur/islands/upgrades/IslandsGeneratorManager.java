@@ -1,6 +1,7 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.upgrades;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.islands.listeners.GeneratorListener;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
