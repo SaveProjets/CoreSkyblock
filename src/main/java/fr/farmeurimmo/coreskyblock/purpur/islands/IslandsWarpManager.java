@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
@@ -119,6 +120,16 @@ public class IslandsWarpManager {
         ArrayList<IslandWarp> activeWarps = new ArrayList<>();
         for (IslandWarp warp : warps.keySet()) {
             if (warp.isActivated()) {
+                activeWarps.add(warp);
+            }
+        }
+        return activeWarps;
+    }
+
+    public ArrayList<IslandWarp> getActiveWarps(IslandWarpCategories category) {
+        ArrayList<IslandWarp> activeWarps = new ArrayList<>();
+        for (IslandWarp warp : warps.keySet()) {
+            if (warp.isActivated() && warp.getCategories().contains(category)) {
                 activeWarps.add(warp);
             }
         }

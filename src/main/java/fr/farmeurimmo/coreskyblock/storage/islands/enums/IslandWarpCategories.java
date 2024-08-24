@@ -2,14 +2,17 @@ package fr.farmeurimmo.coreskyblock.storage.islands.enums;
 
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+
 public enum IslandWarpCategories {
 
-    PASSIVE_MOBS(0, "Mobs passifs", Material.COW_SPAWN_EGG),
-    HOSTILE_MOBS(1, "Mobs hostiles", Material.ZOMBIE_HEAD),
-    EXP_FARM(2, "Ferme à XP", Material.EXPERIENCE_BOTTLE),
-    SHOPS(3, "Boutiques", Material.CHEST),
-    VISIT(4, "Visit", Material.COMPASS),
-    OTHER(5, "Autre", Material.STONE);
+    NOTHING(0, "[Sans filtre]", Material.BARRIER),
+    PASSIVE_MOBS(1, "[Mobs passifs]", Material.COW_SPAWN_EGG),
+    HOSTILE_MOBS(2, "[Mobs hostiles]", Material.ZOMBIE_HEAD),
+    EXP_FARM(3, "[Ferme à XP]", Material.EXPERIENCE_BOTTLE),
+    SHOPS(4, "[Boutiques]", Material.CHEST),
+    VISIT(5, "[Visite]", Material.COMPASS),
+    OTHER(6, "[Autre]", Material.STONE);
 
     private final int id;
     private final String name;
@@ -40,5 +43,14 @@ public enum IslandWarpCategories {
 
     public Material getMaterial() {
         return material;
+    }
+
+    public static ArrayList<IslandWarpCategories> getCategories() {
+        ArrayList<IslandWarpCategories> categories = new ArrayList<>();
+        for (IslandWarpCategories category : values()) {
+            if (category == NOTHING) continue;
+            categories.add(category);
+        }
+        return categories;
     }
 }

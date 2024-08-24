@@ -52,7 +52,7 @@ public class IslandWarpCategoriesSelectionInv extends FastInv {
 
         if (warp != null) {
             int slot = 10;
-            for (IslandWarpCategories categories : IslandWarpCategories.values()) {
+            for (IslandWarpCategories categories : IslandWarpCategories.getCategories()) {
                 setItem(slot, ItemBuilder.copyOf(new ItemStack(categories.getMaterial()))
                         .name((warp.getCategories().contains(categories) ? "§a" : "§c") + categories.getName())
                         .lore("", (warp.getCategories().contains(categories) ? "§cCliquez pour désactiver" :

@@ -5,15 +5,18 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandWarpCategories;
 import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 
@@ -28,6 +31,7 @@ public class IslandsWarpBrowserInv extends FastInv {
     private long lastAction = System.currentTimeMillis() - COOLDOWN;
     private boolean closed = false;
     private int displayType = 0;
+    private IslandWarpCategories category = IslandWarpCategories.NOTHING;
 
     public IslandsWarpBrowserInv() {
         super(54, "§8Warps des îles");
@@ -60,28 +64,29 @@ public class IslandsWarpBrowserInv extends FastInv {
 
         CommonItemStacks.applyCommonPanes(Material.PINK_STAINED_GLASS_PANE, getInventory());
 
-        ArrayList<IslandWarp> warps = IslandsWarpManager.INSTANCE.getActiveWarps();
+        ArrayList<IslandWarp> warps = (category == IslandWarpCategories.NOTHING) ?
+                IslandsWarpManager.INSTANCE.getActiveWarps() : IslandsWarpManager.INSTANCE.getActiveWarps(category);
 
         ArrayList<IslandWarp> forwardedWarps = IslandsWarpManager.INSTANCE.getForwardedWarps();
 
         ArrayList<Integer> slotsTook = new ArrayList<>();
         for (int slot : PROMOTED_SLOTS) {
             if (forwardedWarps.isEmpty()) continue;
-            IslandWarp warp = forwardedWarps.get(0);
+            IslandWarp warp = forwardedWarps.getFirst();
             if (warp == null) continue;
             if (!warp.isActivated() && warp.isStillForwarded()) {
                 setItem(slot, new ItemBuilder(Material.BARRIER).name("§c§lPlace de mise en avant occupée")
                         .lore("", "§dInformation:", "§f▶  §7Cette place est loué,", "    §7mais le warp n'est pas actif.")
                         .build());
                 slotsTook.add(slot);
-                forwardedWarps.remove(0);
+                forwardedWarps.removeFirst();
                 continue;
             }
             if (!warp.isActivated()) continue;
             if (!warp.isStillForwarded()) continue;
             slotsTook.add(slot);
             setItemForWarp(slot, warp);
-            forwardedWarps.remove(0);
+            forwardedWarps.removeFirst();
         }
         for (int slot : PROMOTED_SLOTS) {
             if (!slotsTook.contains(slot)) {
@@ -148,6 +153,32 @@ public class IslandsWarpBrowserInv extends FastInv {
             if (island != null) {
                 new IslandInv(island).open((Player) e.getWhoClicked());
             } else e.getWhoClicked().closeInventory();
+        });
+
+        ItemStack filter = new ItemStack(Material.BOOKSHELF);
+        ItemMeta filterMeta = filter.getItemMeta();
+        filterMeta.displayName(Component.text("§aFiltrer par catégorie"));
+        ArrayList<Component> lore = new ArrayList<>();
+        lore.add(Component.text(""));
+        lore.add(Component.text("§aDescription:"));
+        lore.add(Component.text("§f▶ §7Filtrer les warps par catégorie."));
+        lore.add(Component.text(""));
+        lore.add(Component.text("§dInformation:"));
+        for (IslandWarpCategories cat : IslandWarpCategories.values()) {
+            lore.add(Component.text((category != null ? CommonItemStacks.getArrowWithColors(category.equals(cat))
+                    : CommonItemStacks.getArrowWithColors(false)) + cat.getName()));
+        }
+        lore.add(Component.text(""));
+        lore.add(Component.text("§8➡ §fCliquez pour changer."));
+        filterMeta.lore(lore);
+        filter.setItemMeta(filterMeta);
+
+        setItem(26, filter, e -> {
+            category = IslandWarpCategories.getById(category.getId() + 1);
+            if (category == null) category = IslandWarpCategories.NOTHING;
+
+            page = 0;
+            update();
         });
     }
 
