@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs;
 
+import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;
@@ -10,8 +11,10 @@ public class EnchantsMainInv extends FastInv {
     public EnchantsMainInv() {
         super(9 * 3, "§0Enchantements");
 
+        CommonItemStacks.applyCommonPanes(Material.PINK_STAINED_GLASS_PANE, getInventory());
+
         setItem(10, new ItemBuilder(Material.BOOKSHELF).name("§6Enchantements disponibles").build(), e ->
-                new EnchantsExplorerInv((Player) e.getWhoClicked(), null).open((Player) e.getWhoClicked()));
+                new EnchantsExplorerInv(null).open((Player) e.getWhoClicked()));
 
         setItem(12, new ItemBuilder(Material.BOOK).name("§6Acheter un livre enchanté").build(), e ->
                 new EnchantsBuyerInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));

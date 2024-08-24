@@ -29,12 +29,14 @@ public class EnchantsJoinerInv extends FastInv {
     private boolean isClosed = false;
 
     public EnchantsJoinerInv(Player p) {
-        super(45, "§0Table de fusion d'enchantements");
+        super(54, "§0Table de fusion d'enchantements");
 
         this.p = p;
         p.setCanPickupItems(false);
 
-        setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
+        setItem(49, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
+
+        CommonItemStacks.applyCommonPanes(Material.PURPLE_STAINED_GLASS_PANE, getInventory());
 
         for (int i = 0; i < getInventory().getSize(); i++) {
             if (i == SLOT_1 || i == SLOT_2 || i == FINAL_SLOT) {

@@ -34,12 +34,14 @@ public class EnchantsBuyerInv extends FastInv {
     private boolean isClosed = false;
 
     public EnchantsBuyerInv(Player p) {
-        super(4 * 9, "§0Acheter des enchantements");
+        super(6 * 9, "§0Acheter des enchantements");
 
         this.p = p;
         p.setCanPickupItems(false);
 
-        setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
+        setItem(49, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
+
+        CommonItemStacks.applyCommonPanes(Material.PURPLE_STAINED_GLASS_PANE, getInventory());
 
         setCloseFilter(e -> {
             if (getInventory().getItem(SLOT_1) != null && getInventory().getItem(SLOT_2) != null) {
@@ -55,14 +57,6 @@ public class EnchantsBuyerInv extends FastInv {
             isClosed = true;
             return false;
         });
-
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            if (i == SLOT_1 || i == SLOT_2) {
-                continue;
-            }
-            if (getInventory().getItem(i) == null)
-                setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§0").build(), e -> e.setCancelled(true));
-        }
 
         Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, (task -> {
             if (isClosed) task.cancel();
@@ -121,7 +115,7 @@ public class EnchantsBuyerInv extends FastInv {
             specialBooksList.remove(i);
         }
 
-        setItem(27, new ItemBuilder(Material.PAPER).name("§6Tableau des prix").lore(
+        setItem(31, new ItemBuilder(Material.PAPER).name("§6Tableau des prix").lore(
                 (specialBooksList.isEmpty() ? "§a§l->" : "§7") + " 1 §7échange: §e" + NumberFormat.getInstance().format(expPrices.get(0)) + "xp",
                 (specialBooksList.size() == 1 ? "§a§l->" : "§7") + " 2 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(1)) + "xp",
                 (specialBooksList.size() == 2 ? "§a§l->" : "§7") + " 3 §7échanges: §e" + NumberFormat.getInstance().format(expPrices.get(2)) + "xp",

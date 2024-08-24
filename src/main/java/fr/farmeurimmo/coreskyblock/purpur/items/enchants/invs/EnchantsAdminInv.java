@@ -83,7 +83,7 @@ public class EnchantsAdminInv extends FastInv {
                 new EnchantsRemoverInv((Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
 
         setItem(49, new ItemBuilder(Material.BOOKSHELF).name("§6Enchantements disponibles").build(), e ->
-                new EnchantsExplorerInv((Player) e.getWhoClicked(), null).open((Player) e.getWhoClicked()));
+                new EnchantsExplorerInv(null).open((Player) e.getWhoClicked()));
     }
 
     private int getMaxPage() {

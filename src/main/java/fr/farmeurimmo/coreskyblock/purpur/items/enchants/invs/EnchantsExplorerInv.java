@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.purpur.items.enchants.enums.EnchantmentsRecip
 import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -20,10 +21,11 @@ import java.util.Objects;
 public class EnchantsExplorerInv extends FastInv {
 
     private static final LinkedHashMap<EnchantmentsRecipients, ArrayList<Enchantments>> ENCHANTMENTS_RECIPIENTS_ARRAY_LIST_MAP = Enchantments.getEnchantmentsByMaterial();
+    private static final int[] SLOTS = {19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43};
     private EnchantmentsRecipients recipients;
 
-    public EnchantsExplorerInv(Player whoClicked, EnchantmentsRecipients recipients) {
-        super(4 * 9, "§0Enchantements disponibles");
+    public EnchantsExplorerInv(EnchantmentsRecipients recipients) {
+        super(6 * 9, "§0Enchantements disponibles");
 
         this.recipients = recipients;
 
@@ -31,13 +33,10 @@ public class EnchantsExplorerInv extends FastInv {
     }
 
     private void update() {
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            setItem(i, null);
-        }
         if (recipients == null) {
-            int slot = 9;
+            int slot = 0;
             for (Map.Entry<EnchantmentsRecipients, ArrayList<Enchantments>> entry : ENCHANTMENTS_RECIPIENTS_ARRAY_LIST_MAP.entrySet()) {
-                setItem(slot, new ItemBuilder(entry.getKey().getMaterialForDisplay())
+                setItem(SLOTS[slot], new ItemBuilder(entry.getKey().getMaterialForDisplay())
                         .meta(itemMeta -> itemMeta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE,
                                 new AttributeModifier(Objects.requireNonNull(NamespacedKey.fromString("generic.attack_damage")),
                                         0.0, AttributeModifier.Operation.ADD_NUMBER)))
@@ -49,30 +48,40 @@ public class EnchantsExplorerInv extends FastInv {
                 slot++;
             }
 
-            setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(),
-                    e -> new EnchantsMainInv().open((Player) e.getWhoClicked()));
+            for (int i = slot; i < SLOTS.length; i++) {
+                setItem(SLOTS[i], null);
+            }
+
+            setItem(49, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open((Player) e.getWhoClicked()));
+
+            CommonItemStacks.applyCommonPanes(Material.PURPLE_STAINED_GLASS_PANE, getInventory());
+
+            setItem(10, null);
 
             return;
         }
 
-        setItem(0, new ItemBuilder(recipients.getMaterialForDisplay()).name("§6" + recipients.getName()).build());
+        setItem(10, new ItemBuilder(recipients.getMaterialForDisplay()).name("§6" + recipients.getName()).build());
 
-        int slot = 9;
+        int slot = 0;
         for (Enchantments enchantment : ENCHANTMENTS_RECIPIENTS_ARRAY_LIST_MAP.get(recipients)) {
             if (enchantment.hasMaxLevel()) {
                 for (int level = 1; level <= enchantment.getMaxLevel(); level++) {
-                    setItem(slot, CustomEnchantmentsManager.INSTANCE.getItemStackEnchantedBook(enchantment, level));
+                    setItem(SLOTS[slot], CustomEnchantmentsManager.INSTANCE.getItemStackEnchantedBook(enchantment, level));
 
                     slot++;
                 }
                 continue;
             }
-            setItem(slot, CustomEnchantmentsManager.INSTANCE.getItemStackEnchantedBook(enchantment, 1));
+            setItem(SLOTS[slot], CustomEnchantmentsManager.INSTANCE.getItemStackEnchantedBook(enchantment, 1));
 
             slot++;
         }
+        for (int i = slot; i < SLOTS.length; i++) {
+            setItem(SLOTS[i], null);
+        }
 
-        setItem(2, CommonItemStacks.getCommonBack(), e -> {
+        setItem(49, CommonItemStacks.getCommonBack(), e -> {
             recipients = null;
             update();
         });

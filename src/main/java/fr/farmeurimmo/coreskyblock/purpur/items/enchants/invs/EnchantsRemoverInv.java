@@ -22,12 +22,12 @@ import java.util.Optional;
 public class EnchantsRemoverInv extends FastInv {
 
     private static final int ITEM_SLOT = 12;
-    private static final int[] ENCHANTS_SLOTS = {28, 29, 30, 31, 32, 33, 34};
+    private static final int[] ENCHANTS_SLOTS = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
     private final Player p;
     private boolean isClosed = false;
 
     public EnchantsRemoverInv(Player p) {
-        super(45, "§0Enlever les enchantements");
+        super(6 * 9, "§0Enlever les enchantements");
 
         this.p = p;
 
@@ -101,10 +101,13 @@ public class EnchantsRemoverInv extends FastInv {
     private void update() {
         for (int i = 0; i < getInventory().getSize(); i++) {
             if (i == ITEM_SLOT || i == 14) continue;
-            setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build(), e -> e.setCancelled(true));
+            if (getInventory().getItem(i) == null)
+                setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§7").build(), e -> e.setCancelled(true));
         }
 
-        setItem(getInventory().getSize() - 1, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
+        setItem(49, CommonItemStacks.getCommonBack(), e -> new EnchantsMainInv().open(p));
+
+        CommonItemStacks.applyCommonPanes(Material.PURPLE_STAINED_GLASS_PANE, getInventory());
 
         ItemStack item = getInventory().getItem(ITEM_SLOT);
 
