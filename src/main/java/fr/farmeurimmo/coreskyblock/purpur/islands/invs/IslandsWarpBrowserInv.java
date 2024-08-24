@@ -54,8 +54,6 @@ public class IslandsWarpBrowserInv extends FastInv {
     }
 
     private void update() {
-        setItems(SLOTS, null);
-
         CommonItemStacks.applyCommonPanes(Material.PINK_STAINED_GLASS_PANE, getInventory());
 
         ArrayList<IslandWarp> warps = (category == IslandWarpCategories.NOTHING) ?
@@ -98,6 +96,9 @@ public class IslandsWarpBrowserInv extends FastInv {
             IslandWarp warp = warps.get(j);
             setItemForWarp(SLOTS[i], warp);
             i++;
+        }
+        for (int j = i; j < SLOTS.length; j++) {
+            setItem(SLOTS[j], null);
         }
 
         ItemStack item = ItemBuilder.copyOf(new ItemStack(Material.OAK_HANGING_SIGN))
