@@ -128,7 +128,7 @@ public class ShopAmountInv extends FastInv {
             e.getWhoClicked().closeInventory();
         });
 
-        setItem(0, CommonItemStacks.getCommonBack(), e ->
+        setItem(49, CommonItemStacks.getCommonBack(), e ->
                 new ShopPageInv(shopPage, page).open((Player) e.getWhoClicked()));
 
         if (buy) {

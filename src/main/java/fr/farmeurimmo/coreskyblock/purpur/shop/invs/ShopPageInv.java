@@ -52,17 +52,17 @@ public class ShopPageInv extends FastInv {
 
         if (page > 1) {
             int finalPage = page;
-            setItem(45, CommonItemStacks.getCommonPreviousPage(), e ->
+            setItem(48, CommonItemStacks.getCommonPreviousPage(), e ->
                     new ShopPageInv(shopPage, finalPage - 1).open((Player) e.getWhoClicked()));
         }
 
         if (page < maxPage) {
             int finalPage = page;
-            setItem(53, CommonItemStacks.getCommonNextPage(), e ->
+            setItem(50, CommonItemStacks.getCommonNextPage(), e ->
                     new ShopPageInv(shopPage, finalPage + 1).open((Player) e.getWhoClicked()));
         }
 
-        setItem(0, CommonItemStacks.getCommonBack(), e ->
+        setItem(49, CommonItemStacks.getCommonBack(), e ->
                 new ShopInv().open((Player) e.getWhoClicked()));
     }
 }

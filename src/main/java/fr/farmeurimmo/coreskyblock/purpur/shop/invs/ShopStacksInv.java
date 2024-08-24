@@ -67,7 +67,7 @@ public class ShopStacksInv extends FastInv {
             if (currentStacks > 22) currentStacks++;
         }
 
-        setItem(0, CommonItemStacks.getCommonBack(), e ->
+        setItem(49, CommonItemStacks.getCommonBack(), e ->
                 new ShopAmountInv(item, true, shopPage, page).open((Player) e.getWhoClicked()));
     }
 }
