@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.NumberFormat;
@@ -108,7 +109,7 @@ public class IslandUpgradesInv extends FastInv {
     }
 
     private void setUpgradeItem(int slot, ItemStack itemStack, String name, List<String> lore, BiConsumer<Island, Player> upgradeAction, Island island) {
-        setItem(slot, ItemBuilder.copyOf(itemStack).name(name).lore(lore).build(), e -> {
+        setItem(slot, ItemBuilder.copyOf(itemStack).name(name).lore(lore).flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build(), e -> {
             Player player = (Player) e.getWhoClicked();
             if (island.isReadOnly()) {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly(player);

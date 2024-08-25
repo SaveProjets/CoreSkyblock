@@ -71,20 +71,32 @@ public class IslandsBlocksLimiterManager {
 
     public ArrayList<String> getLores(Material material, int level) {
         List<String> lore = new java.util.ArrayList<>();
+        lore.add("");
+        lore.add("§aDescription:");
         return switch (material) {
             case HOPPER:
+                lore.add("§f▶  §7Augmenter la limite");
+                lore.add("    §7de hopper de votre île.");
+                lore.add("");
+                lore.add("§dInformation:");
                 for (int i = 1; i <= 5; i++) {
-                    lore.add("§7" + i + ": §6" + getLimit(material, i) + " blocs §8| " + (level >= i ? "§aDéjà achetée" :
-                            "§7Prix: §e" + getPrice(material, i) + "§6§lexp"));
+                    lore.add("§f▶ §7" + getLimit(material, i) + " Hopper §8| " + (level >= i ? "§aPossédée" :
+                            "§7Prix: §d§l" + getPrice(material, i) + "§dexp"));
                 }
+                lore.add("");
+                lore.add("§8➡ §fCliquez pour améliorer.");
                 yield new ArrayList<>(lore);
             case SPAWNER:
-                lore.add("§7Limite actuelle: §6" + getLimit(material, level) + " spawneurs");
+                lore.add("§f▶  §7Augmenter la limite");
+                lore.add("    §7de spawneurs de votre île.");
                 lore.add("");
-                lore.add("§7Prix: §e" + getPrice(material, level) + "§6§lexp");
+                lore.add("§dInformation:");
+                lore.add("§f▶ §7Limite actuelle: §6" + getLimit(material, level) + " spawneurs");
+                lore.add("§f▶ §7Prix: §d§l" + getPrice(material, level) + "§dexp");
+                lore.add("   §7pour augmenter la limite de §d§l1§7.");
+                lore.add("§f▶ §7§7Le prix n'augmente pas avec le niveau.");
                 lore.add("");
-                lore.add("§7Chaque niveau augmente la limite de §e§l1§7.");
-                lore.add("§7Le prix n'augmente pas avec le niveau.");
+                lore.add("§8➡ §fCliquez pour améliorer.");
                 yield new ArrayList<>(lore);
             default:
                 yield new ArrayList<>();

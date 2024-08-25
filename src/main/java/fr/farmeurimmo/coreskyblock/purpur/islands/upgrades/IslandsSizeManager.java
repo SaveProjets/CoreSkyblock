@@ -53,11 +53,20 @@ public class IslandsSizeManager {
 
     public List<String> getLore(int level) {
         List<String> lore = new java.util.ArrayList<>();
+        lore.add("");
+        lore.add("§aDescription:");
+        lore.add("§f▶  §7Améliorer la taille");
+        lore.add("    §7de votre île afin d'avoir");
+        lore.add("    §7un terrain plus élevé.");
+        lore.add("");
+        lore.add("§dInformation:");
         for (int i = 1; i <= 5; i++) {
-            lore.add("§7" + i + ": §6" + IslandsSizeManager.INSTANCE.getSizeFromLevelRounded(i) + "§fx§6" +
-                    IslandsSizeManager.INSTANCE.getSizeFromLevelRounded(i) + " §8| " + (level >= i ? "§aDéjà achetée" :
-                    "§7Prix: §e" + IslandsSizeManager.INSTANCE.getSizePriceFromLevel(i) + "§6§lexp"));
+            lore.add("§f▶ §7" + IslandsSizeManager.INSTANCE.getSizeFromLevelRounded(i) + "§8x§7" +
+                    IslandsSizeManager.INSTANCE.getSizeFromLevelRounded(i) + " §8| " + (level >= i ? "§aPossédée" :
+                    "§7Prix: §d§l" + IslandsSizeManager.INSTANCE.getSizePriceFromLevel(i) + "§dexp"));
         }
+        lore.add("");
+        lore.add("§8➡ §fCliquez pour améliorer.");
         return lore;
     }
 }

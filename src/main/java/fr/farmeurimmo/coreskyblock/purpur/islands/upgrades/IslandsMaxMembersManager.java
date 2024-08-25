@@ -36,10 +36,18 @@ public class IslandsMaxMembersManager {
 
     public List<String> getLore(int level) {
         List<String> lore = new java.util.ArrayList<>();
+        lore.add("");
+        lore.add("§aDescription:");
+        lore.add("§f▶  §7Augmenter la limite");
+        lore.add("    §7de membre de votre île.");
+        lore.add("");
+        lore.add("§dInformation:");
         for (int i = 1; i <= 5; i++) {
-            lore.add("§7" + i + ": §6" + getMaxMembersFromLevel(i) + " membres §8| " + (level >= i ? "§aDéjà achetée" :
-                    "§7Prix: §e" + getMembersPriceFromLevel(i) + "§6§lexp"));
+            lore.add("§f▶ §7" + getMaxMembersFromLevel(i) + " membres §8| " + (level >= i ? "§aPossédée" :
+                    "§7Prix: §d§l" + getMembersPriceFromLevel(i) + "§dexp"));
         }
+        lore.add("");
+        lore.add("§8➡ §fCliquez pour améliorer.");
         return lore;
     }
 }

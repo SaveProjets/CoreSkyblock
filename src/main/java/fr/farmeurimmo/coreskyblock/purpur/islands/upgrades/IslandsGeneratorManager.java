@@ -55,6 +55,13 @@ public class IslandsGeneratorManager {
 
     public ArrayList<String> getLore(int currentOwned) {
         ArrayList<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add("§aDescription:");
+        lore.add("§f▶  §7Améliorer le pourcentage");
+        lore.add("    §7d'apparition de vos");
+        lore.add("    §7différents minerais.");
+        lore.add("");
+        lore.add("§dInformation: §e§lWIP");
         for (int i = 0; i < generators.size(); i++) {
             StringBuilder sb = new StringBuilder("§7" + (i + 1) + ":");
             Map<Material, Integer> generator = generators.get(i);
@@ -77,6 +84,8 @@ public class IslandsGeneratorManager {
             }
             lore.add("§8| " + (currentOwned >= i + 1 ? "§aDéjà Achetée" : "§7Prix: §e" + getGeneratorPriceFromLevel(i + 1) + "§6exp"));
         }
+        lore.add("");
+        lore.add("§8➡ §fCliquez pour améliorer.");
         return lore;
     }
 
