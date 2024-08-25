@@ -8,7 +8,6 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsEffectsManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
-import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.sync.SyncUser;
 import fr.farmeurimmo.coreskyblock.storage.sync.SyncUsersDataManager;
 import fr.farmeurimmo.coreskyblock.utils.InventorySyncUtils;

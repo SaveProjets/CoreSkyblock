@@ -98,7 +98,7 @@ public class IslandsManager {
                         IslandsEffectsManager.INSTANCE.setEffects(island);
                     }
                 }
-            }, 0, 20 * 12);
+            }, 0, 20 * 18);
 
             WorldsManager.INSTANCE.loadAsync("island_template_1", true);
 

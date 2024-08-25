@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class IslandsEffectsManager {
 
-    public static final int EFFECT_DURATION = 15 * 20;
+    public static final int EFFECT_DURATION = 20 * 20;
 
     /*
      * index 0 = speed (max 2) Prix : 300 puis 500
