@@ -61,32 +61,87 @@ public class IslandsGeneratorManager {
         lore.add("    §7d'apparition de vos");
         lore.add("    §7différents minerais.");
         lore.add("");
-        lore.add("§dInformation: §e§lWIP");
-        for (int i = 0; i < generators.size(); i++) {
-            StringBuilder sb = new StringBuilder("§7" + (i + 1) + ":");
-            Map<Material, Integer> generator = generators.get(i);
-            StringBuilder sb2 = new StringBuilder();
-            int amount = 0;
-            for (Map.Entry<Material, Integer> entry : generator.entrySet()) {
-                amount++;
-                if (amount > 5) {
-                    sb2.append(" §f").append(entry.getValue()).append("% §7").append(getMaterialNameForLore(entry.getKey())).append(",");
-                    continue;
-                }
-                sb.append(" §f").append(entry.getValue()).append("% §7").append(getMaterialNameForLore(entry.getKey())).append(",");
-            }
-            sb.deleteCharAt(sb.length() - 1);
-            lore.add(sb.toString());
-            if (amount > 5) {
-                sb2.deleteCharAt(0);
-                sb2.deleteCharAt(sb2.length() - 1);
-                lore.add(sb2.toString());
-            }
-            lore.add("§8| " + (currentOwned >= i + 1 ? "§aDéjà Achetée" : "§7Prix: §e" + getGeneratorPriceFromLevel(i + 1) + "§6exp"));
+        lore.add("§dInformation:");
+
+        // Define headers
+        String[] headers = {"Roche", "Charbon", "Fer", "Cuivre", "Or", "Redstone", "Lapis", "Diamant", "Émeraude", "Débris"};
+        int[] maxWidths = new int[headers.length];
+
+        // Calculate maximum width for each column
+        for (int i = 0; i < headers.length; i++) {
+            maxWidths[i] = stripColorCodes(headers[i]).length();
         }
+        for (Map<Material, Integer> generator : generators) {
+            for (int i = 0; i < headers.length; i++) {
+                Material material = getMaterialByIndex(i);
+                int width = stripColorCodes(getPercentage(generator, material)).length();
+                if (width > maxWidths[i]) {
+                    maxWidths[i] = width;
+                }
+            }
+        }
+
+        // Build header row
+        StringBuilder headerRow = new StringBuilder("§7");
+        for (int i = 0; i < headers.length; i++) {
+            headerRow.append(padRight(headers[i], maxWidths[i])).append(" ");
+        }
+        lore.add(headerRow.toString());
+
+        // Build data rows
+        for (int i = 0; i < generators.size(); i++) {
+            Map<Material, Integer> generator = generators.get(i);
+            StringBuilder row = new StringBuilder("§7");
+            for (int j = 0; j < headers.length; j++) {
+                Material material = getMaterialByIndex(j);
+                row.append(padRight(getPercentage(generator, material), maxWidths[j])).append(" ");
+            }
+            lore.add(row.toString());
+            lore.add("§8| " + (currentOwned >= i + 1 ? "§aPossédée" : "§7Prix: §d§l" + getGeneratorPriceFromLevel(i + 1) + "§dexp"));
+        }
+
         lore.add("");
         lore.add("§8➡ §fCliquez pour améliorer.");
         return lore;
+    }
+
+    private String padRight(String text, int length) {
+        int paddingLength = Math.max(0, length - stripColorCodes(text).length());
+        return text + " ".repeat(paddingLength);
+    }
+
+    private String stripColorCodes(String text) {
+        return text.replaceAll("§[0-9a-fk-or]", "");
+    }
+
+    private Material getMaterialByIndex(int index) {
+        return switch (index) {
+            case 0 -> Material.STONE;
+            case 1 -> Material.COAL_ORE;
+            case 2 -> Material.IRON_ORE;
+            case 3 -> Material.COPPER_ORE;
+            case 4 -> Material.GOLD_ORE;
+            case 5 -> Material.REDSTONE_ORE;
+            case 6 -> Material.LAPIS_ORE;
+            case 7 -> Material.DIAMOND_ORE;
+            case 8 -> Material.EMERALD_ORE;
+            case 9 -> Material.ANCIENT_DEBRIS;
+            default -> Material.STONE;
+        };
+    }
+
+    private String getPercentage(Map<Material, Integer> generator, Material material) {
+        return generator.getOrDefault(material, 0) + "%";
+    }
+
+    public double getGeneratorPriceFromLevel(int level) {
+        return switch (level) {
+            case 2 -> 200;
+            case 3 -> 500;
+            case 4 -> 1000;
+            case 5 -> 2000;
+            default -> 0;
+        };
     }
 
     public String getMaterialNameForLore(Material material) {
@@ -101,16 +156,6 @@ public class IslandsGeneratorManager {
             case EMERALD_ORE -> "Émeraude";
             case ANCIENT_DEBRIS -> "Débris";
             default -> "Roche";
-        };
-    }
-
-    public double getGeneratorPriceFromLevel(int level) {
-        return switch (level) {
-            case 2 -> 200;
-            case 3 -> 500;
-            case 4 -> 1000;
-            case 5 -> 2000;
-            default -> 0;
         };
     }
 }
