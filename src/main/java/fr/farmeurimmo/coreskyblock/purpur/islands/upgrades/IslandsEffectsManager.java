@@ -36,29 +36,33 @@ public class IslandsEffectsManager {
 
     public void setEffects(Island island) {
         for (Player p : island.getOnlineMembers()) {
-            if (!p.getWorld().getName().equalsIgnoreCase(IslandsManager.INSTANCE.getIslandWorldName(island.getIslandUUID()))) {
-                removeEffectThatArentActive(p, island, true);
-                continue;
-            }
-            removeEffectThatArentActive(p, island, false);
-
-            if (getLevelForEffect(island, 0) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, EFFECT_DURATION, getLevelForEffect(island, 0), true, false));
-            if (getLevelForEffect(island, 1) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, EFFECT_DURATION, getLevelForEffect(island, 1), true, false));
-            if (getLevelForEffect(island, 2) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, EFFECT_DURATION, getLevelForEffect(island, 2), true, false));
-            if (getLevelForEffect(island, 3) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, EFFECT_DURATION, getLevelForEffect(island, 3), true, false));
-            if (getLevelForEffect(island, 4) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, EFFECT_DURATION, getLevelForEffect(island, 4), true, false));
-            if (getLevelForEffect(island, 5) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, EFFECT_DURATION, getLevelForEffect(island, 5), true, false));
-            if (getLevelForEffect(island, 6) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, EFFECT_DURATION, getLevelForEffect(island, 6), true, false));
-            if (getLevelForEffect(island, 7) >= 0)
-                p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, EFFECT_DURATION, getLevelForEffect(island, 7), true, false));
+            setEffectsPlayer(p, island);
         }
+    }
+
+    public void setEffectsPlayer(Player p, Island island) {
+        if (!p.getWorld().getName().equalsIgnoreCase(IslandsManager.INSTANCE.getIslandWorldName(island.getIslandUUID()))) {
+            removeEffectThatArentActive(p, island, true);
+            return;
+        }
+        removeEffectThatArentActive(p, island, false);
+
+        if (getLevelForEffect(island, 0) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, EFFECT_DURATION, getLevelForEffect(island, 0), true, false));
+        if (getLevelForEffect(island, 1) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, EFFECT_DURATION, getLevelForEffect(island, 1), true, false));
+        if (getLevelForEffect(island, 2) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, EFFECT_DURATION, getLevelForEffect(island, 2), true, false));
+        if (getLevelForEffect(island, 3) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, EFFECT_DURATION, getLevelForEffect(island, 3), true, false));
+        if (getLevelForEffect(island, 4) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, EFFECT_DURATION, getLevelForEffect(island, 4), true, false));
+        if (getLevelForEffect(island, 5) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, EFFECT_DURATION, getLevelForEffect(island, 5), true, false));
+        if (getLevelForEffect(island, 6) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, EFFECT_DURATION, getLevelForEffect(island, 6), true, false));
+        if (getLevelForEffect(island, 7) >= 0)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, EFFECT_DURATION, getLevelForEffect(island, 7), true, false));
     }
 
     public void removeEffectThatArentActive(Player p, Island island, boolean force) {

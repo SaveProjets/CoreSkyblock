@@ -159,7 +159,7 @@ public class SyncUsersManager {
 
             if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
                 Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
-                if (island != null) IslandsEffectsManager.INSTANCE.setEffects(island);
+                if (island != null) IslandsEffectsManager.INSTANCE.setEffectsPlayer(p, island);
             }
             return null;
         });

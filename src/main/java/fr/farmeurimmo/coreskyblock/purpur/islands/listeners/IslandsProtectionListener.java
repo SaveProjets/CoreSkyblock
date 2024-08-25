@@ -78,7 +78,7 @@ public class IslandsProtectionListener implements Listener {
     public void onPlayerChangeWorld(PlayerTeleportEvent e) {
         Island playerIsland = IslandsManager.INSTANCE.getIslandOf(e.getPlayer().getUniqueId());
         if (playerIsland != null)
-            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> IslandsEffectsManager.INSTANCE.setEffects(playerIsland), 1);
+            Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> IslandsEffectsManager.INSTANCE.setEffectsPlayer(e.getPlayer(), playerIsland), 1);
 
         if (!IslandsManager.INSTANCE.isAnIsland(e.getTo().getWorld())) return;
         Island island = IslandsManager.INSTANCE.getIslandByLoc(e.getTo().getWorld());
