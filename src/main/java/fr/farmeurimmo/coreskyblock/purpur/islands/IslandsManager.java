@@ -516,8 +516,6 @@ public class IslandsManager {
                 IslandsSizeManager.INSTANCE.updateWorldBorder(island);
                 island.setReadOnly(false);
 
-                island.sendMessageToAll("§aVotre île a été chargée.");
-
                 IslandsBlocksLimiterManager.INSTANCE.initializeIsland(island);
                 return null;
             });
