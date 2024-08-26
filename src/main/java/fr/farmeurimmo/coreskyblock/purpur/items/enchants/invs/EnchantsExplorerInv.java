@@ -25,7 +25,7 @@ public class EnchantsExplorerInv extends FastInv {
     private EnchantmentsRecipients recipients;
 
     public EnchantsExplorerInv(EnchantmentsRecipients recipients) {
-        super(6 * 9, "§0Enchantements disponibles");
+        super(6 * 9, "§8Enchantements disponibles");
 
         this.recipients = recipients;
 

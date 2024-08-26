@@ -29,7 +29,7 @@ public class EnchantsJoinerInv extends FastInv {
     private boolean isClosed = false;
 
     public EnchantsJoinerInv(Player p) {
-        super(54, "§0Table de fusion d'enchantements");
+        super(54, "§8Fusion d'enchantements");
 
         this.p = p;
         p.setCanPickupItems(false);

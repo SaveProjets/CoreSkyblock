@@ -31,7 +31,7 @@ public class EnchantsRecyclerInv extends FastInv {
     private boolean isClosed = false;
 
     public EnchantsRecyclerInv(Player p) {
-        super(6 * 9, "§0Recycler des enchantements");
+        super(6 * 9, "§8Recycler des enchantements");
 
         this.p = p;
         p.setCanPickupItems(false);

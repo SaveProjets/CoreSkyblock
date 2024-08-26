@@ -27,7 +27,7 @@ public class EnchantsRemoverInv extends FastInv {
     private boolean isClosed = false;
 
     public EnchantsRemoverInv(Player p) {
-        super(6 * 9, "§0Enlever les enchantements");
+        super(6 * 9, "§8Enlever les enchantements");
 
         this.p = p;
 

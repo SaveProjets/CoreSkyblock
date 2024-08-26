@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class EnchantsMainInv extends FastInv {
 
     public EnchantsMainInv() {
-        super(9 * 3, "§0Enchantements");
+        super(9 * 3, "§8Enchantements");
 
         CommonItemStacks.applyCommonPanes(Material.PINK_STAINED_GLASS_PANE, getInventory());
 

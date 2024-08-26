@@ -34,7 +34,7 @@ public class EnchantsBuyerInv extends FastInv {
     private boolean isClosed = false;
 
     public EnchantsBuyerInv(Player p) {
-        super(6 * 9, "§0Acheter des enchantements");
+        super(6 * 9, "§8Acheter des enchantements");
 
         this.p = p;
         p.setCanPickupItems(false);

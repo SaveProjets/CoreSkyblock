@@ -18,7 +18,7 @@ public class EnchantsAdminInv extends FastInv {
     private int page = 0;
 
     public EnchantsAdminInv() {
-        super(6 * 9, "§0Enchantements admin");
+        super(6 * 9, "§8Enchantements admin");
 
         update();
     }
