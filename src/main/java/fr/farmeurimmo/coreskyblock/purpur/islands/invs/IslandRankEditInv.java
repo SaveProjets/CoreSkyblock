@@ -12,11 +12,16 @@ import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class IslandRankEditInv extends FastInv {
 
@@ -28,7 +33,7 @@ public class IslandRankEditInv extends FastInv {
     private int page = 0;
 
     public IslandRankEditInv(Island island, Player p) {
-        super(54, "§8Permissions des grades de l'île");
+        super(54, "§8Permissions des grades");
 
         if (island == null) {
             p.sendMessage("§cUne erreur est survenue lors de la récupération de votre île.");
@@ -41,11 +46,6 @@ public class IslandRankEditInv extends FastInv {
         setItem(49, CommonItemStacks.getCommonBack(), e -> {
             new IslandInv(island).open(p);
         });
-
-        setItem(4, ItemBuilder.copyOf(new ItemStack(Material.KNOWLEDGE_BOOK))
-                .name("§6Informations complémentaires").lore("§7Les permissions (oranges & blanches) s'appliquent à",
-                        "§7tous les membres de l'île.", "", "§7Les COOP(s) et les visiteurs bénéficient uniquement",
-                        "§7des permissions de couleur blanche.").build());
 
         update(island);
 
@@ -73,22 +73,28 @@ public class IslandRankEditInv extends FastInv {
         for (IslandPerms perm : perms) {
             ItemStack custom = new ItemStack(perm.getMaterial());
             if (custom.getType() == Material.AIR) continue;
+            ItemMeta meta = custom.getItemMeta();
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE,
+                    new AttributeModifier(Objects.requireNonNull(NamespacedKey.fromString("generic.attack_damage")),
+                            0.0, AttributeModifier.Operation.ADD_NUMBER));
+            custom.setItemMeta(meta);
+            custom.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_PLACED_ON);
             ArrayList<String> lore = new ArrayList<>();
-            lore.add("§7Clic droit pour augmenter");
-            lore.add("§7Clic gauche pour diminuer");
             lore.add("");
-            lore.add("§7Grades :");
+            lore.add("§dInformation:");
             boolean isMaxRange = !perm.getDescription().startsWith("§f");
             for (IslandRanks rank : IslandRanks.values()) {
                 if (rank == IslandRanks.CHEF) continue;
                 if (isMaxRange && rank == IslandRanks.COOP) continue;
                 if (isMaxRange && rank == IslandRanks.VISITEUR) continue;
                 if (island.hasPerms(rank, perm, null)) {
-                    lore.add("§a" + rank.name());
+                    lore.add(CommonItemStacks.getArrowWithColors(true, false) + rank.name());
                 } else {
-                    lore.add("§c" + rank.name());
+                    lore.add(CommonItemStacks.getArrowWithColors(false, false) + rank.name());
                 }
             }
+            lore.add("");
+            lore.add("§8➡ §fCliquez pour changer.");
             setItem(slots[currentSlot], ItemBuilder.copyOf(custom).name(perm.getDescription()).lore(lore)
                     .flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_PLACED_ON).build(), e -> {
                 if (island.isReadOnly()) {
