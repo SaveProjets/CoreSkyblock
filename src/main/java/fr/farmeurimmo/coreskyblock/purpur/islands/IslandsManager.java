@@ -261,7 +261,6 @@ public class IslandsManager {
             });
             if (server != null && !server.equalsIgnoreCase(CoreSkyblock.SERVER_NAME)) {
                 island.setReadOnly(true);
-                island.sendMessageToAllLocals("§cMise à jour des données read only de votre île.");
             }
         }
     }
