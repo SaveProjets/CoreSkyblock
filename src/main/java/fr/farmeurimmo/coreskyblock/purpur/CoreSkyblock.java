@@ -42,6 +42,7 @@ import fr.farmeurimmo.coreskyblock.purpur.listeners.SpawnProtectionListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsManager;
+import fr.farmeurimmo.coreskyblock.purpur.npcs.NPCManager;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeCmd;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
 import fr.farmeurimmo.coreskyblock.purpur.pvp.PvpManager;
@@ -197,6 +198,8 @@ public final class CoreSkyblock extends JavaPlugin {
 
         new ChatReactionManager();
         new ScoreboardManager();
+
+        new NPCManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();
