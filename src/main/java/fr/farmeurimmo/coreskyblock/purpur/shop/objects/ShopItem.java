@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.shop.objects;
 
 import fr.mrmicky.fastinv.ItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.NumberFormat;
@@ -10,7 +11,7 @@ public record ShopItem(String name, Material material, float price, float sellPr
 
     public String getLineOfBuyFormatted() {
         if (isBuyable()) {
-            return "§aAchat : §e" + NumberFormat.getInstance().format(price) + "$";
+            return "§aAchat: §e" + NumberFormat.getInstance().format(price) + "$";
         } else {
             return "§cNon achetable";
         }
@@ -18,7 +19,7 @@ public record ShopItem(String name, Material material, float price, float sellPr
 
     public String getLineOfSellFormatted() {
         if (isSellable()) {
-            return "§aVente : §e" + NumberFormat.getInstance().format(sellPrice) + "$";
+            return "§aVente: §e" + NumberFormat.getInstance().format(sellPrice) + "$";
         } else {
             return "§cNon vendable";
         }
@@ -26,8 +27,9 @@ public record ShopItem(String name, Material material, float price, float sellPr
 
     public ItemStack getItemStack(boolean buy, int amount) {
         return ItemBuilder.copyOf(new ItemStack(material, amount)).name(buy ? "§aCliquez pour acheter" :
-                "§aCliquez pour vendre").lore("§6x" + amount + " §e" + getName(), "§6Total : §e" +
-                NumberFormat.getInstance().format(amount * (buy ? price : sellPrice)) + "$").build();
+                        "§aCliquez pour vendre").lore("§6x" + amount + " §e" + getName(), "§6Total: §e" +
+                        NumberFormat.getInstance().format(amount * (buy ? price : sellPrice)) + "$")
+                .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_PLACED_ON).build();
     }
 
     public String getName() {
@@ -57,7 +59,8 @@ public record ShopItem(String name, Material material, float price, float sellPr
     public ItemStack getItemStack() {
         if (name != null) {
             return ItemBuilder.copyOf(new ItemStack(material)).name(getName()).lore(getLineOfBuyFormatted(),
-                    getLineOfSellFormatted()).build();
+                            getLineOfSellFormatted())
+                    .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_PLACED_ON).build();
         }
         return ItemBuilder.copyOf(new ItemStack(material)).lore(getLineOfBuyFormatted(),
                 getLineOfSellFormatted()).build();

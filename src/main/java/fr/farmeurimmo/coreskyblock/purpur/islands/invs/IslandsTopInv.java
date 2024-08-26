@@ -38,13 +38,15 @@ public class IslandsTopInv extends FastInv {
             return false;
         });
 
+        CommonItemStacks.applyCommonPanes(Material.LIME_STAINED_GLASS_PANE, getInventory());
+
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, (task) -> {
             if (closed) {
                 task.cancel();
                 return;
             }
             update();
-        }, 0, 40L);
+        }, 0, 20L);
     }
 
     private void update() {
@@ -139,12 +141,12 @@ public class IslandsTopInv extends FastInv {
             setItem(slots[iLeft], ItemBuilder.copyOf(new ItemStack(Material.BEDROCK, iLeft + 1)).name("§cPas d'île").build());
         }
 
-        setItem(45, ItemBuilder.copyOf(new ItemStack(Material.CLOCK)).name("§6Informations")
+        setItem(48, ItemBuilder.copyOf(new ItemStack(Material.CLOCK)).name("§6Informations")
                 .lore("§7Dernière actualisation:", "§c" + IslandsTopManager.INSTANCE.getTimeAfterRefresh(), "",
                         "§7Actualisation du classement:", "§c" + IslandsTopManager.INSTANCE.getTimeUntilRefresh())
                 .build());
 
-        setItem(53, CommonItemStacks.getCommonBack(), e -> {
+        setItem(50, CommonItemStacks.getCommonBack(), e -> {
             Island island = IslandsManager.INSTANCE.getIslandOf(e.getWhoClicked().getUniqueId());
             if (island != null) {
                 new IslandInv(island).open((Player) e.getWhoClicked());
