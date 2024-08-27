@@ -16,6 +16,7 @@ import fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs.EnchantsMainInv;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
 
 import java.util.UUID;
 
@@ -69,18 +70,28 @@ public class NPCManager {
                 // builds the final platform object which can then be used to spawn and manage npcs
                 .build();
 
-        spawnNpcEnchants();
+        Team team = Bukkit.getScoreboardManager().getMainScoreboard().getTeam("NPC");
+        if (team == null) {
+            team = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam("NPC");
+        }
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+
+        spawnNpcEnchants(team);
     }
 
-    public void spawnNpcEnchants() {
+    public void spawnNpcEnchants(Team team) {
         Location loc = CoreSkyblock.SPAWN.clone().add(0, 0, -5);
 
         UUID uuid = UUID.randomUUID();
 
+        String name = "§6Enchanteur";
+
         Npc npc = platform.newNpcBuilder()
                 .position(BukkitPlatformUtil.positionFromBukkitModern(loc))
-                .profile(Profile.resolved("§6Enchanteur", uuid))
+                .profile(Profile.resolved(name, uuid))
                 .buildAndTrack();
+
+        team.addEntry(name);
 
         npc.flagValue(Npc.SNEAK_WHEN_PLAYER_SNEAKS, true);
         npc.flagValue(Npc.LOOK_AT_PLAYER, true);
