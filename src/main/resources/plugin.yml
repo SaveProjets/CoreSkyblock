@@ -9,6 +9,7 @@ depend:
   - SlimeWorldPlugin
   - ItemsAdder
   - RoseStacker
+  - DecentHolograms
 commands:
   buildspawn:
     description: Permet de modifier le spawn (déconseillé il faut modifier la template)

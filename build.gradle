@@ -36,6 +36,7 @@ dependencies {
     compileOnly 'com.github.LoneDev6:API-ItemsAdder:3.6.1'
     compileOnly 'dev.rosewood:rosestacker:1.5.24'
     compileOnly 'com.mojang:authlib:1.5.21'
+    compileOnly 'com.github.decentsoftware-eu:decentholograms:2.8.11'
 }
 
 shadowJar {

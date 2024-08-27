@@ -11,6 +11,7 @@ import com.github.juliarn.npclib.bukkit.BukkitVersionAccessor;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
 import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
+import eu.decentsoftware.holograms.api.DHAPI;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs.EnchantsMainInv;
 import org.bukkit.Bukkit;
@@ -18,6 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 
+import java.util.List;
 import java.util.UUID;
 
 public class NPCManager {
@@ -84,7 +86,7 @@ public class NPCManager {
 
         UUID uuid = UUID.randomUUID();
 
-        String name = "§6Enchanteur";
+        String name = "§6§lEnchanteur";
 
         Npc npc = platform.newNpcBuilder()
                 .position(BukkitPlatformUtil.positionFromBukkitModern(loc))
@@ -105,5 +107,7 @@ public class NPCManager {
                 return null;
             });
         });
+
+        DHAPI.createHologram("DHAPI_NPC_enchanteur", loc.clone().add(0, 2.5, 0), List.of(name, "§8Cliquez pour ouvrir"));
     }
 }
