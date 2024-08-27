@@ -436,6 +436,17 @@ public final class CoreSkyblock extends JavaPlugin {
         return null;
     }
 
+    public Pair<UUID, String> getPlayerFromUUID(UUID uuid) {
+        for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
+            for (Pair<UUID, String> pair : entry.getValue()) {
+                if (pair.left().equals(uuid)) {
+                    return pair;
+                }
+            }
+        }
+        return null;
+    }
+
     public String getServerNameWherePlayerIsConnected(UUID uuid) {
         for (Map.Entry<String, ArrayList<Pair<UUID, String>>> entry : CoreSkyblock.INSTANCE.skyblockPlayers.entrySet()) {
             for (Pair<UUID, String> pair : entry.getValue()) {

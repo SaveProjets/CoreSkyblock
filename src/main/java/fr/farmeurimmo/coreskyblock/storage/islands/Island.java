@@ -16,6 +16,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -371,7 +372,7 @@ public class Island {
 
     public void addMember(UUID uuid, String name, IslandRanks rank) {
         boolean needUpdate = !this.members.containsKey(uuid);
-        this.members.put(uuid, rank);
+        this.members.putIfAbsent(uuid, rank);
         this.membersNames.put(uuid, name);
 
         if (needUpdate) areMembersModified = true;
@@ -573,6 +574,38 @@ public class Island {
 
     public void addInvite(UUID uuid) {
         invites.put(uuid, System.currentTimeMillis());
+    }
+
+    public ArrayList<String> getInvites() {
+        ArrayList<String> invites = new ArrayList<>();
+        for (Map.Entry<UUID, Long> entry : this.invites.entrySet()) {
+            if (System.currentTimeMillis() - entry.getValue() < 1000 * 60 * 5) {
+                invites.add(Bukkit.getOfflinePlayer(entry.getKey()).getName());
+            }
+        }
+        return invites;
+    }
+
+    public List<String> getVisitors() {
+        World world = IslandsManager.INSTANCE.getIslandWorld(islandUUID);
+        if (world == null) return new ArrayList<>();
+        List<String> visitors = new ArrayList<>();
+        for (Player player : world.getPlayers()) {
+            if (player.getWorld().equals(world)) {
+                if (!members.containsKey(player.getUniqueId())) {
+                    visitors.add(player.getName());
+                }
+            }
+        }
+        return visitors;
+    }
+
+    public List<String> getBanList() {
+        List<String> banList = new ArrayList<>();
+        for (UUID uuid : bannedPlayers) {
+            banList.add(Bukkit.getOfflinePlayer(uuid).getName());
+        }
+        return banList;
     }
 
     public boolean isInvited(UUID uuid) {

@@ -149,6 +149,10 @@ coreskyblock → island:coop_check:{uuid}:{server_name}
 
 coreskyblock → island:coop_check_response:{uuid}:{server_name}
 
+#### Island want_to_join
+
+coreskyblock → island:want_to_join:{want_to_join_uuid}:{want_to_join_name}:{inviter_uuid}
+
 ### Fonctionnement
 
 Mis à jour environ toutes les 3-5 minutes et lors d'actions importantes (création, suppression, etc).

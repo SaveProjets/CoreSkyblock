@@ -8,6 +8,7 @@ import fr.farmeurimmo.coreskyblock.purpur.auctions.AuctionItem;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCoopsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
+import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpaRequest;
 import fr.farmeurimmo.coreskyblock.purpur.tp.tpa.TpasManager;
 import fr.farmeurimmo.coreskyblock.purpur.tp.warps.WarpsManager;
@@ -16,6 +17,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandWarp;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
 import it.unimi.dsi.fastutil.Pair;
@@ -333,16 +335,52 @@ public class JedisManager {
                             if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
                                 return;
                             }
+                            Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                            if (p == null) {
+                                return;
+                            }
 
                             StringBuilder playerMessage = new StringBuilder();
                             for (int i = 4; i < args.length; i++) {
                                 playerMessage.append(args[i]);
                             }
-                            Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
-                            if (p == null) {
-                                return;
-                            }
                             p.sendMessage(playerMessage.toString());
+                        }
+                        if (args[1].equalsIgnoreCase("want_to_join")) {
+                            try {
+                                UUID wantToJoin = UUID.fromString(args[2]);
+                                String wantToJoinName = args[3];
+                                UUID invitedBy = UUID.fromString(args[4]);
+
+                                System.out.println("wantToJoin: " + wantToJoin + " invitedBy: " + invitedBy);
+                                Island island = IslandsManager.INSTANCE.getIslandOf(invitedBy);
+                                if (island == null) {
+                                    return;
+                                }
+                                System.out.println("island: " + island.getName());
+                                if (!island.isLoaded()) return;
+
+                                System.out.println("island loaded");
+                                if (!island.isInvited(wantToJoin)) {
+                                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:to_player_chat:" + wantToJoin + ":" + CoreSkyblock.SERVER_NAME + ":§cVous n'avez pas été invité sur cette île.");
+                                    return;
+                                }
+                                if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(),
+                                        island.getMembers().size())) {
+                                    JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:to_player_chat:" + wantToJoin + ":" + CoreSkyblock.SERVER_NAME + ":§cL'île est pleine.");
+                                    return;
+                                }
+                                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                                    island.removeCoop(wantToJoin);
+                                    island.removeInvite(wantToJoin);
+                                    island.addMember(wantToJoin, wantToJoinName, IslandRanks.MEMBRE);
+                                    return null;
+                                });
+                                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:to_player_chat:" + wantToJoin + ":" + CoreSkyblock.SERVER_NAME + ":§aVous avez rejoint l'île de " + island.getName() + ".");
+                                island.sendMessageToAll("§a" + wantToJoinName + " a rejoint l'île.");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                         if (args[1].equalsIgnoreCase("delete")) {
                             try {
