@@ -20,6 +20,8 @@ import fr.farmeurimmo.coreskyblock.purpur.cmds.BuildSpawnCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.base.*;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.eco.BaltopCmd;
 import fr.farmeurimmo.coreskyblock.purpur.cmds.eco.MoneyCmd;
+import fr.farmeurimmo.coreskyblock.purpur.dependencies.holograms.DecentHologramAPI;
+import fr.farmeurimmo.coreskyblock.purpur.dependencies.npcs.NPCManager;
 import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyCmd;
 import fr.farmeurimmo.coreskyblock.purpur.featherfly.FeatherFlyListener;
@@ -42,7 +44,6 @@ import fr.farmeurimmo.coreskyblock.purpur.listeners.SpawnProtectionListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsManager;
-import fr.farmeurimmo.coreskyblock.purpur.npcs.NPCManager;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigeCmd;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
 import fr.farmeurimmo.coreskyblock.purpur.pvp.PvpManager;
@@ -129,10 +130,27 @@ public final class CoreSkyblock extends JavaPlugin {
 
         console.sendMessage("§b[CoreSkyblock] §7Démarrage du plugin CoreSkyblock...");
 
+        if (SERVER_TYPE == ServerType.PVP) {
+            SPAWN_WORLD_NAME = "pvp-spawn";
+        } else if (SERVER_TYPE == ServerType.PVE) {
+            SPAWN_WORLD_NAME = "pve-spawn";
+        } else if (SERVER_TYPE == ServerType.GAME) {
+            SPAWN_WORLD_NAME = "game-spawn";
+        }
+        SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
+        World spawnWorld = Bukkit.getWorld(SPAWN_WORLD_NAME);
+        if (spawnWorld != null) {
+            spawnWorld.setSpawnLocation(SPAWN);
+            spawnWorld.getWorldBorder().setCenter(SPAWN);
+            spawnWorld.getWorldBorder().setSize(500);
+        }
+
         console.sendMessage("§b[CoreSkyblock] §7Enregistrement des dépendances...");
         FastInvManager.register(INSTANCE);
         new InventorySyncUtils();
         new InventoryUtils();
+        new DecentHologramAPI(INSTANCE);
+        new NPCManager();
 
         if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
             roseStackerAPI = RoseStackerAPI.getInstance();
@@ -151,21 +169,6 @@ public final class CoreSkyblock extends JavaPlugin {
             e.printStackTrace();
             Bukkit.shutdown();
             return;
-        }
-
-        if (SERVER_TYPE == ServerType.PVP) {
-            SPAWN_WORLD_NAME = "pvp-spawn";
-        } else if (SERVER_TYPE == ServerType.PVE) {
-            SPAWN_WORLD_NAME = "pve-spawn";
-        } else if (SERVER_TYPE == ServerType.GAME) {
-            SPAWN_WORLD_NAME = "game-spawn";
-        }
-        SPAWN = new Location(Bukkit.getWorld(SPAWN_WORLD_NAME), 0.5, 80, 0.5, 180, 0);
-        World spawnWorld = Bukkit.getWorld(SPAWN_WORLD_NAME);
-        if (spawnWorld != null) {
-            spawnWorld.setSpawnLocation(SPAWN);
-            spawnWorld.getWorldBorder().setCenter(SPAWN);
-            spawnWorld.getWorldBorder().setSize(500);
         }
 
         console.sendMessage("§b[CoreSkyblock] §7Démarrage des managers...");
@@ -198,8 +201,6 @@ public final class CoreSkyblock extends JavaPlugin {
 
         new ChatReactionManager();
         new ScoreboardManager();
-
-        new NPCManager();
 
         console.sendMessage("§b[CoreSkyblock] §7Connexion à redis...");
         new JedisManager();

@@ -1,4 +1,4 @@
-package fr.farmeurimmo.coreskyblock.purpur.npcs;
+package fr.farmeurimmo.coreskyblock.purpur.dependencies.npcs;
 
 import com.github.juliarn.npclib.api.Npc;
 import com.github.juliarn.npclib.api.NpcActionController;
@@ -11,8 +11,8 @@ import com.github.juliarn.npclib.bukkit.BukkitVersionAccessor;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
 import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
-import eu.decentsoftware.holograms.api.DHAPI;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.dependencies.holograms.DecentHologramAPI;
 import fr.farmeurimmo.coreskyblock.purpur.items.enchants.invs.EnchantsMainInv;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -108,6 +108,6 @@ public class NPCManager {
             });
         });
 
-        DHAPI.createHologram("DHAPI_NPC_enchanteur", loc.clone().add(0, 2.5, 0), List.of(name, "§8Cliquez pour ouvrir"));
+        DecentHologramAPI.INSTANCE.spawnHologram("NPC_Enchanteur", loc.clone().add(0, 2.5, 0), List.of(name, "§8Cliquez pour ouvrir"));
     }
 }
