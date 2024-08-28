@@ -83,8 +83,6 @@ public class PlayerListener implements Listener {
         }
         if (WarpsManager.INSTANCE.isAwaitingToTeleport(p.getUniqueId())) {
             String warp = WarpsManager.INSTANCE.awaitingToTeleport(p.getUniqueId());
-            System.out.println("Warp: " + warp);
-            System.out.println("Location: " + WarpsManager.INSTANCE.getWarp(warp));
             e.setSpawnLocation(WarpsManager.INSTANCE.getWarp(warp));
             p.sendMessage(Component.text("§6Warp: §e" + WarpsManager.INSTANCE.awaitingToTeleport(p.getUniqueId())));
             WarpsManager.INSTANCE.removeAwaitingToTeleport(p.getUniqueId());

@@ -396,8 +396,14 @@ public class Island {
 
         Player player = CoreSkyblock.INSTANCE.getServer().getPlayer(uuid);
         if (player != null) {
-            player.teleportAsync(CoreSkyblock.SPAWN);
-            player.sendMessage(Component.text("§cVous avez été retiré de l'île."));
+            String server = CoreSkyblock.INSTANCE.getASpawnServer();
+            if (server == null) {
+                player.sendMessage(Component.text("§cErreur, aucun serveur de spawn disponible !"));
+                player.teleportAsync(CoreSkyblock.SPAWN);
+                player.sendMessage(Component.text("§cVous avez été retiré de l'île."));
+                return;
+            }
+            CoreSkyblock.INSTANCE.sendToServer(player, server);
         }
 
         areMembersModified = true;

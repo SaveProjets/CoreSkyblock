@@ -344,7 +344,7 @@ public class JedisManager {
                             for (int i = 4; i < args.length; i++) {
                                 playerMessage.append(args[i]);
                             }
-                            p.sendMessage(playerMessage.toString());
+                            p.sendMessage(playerMessage.toString().replace("&", "§"));
                         }
                         if (args[1].equalsIgnoreCase("want_to_join")) {
                             try {
@@ -352,15 +352,12 @@ public class JedisManager {
                                 String wantToJoinName = args[3];
                                 UUID invitedBy = UUID.fromString(args[4]);
 
-                                System.out.println("wantToJoin: " + wantToJoin + " invitedBy: " + invitedBy);
                                 Island island = IslandsManager.INSTANCE.getIslandOf(invitedBy);
                                 if (island == null) {
                                     return;
                                 }
-                                System.out.println("island: " + island.getName());
                                 if (!island.isLoaded()) return;
 
-                                System.out.println("island loaded");
                                 if (!island.isInvited(wantToJoin)) {
                                     JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:to_player_chat:" + wantToJoin + ":" + CoreSkyblock.SERVER_NAME + ":§cVous n'avez pas été invité sur cette île.");
                                     return;

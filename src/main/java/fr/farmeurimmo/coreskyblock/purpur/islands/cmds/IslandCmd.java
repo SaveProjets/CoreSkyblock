@@ -165,9 +165,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 p.sendMessage(Component.text("§cUtilisation: /is invite <joueur>"));
                 return false;
             }
-            JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:to_player_chat:" + p.getUniqueId() +
-                    ":" + CoreSkyblock.SERVER_NAME + ":" + "\n§aVous avez été invité à rejoindre l'île de " + p.getName() + ". §cElle expire dans 1 minute.\n§6Faites §e/is accept " +
-                    p.getName() + "§6 pour accepter l'invitation.\n");
             if (!island.hasPerms(rank, IslandPerms.INVITES, p.getUniqueId())) {
                 p.sendMessage(Component.text("§cVous n'avez pas la permission d'inviter des joueurs."));
                 return false;
@@ -204,7 +201,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 target.sendMessage(toSend);
             } else {
                 CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
-                        "island:to_player_chat:" + p.getUniqueId() + ":" + CoreSkyblock.SERVER_NAME + ":" +
+                        "island:to_player_chat:" + targetPlayer.left() + ":" + CoreSkyblock.SERVER_NAME + ":" +
                                 "\n§aVous avez été invité à rejoindre l'île de " + p.getName() +
                                 ". §cElle expire dans 1 minute.\n§6Faites §e/is accept " + p.getName() + "§6 pour accepter l'invitation.\n"));
             }
