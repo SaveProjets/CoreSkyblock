@@ -6,11 +6,9 @@ import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,13 +19,14 @@ public class IslandInv extends FastInv {
 
         CommonItemStacks.applyCommonPanes(Material.LIME_STAINED_GLASS_PANE, getInventory());
 
-        ItemStack member = ItemBuilder.copyOf(new ItemStack(Material.PLAYER_HEAD))
-                .name("§6Membres §8| §7(clic gauche)").build();
-        SkullMeta meta = (SkullMeta) member.getItemMeta();
-        meta.setOwningPlayer(Bukkit.getOfflinePlayer(island.getOwnerUUID()));
-        member.setItemMeta(meta);
-
-        setItem(12, member, e -> new IslandMembersInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
+        ItemStack member = CommonItemStacks.getCached(island.getOwnerUUID(), island.getMemberName(island.getOwnerUUID()));
+        if (member == null) {
+            CommonItemStacks.getHead(island.getOwnerUUID(), island.getMemberName(island.getOwnerUUID()))
+                    .thenAccept(item -> setItem(12, ItemBuilder.copyOf(item).name("§6Membres §8| §7(clic gauche)").build(),
+                            e -> new IslandMembersInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked())));
+        } else {
+            setItem(12, ItemBuilder.copyOf(member).name("§6Membres §8| §7(clic gauche)").build(), e -> new IslandMembersInv(island, (Player) e.getWhoClicked()).open((Player) e.getWhoClicked()));
+        }
 
         setItem(13, ItemBuilder.copyOf(new ItemStack(Material.BRUSH))
                 .name("§6Améliorations §8| §7(clic gauche)").build(), e ->

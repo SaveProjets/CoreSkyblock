@@ -14,7 +14,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +56,20 @@ public class IslandMembersInv extends FastInv {
         }, 0, 40L);
     }
 
+    private static @NotNull ArrayList<String> getStrings(Map.Entry<UUID, IslandRanks> playerEntry) {
+        ArrayList<String> lore = new ArrayList<>();
+        lore.add("");
+        for (IslandRanks islandRanks : IslandRanks.getAvailableRankForMembers()) {
+            lore.add(CommonItemStacks.getArrowWithColors((islandRanks.getId() == playerEntry.getValue().getId()), false) +
+                    islandRanks.getName());
+        }
+        lore.add("");
+        lore.add("§8➡ §fClic droit pour promouvoir");
+        lore.add("§8➡ §fClic gauche pour rétrograder");
+        lore.add("§8➡ §fShift + clic pour retirer");
+        return lore;
+    }
+
     public void update(Island island) {
         if (island == null) return;
 
@@ -74,80 +89,18 @@ public class IslandMembersInv extends FastInv {
                 if (rankPos.get(playerEntry.getValue()) != currentLevelRank) {
                     continue;
                 }
-                ItemStack custom = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta meta = (SkullMeta) custom.getItemMeta();
-                meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerEntry.getKey()));
-                meta.displayName(Component.text("§f" + island.getMemberName(playerEntry.getKey())));
-                custom.setItemMeta(meta);
-                ArrayList<String> lore = new ArrayList<>();
-                lore.add("§7Clic droit pour promouvoir");
-                lore.add("§7Clic gauche pour rétrograder");
-                lore.add("§7Shift + clic pour retirer");
-                lore.add("");
-                lore.add("§7Grade : " + playerEntry.getValue().getName());
-                setItem(SLOTS[currentSlot], ItemBuilder.copyOf(custom).lore(lore).build(), e -> {
-                    if (island.isReadOnly()) {
-                        IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
-                        return;
-                    }
-                    IslandRanks rank = island.getPlayerRank(e.getWhoClicked().getUniqueId());
-                    if (rank.getId() >= playerEntry.getValue().getId()) {
-                        e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier les " +
-                                "grades de joueurs ayant un grade supérieur ou égal au vôtre."));
-                        return;
-                    }
-                    if (e.isShiftClick()) {
-                        if (!island.hasPerms(rank, IslandPerms.KICK, e.getWhoClicked().getUniqueId())) {
-                            e.getWhoClicked().sendMessage(Component.text(
-                                    "§cVous n'avez pas la permission de retirer un membre."));
-                            return;
-                        }
-                        island.removeMember(playerEntry.getKey());
-                        island.sendMessageToAll("§c" + Bukkit.getOfflinePlayer(playerEntry.getKey()).getName() + " a été retiré de l'île.");
-                        update(island);
-                        return;
-                    }
-                    if (e.isLeftClick()) {
-                        if (!island.hasPerms(rank, IslandPerms.CHANGE_RANK, e.getWhoClicked().getUniqueId())) {
-                            e.getWhoClicked().sendMessage(Component.text(
-                                    "§cVous n'avez pas la permission de promouvoir un membre."));
-                            return;
-                        }
-                        if (rank.getId() >= playerEntry.getValue().getId() - 1) {
-                            e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas promouvoir " +
-                                    "un joueur à un grade supérieur ou égal au vôtre."));
-                            return;
-                        }
-                        if (island.promote(playerEntry.getKey())) {
-                            e.getWhoClicked().sendMessage(Component.text("§aVous avez promu " +
-                                    island.getMemberName(playerEntry.getKey()) + " au grade " +
-                                    island.getPlayerRank(playerEntry.getKey()).getName()));
-                        } else {
-                            e.getWhoClicked().sendMessage(Component.text("§cImpossible de promouvoir " +
-                                    island.getMemberName(playerEntry.getKey()) + "."));
-                        }
-                    } else if (e.isRightClick()) {
-                        if (!island.hasPerms(rank, IslandPerms.CHANGE_RANK, e.getWhoClicked().getUniqueId())) {
-                            e.getWhoClicked().sendMessage(Component.text(
-                                    "§cVous n'avez pas la permission de rétrograder un membre."));
-                            return;
-                        }
-                        if (playerEntry.getValue().getId() <= rank.getId()) {
-                            e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas rétrograder " +
-                                    "un joueur d'un grade supérieur ou égal au vôtre."));
-                            return;
-                        }
-                        if (island.demote(playerEntry.getKey())) {
-                            e.getWhoClicked().sendMessage(Component.text("§aVous avez rétrogradé " +
-                                    island.getMemberName(playerEntry.getKey()) + " au grade " +
-                                    island.getPlayerRank(playerEntry.getKey()).getName()));
-                        } else {
-                            e.getWhoClicked().sendMessage(Component.text("§cImpossible de rétrograder " +
-                                    island.getMemberName(playerEntry.getKey()) + "."));
-                        }
-                    }
-                    update(island);
-                });
+                int finalCurrentSlot = currentSlot;
+                ItemStack cached = CommonItemStacks.getCached(playerEntry.getKey(), island.getMemberName(playerEntry.getKey()));
+                if (cached == null) {
+                    CommonItemStacks.getHead(playerEntry.getKey(), island.getMemberName(playerEntry.getKey())).thenAccept(head -> {
+                        Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                            applyHead(head, island, playerEntry, finalCurrentSlot);
+                            return null;
+                        });
+                    });
+                } else {
+                    applyHead(cached, island, playerEntry, currentSlot);
+                }
                 members.add(playerEntry.getKey());
                 currentSlot++;
             }
@@ -157,5 +110,75 @@ public class IslandMembersInv extends FastInv {
         for (int i = currentSlot; i < SLOTS.length; i++) {
             setItem(SLOTS[i], null);
         }
+    }
+
+    private void applyHead(ItemStack head, Island island, Map.Entry<UUID, IslandRanks> playerEntry, int currentSlot) {
+        ItemMeta meta = head.getItemMeta();
+        meta.displayName(Component.text("§f" + island.getMemberName(playerEntry.getKey())));
+        head.setItemMeta(meta);
+        ArrayList<String> lore = getStrings(playerEntry);
+        setItem(SLOTS[currentSlot], ItemBuilder.copyOf(head).lore(lore).build(), e -> {
+            if (island.isReadOnly()) {
+                IslandsManager.INSTANCE.sendPlayerIslandReadOnly((Player) e.getWhoClicked());
+                return;
+            }
+            IslandRanks rank = island.getPlayerRank(e.getWhoClicked().getUniqueId());
+            if (rank.getId() >= playerEntry.getValue().getId()) {
+                e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas modifier les " +
+                        "grades de joueurs ayant un grade supérieur ou égal au vôtre."));
+                return;
+            }
+            if (e.isShiftClick()) {
+                if (!island.hasPerms(rank, IslandPerms.KICK, e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text(
+                            "§cVous n'avez pas la permission de retirer un membre."));
+                    return;
+                }
+                island.removeMember(playerEntry.getKey());
+                island.sendMessageToAll("§c" + Bukkit.getOfflinePlayer(playerEntry.getKey()).getName() + " a été retiré de l'île.");
+                update(island);
+                return;
+            }
+            if (e.isLeftClick()) {
+                if (!island.hasPerms(rank, IslandPerms.CHANGE_RANK, e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text(
+                            "§cVous n'avez pas la permission de promouvoir un membre."));
+                    return;
+                }
+                if (rank.getId() >= playerEntry.getValue().getId() - 1) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas promouvoir " +
+                            "un joueur à un grade supérieur ou égal au vôtre."));
+                    return;
+                }
+                if (island.promote(playerEntry.getKey())) {
+                    e.getWhoClicked().sendMessage(Component.text("§aVous avez promu " +
+                            island.getMemberName(playerEntry.getKey()) + " au grade " +
+                            island.getPlayerRank(playerEntry.getKey()).getName()));
+                } else {
+                    e.getWhoClicked().sendMessage(Component.text("§cImpossible de promouvoir " +
+                            island.getMemberName(playerEntry.getKey()) + "."));
+                }
+            } else if (e.isRightClick()) {
+                if (!island.hasPerms(rank, IslandPerms.CHANGE_RANK, e.getWhoClicked().getUniqueId())) {
+                    e.getWhoClicked().sendMessage(Component.text(
+                            "§cVous n'avez pas la permission de rétrograder un membre."));
+                    return;
+                }
+                if (playerEntry.getValue().getId() <= rank.getId()) {
+                    e.getWhoClicked().sendMessage(Component.text("§cVous ne pouvez pas rétrograder " +
+                            "un joueur d'un grade supérieur ou égal au vôtre."));
+                    return;
+                }
+                if (island.demote(playerEntry.getKey())) {
+                    e.getWhoClicked().sendMessage(Component.text("§aVous avez rétrogradé " +
+                            island.getMemberName(playerEntry.getKey()) + " au grade " +
+                            island.getPlayerRank(playerEntry.getKey()).getName()));
+                } else {
+                    e.getWhoClicked().sendMessage(Component.text("§cImpossible de rétrograder " +
+                            island.getMemberName(playerEntry.getKey()) + "."));
+                }
+            }
+            update(island);
+        });
     }
 }

@@ -1,5 +1,7 @@
 package fr.farmeurimmo.coreskyblock.utils;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.mrmicky.fastinv.ItemBuilder;
@@ -9,14 +11,26 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.codehaus.plexus.util.Base64;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class CommonItemStacks {
 
     private static final UUID uuid = UUID.randomUUID();
+    private static final JsonParser parser = new JsonParser();
+    private static final String API_PROFILE_LINK = "https://sessionserver.mojang.com/session/minecraft/profile/";
+    private static final Map<UUID, String> textures = new java.util.HashMap<>();
 
     public static ItemStack getCommonGlassPane(Material pane) {
         return ItemBuilder.copyOf(new ItemStack(pane))
@@ -103,4 +117,78 @@ public class CommonItemStacks {
         return head;
     }
 
+    public static ItemStack getCached(UUID uuid, String name) {
+        if (!textures.containsKey(uuid)) {
+            return null;
+        }
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        GameProfile profile = new GameProfile(uuid, name);
+        profile.getProperties().put("textures", new Property("textures", textures.get(uuid)));
+
+        return getHeadApplied(head, meta, profile);
+    }
+
+    @NotNull
+    private static ItemStack getHeadApplied(ItemStack head, SkullMeta meta, GameProfile profile) {
+        try {
+            Field profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        head.setItemMeta(meta);
+        return head;
+    }
+
+    public static String getSkinUrl(String uuid) {
+        if (textures.containsKey(UUID.fromString(uuid))) {
+            return textures.get(UUID.fromString(uuid));
+        }
+        String json = getContent(API_PROFILE_LINK + uuid);
+        if (json == null) {
+            return null;
+        }
+        JsonObject o = parser.parse(json).getAsJsonObject();
+        String jsonBase64 = o.get("properties").getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
+
+        o = parser.parse(new String(java.util.Base64.getDecoder().decode(jsonBase64))).getAsJsonObject();
+
+        return o.get("textures").getAsJsonObject().get("SKIN").getAsJsonObject().get("url").getAsString();
+    }
+
+    private static String getContent(String link) {
+        try {
+            URL url = new URL(link);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                StringBuilder content = new StringBuilder();
+                String inputLine;
+                while ((inputLine = br.readLine()) != null) {
+                    content.append(inputLine);
+                }
+                return content.toString();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static CompletableFuture<ItemStack> getHead(UUID uuid, String name) {
+        return CompletableFuture.supplyAsync(() -> {
+            ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta meta = (SkullMeta) head.getItemMeta();
+            GameProfile profile = new GameProfile(uuid, name);
+
+            textures.put(uuid, new String(Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", getSkinUrl(uuid.toString())).getBytes())));
+
+            profile.getProperties().put("textures", new Property("textures", textures.get(uuid)));
+
+            return getHeadApplied(head, meta, profile);
+        });
+    }
 }

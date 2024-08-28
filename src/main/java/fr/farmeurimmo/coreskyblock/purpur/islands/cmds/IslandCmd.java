@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class IslandCmd implements CommandExecutor, TabCompleter {
 
-    public static final long COOLDOWN = 3_000;
+    public static final long COOLDOWN = 1_000;
     private static final Component USAGE_NO_IS = Component.text("§cUtilisation: /is create OU /is join <joueur> " +
             "tout en possédant une invitation.");
     private final ArrayList<UUID> creatingIsland = new ArrayList<>();

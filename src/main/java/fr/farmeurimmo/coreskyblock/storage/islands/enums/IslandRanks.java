@@ -45,6 +45,10 @@ public enum IslandRanks {
         return null;
     }
 
+    public static LinkedList<IslandRanks> getAvailableRankForMembers() {
+        return new LinkedList<>(Arrays.asList(COCHEF, MODERATEUR, MEMBRE));
+    }
+
     public String getName() {
         return name;
     }
