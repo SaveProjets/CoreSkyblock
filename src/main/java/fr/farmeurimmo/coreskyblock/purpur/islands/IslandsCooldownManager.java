@@ -17,9 +17,9 @@ public class IslandsCooldownManager {
     public IslandsCooldownManager() {
         INSTANCE = this;
 
-        defaultCooldowns.put("island-accessibility", 10_000L);
-        defaultCooldowns.put("island-calculation-of-level", 20_000L);
-        defaultCooldowns.put("island-bank", 20_000L);
+        defaultCooldowns.put("island-accessibility", 8_000L);
+        defaultCooldowns.put("island-calculation-of-level", 15_000L);
+        defaultCooldowns.put("island-bank", 12_000L);
     }
 
     public void addCooldown(UUID uuid, String cooldown) {
