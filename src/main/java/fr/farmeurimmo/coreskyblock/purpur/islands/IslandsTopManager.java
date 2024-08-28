@@ -31,6 +31,19 @@ public class IslandsTopManager {
         INSTANCE = this;
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::updateTops, 0, 20 * 60 * 5 - 20);
+
+        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(false), 0, 20 * 5);
+        }
+    }
+
+    private void updateHolograms(boolean full) {
+        updateHologram("ISLANDS_Ranking_value", 0, "§6§lTop îles (Valeur)",
+                CoreSkyblock.SPAWN.clone().add(-5, 4, -5), full);
+        updateHologram("ISLANDS_Ranking_money", 1, "§6§lTop îles (Argent)",
+                CoreSkyblock.SPAWN.clone().add(-5, 4, 5), full);
+        updateHologram("ISLANDS_Ranking_warp", 2, "§6§lTop îles (Warp)",
+                CoreSkyblock.SPAWN.clone().add(5, 4, -5), full);
     }
 
     public LinkedHashMap<Pair<UUID, String>, Double> getTopIslands(int type) {
@@ -66,16 +79,7 @@ public class IslandsTopManager {
                         lastUpdate = System.currentTimeMillis();
                         nextUpdate = lastUpdate + time_between_updates;
 
-                        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
-                            Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> {
-                                updateHologram("ISLANDS_Ranking_value", 0, "§6§lTop îles (Valeur)",
-                                        CoreSkyblock.SPAWN.clone().add(-5, 4, -5));
-                                updateHologram("ISLANDS_Ranking_money", 1, "§6§lTop îles (Argent)",
-                                        CoreSkyblock.SPAWN.clone().add(-5, 4, 5));
-                                updateHologram("ISLANDS_Ranking_warp", 2, "§6§lTop îles (Warp)",
-                                        CoreSkyblock.SPAWN.clone().add(5, 4, -5));
-                            }, 5);
-                        }
+                        Bukkit.getScheduler().runTaskAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(true));
                         return null;
                     });
                 });
@@ -83,10 +87,10 @@ public class IslandsTopManager {
         });
     }
 
-    private void updateHologram(String hologramName, int topType, String title, Location location) {
+    private void updateHologram(String hologramName, int topType, String title, Location location, boolean full) {
         ArrayList<String> defaultLines = new ArrayList<>();
         defaultLines.add(title);
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < 12; i++) {
             defaultLines.add("");
         }
 
@@ -96,21 +100,26 @@ public class IslandsTopManager {
         }
 
         HologramPage page = hologram.getPage(0);
-        LinkedHashMap<Pair<UUID, String>, Double> topIslands = IslandsTopManager.INSTANCE.getTopIslands(topType);
 
-        int i = 0;
-        for (Pair<UUID, String> island : topIslands.keySet()) {
-            if (i >= 10) {
-                break;
+
+        if (full) {
+            LinkedHashMap<Pair<UUID, String>, Double> topIslands = IslandsTopManager.INSTANCE.getTopIslands(topType);
+
+            int i = 0;
+            for (Pair<UUID, String> island : topIslands.keySet()) {
+                if (i >= 10) {
+                    break;
+                }
+                page.setLine(i + 2, "§6#" + (i + 1) + " §6" + island.right().replace("&", "§") + " §7- §6" +
+                        NumberFormat.getInstance().format(topIslands.get(island)));
+                i++;
             }
-            page.setLine(i + 2, "§6#" + (i + 1) + " §6" + island.right().replace("&", "§") + " §7- §6" +
-                    NumberFormat.getInstance().format(topIslands.get(island)));
-            i++;
-        }
 
-        for (int j = i + 2; j < 12; j++) {
-            page.setLine(j, "");
+            for (int j = i + 2; j < 12; j++) {
+                page.setLine(j, "");
+            }
         }
+        page.setLine(page.size() - 1, "§7Mise à jour dans: §6" + getTimeUntilRefresh());
     }
 
     public String getTimeUntilRefresh() {
