@@ -33,7 +33,7 @@ public class IslandsTopManager {
         Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::updateTops, 0, 20 * 60 * 5 - 20);
 
         if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
-            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(false), 0, 20 * 5);
+            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(false), 0, 20 * 3);
         }
     }
 
