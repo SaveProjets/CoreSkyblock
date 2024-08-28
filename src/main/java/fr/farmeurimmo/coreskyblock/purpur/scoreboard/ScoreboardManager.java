@@ -49,7 +49,7 @@ public class ScoreboardManager {
         SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
         if (user == null) {
             board.updateTitle("§c§lChargement...");
-            board.updateLines("§c§lVeuillez patienter,", "§c§lvos données sont en", "§c§lcours de chargement...", "", "§f» §c§lplay.edmine.net");
+            board.updateLines("§c§lVeuillez patienter,", "§c§lvos données sont en", "§c§lcours de chargement...", "", "§f» §c§lplay.edmine.fr");
             return;
         }
         board.updateTitle("§8● §6§lSkyblock §8●");
@@ -81,7 +81,7 @@ public class ScoreboardManager {
                         islandLines.get(1),
                         islandLines.get(2),
                         "",
-                        "§8➡ §eplay.edmine.net"
+                        "§8➡ §eplay.edmine.fr"
                 );
             } else if (number == 1) {
                 board.updateTitle("§6§lCoreSkyblock");
@@ -99,7 +99,7 @@ public class ScoreboardManager {
                     "§e §8• §7Prochain: §eCTF",
                     "§e §8• §7Dans: §e999J et 25H",
                     "",
-                    "§8➡ §eplay.edmine.net");
+                    "§8➡ §eplay.edmine.fr");
         } else if (CoreSkyblock.SERVER_TYPE == ServerType.PVE) {
             board.updateLines("§6§l" + CoreSkyblock.SERVER_NAME,
                     "",
@@ -107,7 +107,7 @@ public class ScoreboardManager {
                     "",
                     "➡ §a§lDonjons: §cEN DEV",
                     "",
-                    "§8➡ §eplay.edmine.net");
+                    "§8➡ §eplay.edmine.fr");
         }
     }
 
