@@ -1,11 +1,18 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands;
 
+import eu.decentsoftware.holograms.api.holograms.Hologram;
+import eu.decentsoftware.holograms.api.holograms.HologramPage;
+import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.dependencies.holograms.DecentHologramAPI;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.utils.DateUtils;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -58,11 +65,52 @@ public class IslandsTopManager {
 
                         lastUpdate = System.currentTimeMillis();
                         nextUpdate = lastUpdate + time_between_updates;
+
+                        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+                            Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> {
+                                updateHologram("ISLANDS_Ranking_value", 0, "§6§lTop îles (Valeur)",
+                                        CoreSkyblock.SPAWN.clone().add(-5, 4, -5));
+                                updateHologram("ISLANDS_Ranking_money", 1, "§6§lTop îles (Argent)",
+                                        CoreSkyblock.SPAWN.clone().add(-5, 4, 5));
+                                updateHologram("ISLANDS_Ranking_warp", 2, "§6§lTop îles (Warp)",
+                                        CoreSkyblock.SPAWN.clone().add(5, 4, -5));
+                            }, 5);
+                        }
                         return null;
                     });
                 });
             });
         });
+    }
+
+    private void updateHologram(String hologramName, int topType, String title, Location location) {
+        ArrayList<String> defaultLines = new ArrayList<>();
+        defaultLines.add(title);
+        for (int i = 0; i < 11; i++) {
+            defaultLines.add("");
+        }
+
+        Hologram hologram = DecentHologramAPI.INSTANCE.getHologram(hologramName);
+        if (hologram == null) {
+            hologram = DecentHologramAPI.INSTANCE.spawnHologram(hologramName, location, defaultLines);
+        }
+
+        HologramPage page = hologram.getPage(0);
+        LinkedHashMap<Pair<UUID, String>, Double> topIslands = IslandsTopManager.INSTANCE.getTopIslands(topType);
+
+        int i = 0;
+        for (Pair<UUID, String> island : topIslands.keySet()) {
+            if (i >= 10) {
+                break;
+            }
+            page.setLine(i + 2, "§6#" + (i + 1) + " §6" + island.right().replace("&", "§") + " §7- §6" +
+                    NumberFormat.getInstance().format(topIslands.get(island)));
+            i++;
+        }
+
+        for (int j = i + 2; j < 12; j++) {
+            page.setLine(j, "");
+        }
     }
 
     public String getTimeUntilRefresh() {

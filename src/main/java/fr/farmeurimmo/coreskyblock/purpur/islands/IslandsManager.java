@@ -3,8 +3,11 @@ package fr.farmeurimmo.coreskyblock.purpur.islands;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
+import eu.decentsoftware.holograms.api.holograms.HologramPage;
 import fr.farmeurimmo.coreskyblock.ServerType;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
+import fr.farmeurimmo.coreskyblock.purpur.dependencies.holograms.DecentHologramAPI;
 import fr.farmeurimmo.coreskyblock.purpur.islands.bank.IslandsBankManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
@@ -18,12 +21,14 @@ import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
+import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -117,6 +122,34 @@ public class IslandsManager {
                                 getActualPlayersOnline())), 0, 20);
                 return null;
             });
+        } else if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+            Bukkit.getScheduler().runTaskTimer(CoreSkyblock.INSTANCE, () -> {
+                ArrayList<String> defaultLines = new ArrayList<>();
+                defaultLines.add("§6§lTop îles");
+                for (int i = 0; i < 11; i++) {
+                    defaultLines.add("");
+                }
+                Hologram hologram = DecentHologramAPI.INSTANCE.getHologram("ISLANDS_Ranking_value");
+                if (hologram == null) {
+                    hologram = DecentHologramAPI.INSTANCE.spawnHologram("ISLANDS_Ranking_value", CoreSkyblock.SPAWN.clone().add(-5, 4, -5), defaultLines);
+                }
+                HologramPage page = hologram.getPage(0);
+                // top type; 0=value is, 1=money, 2=warp rate
+                int i = 0;
+                LinkedHashMap<Pair<UUID, String>, Double> topIslands = IslandsTopManager.INSTANCE.getTopIslands(0);
+                for (Pair<UUID, String> island : topIslands.keySet()) {
+                    if (i >= 10) {
+                        break;
+                    }
+                    page.setLine(i + 2, "§6" + island.right().replace("&", "§") + " §7- §6" +
+                            NumberFormat.getInstance().format(topIslands.get(island)));
+                    i++;
+                }
+                // set empty lines
+                for (int j = i + 2; j < 12; j++) {
+                    page.setLine(j, "");
+                }
+            }, 0, 20 * 5);
         }
     }
 

@@ -28,14 +28,18 @@ public class DecentHologramAPI {
     public Hologram spawnHologram(String nameOfHolo, Location loc, List<String> lines) {
         String name = nameOfHolo;
         if (name == null) name = UUID.randomUUID().toString();
-        return DHAPI.createHologram(name, loc, lines);
+        return DHAPI.createHologram(name, loc, false, lines);
+    }
+
+    public Hologram getHologram(String name) {
+        return DHAPI.getHologram(name);
     }
 
     public void spawnHologramBinded(Location loc, List<String> lines, Entity entity) {
         CompletableFuture.runAsync(() -> {
             String name = "binded_" + UUID.randomUUID();
             Hologram hologram = DHAPI.createHologram(name, loc, lines);
-            bindHologramToEntity(hologram, entity, loc, -1, false);
+            bindHologramToEntity(hologram, entity, loc, -1, true);
         });
     }
 

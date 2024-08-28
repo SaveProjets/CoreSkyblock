@@ -297,6 +297,7 @@ public final class CoreSkyblock extends JavaPlugin {
 
         SyncUsersManager.INSTANCE.onDisable();
         SkyblockUsersManager.INSTANCE.onDisable();
+        DecentHologramAPI.INSTANCE.disable();
 
         if (CoreSkyblock.SERVER_TYPE == ServerType.GAME) {
             IslandsManager.INSTANCE.onDisable();
