@@ -78,13 +78,29 @@ public enum IslandPerms {
         if (startingAt >= values().length) return new ArrayList<>();
         ArrayList<IslandPerms> perms = new ArrayList<>();
         int i = 0;
-        for (IslandPerms perm : values()) {
+        for (IslandPerms perm : getPermsByColor()) {
             if (i >= startingAt && i < startingAt + maxAmount) {
                 perms.add(perm);
             }
             i++;
         }
         return perms;
+    }
+
+    public static ArrayList<IslandPerms> getPermsByColor() {
+        ArrayList<IslandPerms> whitePerms = new ArrayList<>();
+        ArrayList<IslandPerms> otherPerms = new ArrayList<>();
+
+        for (IslandPerms perm : values()) {
+            if (perm.getDescription().startsWith("§f")) {
+                whitePerms.add(perm);
+            } else {
+                otherPerms.add(perm);
+            }
+        }
+
+        whitePerms.addAll(otherPerms);
+        return whitePerms;
     }
 
     public String getDescription() {
