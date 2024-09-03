@@ -10,6 +10,8 @@ public class PvpManager {
     public PvpManager(JavaPlugin plugin) {
         INSTANCE = this;
 
+        new PvpPlanningManager();
+
         plugin.getServer().getPluginManager().registerEvents(new PvpListener(), plugin);
     }
 }

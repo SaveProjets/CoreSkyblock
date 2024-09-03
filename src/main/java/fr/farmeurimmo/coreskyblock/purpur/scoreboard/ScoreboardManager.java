@@ -5,6 +5,7 @@ import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsTopManager;
 import fr.farmeurimmo.coreskyblock.purpur.prestige.PrestigesManager;
+import fr.farmeurimmo.coreskyblock.purpur.pvp.PvpPlanningManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUser;
 import fr.farmeurimmo.coreskyblock.storage.skyblockusers.SkyblockUsersManager;
@@ -87,19 +88,35 @@ public class ScoreboardManager {
                 board.updateTitle("§6§lCoreSkyblock");
             }
         } else if (CoreSkyblock.SERVER_TYPE == ServerType.PVP) {
-            board.updateLines(
-                    "",
-                    "➡ §d§lInformations:",
-                    "§e §8• §7En pvp: §c(N/A)",
-                    "§e §8• §7Kills: §a" + user.getPvpKills(),
-                    "§e §8• §7Morts: §c" + user.getPvpDeaths(),
-                    "§e §8• §7KDR: §e" + NumberFormat.getInstance().format(user.getPvpKills() / (user.getPvpDeaths() == 0 ? 1 : user.getPvpDeaths())),
-                    "",
-                    "➡ §a§lEvents",
-                    "§e §8• §7Prochain: §eCTF",
-                    "§e §8• §7Dans: §e999J et 25H",
-                    "",
-                    "§8➡ §eplay.edmine.fr");
+            if (PvpPlanningManager.INSTANCE.currentEvent == null) {
+                board.updateLines(
+                        "",
+                        "➡ §d§lInformations:",
+                        "§e §8• §7En pvp: §c(N/A)",
+                        "§e §8• §7Kills: §a" + user.getPvpKills(),
+                        "§e §8• §7Morts: §c" + user.getPvpDeaths(),
+                        "§e §8• §7KDR: §e" + NumberFormat.getInstance().format(user.getPvpKills() / (user.getPvpDeaths() == 0 ? 1 : user.getPvpDeaths())),
+                        "",
+                        "➡ §a§lEvents",
+                        "§e §8• §7Prochain: §e" + PvpPlanningManager.INSTANCE.getNextEvent().getType().name(),
+                        "§e §8• §7Dans: §e" + PvpPlanningManager.INSTANCE.getNextInString(),
+                        "",
+                        "§8➡ §eplay.edmine.fr");
+            } else {
+                board.updateLines(
+                        "",
+                        "➡ §d§lInformations:",
+                        "§e §8• §7En pvp: §a" + PvpPlanningManager.INSTANCE.currentEvent.getType().name(),
+                        "§e §8• §7Kills: §a" + user.getPvpKills(),
+                        "§e §8• §7Morts: §c" + user.getPvpDeaths(),
+                        "§e §8• §7KDR: §e" + NumberFormat.getInstance().format(user.getPvpKills() / (user.getPvpDeaths() == 0 ? 1 : user.getPvpDeaths())),
+                        "",
+                        "➡ §a§lEvents",
+                        "§e §8• §7En cours: §a" + PvpPlanningManager.INSTANCE.currentEvent.getType().name(),
+                        "§e §8• §7Temps restant: §e" + PvpPlanningManager.INSTANCE.getTimeLeftForCurrentEvent(),
+                        "",
+                        "§8➡ §eplay.edmine.fr");
+            }
         } else if (CoreSkyblock.SERVER_TYPE == ServerType.PVE) {
             board.updateLines("§6§l" + CoreSkyblock.SERVER_NAME,
                     "",
