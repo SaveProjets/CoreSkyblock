@@ -79,7 +79,8 @@ public class IslandsTopManager {
                         lastUpdate = System.currentTimeMillis();
                         nextUpdate = lastUpdate + time_between_updates;
 
-                        Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(true), 20L);
+                        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN)
+                            Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(true), 20L);
                         return null;
                     });
                 });
