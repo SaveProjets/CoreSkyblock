@@ -481,7 +481,7 @@ public final class CoreSkyblock extends JavaPlugin {
         int min = Integer.MAX_VALUE;
         String server = null;
         for (Map.Entry<String, Integer> entry : getServersLoad().entrySet()) {
-            if (!entry.getKey().contains("SPAWN")) continue;
+            if (!entry.getKey().contains("spawn")) continue;
             if (entry.getValue() < min) {
                 min = entry.getValue();
                 server = entry.getKey();
