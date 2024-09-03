@@ -1,5 +1,6 @@
 package fr.farmeurimmo.coreskyblock.purpur.islands.listeners;
 
+import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsBlocksValues;
@@ -10,6 +11,7 @@ import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -34,6 +36,20 @@ public class IslandsProtectionListener implements Listener {
         if (!IslandsManager.INSTANCE.isAnIsland(e.getBlock().getWorld())) return;
         WorldBorder border = e.getBlock().getWorld().getWorldBorder();
         if (e.getToBlock().getX() > border.getSize() / 2 || e.getToBlock().getZ() > border.getSize() / 2) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBeacon(PlayerChangeBeaconEffectEvent e) {
+        if (IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBeaconGiveEffect(BeaconEffectEvent e) {
+        if (IslandsManager.INSTANCE.isAnIsland(e.getPlayer().getWorld())) {
             e.setCancelled(true);
         }
     }
