@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 public class WarpsInv extends FastInv {
 
     public WarpsInv() {
-        super(3 * 9, "§0Warps");
+        super(3 * 9, "§8Warps");
 
         int i = 0;
         for (String name : WarpsManager.INSTANCE.warps.keySet()) {
