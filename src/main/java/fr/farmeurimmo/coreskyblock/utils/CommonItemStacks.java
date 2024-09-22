@@ -1,25 +1,25 @@
 package fr.farmeurimmo.coreskyblock.utils;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import com.google.gson.stream.JsonReader;
 import fr.mrmicky.fastinv.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.codehaus.plexus.util.Base64;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
@@ -97,23 +97,17 @@ public class CommonItemStacks {
         if (skinURL == null || skinURL.isEmpty()) {
             return head;
         }
-        ItemMeta headMeta = head.getItemMeta();
-        GameProfile profile = new GameProfile(uuid, "a");
+
         byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", skinURL).getBytes());
-        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
-        Field profileField = null;
-        try {
-            profileField = headMeta.getClass().getDeclaredField("profile");
-        } catch (NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
-        }
-        profileField.setAccessible(true);
-        try {
-            profileField.set(headMeta, profile);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        head.setItemMeta(headMeta);
+
+        head.editMeta(SkullMeta.class, skullMeta -> {
+            final UUID uuid = UUID.randomUUID();
+            final PlayerProfile playerProfile = Bukkit.createProfile(uuid, uuid.toString().substring(0, 16));
+            playerProfile.setProperty(new ProfileProperty("textures", new String(encodedData)));
+
+            skullMeta.setPlayerProfile(playerProfile);
+        });
+
         return head;
     }
 
@@ -122,23 +116,19 @@ public class CommonItemStacks {
             return null;
         }
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-        GameProfile profile = new GameProfile(uuid, name);
-        profile.getProperties().put("textures", new Property("textures", textures.get(uuid)));
 
-        return getHeadApplied(head, meta, profile);
+        return getHeadApplied(head, textures.get(uuid), uuid);
     }
 
     @NotNull
-    private static ItemStack getHeadApplied(ItemStack head, SkullMeta meta, GameProfile profile) {
-        try {
-            Field profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        head.setItemMeta(meta);
+    private static ItemStack getHeadApplied(ItemStack head, String texture, UUID uuid) {
+        head.editMeta(SkullMeta.class, skullMeta -> {
+            final PlayerProfile playerProfile = Bukkit.createProfile(uuid, uuid.toString().substring(0, 16));
+            playerProfile.setProperty(new ProfileProperty("textures", texture));
+
+            skullMeta.setPlayerProfile(playerProfile);
+        });
+
         return head;
     }
 
@@ -150,17 +140,17 @@ public class CommonItemStacks {
         if (json == null) {
             return null;
         }
-        JsonObject o = parser.parse(json).getAsJsonObject();
+        JsonObject o = JsonParser.parseReader(new JsonReader(new java.io.StringReader(json))).getAsJsonObject();
         String jsonBase64 = o.get("properties").getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
 
-        o = parser.parse(new String(java.util.Base64.getDecoder().decode(jsonBase64))).getAsJsonObject();
+        o = JsonParser.parseString(new String(java.util.Base64.getDecoder().decode(jsonBase64))).getAsJsonObject();
 
         return o.get("textures").getAsJsonObject().get("SKIN").getAsJsonObject().get("url").getAsString();
     }
 
     private static String getContent(String link) {
         try {
-            URL url = new URL(link);
+            URL url = URI.create(link).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -172,23 +162,16 @@ public class CommonItemStacks {
                 }
                 return content.toString();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         return null;
     }
 
     public static CompletableFuture<ItemStack> getHead(UUID uuid, String name) {
         return CompletableFuture.supplyAsync(() -> {
-            ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-            SkullMeta meta = (SkullMeta) head.getItemMeta();
-            GameProfile profile = new GameProfile(uuid, name);
-
             textures.put(uuid, new String(Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", getSkinUrl(uuid.toString())).getBytes())));
 
-            profile.getProperties().put("textures", new Property("textures", textures.get(uuid)));
-
-            return getHeadApplied(head, meta, profile);
+            return getHeadApplied(new ItemStack(Material.PLAYER_HEAD), textures.get(uuid), uuid);
         });
     }
 }
