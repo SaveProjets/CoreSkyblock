@@ -27,7 +27,7 @@ Autres cas à définir.
 
 ## Pubsub
 
-### Liste des joueurs connectés (toutes les 15s)
+### Liste des joueurs connectés (toutes les 15s et à chaque déconnexion/reconnexion)
 
 coreskyblock → player_list{server_name}:{PlayerUUID1;PlayerName1,PlayerUUID2;PlayerName2,...}
 
