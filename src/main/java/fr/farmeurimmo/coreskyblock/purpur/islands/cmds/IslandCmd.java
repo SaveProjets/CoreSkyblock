@@ -113,6 +113,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         }
         if (addCommonCommands(args, p)) return false;
 
+        IslandRanks rank = island.getPlayerRank(p.getUniqueId());
+        if (rank == null) {
+            p.sendMessage(Component.text("§cVous n'êtes pas membre de cette île."));
+            return false;
+        }
+
         if (lastCmd.containsKey(p.getUniqueId()) && System.currentTimeMillis() - lastCmd.get(p.getUniqueId()) < COOLDOWN) {
             p.sendMessage(Component.text("§cVeuillez patienter avant de pouvoir réutiliser une commande."));
             return false;
@@ -134,8 +140,62 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        if (args[0].equalsIgnoreCase("warpbrowser")) {
-            new IslandsWarpBrowserInv().open(p);
+        if (args[0].equalsIgnoreCase("invite")) {
+            if (args.length != 2) {
+                p.sendMessage(Component.text("§cUtilisation: /is invite <joueur>"));
+                return false;
+            }
+            Pair<UUID, String> targetPlayer = CoreSkyblock.INSTANCE.getPlayerFromName(args[1]);
+            if (targetPlayer == null) {
+                p.sendMessage(Component.text("§cLe joueur n'est pas en ligne."));
+                return false;
+            }
+            if (!island.isReadOnly()) {
+                if (!island.hasPerms(rank, IslandPerms.INVITES, p.getUniqueId())) {
+                    p.sendMessage(Component.text("§cVous n'avez pas la permission d'inviter des joueurs."));
+                    return false;
+                }
+                if (island.getMembers().containsKey(targetPlayer.left())) {
+                    p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
+                    return false;
+                }
+                if (island.getBannedPlayers().contains(targetPlayer.left())) {
+                    p.sendMessage(Component.text("§cLe joueur est banni de l'île."));
+                    return false;
+                }
+                if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(), island.getMembers().size())) {
+                    p.sendMessage(Component.text("§cL'île est pleine."));
+                    return false;
+                }
+                if (island.isInvited(targetPlayer.left())) {
+                    p.sendMessage(Component.text("§cLe joueur a déjà été invité."));
+                    return false;
+                }
+                island.addInvite(targetPlayer.left());
+                Player target = p.getServer().getPlayer(targetPlayer.left());
+                Component toSend = Component.text("§aVous avez été invité à rejoindre l'île de " +
+                                p.getName() + ". " + "Elle expire dans 1 minute.\n")
+                        .append(Component.text("§2[Cliquez sur ce message pour accepter l'invitation.]")
+                                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/is accept " + p.getName()))
+                                .hoverEvent(Component.text("§aAccepter l'invitation")));
+                if (target != null) {
+                    target.sendMessage(toSend);
+                } else {
+                    CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                            "island:to_player_chat:" + targetPlayer.left() + ":" + CoreSkyblock.SERVER_NAME + ":" +
+                                    "\n§aVous avez été invité à rejoindre l'île de " + p.getName() +
+                                    ". §cElle expire dans 1 minute.\n§6Faites §e/is accept " + p.getName() + "§6 pour accepter l'invitation.\n"));
+                }
+
+                p.sendMessage(Component.text("§aLe joueur a été invité."));
+                island.sendMessage("§a" + targetPlayer.right() + " a été invité à rejoindre l'île.", IslandPerms.INVITES);
+                return false;
+            }
+            //FIXME: pubsub with same check as above, may make a method for both to prevent duplicate code
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_invite:" +
+                    p.getUniqueId() + ":" + p.getName() + ":" +  targetPlayer.left() + ":" + targetPlayer.right() +
+                    ":" + island.getIslandUUID() + ":" + CoreSkyblock.SERVER_NAME));
+            p.sendMessage(Component.text("§cVotre requête est en cours de traitement, veuillez patienter."));
             return false;
         }
 
@@ -154,62 +214,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        IslandRanks rank = island.getPlayerRank(p.getUniqueId());
-        if (rank == null) {
-            p.sendMessage(Component.text("§cVous n'êtes pas membre de cette île."));
-            return false;
-        }
-
-        if (args[0].equalsIgnoreCase("invite")) {
-            if (args.length != 2) {
-                p.sendMessage(Component.text("§cUtilisation: /is invite <joueur>"));
-                return false;
-            }
-            if (!island.hasPerms(rank, IslandPerms.INVITES, p.getUniqueId())) {
-                p.sendMessage(Component.text("§cVous n'avez pas la permission d'inviter des joueurs."));
-                return false;
-            }
-            Pair<UUID, String> targetPlayer = CoreSkyblock.INSTANCE.getPlayerFromName(args[1]);
-            if (targetPlayer == null) {
-                p.sendMessage(Component.text("§cLe joueur n'est pas en ligne."));
-                return false;
-            }
-            if (island.getMembers().containsKey(targetPlayer.left())) {
-                p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
-                return false;
-            }
-            if (island.getBannedPlayers().contains(targetPlayer.left())) {
-                p.sendMessage(Component.text("§cLe joueur est banni de l'île."));
-                return false;
-            }
-            if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(), island.getMembers().size())) {
-                p.sendMessage(Component.text("§cL'île est pleine."));
-                return false;
-            }
-            if (island.isInvited(targetPlayer.left())) {
-                p.sendMessage(Component.text("§cLe joueur a déjà été invité."));
-                return false;
-            }
-            island.addInvite(targetPlayer.left());
-            Player target = p.getServer().getPlayer(targetPlayer.left());
-            Component toSend = Component.text("§aVous avez été invité à rejoindre l'île de " +
-                            p.getName() + ". " + "Elle expire dans 1 minute.\n")
-                    .append(Component.text("§2[Cliquez sur ce message pour accepter l'invitation.]")
-                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/is accept " + p.getName()))
-                            .hoverEvent(Component.text("§aAccepter l'invitation")));
-            if (target != null) {
-                target.sendMessage(toSend);
-            } else {
-                CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
-                        "island:to_player_chat:" + targetPlayer.left() + ":" + CoreSkyblock.SERVER_NAME + ":" +
-                                "\n§aVous avez été invité à rejoindre l'île de " + p.getName() +
-                                ". §cElle expire dans 1 minute.\n§6Faites §e/is accept " + p.getName() + "§6 pour accepter l'invitation.\n"));
-            }
-
-            p.sendMessage(Component.text("§aLe joueur a été invité."));
-            island.sendMessage("§a" + targetPlayer.right() + " a été invité à rejoindre l'île.", IslandPerms.INVITES);
-            return false;
-        }
         if (args[0].equalsIgnoreCase("cancelinvite") || args[0].equalsIgnoreCase("annulerinvite")) {
             if (args.length != 2) {
                 p.sendMessage(Component.text("§cUtilisation: /is cancelinvite <joueur>"));
@@ -561,6 +565,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             }
             new IslandWarpRateInv().open(p);
             return true;
+        }
+        if (args[0].equalsIgnoreCase("warpbrowser")) {
+            new IslandsWarpBrowserInv().open(p);
+            return false;
         }
         return false;
     }

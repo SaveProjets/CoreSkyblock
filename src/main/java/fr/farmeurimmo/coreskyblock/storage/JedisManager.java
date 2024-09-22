@@ -480,6 +480,29 @@ public class JedisManager {
                                 e.printStackTrace();
                             }
                         }
+                        if (args[1].equalsIgnoreCase("remote_invite")) {
+                            try {
+                                UUID emiterUUID = UUID.fromString(args[2]);
+                                String emitterName = args[3];
+                                UUID targetUUID = UUID.fromString(args[4]);
+                                String targetName = args[5];
+                                UUID islandUUID = UUID.fromString(args[6]);
+
+                                if (CoreSkyblock.SERVER_NAME.equals(args[7])) {
+                                    return;
+                                }
+
+                                Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                if (island == null) return;
+
+                                if (island.isReadOnly()) return;
+
+                                //FIXME: method to check (and prevent code duplication DRY)
+                                return;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         return;
                     }
                     if (args[0].equalsIgnoreCase("player_list")) {
