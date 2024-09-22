@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SpawnProtectionListener implements Listener {
@@ -85,6 +86,12 @@ public class SpawnProtectionListener implements Listener {
     public void onCustomFurnitureInteract(FurnitureInteractEvent e) {
         if (!CoreSkyblock.INSTANCE.isASpawn(e.getPlayer().getWorld())) return;
         if (CoreSkyblock.INSTANCE.buildModePlayers.contains(e.getPlayer().getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent e) {
+        if (!CoreSkyblock.INSTANCE.isASpawn(e.getEntity().getWorld())) return;
         e.setCancelled(true);
     }
 
