@@ -41,4 +41,8 @@ public class DateUtils {
         seconds = seconds % 60;
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
+
+    public static String getElapsedTimeInSeconds(long start) {
+        return String.valueOf((System.currentTimeMillis() - start) / 1000);
+    }
 }

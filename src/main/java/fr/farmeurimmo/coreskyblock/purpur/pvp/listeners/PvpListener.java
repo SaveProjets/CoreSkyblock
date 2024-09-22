@@ -29,6 +29,7 @@ public class PvpListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof Player p)) return;
+        if (!(e.getEntity() instanceof Player p)) {
+        }
     }
 }

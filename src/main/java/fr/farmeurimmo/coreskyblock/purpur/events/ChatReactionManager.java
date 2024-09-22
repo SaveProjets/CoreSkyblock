@@ -65,7 +65,7 @@ public class ChatReactionManager {
         if (message.equalsIgnoreCase(chatReactions.get(selectedWord))) {
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 Bukkit.broadcast(Component.text("§6§lChatReaction §8» §f" + p.getName() + " a recopié le mot en §a" +
-                        DateUtils.getFormattedTimeLeft2(System.currentTimeMillis() - timeStart) + "§f."));
+                        DateUtils.getElapsedTimeInSeconds(System.currentTimeMillis() - timeStart) + "§f."));
                 isRunning = false;
 
                 SkyblockUser user = SkyblockUsersManager.INSTANCE.getCachedUsers().get(p.getUniqueId());
