@@ -2,6 +2,7 @@ package fr.farmeurimmo.coreskyblock.purpur.listeners;
 
 import fr.farmeurimmo.coreskyblock.purpur.CoreSkyblock;
 import fr.farmeurimmo.coreskyblock.purpur.chat.ChatDisplayManager;
+import fr.farmeurimmo.coreskyblock.purpur.events.ChatReactionManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsCooldownManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsTopManager;
@@ -28,6 +29,10 @@ public class ChatListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
+
+        if (ChatReactionManager.INSTANCE.isRunning) {
+            ChatReactionManager.INSTANCE.end(p, e.getMessage());
+        }
 
         Island island = IslandsManager.INSTANCE.getIslandOf(p.getUniqueId());
 

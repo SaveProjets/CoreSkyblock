@@ -38,7 +38,6 @@ import fr.farmeurimmo.coreskyblock.purpur.items.sacs.CustomSacsListener;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsCmd;
 import fr.farmeurimmo.coreskyblock.purpur.items.sacs.SacsManager;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatListener;
-import fr.farmeurimmo.coreskyblock.purpur.listeners.ChatReactionListener;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.PlayerListener;
 import fr.farmeurimmo.coreskyblock.purpur.listeners.SpawnProtectionListener;
 import fr.farmeurimmo.coreskyblock.purpur.minions.MinionsCmd;
@@ -209,7 +208,6 @@ public final class CoreSkyblock extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldsListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new FeatherFlyListener(), this);
-        getServer().getPluginManager().registerEvents(new ChatReactionListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new ChestsListener(), this);
         getServer().getPluginManager().registerEvents(new MinionsListener(), this);
