@@ -26,14 +26,25 @@ public class SpawnCmd implements CommandExecutor, TabCompleter {
                     return false;
                 }
                 target.sendActionBar(Component.text("§aTéléportation au spawn par la force..."));
-                target.teleportAsync(CoreSkyblock.SPAWN).thenRun(() -> {
+                if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+                    target.teleportAsync(CoreSkyblock.SPAWN).thenRun(() -> {
+                        sender.sendMessage(Component.text("§aVous avez téléporté §e" + target.getName() + " §aau spawn."));
+                        target.sendMessage(Component.text("§aVous avez été téléporté au spawn par §e" + sender.getName() + "§a."));
+                        target.sendActionBar(Component.text("§aVous avez été téléporté au spawn."));
+                    }).exceptionally(throwable -> {
+                        sender.sendMessage(Component.text("§cErreur lors de la téléportation au spawn !"));
+                        return null;
+                    });
+                } else {
+                    String server = CoreSkyblock.INSTANCE.getASpawnServer();
+                    if (server == null) {
+                        sender.sendMessage(Component.text("§cErreur, aucun serveur de spawn disponible !"));
+                        return false;
+                    }
+                    CoreSkyblock.INSTANCE.sendToServer(target, server);
                     sender.sendMessage(Component.text("§aVous avez téléporté §e" + target.getName() + " §aau spawn."));
                     target.sendMessage(Component.text("§aVous avez été téléporté au spawn par §e" + sender.getName() + "§a."));
-                    target.sendActionBar(Component.text("§aVous avez été téléporté au spawn."));
-                }).exceptionally(throwable -> {
-                    sender.sendMessage(Component.text("§cErreur lors de la téléportation au spawn !"));
-                    return null;
-                });
+                }
                 return false;
             }
         }
