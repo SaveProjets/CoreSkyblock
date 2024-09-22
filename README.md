@@ -153,6 +153,10 @@ coreskyblock → island:coop_check_response:{uuid}:{server_name}
 
 coreskyblock → island:want_to_join:{want_to_join_uuid}:{want_to_join_name}:{inviter_uuid}
 
+#### Island remote_teleport
+
+coreskyblock → island:remote_teleport:{uuid}:{island_uuid}:{server_name}
+
 ### Fonctionnement
 
 Mis à jour environ toutes les 3-5 minutes et lors d'actions importantes (création, suppression, etc).

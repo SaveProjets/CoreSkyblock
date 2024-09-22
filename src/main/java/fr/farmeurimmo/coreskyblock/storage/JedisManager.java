@@ -374,6 +374,7 @@ public class JedisManager {
                                     return null;
                                 });
                                 JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:to_player_chat:" + wantToJoin + ":" + CoreSkyblock.SERVER_NAME + ":§aVous avez rejoint l'île de " + island.getName() + ".");
+                                JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_teleport:" + wantToJoin + ":" + island.getIslandUUID() + ":" + CoreSkyblock.SERVER_NAME);
                                 island.sendMessageToAll("§a" + wantToJoinName + " a rejoint l'île.");
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -456,6 +457,25 @@ public class JedisManager {
                                     IslandsManager.INSTANCE.wantToTeleport.remove(islandUUID);
                                     return null;
                                 });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (args[1].equalsIgnoreCase("remote_teleport")) {
+                            try {
+                                UUID playerUUID = UUID.fromString(args[2]);
+                                UUID islandUUID = UUID.fromString(args[3]);
+                                String serverName = args[4];
+                                if (CoreSkyblock.SERVER_NAME.equalsIgnoreCase(serverName)) {
+                                    return;
+                                }
+                                Player p = CoreSkyblock.INSTANCE.getServer().getPlayer(playerUUID);
+                                if (p == null) return;
+
+                                Island island = IslandsDataManager.INSTANCE.getCache().get(islandUUID);
+                                if (island == null) return;
+
+                                IslandsManager.INSTANCE.teleportToIsland(island, p);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

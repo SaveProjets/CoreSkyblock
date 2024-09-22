@@ -572,7 +572,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             ArrayList<String> completions = new ArrayList<>(Arrays.asList("create", "join", "accept", "go", "chat",
                     "warpbrowser", "bank", "banque", "warp", "level", "delete", "supprimer", "sethome", "setname",
                     "leave", "quitter", "quit", "partir", "makeleader", "leader", "coop", "uncoop", "rate",
-                    "top", "private", "public", "invite", "cancelinvite"));
+                    "top", "private", "public", "invite", "cancelinvite", "kick", "expulser", "expel", "ban",
+                    "bannir", "unban", "debannir", "ban"));
             if (p.hasPermission("coreskyblock.mod")) {
                 completions.add("spy");
                 completions.add("bypass");
