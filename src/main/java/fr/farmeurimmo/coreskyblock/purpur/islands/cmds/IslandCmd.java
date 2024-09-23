@@ -7,14 +7,12 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.IslandsWarpManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.chat.IslandsChatManager;
 import fr.farmeurimmo.coreskyblock.purpur.islands.invs.*;
 import fr.farmeurimmo.coreskyblock.purpur.islands.levels.IslandsLevelCalculator;
-import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.IslandsMaxMembersManager;
 import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -150,52 +148,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 p.sendMessage(Component.text("§cLe joueur n'est pas en ligne."));
                 return false;
             }
-            if (!island.isReadOnly()) {
-                if (!island.hasPerms(rank, IslandPerms.INVITES, p.getUniqueId())) {
-                    p.sendMessage(Component.text("§cVous n'avez pas la permission d'inviter des joueurs."));
-                    return false;
-                }
-                if (island.getMembers().containsKey(targetPlayer.left())) {
-                    p.sendMessage(Component.text("§cLe joueur est déjà membre de l'île."));
-                    return false;
-                }
-                if (island.getBannedPlayers().contains(targetPlayer.left())) {
-                    p.sendMessage(Component.text("§cLe joueur est banni de l'île."));
-                    return false;
-                }
-                if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(), island.getMembers().size())) {
-                    p.sendMessage(Component.text("§cL'île est pleine."));
-                    return false;
-                }
-                if (island.isInvited(targetPlayer.left())) {
-                    p.sendMessage(Component.text("§cLe joueur a déjà été invité."));
-                    return false;
-                }
-                island.addInvite(targetPlayer.left());
-                Player target = p.getServer().getPlayer(targetPlayer.left());
-                Component toSend = Component.text("§aVous avez été invité à rejoindre l'île de " +
-                                p.getName() + ". " + "Elle expire dans 1 minute.\n")
-                        .append(Component.text("§2[Cliquez sur ce message pour accepter l'invitation.]")
-                                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/is accept " + p.getName()))
-                                .hoverEvent(Component.text("§aAccepter l'invitation")));
-                if (target != null) {
-                    target.sendMessage(toSend);
-                } else {
-                    CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
-                            "island:to_player_chat:" + targetPlayer.left() + ":" + CoreSkyblock.SERVER_NAME + ":" +
-                                    "\n§aVous avez été invité à rejoindre l'île de " + p.getName() +
-                                    ". §cElle expire dans 1 minute.\n§6Faites §e/is accept " + p.getName() + "§6 pour accepter l'invitation.\n"));
-                }
-
-                p.sendMessage(Component.text("§aLe joueur a été invité."));
-                island.sendMessage("§a" + targetPlayer.right() + " a été invité à rejoindre l'île.", IslandPerms.INVITES);
-                return false;
-            }
-            //FIXME: pubsub with same check as above, may make a method for both to prevent duplicate code
-            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_invite:" +
-                    p.getUniqueId() + ":" + p.getName() + ":" +  targetPlayer.left() + ":" + targetPlayer.right() +
-                    ":" + island.getIslandUUID() + ":" + CoreSkyblock.SERVER_NAME));
             p.sendMessage(Component.text("§cVotre requête est en cours de traitement, veuillez patienter."));
+            IslandsManager.INSTANCE.invitationLogic(island, p.getUniqueId(), p.getName(), targetPlayer.left(), targetPlayer.right());
             return false;
         }
 

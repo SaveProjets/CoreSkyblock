@@ -17,8 +17,11 @@ import fr.farmeurimmo.coreskyblock.storage.JedisManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandRanksManager;
 import fr.farmeurimmo.coreskyblock.storage.islands.IslandsDataManager;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
+import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandRanks;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandSettings;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -756,5 +759,66 @@ public class IslandsManager {
         }
 
         return chunks;
+    }
+
+    public void invitationLogic(Island island, UUID emitterUUID, String emitterName, UUID receiverUUID, String receiverName) {
+        IslandRanks rank = island.getMembers().get(emitterUUID);
+        if (rank == null) {
+            sendToPlayerOrViaRedis(Bukkit.getPlayer(emitterUUID), emitterUUID, "§cVous n'êtes pas membre de l'île.");
+            return;
+        }
+
+        Player p = Bukkit.getPlayer(emitterUUID);
+        if (!island.hasPerms(rank, IslandPerms.INVITES, emitterUUID)) {
+            sendToPlayerOrViaRedis(p, emitterUUID, "§cVous n'avez pas la permission d'inviter des joueurs.");
+            return;
+        }
+        if (island.getMembers().containsKey(receiverUUID)) {
+            sendToPlayerOrViaRedis(p, emitterUUID, "§cLe joueur est déjà membre de l'île.");
+            return;
+        }
+        if (island.getBannedPlayers().contains(receiverUUID)) {
+            sendToPlayerOrViaRedis(p, emitterUUID, "§cLe joueur est banni de l'île.");
+            return;
+        }
+        if (IslandsMaxMembersManager.INSTANCE.isFull(island.getMaxMembers(), island.getMembers().size())) {
+            sendToPlayerOrViaRedis(p, emitterUUID, "§cL'île est pleine.");
+            return;
+        }
+        if (island.isInvited(receiverUUID)) {
+            sendToPlayerOrViaRedis(p, emitterUUID, "§cLe joueur a déjà été invité.");
+            return;
+        }
+
+        if (!island.isReadOnly()) island.addInvite(receiverUUID);
+
+        Player target = Bukkit.getPlayer(receiverUUID);
+        Component toSend = Component.text("§aVous avez été invité à rejoindre l'île de " +
+                        emitterName + ". " + "Elle expire dans 1 minute.\n")
+                .append(Component.text("§2[Cliquez sur ce message pour accepter l'invitation.]")
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/is accept " + emitterName))
+                        .hoverEvent(Component.text("§aAccepter l'invitation")));
+        if (target != null) {
+            target.sendMessage(toSend);
+        } else {
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                    "island:to_player_chat:" + receiverUUID + ":" + CoreSkyblock.SERVER_NAME + ":" +
+                            "\n§aVous avez été invité à rejoindre l'île de " + emitterName +
+                            ". §cElle expire dans 1 minute.\n§6Faites §e/is accept " + emitterName +
+                            "§6 pour accepter l'invitation.\n"));
+        }
+
+        sendToPlayerOrViaRedis(p, emitterUUID, "§a" + receiverName + " a été invité à rejoindre l'île.");
+
+        island.sendMessage("§a" + receiverName + " a été invité à rejoindre l'île.", IslandPerms.INVITES);
+    }
+
+    public void sendToPlayerOrViaRedis(Player p, UUID uuid, String message) {
+        if (p != null) {
+            p.sendMessage(Component.text(message));
+        } else {
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock",
+                    "island:to_player_chat:" + uuid + ":" + CoreSkyblock.SERVER_NAME + ":" + message));
+        }
     }
 }

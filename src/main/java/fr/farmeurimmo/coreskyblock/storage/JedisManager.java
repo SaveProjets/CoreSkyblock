@@ -497,7 +497,7 @@ public class JedisManager {
 
                                 if (island.isReadOnly()) return;
 
-                                //FIXME: method to check (and prevent code duplication DRY)
+                                IslandsManager.INSTANCE.invitationLogic(island, emiterUUID, emitterName, targetUUID, targetName);
                                 return;
                             } catch (Exception e) {
                                 e.printStackTrace();
