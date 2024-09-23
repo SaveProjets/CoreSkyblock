@@ -148,8 +148,14 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 p.sendMessage(Component.text("§cLe joueur n'est pas en ligne."));
                 return false;
             }
+            if (!island.isReadOnly()) {
+                IslandsManager.INSTANCE.invitationLogic(island, p.getUniqueId(), p.getName(), targetPlayer.left(), targetPlayer.right());
+                return false;
+            }
             p.sendMessage(Component.text("§cVotre requête est en cours de traitement, veuillez patienter."));
-            IslandsManager.INSTANCE.invitationLogic(island, p.getUniqueId(), p.getName(), targetPlayer.left(), targetPlayer.right());
+            CompletableFuture.runAsync(() -> JedisManager.INSTANCE.publishToRedis("coreskyblock", "island:remote_invite:" +
+                    p.getUniqueId() + ":" + p.getName() + ":" + targetPlayer.left() + ":" + targetPlayer.right() +
+                    ":" + island.getIslandUUID() + ":" + CoreSkyblock.SERVER_NAME));
             return false;
         }
 
