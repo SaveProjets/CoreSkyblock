@@ -113,7 +113,6 @@ public class IslandsBlocksLimiterManager {
         final int minY = IslandsManager.INSTANCE.getIslandWorld(island.getIslandUUID()).getMinHeight();
 
         final Map<Material, Integer> values = new HashMap<>();
-        values.put(Material.CHEST, 0);
         values.put(Material.HOPPER, 0);
         values.put(Material.SPAWNER, 0);
 
