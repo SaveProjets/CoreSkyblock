@@ -15,6 +15,7 @@ public class SacsManager {
     public static final String NAME_FORMAT = "§lSac de %s";
     public static final String LORE_FORMAT = "§6x%d %s";
     public static final int MAX_AMOUNT = 5_000;
+    public static final Material MATERIAL = Material.PAPER;
     public static SacsManager INSTANCE;
 
     public SacsManager() {
@@ -22,7 +23,7 @@ public class SacsManager {
     }
 
     public ItemStack createSacs(SacsType type, int amount) {
-        ItemStack item = new ItemStack(Material.CHEST);
+        ItemStack item = new ItemStack(MATERIAL);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(Component.text(String.format(NAME_FORMAT, type.getName())));
         meta.lore(List.of(Component.text(LORE_FORMAT.formatted(amount, type.getName())),
@@ -31,6 +32,7 @@ public class SacsManager {
                 Component.text("§7en un seul endroit."), Component.text(""),
                 Component.text("§7Clic droit pour ouvrir.")));
         meta.setUnbreakable(true);
+        meta.setCustomModelData(10468);
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
         item.setItemMeta(meta);
@@ -43,7 +45,7 @@ public class SacsManager {
 
     public int getAmount(ItemStack itemStack, SacsType sacsType) {
         if (itemStack == null) return -1;
-        if (itemStack.getType() != Material.CHEST) return -1;
+        if (itemStack.getType() != MATERIAL) return -1;
         if (!itemStack.hasItemMeta()) return -1;
         if (!itemStack.getItemMeta().hasLore()) return -1;
         if (!itemStack.getItemMeta().isUnbreakable()) return -1;

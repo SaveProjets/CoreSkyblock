@@ -17,7 +17,7 @@ check_command "Gradle shadowJar"
 
 PRIVATE_KEY_FILE="$HOME/.ssh/edmine_farmeur"
 LOCAL_JAR_FILE="$HOME/IdeaProjects/CoreSkyblock/build/libs/CoreSkyblock-1.0.0-SNAPSHOT-all.jar"
-SFTP_HOST="45.13.119.124"
+SFTP_HOST="45.13.119.233"
 SFTP_USERNAME="farmeur"
 SFTP_PORT="22"
 
