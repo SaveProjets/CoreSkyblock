@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public class SkyblockUsersManager {
 
@@ -21,7 +20,8 @@ public class SkyblockUsersManager {
             "last_prestige_level_claimed INT DEFAULT 0, current_premium_prestige_level INT DEFAULT 0, " +
             "last_premium_prestige_level_claimed INT DEFAULT 0, own_premium_prestige BOOLEAN DEFAULT FALSE, " +
             "last_special_books TEXT DEFAULT '', pvp_kills INT DEFAULT 0, pvp_deaths INT DEFAULT 0, pve_deaths INT DEFAULT 0, " +
-            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+            "INDEX idx_money (money))";
     public static SkyblockUsersManager INSTANCE;
     private final Map<UUID, SkyblockUser> cache = new HashMap<>();
     private final LinkedHashMap<String, Double> baltop = new LinkedHashMap<>();
@@ -45,15 +45,15 @@ public class SkyblockUsersManager {
                 this.baltop.putAll(baltop);
                 return null;
             });
-        }, 0, 20 * 60 * 3 - 20);
+        }, 0, 20 * 60 - 20);
 
-        CompletableFuture.runAsync(() -> {
+        Bukkit.getScheduler().runTaskLater(CoreSkyblock.INSTANCE, () -> {
             LinkedHashMap<String, Double> baltop = getBaltop();
             Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                 this.baltop.putAll(baltop);
                 return null;
             });
-        });
+        }, 20 * 5);
 
         try (Connection connection = DatabaseManager.INSTANCE.getConnection();
              PreparedStatement statement = connection.prepareStatement(CREATE_SKYBLOCK_USERS_TABLE)) {

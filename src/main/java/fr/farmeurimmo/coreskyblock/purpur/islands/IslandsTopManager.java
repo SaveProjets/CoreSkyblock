@@ -23,17 +23,17 @@ public class IslandsTopManager {
     private final LinkedHashMap<Pair<UUID, String>, Double> topIslands = new LinkedHashMap<>();
     private final LinkedHashMap<Pair<UUID, String>, Double> topBankMoney = new LinkedHashMap<>();
     private final LinkedHashMap<Pair<UUID, String>, Double> topWarpRate = new LinkedHashMap<>();
-    private final long time_between_updates = 5 * 60 * 1000;
+    private final long time_between_updates = 30 * 1000;
     private long lastUpdate = System.currentTimeMillis();
     private long nextUpdate = -1;
 
     public IslandsTopManager() {
         INSTANCE = this;
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::updateTops, 0, 20 * 60 * 5 - 20);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, this::updateTops, 0, 20 * 30 - 20);
 
         if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
-            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(false), 0, 20 * 3);
+            Bukkit.getScheduler().runTaskTimerAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(false), 0, 20);
         }
     }
 
@@ -60,31 +60,31 @@ public class IslandsTopManager {
         topBankMoney.clear();
         topWarpRate.clear();
 
-        CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTop()).thenAccept(islands -> {
-            Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                topIslands.putAll(islands);
-                return null;
-            });
-        }).thenRunAsync(() -> {
-            CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTopBankMoney()).thenAccept(bankMoney -> {
-                Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+        CompletableFuture<Void> future1 = CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTop())
+                .thenAccept(islands -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    topIslands.putAll(islands);
+                    return null;
+                }));
+
+        CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTopBankMoney())
+                .thenAccept(bankMoney -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
                     topBankMoney.putAll(bankMoney);
                     return null;
-                });
-            }).thenRunAsync(() -> {
-                CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTopWarpRate()).thenAccept(warpRate -> {
-                    Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
-                        topWarpRate.putAll(warpRate);
+                }));
 
-                        lastUpdate = System.currentTimeMillis();
-                        nextUpdate = lastUpdate + time_between_updates;
+        CompletableFuture<Void> future3 = CompletableFuture.supplyAsync(() -> IslandsDataManager.INSTANCE.getIslandTopWarpRate())
+                .thenAccept(warpRate -> Bukkit.getScheduler().callSyncMethod(CoreSkyblock.INSTANCE, () -> {
+                    topWarpRate.putAll(warpRate);
+                    return null;
+                }));
 
-                        if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN)
-                            Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(true), 20L);
-                        return null;
-                    });
-                });
-            });
+        CompletableFuture.allOf(future1, future2, future3).thenRun(() -> {
+            lastUpdate = System.currentTimeMillis();
+            nextUpdate = lastUpdate + time_between_updates;
+
+            if (CoreSkyblock.SERVER_TYPE == ServerType.SPAWN) {
+                Bukkit.getScheduler().runTaskLaterAsynchronously(CoreSkyblock.INSTANCE, () -> updateHolograms(true), 20L);
+            }
         });
     }
 
@@ -101,7 +101,6 @@ public class IslandsTopManager {
         }
 
         HologramPage page = hologram.getPage(0);
-
 
         if (full) {
             LinkedHashMap<Pair<UUID, String>, Double> topIslands = IslandsTopManager.INSTANCE.getTopIslands(topType);
@@ -120,6 +119,7 @@ public class IslandsTopManager {
                 page.setLine(j, "");
             }
         }
+
         page.setLine(page.size() - 1, "§7Mise à jour dans: §6" + getTimeUntilRefresh());
     }
 

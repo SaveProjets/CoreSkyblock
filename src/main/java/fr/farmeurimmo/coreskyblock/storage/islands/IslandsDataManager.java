@@ -27,7 +27,8 @@ public class IslandsDataManager {
     private static final String CREATE_ISLANDS_TABLE = "CREATE TABLE IF NOT EXISTS islands (uuid VARCHAR(36) " +
             "PRIMARY KEY, name VARCHAR(255), spawn VARCHAR(255), upgrade_size TINYINT, upgrade_members TINYINT, " +
             "upgrade_generator TINYINT, upgrade_hoppers TINYINT, upgrade_spawners INT, bank_money DOUBLE, " +
-            "is_public BOOLEAN, exp DOUBLE, level FLOAT, effects_level VARCHAR(32), created_at TIMESTAMP, updated_at TIMESTAMP)";
+            "is_public BOOLEAN, exp DOUBLE, level FLOAT, effects_level VARCHAR(32), created_at TIMESTAMP, " +
+            "updated_at TIMESTAMP, INDEX idx_bank_money (bank_money), INDEX idx_level (level))";
     private static final String CREATE_ISLAND_MEMBERS_TABLE = "CREATE TABLE IF NOT EXISTS island_members (island_uuid "
             + "VARCHAR(36), username VARCHAR(36), uuid VARCHAR(36), rank_id TINYINT, created_at TIMESTAMP, " +
             "updated_at TIMESTAMP, PRIMARY KEY(island_uuid, uuid), FOREIGN KEY(island_uuid) " +
@@ -50,7 +51,7 @@ public class IslandsDataManager {
     private static final String CREATE_ISLAND_WARPS_TABLE = "CREATE TABLE IF NOT EXISTS island_warps " +
             "(uuid VARCHAR(36) PRIMARY KEY, island_uuid VARCHAR(36), name VARCHAR(255), description VARCHAR(1024), " +
             "categories VARCHAR(255), loc_tp VARCHAR(255), forward BIGINT, is_activated BOOL, material VARCHAR(96), " +
-            "rate DOUBLE, created_at TIMESTAMP, updated_at TIMESTAMP, FOREIGN KEY(island_uuid) REFERENCES " +
+            "rate DOUBLE, created_at TIMESTAMP, updated_at TIMESTAMP, INDEX idx_rate (rate), FOREIGN KEY(island_uuid) REFERENCES " +
             "islands(uuid) ON DELETE CASCADE)";
     private static final String CREATE_ISLAND_WARPS_ALREADY_RATED_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "island_warps_already_rated (island_uuid VARCHAR(36), player_uuid VARCHAR(36), last_rate LONG, " +

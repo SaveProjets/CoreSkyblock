@@ -41,12 +41,13 @@ public class PlayerListener implements Listener {
         e.joinMessage(null);
 
         CompletableFuture.runAsync(() -> {
-            SyncUsersManager.INSTANCE.startPlayerSync(p);
             SkyblockUser user = SkyblockUsersManager.INSTANCE.loadUser(p.getUniqueId(), p.getName());
             if (user == null) {
                 p.kick(Component.text("§cErreur lors de la connexion au serveur, veuillez réessayer plus tard !"));
                 return;
             }
+            SyncUsersManager.INSTANCE.startPlayerSync(p);
+
             IslandsManager.INSTANCE.checkForDataIntegrity(null, p.getUniqueId(), false);
             if (p.hasPermission("coreskyblock.mod")) {
                 String bypass = JedisManager.INSTANCE.getFromRedis("coreskyblock:island:bypass:" + p.getUniqueId());
