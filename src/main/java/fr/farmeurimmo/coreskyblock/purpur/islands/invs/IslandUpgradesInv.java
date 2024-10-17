@@ -6,6 +6,7 @@ import fr.farmeurimmo.coreskyblock.purpur.islands.upgrades.*;
 import fr.farmeurimmo.coreskyblock.storage.islands.Island;
 import fr.farmeurimmo.coreskyblock.storage.islands.enums.IslandPerms;
 import fr.farmeurimmo.coreskyblock.utils.CommonItemStacks;
+import fr.farmeurimmo.coreskyblock.utils.FontsUtils;
 import fr.mrmicky.fastinv.FastInv;
 import fr.mrmicky.fastinv.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -109,7 +110,9 @@ public class IslandUpgradesInv extends FastInv {
     }
 
     private void setUpgradeItem(int slot, ItemStack itemStack, String name, List<String> lore, BiConsumer<Island, Player> upgradeAction, Island island) {
-        setItem(slot, ItemBuilder.copyOf(itemStack).name(name).lore(lore).flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build(), e -> {
+        setItem(slot, ItemBuilder.copyOf(itemStack).name(name)
+                .edit(item -> item.editMeta(itemMeta -> itemMeta.lore(FontsUtils.applyFont(lore))))
+                .flags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build(), e -> {
             Player player = (Player) e.getWhoClicked();
             if (island.isReadOnly()) {
                 IslandsManager.INSTANCE.sendPlayerIslandReadOnly(player);
