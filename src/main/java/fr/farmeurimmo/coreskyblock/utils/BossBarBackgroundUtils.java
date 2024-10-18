@@ -8,22 +8,27 @@ public class BossBarBackgroundUtils {
     // good example: §f䧼䧼䧼䧼䧼CoreSkyblock
 
     public static BossBar getBossBarWithText(String text) {
-        return BossBar.bossBar(Component.text(applyBackGround(text)), 1.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
+        return BossBar.bossBar(applyBackGround(text), 1.0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
     }
 
-    public static String applyBackGround(String text) {
-        StringBuilder builder = new StringBuilder();
+    private static Component createRepeatedComponent(String text, int count) {
+        return Component.text(text.repeat(Math.max(0, count)));
+    }
 
+    public static Component applyBackGround(String text) {
         String[] texts = text.split("\\|");
 
+        Component textComponent = Component.text("");
+
         for (String txt : texts) {
-            builder.append("\uF801䧼".repeat(Math.max(0, (txt.length() + 1) / 2)));
-            builder.append("\uF806".repeat(txt.length()));
-            builder.append(txt);
-            builder.append(" ".repeat(4));
+            textComponent = textComponent
+                    .append(createRepeatedComponent("\uF801䧼", (txt.length() + 1) / 2))
+                    .append(createRepeatedComponent("\uF806", txt.length()))
+                    .append(FontsUtils.applyFont(txt))
+                    .append(FontsUtils.applyFont(" ".repeat(4)));
         }
 
-        return builder.toString();
+        return textComponent;
 
         /*String[] texts = text.split("\\|");
         StringBuilder builder = new StringBuilder();
